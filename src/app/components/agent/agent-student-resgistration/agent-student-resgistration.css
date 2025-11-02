@@ -1,18 +1,32 @@
 /*
- * Premium Student Registration Form - Professional Design System
+ * Premium Student Registration Form - Enhanced Professional Design
  * Completely standalone with NO dependencies on parent CSS
  * All classes prefixed with 'reg-' to avoid conflicts
  */
 
+:root {
+  --primary-color: #4F46E5;
+  --primary-hover: #4338CA;
+  --success-color: #10B981;
+  --error-color: #EF4444;
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  --border-color: #E2E8F0;
+  --bg-light: #F8FAFC;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
 :host {
   display: block;
-  animation: regPageSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: regPageSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes regPageSlideIn {
   from { 
     opacity: 0; 
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to { 
     opacity: 1; 
@@ -25,60 +39,104 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #E2E8F0;
-  animation: regHeaderSlide 0.6s ease-out;
+  margin-bottom: 48px;
+  padding-bottom: 28px;
+  border-bottom: 2px solid var(--border-color);
+  animation: regHeaderSlide 0.7s ease-out;
+  position: relative;
+}
+
+.reg-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-color), transparent);
+  animation: regHeaderLine 0.8s ease-out 0.2s both;
+}
+
+@keyframes regHeaderLine {
+  from { width: 0; }
+  to { width: 120px; }
 }
 
 @keyframes regHeaderSlide {
-  from { opacity: 0; transform: translateX(-20px); }
+  from { opacity: 0; transform: translateX(-30px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 .reg-header h2 {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  color: #1E293B;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   letter-spacing: -0.5px;
+  margin: 0;
 }
 
 .reg-header h2 svg {
   color: var(--primary-color);
+  filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.2));
+  animation: regIconFloat 3s ease-in-out infinite;
+}
+
+@keyframes regIconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
 .reg-close-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid #E2E8F0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color);
   background: white;
-  color: #64748B;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.reg-close-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #FEE2E2, #FECACA);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.reg-close-btn:hover::before {
+  opacity: 1;
 }
 
 .reg-close-btn:hover {
-  background: #FEE2E2;
   color: #DC2626;
   border-color: #FECACA;
-  transform: scale(1.05);
+  transform: scale(1.08) rotate(90deg);
 }
 
 .reg-close-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.95) rotate(90deg);
+}
+
+.reg-close-btn svg {
+  position: relative;
+  z-index: 1;
 }
 
 /* --- Form Container --- */
 form {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -86,23 +144,22 @@ form {
 .reg-form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 28px; /* Increased gap for better spacing */
-  margin-bottom: 32px;
-  animation: regGridFadeIn 0.6s ease-out 0.1s both;
+  gap: 40px 48px; /* Vertical gap: 40px, Horizontal gap: 48px */
+  margin-bottom: 40px;
+  animation: regGridFadeIn 0.7s ease-out 0.2s both;
 }
 
 @keyframes regGridFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .reg-form-group {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Increased gap between label and input */
+  gap: 12px;
   position: relative;
-  animation: regFieldSlideIn 0.5s ease-out both;
-  padding: 8px 0; /* Added padding for better vertical spacing */
+  animation: regFieldSlideIn 0.6s ease-out both;
 }
 
 /* Grid column spans */
@@ -123,83 +180,76 @@ form {
 @keyframes regFieldSlideIn {
   from { 
     opacity: 0; 
-    transform: translateX(-15px) scale(0.98); 
+    transform: translateY(20px) scale(0.98); 
   }
   to { 
     opacity: 1; 
-    transform: translateX(0) scale(1); 
+    transform: translateY(0) scale(1); 
   }
 }
 
-/* --- Professional Label Styling with Icons --- */
+/* --- Professional Label Styling with Colorful Icons --- */
 .reg-form-group label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: #64748B;
-  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
   text-transform: uppercase;
-  transition: color 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 0;
+  gap: 8px;
+  padding: 0;
 }
 
-.reg-form-group label::before {
-  font-size: 14px;
+.reg-form-group label .icon {
+  font-size: 18px;
   transition: transform 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
-.reg-form-group label::after {
-  content: '*';
-  color: #EF4444;
-  font-size: 12px;
+.reg-form-group:hover label .icon {
+  transform: scale(1.15) rotate(5deg);
+}
+
+.reg-form-group:focus-within label {
+  color: var(--primary-color);
+}
+
+.reg-form-group:focus-within label .icon {
+  transform: scale(1.2) rotate(-5deg);
+}
+
+.reg-form-group label .required {
+  color: var(--error-color);
+  font-size: 14px;
   margin-left: 2px;
-}
-
-/* Colorful Icons for different field types */
-.reg-form-group:nth-child(1) label::before { content: '👤'; } /* Full Name */
-.reg-form-group:nth-child(2) label::before { content: '📅'; } /* Date of Birth */
-.reg-form-group:nth-child(3) label::before { content: '🎂'; } /* Age */
-.reg-form-group:nth-child(4) label::before { content: '📧'; } /* Email */
-.reg-form-group:nth-child(5) label::before { content: '📱'; } /* Contact */
-.reg-form-group:nth-child(6) label::before { content: '🏢'; } /* State */
-.reg-form-group:nth-child(7) label::before { content: '📍'; } /* District */
-.reg-form-group:nth-child(8) label::before { content: '🏠'; } /* Address */
-.reg-form-group:nth-child(9) label::before { content: '🚨'; } /* Emergency Contact */
-.reg-form-group:nth-child(10) label::before { content: '👨‍👩‍👧‍👦'; } /* Relation */
-.reg-form-group:nth-child(11) label::before { content: '🛂'; } /* Passport */
-.reg-form-group:nth-child(12) label::before { content: '📋'; } /* Passport Valid */
-.reg-form-group:nth-child(13) label::before { content: '🎓'; } /* Degree */
-.reg-form-group:nth-child(14) label::before { content: '📊'; } /* Marks */
-.reg-form-group:nth-child(15) label::before { content: '🎯'; } /* Applying For */
-.reg-form-group:nth-child(16) label::before { content: '🏫'; } /* College */
-
-/* Hover effects for icons */
-.reg-form-group:hover label::before {
-  transform: scale(1.2) rotate(5deg);
 }
 
 /* --- Refined Input Styling with Enhanced Spacing --- */
 .reg-form-group input,
 .reg-form-group select {
   width: 100%;
-  height: 46px; /* Slightly increased height */
-  padding: 0 16px; /* Increased padding */
-  border: 1.5px solid #E2E8F0;
-  border-radius: 10px; /* Slightly more rounded */
-  font-size: 14px;
-  background: #FFFFFF;
+  height: 52px;
+  padding: 0 18px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 15px;
+  background: white;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #1E293B;
+  color: var(--text-primary);
   font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .reg-form-group input::placeholder {
   color: #94A3B8;
   font-weight: 400;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* Professional focus state */
@@ -207,26 +257,25 @@ form {
 .reg-form-group select:focus {
   outline: none;
   border-color: var(--primary-color);
-  background: #FFFFFF;
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
-  transform: translateY(-1px);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1), 0 4px 12px rgba(79, 70, 229, 0.15);
+  transform: translateY(-2px);
 }
 
 /* Hover state */
 .reg-form-group input:hover:not(:focus):not(:read-only),
 .reg-form-group select:hover:not(:focus):not(:disabled) {
   border-color: #CBD5E1;
-  background: #F8FAFC;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  background: var(--bg-light);
+  box-shadow: var(--shadow-md);
 }
 
 /* Read-only and disabled states */
 .reg-form-group input:read-only {
   background: #F1F5F9;
-  color: #64748B;
+  color: var(--text-secondary);
   cursor: not-allowed;
-  border-color: #E2E8F0;
+  border-color: var(--border-color);
   font-weight: 400;
 }
 
@@ -239,35 +288,35 @@ form {
 /* --- Validation Styling --- */
 .reg-form-group input.ng-invalid.ng-touched,
 .reg-form-group select.ng-invalid.ng-touched {
-  border-color: #EF4444;
+  border-color: var(--error-color);
   background: #FEF2F2;
   animation: regShake 0.5s ease;
 }
 
 @keyframes regShake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
 }
 
 .reg-form-group input.ng-invalid.ng-touched:focus,
 .reg-form-group select.ng-invalid.ng-touched:focus {
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1), 0 4px 12px rgba(239, 68, 68, 0.15);
 }
 
 .reg-form-group input.ng-valid.ng-touched,
 .reg-form-group select.ng-valid.ng-touched {
-  border-color: #10B981;
+  border-color: var(--success-color);
   background: #F0FDF4;
 }
 
 .reg-form-error {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: #DC2626;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   animation: regErrorSlideDown 0.3s ease;
   margin-top: 4px;
   padding-left: 4px;
@@ -275,7 +324,7 @@ form {
 
 .reg-form-error::before {
   content: '⚠';
-  font-size: 12px;
+  font-size: 14px;
 }
 
 @keyframes regErrorSlideDown {
@@ -285,21 +334,21 @@ form {
 
 /* --- Professional Section Headers with Enhanced Animation --- */
 .reg-section-header {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1E293B;
-  margin: 48px 0 28px 0; /* Increased margins */
-  padding: 16px 20px; /* Increased padding */
-  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-  border-radius: 12px;
-  border-left: 4px solid var(--primary-color);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 56px 0 32px 0;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #FAFBFC 0%, #F1F5F9 100%);
+  border-radius: 14px;
+  border-left: 5px solid var(--primary-color);
   display: flex;
   align-items: center;
-  gap: 12px;
-  animation: regSectionSlideIn 0.6s ease-out both;
+  gap: 14px;
+  animation: regSectionSlideIn 0.7s ease-out both;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .reg-section-header::before {
@@ -309,8 +358,8 @@ form {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  animation: regShine 3s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: regShine 4s ease-in-out infinite;
 }
 
 @keyframes regShine {
@@ -321,7 +370,7 @@ form {
 @keyframes regSectionSlideIn {
   from { 
     opacity: 0; 
-    transform: translateX(-30px) scale(0.95); 
+    transform: translateX(-40px) scale(0.95); 
   }
   to { 
     opacity: 1; 
@@ -336,14 +385,15 @@ form {
 .reg-section-header svg {
   color: var(--primary-color);
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  animation: regIconBounce 0.6s ease-out 0.2s both;
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.2));
+  animation: regIconBounce 0.7s ease-out 0.2s both;
 }
 
 @keyframes regIconBounce {
   0% { transform: scale(0) rotate(-180deg); }
-  60% { transform: scale(1.2) rotate(10deg); }
+  60% { transform: scale(1.15) rotate(10deg); }
   100% { transform: scale(1) rotate(0deg); }
 }
 
@@ -351,72 +401,72 @@ form {
 .reg-form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px; /* Increased gap */
-  margin-top: 48px; /* Increased margin */
-  padding-top: 28px;
-  border-top: 1px solid #E2E8F0;
-  animation: regActionsFadeIn 0.6s ease-out 0.3s both;
+  gap: 18px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 2px solid var(--border-color);
+  animation: regActionsFadeIn 0.7s ease-out 0.3s both;
 }
 
 @keyframes regActionsFadeIn {
-  from { opacity: 0; transform: translateY(15px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Professional Button Styles --- */
 .reg-btn {
-  padding: 14px 28px; /* Increased padding */
+  padding: 16px 32px;
   border: none;
-  border-radius: 10px; /* More rounded */
-  font-size: 14px;
+  border-radius: 12px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
-  gap: 10px; /* Increased gap */
+  gap: 10px;
   justify-content: center;
   text-decoration: none;
   font-family: inherit;
   position: relative;
   overflow: hidden;
-  height: 48px; /* Increased height */
-  min-width: 140px;
+  height: 52px;
+  min-width: 160px;
 }
 
 .reg-btn:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
   transform: none !important;
 }
 
 /* --- Cancel Button (Secondary Style) --- */
 .reg-btn-cancel {
-  background: #FFFFFF;
-  color: #64748B;
-  border: 1.5px solid #E2E8F0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  background: white;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .reg-btn-cancel:hover:not(:disabled) {
-  background: #F8FAFC;
+  background: var(--bg-light);
   color: #475569;
   border-color: #CBD5E1;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .reg-btn-cancel:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(-1px);
 }
 
 /* --- Submit Button (Primary Style) --- */
 .reg-btn-submit {
   background: linear-gradient(135deg, var(--primary-color) 0%, #6366F1 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
   border: none;
-  min-width: 180px;
+  min-width: 200px;
   position: relative;
   overflow: hidden;
 }
@@ -429,24 +479,24 @@ form {
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
   transform: translate(-50%, -50%);
   transition: width 0.6s, height 0.6s;
 }
 
 .reg-btn-submit:hover:not(:disabled)::before {
-  width: 400px;
-  height: 400px;
+  width: 500px;
+  height: 500px;
 }
 
 .reg-btn-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
-  background: linear-gradient(135deg, var(--primary-color) 0%, #4F46E5 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.4);
+  background: linear-gradient(135deg, var(--primary-hover) 0%, #4F46E5 100%);
 }
 
 .reg-btn-submit:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(-1px);
 }
 
 .reg-btn-submit:disabled {
@@ -458,25 +508,25 @@ form {
 .reg-btn-content {
   display: inline-flex;
   align-items: center;
-  gap: 10px; /* Increased gap */
+  gap: 10px;
   transition: all 0.3s ease;
   position: relative;
   z-index: 1;
 }
 
 .reg-btn-content svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .reg-btn-spinner {
   display: none;
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
-  animation: regSpin 0.8s linear infinite;
+  animation: regSpin 0.7s linear infinite;
 }
 
 .reg-btn-loading .reg-btn-content {
@@ -489,8 +539,8 @@ form {
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-top: -10px;
-  margin-left: -10px;
+  margin-top: -11px;
+  margin-left: -11px;
 }
 
 @keyframes regSpin {
@@ -504,15 +554,15 @@ form {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000; /* Increased z-index */
+  z-index: 10000;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .reg-modal-overlay.open {
@@ -522,12 +572,12 @@ form {
 
 .reg-modal-content {
   background: white;
-  border-radius: 20px;
+  border-radius: 24px;
   width: 100%;
-  max-width: 440px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  transform: scale(0.8) translateY(30px);
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 480px;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
+  transform: scale(0.7) translateY(40px);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
 }
@@ -538,7 +588,7 @@ form {
   top: 0;
   left: 0;
   right: 0;
-  height: 5px;
+  height: 6px;
   background: linear-gradient(90deg, #10B981, #059669, #10B981);
   background-size: 200% 100%;
   animation: regGradientShift 3s ease infinite;
@@ -554,13 +604,13 @@ form {
 }
 
 .reg-modal-body {
-  padding: 48px 36px;
+  padding: 56px 40px;
   text-align: center;
 }
 
 .reg-success-icon-wrapper {
-  width: 90px;
-  height: 90px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
   color: #059669;
@@ -569,13 +619,13 @@ form {
   justify-content: center;
   margin: 0 auto;
   position: relative;
-  animation: regSuccessBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+  animation: regSuccessBounce 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
 }
 
 .reg-success-icon-wrapper::before {
   content: '';
   position: absolute;
-  inset: -8px;
+  inset: -10px;
   border-radius: 50%;
   background: linear-gradient(135deg, #10B981, #059669);
   opacity: 0.15;
@@ -584,19 +634,19 @@ form {
 
 @keyframes regSuccessBounce {
   0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-  60% { transform: scale(1.15) rotate(15deg); opacity: 1; }
-  80% { transform: scale(0.95) rotate(-5deg); }
+  60% { transform: scale(1.2) rotate(15deg); opacity: 1; }
+  80% { transform: scale(0.9) rotate(-5deg); }
   100% { transform: scale(1) rotate(0deg); }
 }
 
 @keyframes regRingExpand {
   0% { transform: scale(1); opacity: 0.3; }
-  100% { transform: scale(1.4); opacity: 0; }
+  100% { transform: scale(1.5); opacity: 0; }
 }
 
 .reg-success-icon-wrapper svg {
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   animation: regCheckDraw 0.6s ease-out 0.4s both;
 }
 
@@ -606,23 +656,23 @@ form {
 }
 
 .reg-modal-title {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
-  color: #1E293B;
-  margin-top: 28px;
+  color: var(--text-primary);
+  margin-top: 32px;
   animation: regTitleSlideUp 0.6s ease-out 0.5s both;
 }
 
 @keyframes regTitleSlideUp {
-  from { opacity: 0; transform: translateY(15px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .reg-modal-text {
-  color: #64748B;
-  font-size: 15px;
+  color: var(--text-secondary);
+  font-size: 16px;
   line-height: 1.6;
-  margin-top: 12px;
+  margin-top: 14px;
   animation: regTextFadeIn 0.6s ease-out 0.6s both;
 }
 
@@ -632,56 +682,56 @@ form {
 }
 
 .reg-modal-btn {
-  margin-top: 32px;
+  margin-top: 36px;
   width: 100%;
-  height: 48px;
+  height: 52px;
   animation: regButtonSlideUp 0.6s ease-out 0.7s both;
-  padding: 14px 28px;
+  padding: 16px 32px;
   border: none;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 12px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   background: linear-gradient(135deg, var(--primary-color) 0%, #6366F1 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
 
 .reg-modal-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.4);
 }
 
 @keyframes regButtonSlideUp {
-  from { opacity: 0; transform: translateY(15px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Enhanced Error Message --- */
 .reg-error-message {
   background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
-  border: 1.5px solid #FECACA;
-  border-radius: 12px;
-  padding: 18px 20px;
+  border: 2px solid #FECACA;
+  border-radius: 14px;
+  padding: 20px 24px;
   color: #991B1B;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   animation: regErrorShake 0.6s ease;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
-  margin-bottom: 28px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.12);
+  margin-bottom: 32px;
   position: relative;
   overflow: hidden;
 }
 
 .reg-error-message::before {
   content: '⚠️';
-  font-size: 20px;
+  font-size: 24px;
   flex-shrink: 0;
 }
 
@@ -691,26 +741,27 @@ form {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 4px;
   background: linear-gradient(90deg, #EF4444, #DC2626);
 }
 
-@keyframes regErrorShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px); }
-  75% { transform: translateX(8px); }
-}
-
 .reg-error-message strong {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* --- Responsive Design --- */
+@media (max-width: 1024px) {
+  .reg-form-grid {
+    gap: 32px 40px;
+  }
+}
+
 @media (max-width: 768px) {
   .reg-form-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 28px;
   }
+  
   .reg-form-span-2, 
   .reg-form-span-3, 
   .reg-form-span-4 { 
@@ -718,27 +769,27 @@ form {
   }
   
   .reg-header {
-    margin-bottom: 32px;
+    margin-bottom: 36px;
   }
   
   .reg-header h2 {
-    font-size: 20px;
+    font-size: 22px;
   }
   
   .reg-section-header {
-    font-size: 14px;
-    padding: 14px 16px;
-    margin: 40px 0 20px 0;
+    font-size: 16px;
+    padding: 18px 20px;
+    margin: 44px 0 24px 0;
   }
   
   .reg-section-header svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
   
   .reg-form-actions {
     flex-direction: column-reverse;
-    gap: 12px;
+    gap: 14px;
   }
   
   .reg-form-actions .reg-btn {
@@ -751,49 +802,54 @@ form {
   }
   
   .reg-modal-body {
-    padding: 40px 28px;
+    padding: 44px 32px;
   }
   
   .reg-success-icon-wrapper {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
   }
   
   .reg-success-icon-wrapper svg {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
   }
   
   .reg-modal-title {
-    font-size: 22px;
+    font-size: 24px;
   }
 }
 
 @media (max-width: 480px) {
   .reg-form-group input,
   .reg-form-group select {
-    height: 44px;
-    font-size: 13px;
+    height: 48px;
+    font-size: 14px;
+    padding: 0 16px;
   }
   
   .reg-btn {
-    height: 46px;
-    font-size: 13px;
-    padding: 12px 24px;
+    height: 48px;
+    font-size: 14px;
+    padding: 14px 28px;
   }
   
   .reg-header h2 {
-    font-size: 18px;
-    gap: 8px;
+    font-size: 20px;
+    gap: 10px;
   }
   
   .reg-header h2 svg {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
   
   .reg-form-grid {
-    gap: 16px;
+    gap: 24px;
+  }
+  
+  .reg-section-header {
+    margin: 40px 0 20px 0;
   }
 }
 
@@ -805,18 +861,18 @@ form {
   }
   
   .reg-form-grid {
-    gap: 12px;
+    gap: 16px;
   }
   
   .reg-section-header {
-    background: #F8FAFC;
-    border-left-width: 2px;
+    background: var(--bg-light);
+    border-left-width: 3px;
   }
 }
 
-/* --- Dark mode support (optional) --- */
+/* --- Dark mode support --- */
 @media (prefers-color-scheme: dark) {
-  :host {
+  :root {
     --text-primary: #F1F5F9;
     --text-secondary: #CBD5E1;
     --bg-color: #0F172A;

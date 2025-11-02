@@ -51,30 +51,45 @@
   </h3>
   <div class="reg-form-grid">
     <div class="reg-form-group">
-      <label for="fullName">Full Name</label>
-      <input type="text" id="fullName" name="fullName" [(ngModel)]="student.fullName" required #fullNameInput="ngModel">
+      <label for="fullName">
+        <span class="icon" style="color: #3B82F6;">👤</span>
+        Full Name<span class="required">*</span>
+      </label>
+      <input type="text" id="fullName" name="fullName" [(ngModel)]="student.fullName" required #fullNameInput="ngModel" placeholder="Enter full name">
       <div *ngIf="fullNameInput.invalid && fullNameInput.touched" class="reg-form-error">Full Name is required.</div>
     </div>
     <div class="reg-form-group">
-      <label for="dob">Date of Birth</label>
+      <label for="dob">
+        <span class="icon" style="color: #EC4899;">📅</span>
+        Date of Birth<span class="required">*</span>
+      </label>
       <input type="date" id="dob" name="dob" [(ngModel)]="student.dob" (change)="calculateAge()" required #dobInput="ngModel">
       <div *ngIf="dobInput.invalid && dobInput.touched" class="reg-form-error">Date of Birth is required.</div>
     </div>
     <div class="reg-form-group">
-      <label for="age">Age</label>
-      <input type="number" id="age" name="age" [(ngModel)]="student.age" readonly>
+      <label for="age">
+        <span class="icon" style="color: #F59E0B;">🎂</span>
+        Age
+      </label>
+      <input type="number" id="age" name="age" [(ngModel)]="student.age" readonly placeholder="Auto-calculated">
     </div>
     <div class="reg-form-group">
-      <label for="email">Email Address</label>
-      <input type="email" id="email" name="email" [(ngModel)]="student.email" required email #emailInput="ngModel">
+      <label for="email">
+        <span class="icon" style="color: #8B5CF6;">📧</span>
+        Email Address<span class="required">*</span>
+      </label>
+      <input type="email" id="email" name="email" [(ngModel)]="student.email" required email #emailInput="ngModel" placeholder="student@example.com">
       <div *ngIf="emailInput.invalid && emailInput.touched" class="reg-form-error">
         <span *ngIf="emailInput.errors?.['required']">Email is required.</span>
         <span *ngIf="emailInput.errors?.['email']">Please enter a valid email.</span>
       </div>
     </div>
     <div class="reg-form-group">
-      <label for="contactNo">Contact Number</label>
-      <input type="tel" id="contactNo" name="contactNo" [(ngModel)]="student.contactNo" required #contactInput="ngModel">
+      <label for="contactNo">
+        <span class="icon" style="color: #10B981;">📱</span>
+        Contact Number<span class="required">*</span>
+      </label>
+      <input type="tel" id="contactNo" name="contactNo" [(ngModel)]="student.contactNo" required #contactInput="ngModel" placeholder="+91 98765 43210">
       <div *ngIf="contactInput.invalid && contactInput.touched" class="reg-form-error">Contact Number is required.</div>
     </div>
   </div>
@@ -85,7 +100,10 @@
   </h3>
   <div class="reg-form-grid">
     <div class="reg-form-group">
-      <label for="state">State (Agent Access)</label>
+      <label for="state">
+        <span class="icon" style="color: #06B6D4;">🏢</span>
+        State (Agent Access)<span class="required">*</span>
+      </label>
       <select id="state" name="state" [(ngModel)]="student.selectedState" (change)="onStateChange()" required #stateInput="ngModel">
         <option value="" disabled>-- Select State --</option>
         <option *ngFor="let state of availableStates" [value]="state">{{ state }}</option>
@@ -93,7 +111,10 @@
       <div *ngIf="stateInput.invalid && stateInput.touched" class="reg-form-error">State is required.</div>
     </div>
     <div class="reg-form-group">
-      <label for="district">District (Agent Access)</label>
+      <label for="district">
+        <span class="icon" style="color: #F97316;">📍</span>
+        District (Agent Access)<span class="required">*</span>
+      </label>
       <select id="district" name="districtId" [(ngModel)]="student.districtId" required [disabled]="!student.selectedState" #districtInput="ngModel">
         <option [ngValue]="null" disabled>-- Select District --</option>
         <option *ngFor="let loc of filteredDistricts" [value]="loc.id">{{ loc.district }}</option>
@@ -101,7 +122,10 @@
       <div *ngIf="districtInput.invalid && districtInput.touched" class="reg-form-error">District is required.</div>
     </div>
     <div class="reg-form-group reg-form-span-2">
-      <label for="address">Street Address</label>
+      <label for="address">
+        <span class="icon" style="color: #EF4444;">🏠</span>
+        Street Address<span class="required">*</span>
+      </label>
       <input type="text" id="address" name="address" [(ngModel)]="student.address" placeholder="e.g., B-45, Rajouri Garden" required #addressInput="ngModel">
       <div *ngIf="addressInput.invalid && addressInput.touched" class="reg-form-error">Address is required.</div>
     </div>
@@ -113,12 +137,18 @@
   </h3>
   <div class="reg-form-grid">
     <div class="reg-form-group">
-      <label for="emergencyContactNo">Emergency Contact Number</label>
-      <input type="tel" id="emergencyContactNo" name="emergencyContactNo" [(ngModel)]="student.emergencyContactNo" required #eContactInput="ngModel">
+      <label for="emergencyContactNo">
+        <span class="icon" style="color: #DC2626;">🚨</span>
+        Emergency Contact Number<span class="required">*</span>
+      </label>
+      <input type="tel" id="emergencyContactNo" name="emergencyContactNo" [(ngModel)]="student.emergencyContactNo" required #eContactInput="ngModel" placeholder="+91 98765 43210">
       <div *ngIf="eContactInput.invalid && eContactInput.touched" class="reg-form-error">Emergency Contact is required.</div>
     </div>
     <div class="reg-form-group">
-      <label for="emergencyRelation">Relation</label>
+      <label for="emergencyRelation">
+        <span class="icon" style="color: #7C3AED;">👨‍👩‍👧‍👦</span>
+        Relation<span class="required">*</span>
+      </label>
       <input type="text" id="emergencyRelation" name="emergencyRelation" [(ngModel)]="student.emergencyRelation" placeholder="e.g., Father, Mother" required #eRelationInput="ngModel">
       <div *ngIf="eRelationInput.invalid && eRelationInput.touched" class="reg-form-error">Relation is required.</div>
     </div>
@@ -130,23 +160,35 @@
   </h3>
   <div class="reg-form-grid">
     <div class="reg-form-group">
-      <label for="passportNo">Passport Number</label>
-      <input type="text" id="passportNo" name="passportNo" [(ngModel)]="student.passportNo" required #passportInput="ngModel">
+      <label for="passportNo">
+        <span class="icon" style="color: #0891B2;">🛂</span>
+        Passport Number<span class="required">*</span>
+      </label>
+      <input type="text" id="passportNo" name="passportNo" [(ngModel)]="student.passportNo" required #passportInput="ngModel" placeholder="A12345678">
       <div *ngIf="passportInput.invalid && passportInput.touched" class="reg-form-error">Passport Number is required.</div>
     </div>
     <div class="reg-form-group">
-      <label for="passportValidTill">Passport Valid Till</label>
+      <label for="passportValidTill">
+        <span class="icon" style="color: #059669;">📋</span>
+        Passport Valid Till<span class="required">*</span>
+      </label>
       <input type="date" id="passportValidTill" name="passportValidTill" [(ngModel)]="student.passportValidTill" required #passportDateInput="ngModel">
       <div *ngIf="passportDateInput.invalid && passportDateInput.touched" class="reg-form-error">Passport Expiry is required.</div>
     </div>
     <div class="reg-form-group">
-      <label for="highestDegree">Highest Degree</label>
+      <label for="highestDegree">
+        <span class="icon" style="color: #6366F1;">🎓</span>
+        Highest Degree<span class="required">*</span>
+      </label>
       <input type="text" id="highestDegree" name="highestDegree" [(ngModel)]="student.highestDegree" placeholder="e.g., 12th Standard, B.Sc." required #degreeInput="ngModel">
       <div *ngIf="degreeInput.invalid && degreeInput.touched" class="reg-form-error">Highest Degree is required.</div>
     </div>
     <div class="reg-form-group">
-      <label for="marks">Marks (%)</label>
-      <input type="number" id="marks" name="marks" [(ngModel)]="student.marks" required #marksInput="ngModel">
+      <label for="marks">
+        <span class="icon" style="color: #D946EF;">📊</span>
+        Marks (%)<span class="required">*</span>
+      </label>
+      <input type="number" id="marks" name="marks" [(ngModel)]="student.marks" required #marksInput="ngModel" placeholder="85">
       <div *ngIf="marksInput.invalid && marksInput.touched" class="reg-form-error">Marks are required.</div>
     </div>
   </div>
@@ -157,7 +199,10 @@
   </h3>
   <div class="reg-form-grid">
     <div class="reg-form-group">
-      <label for="appliedFor">Applying For</label>
+      <label for="appliedFor">
+        <span class="icon" style="color: #14B8A6;">🎯</span>
+        Applying For<span class="required">*</span>
+      </label>
       <select id="appliedFor" name="appliedFor" [(ngModel)]="student.appliedFor" required>
         <option value="MBBS">MBBS</option>
         <option value="MD">MD</option>
@@ -165,7 +210,10 @@
       </select>
     </div>
     <div class="reg-form-group">
-      <label for="college">College (Agent Access)</label>
+      <label for="college">
+        <span class="icon" style="color: #F59E0B;">🏫</span>
+        College (Agent Access)<span class="required">*</span>
+      </label>
       <select id="college" name="selectedCollege" [(ngModel)]="student.selectedCollege" required #collegeInput="ngModel">
         <option [ngValue]="null" disabled>-- Select College --</option>
         <option *ngFor="let college of colleges" [value]="college.id">{{ college.collegeName }}</option>
