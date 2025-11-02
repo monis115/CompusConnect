@@ -1,0 +1,201 @@
+<div class="reg-modal-overlay" [class.open]="isSuccess">
+  <div class="reg-modal-content">
+    <div class="reg-modal-body">
+      
+      <div class="reg-success-icon-wrapper">
+        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      
+      <h3 class="reg-modal-title">Registration Successful!</h3>
+      <p class="reg-modal-text">
+        The new student has been successfully registered and added to your list.
+      </p>
+      
+      <button type="button" class="reg-modal-btn" (click)="closeSuccessModal()">
+        Done
+      </button>
+    </div>
+  </div>
+</div>
+
+<form #regForm="ngForm" (ngSubmit)="registerStudent()" novalidate>
+
+  <div class="reg-header">
+    <h2>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="8.5" cy="7" r="4"></circle>
+        <line x1="20" y1="8" x2="20" y2="14"></line>
+        <line x1="23" y1="11" x2="17" y2="11"></line>
+      </svg>
+      New Student Registration
+    </h2>
+    <button type="button" class="reg-close-btn" title="Cancel" (click)="cancel()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+  
+  <div class="reg-error-message" *ngIf="errorMessage">
+    <strong>Registration Failed:</strong> {{ errorMessage }}
+  </div>
+
+  <h3 class="reg-section-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    Personal Information
+  </h3>
+  <div class="reg-form-grid">
+    <div class="reg-form-group">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" name="fullName" [(ngModel)]="student.fullName" required #fullNameInput="ngModel">
+      <div *ngIf="fullNameInput.invalid && fullNameInput.touched" class="reg-form-error">Full Name is required.</div>
+    </div>
+    <div class="reg-form-group">
+      <label for="dob">Date of Birth</label>
+      <input type="date" id="dob" name="dob" [(ngModel)]="student.dob" (change)="calculateAge()" required #dobInput="ngModel">
+      <div *ngIf="dobInput.invalid && dobInput.touched" class="reg-form-error">Date of Birth is required.</div>
+    </div>
+    <div class="reg-form-group">
+      <label for="age">Age</label>
+      <input type="number" id="age" name="age" [(ngModel)]="student.age" readonly>
+    </div>
+    <div class="reg-form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" [(ngModel)]="student.email" required email #emailInput="ngModel">
+      <div *ngIf="emailInput.invalid && emailInput.touched" class="reg-form-error">
+        <span *ngIf="emailInput.errors?.['required']">Email is required.</span>
+        <span *ngIf="emailInput.errors?.['email']">Please enter a valid email.</span>
+      </div>
+    </div>
+    <div class="reg-form-group">
+      <label for="contactNo">Contact Number</label>
+      <input type="tel" id="contactNo" name="contactNo" [(ngModel)]="student.contactNo" required #contactInput="ngModel">
+      <div *ngIf="contactInput.invalid && contactInput.touched" class="reg-form-error">Contact Number is required.</div>
+    </div>
+  </div>
+  
+  <h3 class="reg-section-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+    Location & Address
+  </h3>
+  <div class="reg-form-grid">
+    <div class="reg-form-group">
+      <label for="state">State (Agent Access)</label>
+      <select id="state" name="state" [(ngModel)]="student.selectedState" (change)="onStateChange()" required #stateInput="ngModel">
+        <option value="" disabled>-- Select State --</option>
+        <option *ngFor="let state of availableStates" [value]="state">{{ state }}</option>
+      </select>
+      <div *ngIf="stateInput.invalid && stateInput.touched" class="reg-form-error">State is required.</div>
+    </div>
+    <div class="reg-form-group">
+      <label for="district">District (Agent Access)</label>
+      <select id="district" name="districtId" [(ngModel)]="student.districtId" required [disabled]="!student.selectedState" #districtInput="ngModel">
+        <option [ngValue]="null" disabled>-- Select District --</option>
+        <option *ngFor="let loc of filteredDistricts" [value]="loc.id">{{ loc.district }}</option>
+      </select>
+      <div *ngIf="districtInput.invalid && districtInput.touched" class="reg-form-error">District is required.</div>
+    </div>
+    <div class="reg-form-group reg-form-span-2">
+      <label for="address">Street Address</label>
+      <input type="text" id="address" name="address" [(ngModel)]="student.address" placeholder="e.g., B-45, Rajouri Garden" required #addressInput="ngModel">
+      <div *ngIf="addressInput.invalid && addressInput.touched" class="reg-form-error">Address is required.</div>
+    </div>
+  </div>
+  
+  <h3 class="reg-section-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+    Emergency Contact
+  </h3>
+  <div class="reg-form-grid">
+    <div class="reg-form-group">
+      <label for="emergencyContactNo">Emergency Contact Number</label>
+      <input type="tel" id="emergencyContactNo" name="emergencyContactNo" [(ngModel)]="student.emergencyContactNo" required #eContactInput="ngModel">
+      <div *ngIf="eContactInput.invalid && eContactInput.touched" class="reg-form-error">Emergency Contact is required.</div>
+    </div>
+    <div class="reg-form-group">
+      <label for="emergencyRelation">Relation</label>
+      <input type="text" id="emergencyRelation" name="emergencyRelation" [(ngModel)]="student.emergencyRelation" placeholder="e.g., Father, Mother" required #eRelationInput="ngModel">
+      <div *ngIf="eRelationInput.invalid && eRelationInput.touched" class="reg-form-error">Relation is required.</div>
+    </div>
+  </div>
+  
+  <h3 class="reg-section-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+    Passport & Academics
+  </h3>
+  <div class="reg-form-grid">
+    <div class="reg-form-group">
+      <label for="passportNo">Passport Number</label>
+      <input type="text" id="passportNo" name="passportNo" [(ngModel)]="student.passportNo" required #passportInput="ngModel">
+      <div *ngIf="passportInput.invalid && passportInput.touched" class="reg-form-error">Passport Number is required.</div>
+    </div>
+    <div class="reg-form-group">
+      <label for="passportValidTill">Passport Valid Till</label>
+      <input type="date" id="passportValidTill" name="passportValidTill" [(ngModel)]="student.passportValidTill" required #passportDateInput="ngModel">
+      <div *ngIf="passportDateInput.invalid && passportDateInput.touched" class="reg-form-error">Passport Expiry is required.</div>
+    </div>
+    <div class="reg-form-group">
+      <label for="highestDegree">Highest Degree</label>
+      <input type="text" id="highestDegree" name="highestDegree" [(ngModel)]="student.highestDegree" placeholder="e.g., 12th Standard, B.Sc." required #degreeInput="ngModel">
+      <div *ngIf="degreeInput.invalid && degreeInput.touched" class="reg-form-error">Highest Degree is required.</div>
+    </div>
+    <div class="reg-form-group">
+      <label for="marks">Marks (%)</label>
+      <input type="number" id="marks" name="marks" [(ngModel)]="student.marks" required #marksInput="ngModel">
+      <div *ngIf="marksInput.invalid && marksInput.touched" class="reg-form-error">Marks are required.</div>
+    </div>
+  </div>
+
+  <h3 class="reg-section-header">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+    Application Details
+  </h3>
+  <div class="reg-form-grid">
+    <div class="reg-form-group">
+      <label for="appliedFor">Applying For</label>
+      <select id="appliedFor" name="appliedFor" [(ngModel)]="student.appliedFor" required>
+        <option value="MBBS">MBBS</option>
+        <option value="MD">MD</option>
+        <option value="BDS">BDS</option>
+      </select>
+    </div>
+    <div class="reg-form-group">
+      <label for="college">College (Agent Access)</label>
+      <select id="college" name="selectedCollege" [(ngModel)]="student.selectedCollege" required #collegeInput="ngModel">
+        <option [ngValue]="null" disabled>-- Select College --</option>
+        <option *ngFor="let college of colleges" [value]="college.id">{{ college.collegeName }}</option>
+      </select>
+      <div *ngIf="collegeInput.invalid && collegeInput.touched" class="reg-form-error">College is required.</div>
+    </div>
+  </div>
+
+  <div class="reg-form-actions">
+    <button type="button" class="reg-btn reg-btn-cancel" (click)="cancel()" [disabled]="isLoading">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+      Cancel
+    </button>
+    <button type="submit" class="reg-btn reg-btn-submit" [disabled]="regForm.invalid || isLoading" [class.reg-btn-loading]="isLoading">
+      
+      <span class="reg-btn-content">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="8.5" cy="7" r="4"></circle>
+          <line x1="20" y1="8" x2="20" y2="14"></line>
+          <line x1="23" y1="11" x2="17" y2="11"></line>
+        </svg>
+        Register Student
+      </span>
+      
+      <span class="reg-btn-spinner"></span>
+      
+    </button>
+  </div>
+</form>

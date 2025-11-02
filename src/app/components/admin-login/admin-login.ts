@@ -12,10 +12,10 @@ interface LoginResponse {
 
 @Component({
   selector: 'app-admin-login',
-  standalone: false,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone:false,
   templateUrl: './admin-login.html',
-  styleUrls: ['./admin-login.css']
+  styleUrls: ['./admin-login.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminLogin {
   userId = signal('');
@@ -24,199 +24,136 @@ export class AdminLogin {
   showPassword = computed(() => this.passwordFieldType() === 'text');
   isLoading = signal(false);
   errorMessage = signal('');
-
-  // NEW: Signal to control the spinner text
+  
+  // Enhanced spinner states
   spinnerText = signal('Validating Credentials...');
+  spinnerIcon = signal('shield');
+  spinnerPhase = signal<'validating' | 'success' | 'error'>('validating');
+  userRole = signal('');
 
   constructor(
     private router: Router, 
     private authService: AdminAuthService
-  ) {
-    console.log('🎬 AdminLogin Component initialized');
-  }
+  ) {}
 
   onUserIdInput(event: Event) {
-    console.log('⌨️ onUserIdInput triggered');
     const input = event.target as HTMLInputElement;
     const upper = input.value.toUpperCase();
     input.value = upper;
     this.userId.set(upper);
     this.errorMessage.set('');
-    console.log('📝 User ID updated:', upper);
   }
 
   onPasswordInput(event: Event) {
-    console.log('⌨️ onPasswordInput triggered');
     const input = event.target as HTMLInputElement;
     this.password.set(input.value);
     this.errorMessage.set('');
-    console.log('📝 Password updated (hidden for security)');
   }
 
   togglePasswordVisibility() {
-    console.log('👁️ Toggle password visibility');
     this.passwordFieldType.update(t => t === 'password' ? 'text' : 'password');
-    console.log('👁️ Password field type:', this.passwordFieldType());
   }
 
   onLogin() {
-    console.log('🚀 ============================================');
-    console.log('🚀 LOGIN PROCESS STARTED');
-    console.log('🚀 ============================================');
-    console.log('📋 Step 1: Validating inputs...');
-
-    // Validate inputs
     if (!this.userId() || !this.password()) {
-      console.error('❌ Validation Failed: Missing credentials');
       this.errorMessage.set('Please enter both User ID and Password');
       return;
     }
 
-    console.log('✅ Step 1 Complete: Inputs validated');
-    console.log('📋 Step 2: Setting loading state...');
-    
-    // NEW: Set initial spinner text
+    // Reset states
     this.spinnerText.set('Validating Credentials...');
+    this.spinnerIcon.set('shield');
+    this.spinnerPhase.set('validating');
     this.isLoading.set(true);
     this.errorMessage.set('');
-    console.log('✅ Step 2 Complete: Loading = true, Spinner = "Validating..."');
 
     const payload = {
       userId: this.userId(),
       password: this.password()
     };
 
-    console.log('📋 Step 3: Preparing API call...');
-    console.log('📋 Step 4: Calling authService.login()...');
-    
     this.authService.login(payload).subscribe({
       next: (res: LoginResponse) => {
-        console.log('');
-        console.log('✅ ============================================');
-        console.log('✅ LOGIN API CALL SUCCESSFUL');
-        console.log('✅ ============================================');
-        console.log('📥 Response Data:', res);
-
-        // NEW: Set dynamic spinner text based on role IMMEDIATELY
-        switch (res.role) {
-          case 'admin':
-            this.spinnerText.set('Admin Login: Success');
-            break;
-          case 'agent':
-            this.spinnerText.set('Agent Login: Success');
-            break;
-          case 'student':
-            this.spinnerText.set('Student Login: Success');
-            break;
-          case 'visa-manager':
-            this.spinnerText.set('Visa Manager Login: Success');
-            break;
-          case 'admission-manager':
-            this.spinnerText.set('Admission Login: Success');
-            break;
-          default:
-            this.spinnerText.set('Login Successful');
-        }
-        console.log('✅ Spinner text updated:', this.spinnerText());
-
-        console.log('📋 Step 5: Processing response (1.5s delay)...');
+        // Update spinner based on role
         setTimeout(() => {
-          console.log('⏰ Timeout completed, processing...');
-          console.log('📋 Step 6: Stopping loading spinner...');
-          this.isLoading.set(false);
-          console.log('✅ Loading = false');
+          this.spinnerPhase.set('success');
+          this.userRole.set(res.role);
           
-          console.log('📋 Step 7: Checking response data...');
-          if (res && res.role) {
-            console.log('✅ Response valid, role detected:', res.role);
+          switch (res.role) {
+            case 'admin':
+              this.spinnerText.set('Admin Login Successful');
+              this.spinnerIcon.set('admin');
+              break;
+            case 'agent':
+              this.spinnerText.set('Agent Login Successful');
+              this.spinnerIcon.set('agent');
+              break;
+            case 'student':
+              this.spinnerText.set('Student Login Successful');
+              this.spinnerIcon.set('student');
+              break;
+            case 'visa-manager':
+              this.spinnerText.set('Visa Manager Login Successful');
+              this.spinnerIcon.set('visa');
+              break;
+            case 'admission-manager':
+              this.spinnerText.set('Admission Manager Login Successful');
+              this.spinnerIcon.set('admission');
+              break;
+          }
+
+          // Final navigation after showing success
+          setTimeout(() => {
+            this.isLoading.set(false);
             
-            console.log('📋 Step 8: Storing user data in localStorage...');
+            // Store auth data
             localStorage.setItem('authToken', `token_${res.id}_${Date.now()}`);
             localStorage.setItem('userRole', res.role);
             localStorage.setItem('userId', res.username);
             localStorage.setItem('userData', JSON.stringify(res));
-            console.log('✅ Step 8 Complete: Data stored');
-            
-            console.log('');
-            console.log('📋 Step 9: Role-based routing...');
             
             // Navigate based on role
             switch (res.role) {
               case 'admin':
-                console.log('🔀 Routing to: /admin-dashboard');
                 this.router.navigate(['/admin-dashboard']);
                 break;
               case 'agent':
-                console.log('🔀 Routing to: /agent-dashboard');
                 this.router.navigate(['/agent-dashboard']);
                 break;
               case 'student':
-                console.log('🔀 Routing to: /student-dashboard');
                 this.router.navigate(['/student-dashboard']);
                 break;
               case 'visa-manager':
-                console.log('🔀 Routing to: /visa-manager-dashboard');
                 this.router.navigate(['/visa-manager-dashboard']);
                 break;
               case 'admission-manager':
-                console.log('🔀 Routing to: /admission-manager-dashboard');
                 this.router.navigate(['/admission-manager-dashboard']);
                 break;
-              default:
-                console.error('❌ Unknown role received:', res.role);
-                this.errorMessage.set('Invalid role received from server');
             }
-            
-            console.log('');
-            console.log('✅ ============================================');
-            console.log('✅ LOGIN PROCESS COMPLETED SUCCESSFULLY');
-            console.log('✅ ============================================');
-          } else {
-            console.error('❌ Invalid response: Missing role or data');
-            this.errorMessage.set('Login failed. Invalid response from server.');
-          }
-        }, 1500);
+          }, 1500);
+        }, 1000);
       },
       error: (err: HttpErrorResponse) => {
-        console.log('');
-        console.error('❌ ============================================');
-        console.error('❌ LOGIN API CALL FAILED');
-        console.error('❌ ============================================');
-        console.error('🔴 Error Object:', err);
-
-        // NEW: Set spinner text to "Login Failed"
-        this.spinnerText.set('Login Failed');
-        console.log('✅ Spinner text updated: Login Failed');
-
         setTimeout(() => {
-          console.log('⏰ Error timeout completed');
-          console.log('📋 Stopping loading spinner...');
-          this.isLoading.set(false);
-          console.log('✅ Loading = false');
+          this.spinnerPhase.set('error');
+          this.spinnerText.set('Login Failed');
+          this.spinnerIcon.set('error');
           
-          console.log('📋 Determining error message...');
-          if (err.status === 401) {
-            this.errorMessage.set('Invalid credentials. Please try again.');
-          } else if (err.status === 403) {
-            this.errorMessage.set('Access denied. Please contact administrator.');
-          } else if (err.status === 0) {
-            this.errorMessage.set('Cannot connect to server. Please check your connection.');
-          } else if (err.status === 404) {
-            this.errorMessage.set('Login endpoint not found. Please contact support.');
-          } else {
-            this.errorMessage.set(err.error?.message || 'An error occurred. Please try again.');
-          }
-          
-          console.log('💬 Error message set:', this.errorMessage());
-          console.error('❌ ============================================');
-          console.error('❌ LOGIN PROCESS FAILED');
-          console.error('❌ ============================================');
-        }, 1500);
+          setTimeout(() => {
+            this.isLoading.set(false);
+            
+            if (err.status === 401) {
+              this.errorMessage.set('Invalid credentials. Please try again.');
+            } else if (err.status === 403) {
+              this.errorMessage.set('Access denied. Please contact administrator.');
+            } else if (err.status === 0) {
+              this.errorMessage.set('Cannot connect to server. Please check your connection.');
+            } else {
+              this.errorMessage.set(err.error?.message || 'An error occurred. Please try again.');
+            }
+          }, 1500);
+        }, 1000);
       }
     });
-
-    console.log('✅ Step 4 Complete: API call initiated');
-    console.log('⏳ Waiting for API response...');
-    console.log('');
   }
 }

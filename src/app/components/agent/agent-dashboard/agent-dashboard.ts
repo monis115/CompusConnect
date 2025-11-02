@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // <-- 1. Import ChangeDetectorRef
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 // --- Enums ---
 export enum StudentStatus {
@@ -104,7 +104,6 @@ interface DashboardTask {
   status: StudentStatus;
 }
 
-// NEW: Interface for chart data
 interface CollegeDistribution {
   collegeName: string;
   count: number;
@@ -126,9 +125,9 @@ const listAnimation = trigger('listAnimation', [
 
 const modalListAnimation = trigger('modalListAnimation', [
   transition('* => *', [
-    query('li.timeline-step', [ // Animate each 'li' element
+    query('li.timeline-step', [
       style({ opacity: 0, transform: 'translateX(-20px)' }),
-      stagger('50ms', [ // Stagger entry of each 'li'
+      stagger('50ms', [
         animate('350ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
       ])
     ], { optional: true })
@@ -141,14 +140,11 @@ const modalListAnimation = trigger('modalListAnimation', [
   standalone: false,
   templateUrl: './agent-dashboard.html',
   styleUrls: ['./agent-dashboard.css'],
-  animations: [listAnimation, modalListAnimation] // Add animations
+  animations: [listAnimation, modalListAnimation]
 })
 export class AgentDashboard implements OnInit {
-  // Expose enums for template
   public readonly PaymentStatus = PaymentStatus;
   public readonly StudentStatus = StudentStatus;
-
-
   public otherCollegesCount: number = 0;
 
   public allStatuses: StudentStatus[] = [
@@ -165,7 +161,6 @@ export class AgentDashboard implements OnInit {
     StudentStatus.COMPLETED
   ];
 
-  // --- Status Icons Map (Raw SVG Paths) ---
   private statusIcons: { [key: string]: string } = {
     [StudentStatus.REGISTERED]: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line>',
     [StudentStatus.UNDER_REVIEW]: '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>',
@@ -180,7 +175,6 @@ export class AgentDashboard implements OnInit {
     [StudentStatus.COMPLETED]: '<path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path>',
     [StudentStatus.REJECTED]: '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'
   };
-  // Sanitized Icon Map
   public safeStatusIcons = new Map<StudentStatus, SafeHtml>();
 
   currentView: 'dashboard' | 'students' | 'register' | 'profile' | 'student-detail' | 'payments' | 'admission-letters' = 'dashboard';
@@ -188,7 +182,7 @@ export class AgentDashboard implements OnInit {
   agentData: AgentData | null = null;
   students: Student[] = [];
   selectedStudent: Student | null = null;
-  agentApiUrl = 'http://localhost:8080/api/agents/user/R1025398681';
+  agentApiUrl = 'http://localhost:8080/api/agents/user/R1025329387';
   isLoading = true;
   error: string | null = null;
 
@@ -205,15 +199,17 @@ export class AgentDashboard implements OnInit {
   };
 
   dashboardTasks: DashboardTask[] = [];
-  // Widget Data
   actionableStudents: Student[] = [];
   collegeDistribution: CollegeDistribution[] = [];
   
   searchQuery: string = '';
   statusFilter: StudentStatus | 'all' = 'all';
   
-  constructor(private http: HttpClient, private sanitizer: DomSanitizer) { // Inject Sanitizer
-    // Sanitize all icons on initialization
+  constructor(
+    private http: HttpClient, 
+    private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef // <-- 2. Inject ChangeDetectorRef
+  ) {
     for (const [key, value] of Object.entries(this.statusIcons)) {
       this.safeStatusIcons.set(key as StudentStatus, this.sanitizer.bypassSecurityTrustHtml(value));
     }
@@ -226,12 +222,17 @@ export class AgentDashboard implements OnInit {
   loadAgentData(): void {
     this.isLoading = true;
     this.error = null;
+    this.cdr.detectChanges(); // <-- Tell Angular "we are loading"
+
     this.http.get<AgentData>(this.agentApiUrl).pipe(
       catchError((err): Observable<null> => {
         console.error('Error loading agent data:', err);
         this.error = 'Failed to load agent data. Please try again later.';
-        this.isLoading = false;
         return of(null);
+      }),
+      finalize(() => {
+        this.isLoading = false; 
+        this.cdr.detectChanges(); // <-- Tell Angular "we are done loading"
       })
     ).subscribe((data: AgentData | null) => {
       if (data) {
@@ -245,11 +246,10 @@ export class AgentDashboard implements OnInit {
         this.calculateStats();
         this.generateDashboardTasks();
         this.generateActionableStudents(); 
-        this.generateCollegeDistribution(); // <-- NEW
+        this.generateCollegeDistribution();
+        
+        this.cdr.detectChanges(); // <-- Tell Angular "all data is processed"
       }
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 500); // Simulate loading time
     });
   }
 
@@ -327,11 +327,9 @@ export class AgentDashboard implements OnInit {
     this.actionableStudents = this.students.filter(s =>
       s.presentStatus === StudentStatus.ADMISSION_LETTER_GENERATED ||
       s.presentStatus === StudentStatus.TELEX_APPROVED
-    ).slice(0, 5); // Limit to 5
+    ).slice(0, 5);
   }
 
-  // --- NEW: Calculate College Distribution ---
-// --- NEW: Calculate College Distribution ---
   generateCollegeDistribution(): void {
     if (!this.students || this.students.length === 0) {
       this.collegeDistribution = [];
@@ -347,7 +345,6 @@ export class AgentDashboard implements OnInit {
     const total = this.students.length;
     const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#06B6D4', '#A855F7'];
 
-    // Rename this to a temporary variable
     const allDistribution = Array.from(countMap.entries()).map(([name, count], index) => ({
       collegeName: name,
       count: count,
@@ -355,25 +352,21 @@ export class AgentDashboard implements OnInit {
       color: colors[index % colors.length]
     })).sort((a, b) => b.count - a.count);
 
-    // Set the main property
     this.collegeDistribution = allDistribution; 
 
-    // --- THIS IS THE FIX ---
-    // Calculate and set the 'other' count
     if (allDistribution.length > 4) {
       this.otherCollegesCount = allDistribution.slice(4).reduce((acc, i) => acc + i.count, 0);
     } else {
       this.otherCollegesCount = 0;
     }
-    // --- END OF FIX ---
   }
   
-  // --- Navigation ---
   navigateTo(view: 'dashboard' | 'students' | 'register' | 'profile' | 'student-detail' | 'payments' | 'admission-letters'): void {
     this.currentView = view;
     if (view !== 'student-detail') {
       this.selectedStudent = null;
     }
+    this.cdr.detectChanges(); // Force update on view change
   }
   
   viewStudentDetails(student: Student): void {
@@ -395,16 +388,15 @@ export class AgentDashboard implements OnInit {
       if (this.selectedStudent) {
         this.selectedStudent = { ...student };
       }
-      // Refresh all calculations
       this.calculateStats();
       this.generateDashboardTasks();
       this.generateActionableStudents();
       this.generateCollegeDistribution();
-      alert('Student updated successfully!');
+      
+      this.cdr.detectChanges(); // Force update
     }
   }
     
-  // --- Status Action Logic ---
   canInitiateTelex(status: StudentStatus): boolean {
     return status === StudentStatus.ADMISSION_LETTER_GENERATED;
   }
@@ -429,14 +421,15 @@ export class AgentDashboard implements OnInit {
     }
   }
   
-  // --- History Modal Functions ---
   openHistoryModal(student: Student): void {
     this.selectedStudentForHistory = student;
     this.isHistoryModalOpen = true;
+    this.cdr.detectChanges();
   }
 
   closeHistoryModal(): void {
     this.isHistoryModalOpen = false;
+    this.cdr.detectChanges();
     setTimeout(() => {
       this.selectedStudentForHistory = null;
     }, 300);
@@ -459,7 +452,6 @@ export class AgentDashboard implements OnInit {
     return 'pending';
   }
   
-  // --- Utility Functions ---
   calculateAge(dob: string): number {
     if (!dob) return 0;
     const birthDate = new Date(dob);
@@ -527,5 +519,15 @@ export class AgentDashboard implements OnInit {
       console.log('Logging out...');
       window.location.href = '/login';
     }
+  }
+
+
+  onStudentRegistered(): void {
+    // 1. Reload all agent data to get the new student in the list
+    //    This automatically calls calculateStats(), generateDashboardTasks(), etc.
+    this.loadAgentData(); 
+    
+    // 2. Navigate back to the main dashboard view
+    this.navigateTo('dashboard');
   }
 }
