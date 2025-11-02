@@ -1,0 +1,230 @@
+<div class="agents-container">
+  <mat-card class="agents-card">
+    <mat-card-content>
+      <!-- HEADER WITH GLOBAL SEARCH -->
+      <div class="card-header">
+        <h2 class="title">Active Agents</h2>
+
+        <!-- GLOBAL SEARCH BAR -->
+        <mat-form-field appearance="outline" class="global-search">
+          <mat-label>Search agents...</mat-label>
+          <input matInput
+                 [(ngModel)]="globalSearch"
+                 (input)="onGlobalSearch()"
+                 placeholder="Name, email, contact..."
+                 autocomplete="off">
+          <button mat-icon-button matSuffix (click)="clearGlobalSearch()" *ngIf="globalSearch">
+            <mat-icon>clear</mat-icon>
+          </button>
+          <mat-icon matSuffix *ngIf="!globalSearch">search</mat-icon>
+        </mat-form-field>
+
+        <span class="agent-count" *ngIf="!loading && !error">
+          {{ filteredAgents.length }} Active
+        </span>
+      </div>
+
+      <!-- CUSTOM SPINNER -->
+      <div *ngIf="loading" class="spinner-container">
+        <div class="custom-spinner"></div>
+        <p>Loading agents...</p>
+      </div>
+
+      <!-- ERROR STATE -->
+      <div *ngIf="error" class="error-state">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h3>Connection Failed</h3>
+        <p>{{ error }}</p>
+        <button mat-stroked-button color="primary" (click)="loadAgents()">Retry</button>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-wrapper" *ngIf="!loading && !error && filteredAgents.length">
+        <table mat-table [dataSource]="filteredAgents" class="agents-table" [trackBy]="trackByAgentId">
+
+          <!-- Full Name -->
+          <ng-container matColumnDef="fullName">
+            <th mat-header-cell *matHeaderCellDef> Agent </th>
+            <td mat-cell *matCellDef="let agent">
+              <div class="agent-name">
+                <mat-icon class="icon-person">person</mat-icon>
+                {{ agent.fullName }}
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Email -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef> Email </th>
+            <td mat-cell *matCellDef="let agent" class="email-cell">
+              <span [matTooltip]="agent.email">{{ agent.email }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Contact -->
+          <ng-container matColumnDef="contactNo">
+            <th mat-header-cell *matHeaderCellDef> Contact </th>
+            <td mat-cell *matCellDef="let agent">{{ agent.contactNo }}</td>
+          </ng-container>
+
+          <!-- Designation -->
+          <ng-container matColumnDef="designation">
+            <th mat-header-cell *matHeaderCellDef> Role </th>
+            <td mat-cell *matCellDef="let agent">{{ agent.designation || '—' }}</td>
+          </ng-container>
+
+          <!-- Company -->
+          <ng-container matColumnDef="company">
+            <th mat-header-cell *matHeaderCellDef> Company </th>
+            <td mat-cell *matCellDef="let agent">{{ agent.companyName || '—' }}</td>
+          </ng-container>
+
+          <!-- Colleges (ICON + DISABLED) -->
+          <ng-container matColumnDef="colleges">
+            <th mat-header-cell *matHeaderCellDef> Colleges </th>
+            <td mat-cell *matCellDef="let agent" class="icon-cell">
+              <button mat-icon-button
+                      (click)="openCollegesModal(agent, $event)"
+                      [matTooltip]="agent.collegePrivileges?.length ? 'View ' + agent.collegePrivileges.length + ' colleges' : 'No college access'"
+                      [disabled]="!agent.collegePrivileges?.length"
+                      [class.disabled-icon]="!agent.collegePrivileges?.length">
+                <mat-icon class="table-icon" [class.disabled]="!agent.collegePrivileges?.length">school</mat-icon>
+                <span class="icon-count" *ngIf="agent.collegePrivileges?.length">
+                  {{ agent.collegePrivileges.length }}
+                </span>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Locations (ICON + DISABLED) -->
+          <ng-container matColumnDef="locations">
+            <th mat-header-cell *matHeaderCellDef> Locations </th>
+            <td mat-cell *matCellDef="let agent" class="icon-cell">
+              <button mat-icon-button
+                      (click)="openLocationsModal(agent, $event)"
+                      [matTooltip]="agent.accessibleLocations?.length ? 'View ' + agent.accessibleLocations.length + ' districts' : 'No location access'"
+                      [disabled]="!agent.accessibleLocations?.length"
+                      [class.disabled-icon]="!agent.accessibleLocations?.length">
+                <mat-icon class="table-icon" [class.disabled]="!agent.accessibleLocations?.length">location_on</mat-icon>
+                <span class="icon-count" *ngIf="agent.accessibleLocations?.length">
+                  {{ agent.accessibleLocations.length }}
+                </span>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Status </th>
+            <td mat-cell *matCellDef="let agent">
+              <span class="status-badge active">
+                <mat-icon class="status-icon">check_circle</mat-icon>
+                Active
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- ROW DEFINITIONS -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="agent-row"></tr>
+          <tr mat-footer-row *matFooterRowDef="[]"></tr>
+        </table>
+      </div>
+
+      <!-- EMPTY STATE (No Agents) -->
+      <div *ngIf="!loading && !error && !filteredAgents.length" class="empty-state">
+        <mat-icon class="empty-icon">search_off</mat-icon>
+        <p *ngIf="globalSearch">No agents found for "{{ globalSearch }}"</p>
+        <p *ngIf="!globalSearch">No active agents found.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- MODAL -->
+  <div *ngIf="showModal" class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ modalTitle }}</h3>
+        <button mat-icon-button class="close-btn" (click)="closeModal()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- MODAL SEARCH BAR -->
+        <mat-form-field appearance="outline" class="modal-search">
+          <mat-label>Search {{ modalType === 'college' ? 'Colleges' : 'Districts' }}</mat-label>
+          <input matInput
+                 [(ngModel)]="modalSearch"
+                 (input)="onModalSearch()"
+                 placeholder="Type to filter..."
+                 autocomplete="off">
+          <button mat-icon-button matSuffix (click)="clearModalSearch()" *ngIf="modalSearch">
+            <mat-icon>clear</mat-icon>
+          </button>
+          <mat-icon matSuffix *ngIf="!modalSearch">search</mat-icon>
+        </mat-form-field>
+
+        <!-- Count -->
+        <div class="modal-count">
+          Showing <strong>{{ modalType === 'college' ? filteredColleges.length : filteredLocations.length }}</strong>
+          of <strong>{{ modalType === 'college' ? modalColleges.length : modalLocations.length }}</strong>
+        </div>
+
+        <!-- College List -->
+        <div *ngIf="modalType === 'college' && filteredColleges.length" class="data-grid">
+          <div *ngFor="let item of filteredColleges; let i = index" class="data-card college-card">
+            <div class="card-number">{{ i + 1 }}</div>
+            <div class="card-content">
+              <div class="card-title">
+                <mat-icon class="card-icon">school</mat-icon>
+                {{ item.collegeName }}
+              </div>
+              <div class="card-meta">
+                <span class="meta-item">
+                  <mat-icon class="meta-icon">location_city</mat-icon>
+                  {{ item.city }}
+                </span>
+                <span class="meta-item">
+                  <mat-icon class="meta-icon">public</mat-icon>
+                  {{ item.country }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location List -->
+        <div *ngIf="modalType === 'location' && filteredLocations.length" class="data-grid">
+          <div *ngFor="let item of filteredLocations; let i = index" class="data-card location-card">
+            <div class="card-number">{{ i + 1 }}</div>
+            <div class="card-content">
+              <div class="card-title">
+                <mat-icon class="card-icon">location_on</mat-icon>
+                {{ item.district }}
+              </div>
+              <div class="card-meta">
+                <span class="meta-item">
+                  <mat-icon class="meta-icon">map</mat-icon>
+                  {{ item.state }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Results -->
+        <div *ngIf="modalSearch && ((modalType === 'college' && !filteredColleges.length) || (modalType === 'location' && !filteredLocations.length))" class="modal-empty">
+          <mat-icon>search_off</mat-icon>
+          <p>No results found for "{{ modalSearch }}"</p>
+        </div>
+
+        <!-- Empty Data -->
+        <div *ngIf="!modalSearch && ((modalType === 'college' && !modalColleges.length) || (modalType === 'location' && !modalLocations.length))" class="modal-empty">
+          <mat-icon>inbox</mat-icon>
+          <p>No data available</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

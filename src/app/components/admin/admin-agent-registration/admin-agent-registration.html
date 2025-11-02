@@ -1,0 +1,334 @@
+<div class="agent-registration-container">
+  <div class="card">
+    <div class="card-header">
+      <h2><i-lucide name="user-plus" size="28"></i-lucide> Register New Agent</h2>
+    </div>
+
+    <div class="card-body">
+   <!-- LOADING STATE -->
+<div class="loading-state" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading colleges and locations...</p>
+</div>
+
+<!-- ERROR STATE (when data fails) -->
+<div class="loading-state" *ngIf="!loading && !dataLoaded && error">
+  <i-lucide name="alert-circle" size="48" class="error-icon"></i-lucide>
+  <h3>Loading Failed</h3>
+  <p>{{ error }}</p>
+  <button type="button" class="btn-primary" (click)="loadData()">
+    <i-lucide name="refresh-cw" size="16"></i-lucide> Retry
+  </button>
+</div>
+
+<!-- FORM (only show when data is loaded and not in success) -->
+<form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading && dataLoaded && !success">
+  <!-- Your entire form here -->
+</form>
+
+<!-- SUCCESS MODAL (outside form, always visible when success = true) -->
+<div class="success-modal" *ngIf="success">
+  <div class="success-content">
+    <i-lucide name="check-circle" size="64" class="success-icon"></i-lucide>
+    <h3>Agent Registered Successfully!</h3>
+    <div class="credentials-box">
+      <div class="cred-item">
+        <strong>User ID:</strong>
+        <span class="cred-value">{{ agentCredentials?.userId }}</span>
+        <button class="btn-copy" (click)="copyToClipboard(agentCredentials?.userId, 'User ID')">
+          <i-lucide name="copy" size="16"></i-lucide>
+        </button>
+      </div>
+      <div class="cred-item">
+        <strong>Password:</strong>
+        <span class="cred-value">{{ agentCredentials?.password }}</span>
+        <button class="btn-copy" (click)="copyToClipboard(agentCredentials?.password, 'Password')">
+          <i-lucide name="copy" size="16"></i-lucide>
+        </button>
+      </div>
+    </div>
+    <p class="note">Save these credentials securely – they will not be shown again.</p>
+    <div class="success-actions">
+      <button class="btn-secondary" (click)="closeModalAndNavigate()">Close</button>
+      <button class="btn-primary" (click)="resetForm()">Register Another</button>
+    </div>
+  </div>
+</div>
+
+     
+
+      <div class="loading-state" *ngIf="!loading && !dataLoaded && error">
+        <i-lucide name="alert-circle" size="48" class="error-icon"></i-lucide>
+        <h3>Loading Failed</h3>
+        <p>{{ error }}</p>
+        <button type="button" class="btn-primary" (click)="loadData()">
+          <i-lucide name="refresh-cw" size="16"></i-lucide> Retry
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading && dataLoaded && !success">
+        
+        <div class="alert error" *ngIf="error">
+          <i-lucide name="alert-circle" size="20"></i-lucide> {{ error }}
+        </div>
+
+        <div class="section-title"><i-lucide name="building" size="20"></i-lucide> Company Information</div>
+        <div class="form-grid">
+           <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" formControlName="companyName" placeholder="EduTech Solutions Pvt Ltd"
+                   [class.invalid]="f['companyName'].touched && f['companyName'].invalid"/>
+            <div class="error-text" *ngIf="f['companyName'].touched && f['companyName'].invalid">Required</div>
+          </div>
+
+          <div class="form-group">
+            <label>Registered Business Name</label>
+            <input type="text" formControlName="registeredBusinessName"
+                   placeholder="EduTech Solutions Private Limited"
+                   [class.invalid]="f['registeredBusinessName'].touched && f['registeredBusinessName'].invalid"/>
+            <div class="error-text" *ngIf="f['registeredBusinessName'].touched && f['registeredBusinessName'].invalid">Required</div>
+          </div>
+
+          <div class="form-group">
+            <label>Business Type</label>
+            <input type="text" formControlName="businessType" placeholder="Pvt. Ltd."
+                   [class.invalid]="f['businessType'].touched && f['businessType'].invalid"/>
+            <div class="error-text" *ngIf="f['businessType'].touched && f['businessType'].invalid">Required</div>
+          </div>
+
+          <div class="form-group">
+            <label>Registration Number</label>
+            <input type="text" formControlName="registrationNumber"
+                   placeholder="U12345KA2010PTC123456"
+                   [class.invalid]="f['registrationNumber'].touched && f['registrationNumber'].invalid"/>
+            <div class="error-text" *ngIf="f['registrationNumber'].touched && f['registrationNumber'].invalid">Required</div>
+          </div>
+
+          <div class="form-group">
+            <label>PAN / GST Number</label>
+            <input type="text" formControlName="panOrGstNumber" placeholder="27AAACE1234F1Z5"
+                   [class.invalid]="f['panOrGstNumber'].touched && f['panOrGstNumber'].invalid"/>
+            <div class="error-text" *ngIf="f['panOrGstNumber'].touched && f['panOrGstNumber'].invalid">Required</div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Registered Office Address</label>
+            <div class="address-grid">
+              <input type="text" formControlName="regStreet" placeholder="Street / Flat"
+                     [class.invalid]="f['regStreet'].touched && f['regStreet'].invalid"/>
+              <input type="text" formControlName="regCity" placeholder="City"
+                     [class.invalid]="f['regCity'].touched && f['regCity'].invalid"/>
+              <input type="text" formControlName="regLandmark" placeholder="Landmark (optional)"/>
+              <input type="text" formControlName="regState" placeholder="State"
+                     [class.invalid]="f['regState'].touched && f['regState'].invalid"/>
+              <input type="text" formControlName="regPin" placeholder="PIN"
+                     [class.invalid]="f['regPin'].touched && f['regPin'].invalid"/>
+            </div>
+            <div class="error-text" *ngIf="f['regPin'].touched && f['regPin'].errors?.['pattern']">6 digits</div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Branch Office Address (optional)</label>
+            <textarea formControlName="branchOfficeAddress" rows="2"
+                      placeholder="Koramangala, 5th Block, Bangalore"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Company Email</label>
+            <input type="email" formControlName="companyEmail" placeholder="contact@edutechsolutions.com"
+                   [class.invalid]="f['companyEmail'].touched && f['companyEmail'].invalid"/>
+            <div class="error-text" *ngIf="f['companyEmail'].touched && f['companyEmail'].errors?.['email']">Invalid email</div>
+          </div>
+
+          <div class="form-group">
+            <label>Company Contact</label>
+            <input type="text" formControlName="companyContactNo" placeholder="080-41234567"
+                   [class.invalid]="f['companyContactNo'].touched && f['companyContactNo'].invalid"/>
+            <div class="error-text" *ngIf="f['companyContactNo'].touched && f['companyContactNo'].errors?.['pattern']">10-12 digits</div>
+          </div>
+
+          <div class="form-group">
+            <label>Website</label>
+            <input type="url" formControlName="website" placeholder="https://www.edutechsolutions.com"
+                   [class.invalid]="f['website'].touched && f['website'].invalid"/>
+          </div>
+        </div>
+
+        <div class="section-title"><i-lucide name="user" size="20"></i-lucide> Personal Information</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" formControlName="fullName" placeholder="Rahul Kumar Sharma"
+                   [class.invalid]="f['fullName'].touched && f['fullName'].invalid"/>
+          </div>
+
+          <div class="form-group">
+            <label>Gender</label>
+            <select formControlName="gender" [class.invalid]="f['gender'].touched && f['gender'].invalid">
+              <option value="">-- Select --</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="date" formControlName="dob" [class.invalid]="f['dob'].touched && f['dob'].invalid"/>
+          </div>
+
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" formControlName="age" [readOnly]="true"/>
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" placeholder="rahul.sharma@edutech.com"
+                   [class.invalid]="f['email'].touched && f['email'].invalid"/>
+            <div class="error-text" *ngIf="f['email'].touched && f['email'].errors?.['email']">
+              Invalid email format
+            </div>
+            <div class="error-text" *ngIf="f['email'].touched && f['email'].errors?.['required']">
+              Email is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Contact Number</label>
+            <input type="text" formControlName="contactNo" maxlength="12" placeholder="9876543210"
+                   [class.invalid]="f['contactNo'].touched && f['contactNo'].invalid"/>
+            <div class="error-text" *ngIf="f['contactNo'].touched && f['contactNo'].errors?.['required']">
+              Contact number is required
+            </div>
+            <div class="error-text" *ngIf="f['contactNo'].touched && f['contactNo'].errors?.['pattern']">
+              Must be 10-12 digits
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Personal Address</label>
+            <div class="address-grid">
+              <input type="text" formControlName="street" placeholder="Street / House"
+                     [class.invalid]="f['street'].touched && f['street'].invalid"/>
+              <input type="text" formControlName="city" placeholder="City"
+                     [class.invalid]="f['city'].touched && f['city'].invalid"/>
+              <input type="text" formControlName="landmark" placeholder="Landmark"/>
+              <input type="text" formControlName="state" placeholder="State"
+                     [class.invalid]="f['state'].touched && f['state'].invalid"/>
+              <input type="text" formControlName="pin" placeholder="PIN"
+                     [class.invalid]="f['pin'].touched && f['pin'].invalid"/>
+            </div>
+            <div class="error-text" *ngIf="f['pin'].touched && f['pin'].errors?.['pattern']">6 digits</div>
+          </div>
+
+          <div class="form-group">
+            <label>Identity Proof</label>
+            <select formControlName="identityProofType"
+                    [class.invalid]="f['identityProofType'].touched && f['identityProofType'].invalid">
+              <option value="">-- Select --</option>
+              <option value="Aadhaar">Aadhaar</option>
+              <option value="Passport">Passport</option>
+              <option value="Driving License">Driving License</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Proof Number</label>
+            <input type="text" formControlName="identityProofNumber" placeholder="1234-5678-9012"
+                   [class.invalid]="f['identityProofNumber'].touched && f['identityProofNumber'].invalid"/>
+          </div>
+
+          <div class="form-group">
+            <label>Designation</label>
+            <input type="text" formControlName="designation" placeholder="Senior Consultant"
+                   [class.invalid]="f['designation'].touched && f['designation'].invalid"/>
+          </div>
+
+          <div class="form-group">
+            <label>Experience</label>
+            <input type="text" formControlName="experience" placeholder="12 years"
+                   [class.invalid]="f['experience'].touched && f['experience'].invalid"/>
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <select formControlName="status">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="college-section">
+          <div class="section-header">
+            <h3><i-lucide name="university" size="20"></i-lucide> Assign Colleges</h3>
+            <label class="checkbox-label">
+              <input type="checkbox" [checked]="selectAllColleges" (change)="toggleSelectAllColleges()"/>
+              <span class="checkmark"></span>Select All
+            </label>
+          </div>
+          <div class="college-grid">
+            <label class="college-item" *ngFor="let c of colleges" [class.selected]="isCollegeSelected(c.id)">
+              <input type="checkbox" [checked]="isCollegeSelected(c.id)" (change)="toggleCollege(c.id)"/>
+              <span class="checkmark"></span>
+              <div class="college-info">
+                <strong>{{ c.collegeName }}</strong>
+                <small>{{ c.city }}, {{ c.country }}</small>
+              </div>
+            </label>
+          </div>
+        </div>
+
+
+        <div class="location-section">
+          <div class="section-header">
+            <h3><i-lucide name="map-pin" size="20"></i-lucide> Assign Districts</h3>
+            <label class="checkbox-label">
+              <input type="checkbox" [checked]="selectAllStates" (change)="toggleSelectAllStates()"/>
+              <span class="checkmark"></span>All India
+            </label>
+          </div>
+
+          <div class="state-list">
+            <div class="state-card" *ngFor="let state of states" [class.expanded]="expandedStates[state]">
+              
+              <div class="state-header">
+                
+                <label class="checkbox-label state-checkbox" (click)="$event.stopPropagation()">
+                  <input type="checkbox"
+                         [checked]="selectAllDistrictsByState[state]"
+                         (change)="toggleSelectAllDistricts(state)"/>
+                  <span class="checkmark"></span>
+                </label>
+                
+                <div class="state-title-area" (click)="toggleStateExpansion(state)">
+                  <strong>{{ state }}</strong>
+                  <i-lucide name="chevron-down" class="expand-icon"></i-lucide>
+                </div>
+                
+                <span class="count">({{ districtsByState[state].length }} districts)</span>
+              </div>
+              
+              <div class="district-chips" *ngIf="expandedStates[state]">
+                <label class="chip" *ngFor="let loc of districtsByState[state]"
+                       [class.selected]="isDistrictSelected(loc.id)">
+                  <input type="checkbox" [checked]="isDistrictSelected(loc.id)" (change)="toggleDistrict(loc.id)"/>
+                  <span>{{ loc.district }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="closeModalAndNavigate()">Cancel</button>
+          <button type="submit" class="btn-primary"
+                  [disabled]="loading || form.invalid || !selectedColleges.length || !selectedDistricts.length">
+            <span *ngIf="!loading">Register Agent</span>
+            <div class="spinner button-spinner" *ngIf="loading"></div>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

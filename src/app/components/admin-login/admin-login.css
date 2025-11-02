@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  /* Dark, high-tech background */
+  background-color: #0d1b2a;
+  position: relative;
+  overflow: hidden;
+}
+
+/* -------------------------------------------------
+   ANIMATED AURORA BLOBS
+   (These look great behind the new dark card)
+   ------------------------------------------------- */
+.shape {
+  position: absolute;
+  z-index: 1;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: morph-and-float 20s ease-in-out infinite;
+}
+
+.shape-1 {
+  width: 350px;
+  height: 350px;
+  background: rgba(212, 175, 55, 0.25); /* Gold */
+  top: 5%;
+  left: 5%;
+  animation-delay: -5s;
+}
+
+.shape-2 {
+  width: 300px;
+  height: 300px;
+  background: rgba(74, 140, 160, 0.3); /* Blue */
+  bottom: 0%;
+  right: 10%;
+  animation-delay: -10s;
+}
+
+.shape-3 {
+  width: 250px;
+  height: 250px;
+  background: rgba(106, 179, 199, 0.2); /* Lighter Blue */
+  top: 40%;
+  left: 40%;
+  animation-delay: -15s;
+}
+
+@keyframes morph-and-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(40px, -30px) scale(1.1);
+    opacity: 0.4;
+  }
+}
+
+/* -------------------------------------------------
+   LOGIN CARD (NEW "DARK-MODE GLASS" DESIGN)
+   ------------------------------------------------- */
+.login-card {
+  position: relative;
+  z-index: 2;
+  width: 420px;
+  max-width: 95%;
+  padding: 2.5rem;
+  /* NEW: Dark, blurred-backdrop "glass" */
+  background: rgba(25, 42, 62, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card Text (Updated for dark bg) */
+h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff; /* NEW: White */
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #e0e0e0; /* NEW: Light grey */
+  margin-bottom: 2rem;
+}
+
+/* -------------------------------------------------
+   INPUTS (Updated for dark bg)
+   ------------------------------------------------- */
+.input-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #e0e0e0; /* NEW: Light grey */
+  margin-bottom: 0.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 0.9rem 1rem 0.9rem 2.8rem;
+  font-size: 1rem;
+  color: #1a2a6c;
+  /* Inputs are light for contrast */
+  background: #f0f4f8;
+  border: 1px solid #dbe2e9;
+  border-radius: 8px;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.input-wrapper input:focus {
+  outline: none;
+  border-color: #d4af37; /* Gold accent */
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); /* Gold glow */
+}
+
+/* Force UPPERCASE for UserID */
+#userId {
+  text-transform: uppercase;
+}
+
+/* Icons & Toggle */
+.input-icon {
+  position: absolute;
+  left: 0.8rem;
+  width: 20px;
+  height: 20px;
+  stroke: #666;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.toggle-btn {
+  position: absolute;
+  right: 0.6rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.toggle-btn:hover { background: rgba(0, 0, 0, 0.05); }
+.toggle-btn svg { width: 18px; height: 18px; stroke: #555; }
+
+/* Login Button */
+.login-btn {
+  width: 100%;
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #1a3c4a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  margin-top: 0.5rem;
+}
+
+.login-btn:hover {
+  background: #2a6a7f;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(42, 106, 127, 0.3);
+}
+
+/* Back Link (Updated for dark bg) */
+.back-link {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #b0c4de; /* NEW: Lighter blue */
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------
+   AMAZING SPINNER (NEW DESIGN)
+   ------------------------------------------------- */
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 10, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+/* NEW: "Comet" spinner */
+.spinner {
+  width: 50px;
+  height: 50px;
+  animation: spin 1.2s linear infinite;
+  /* The spinner itself is a conic gradient */
+  background: conic-gradient(#fdc92a 30%, transparent 40%);
+  border-radius: 50%;
+  /* Mask it to create a "comet" track */
+  -webkit-mask-image: radial-gradient(farthest-side, transparent 75%, #fff 80%);
+  mask-image: radial-gradient(farthest-side, transparent 75%, #fff 80%);
+}
+
+.spinner-text {
+  margin-top: 16px; /* More space for new spinner */
+  color: #f4c21f;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,48 @@
+<div class="admin-dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">A</div>
+        <span class="logo-text" *ngIf="!sidebarCollapsed">Admin Panel</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button 
+        *ngFor="let item of menuItems" 
+        class="nav-item"
+        [class.active]="activeSection === item.id"
+        (click)="navigateTo(item.id)">
+        <i-lucide [name]="item.icon" size="20"></i-lucide>
+        <span *ngIf="!sidebarCollapsed">{{ item.label }}</span>
+      </button>
+    </nav>
+
+    <button class="sidebar-toggle" (click)="toggleSidebar()">
+      <i-lucide [name]="sidebarCollapsed ? 'chevron-right' : 'chevron-left'" size="20"></i-lucide>
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="header">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <div class="header-right">
+        <button class="btn-icon">
+          <i-lucide name="bell" size="20"></i-lucide>
+          <span class="badge">5</span>
+        </button>
+        <div class="user-profile">
+          <div class="avatar">AD</div>
+          <span class="user-name">{{ admin?.userId || 'Admin User' }}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Render child routes here -->
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

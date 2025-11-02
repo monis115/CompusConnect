@@ -1,0 +1,262 @@
+<div class="admin-dashboard pa-container">
+  <div class="pa-header">
+    <h1 class="pa-title">Pending Agent Approvals</h1>
+    <button class="pa-refresh-btn" (click)="refreshData()" [style.transform]="'rotate(' + refreshRotation + 'deg)'">
+      <svg class="pa-refresh-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="pa-full-loading">
+    <div class="pa-spinner"></div>
+    <p>Loading agents...</p>
+  </div>
+
+  <div *ngIf="!isLoading && pendingAgents.length === 0" class="pa-empty">
+    <p>No pending agents found.</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="pa-grid">
+    <div *ngFor="let agent of pendingAgents; let i = index" 
+         class="info-card pa-card" 
+         (click)="showDetails(agent)" 
+         [style.animation-delay.s]="i * 0.05">
+      <div class="pa-card-header">
+        <h3 class="pa-card-name">{{ agent.fullName }}</h3>
+        <span class="pa-status-badge">PENDING</span>
+      </div>
+      <div class="pa-card-body">
+        <p><strong>Email:</strong> {{ agent.email }}</p>
+        <p><strong>Company:</strong> {{ agent.companyName }}</p>
+        <p><strong>Designation:</strong> {{ agent.designation }}</p>
+        <p><strong>User ID:</strong> <code class="pa-code">{{ agent.userId }}</code></p>
+      </div>
+      <button class="pa-approve-btn" (click)="$event.stopPropagation(); startApproving(agent)">
+        Start Approving
+      </button>
+    </div>
+  </div>
+
+  <!-- Details Modal -->
+  <div *ngIf="isDetailsModalOpen" class="pa-modal-overlay" (click)="onDetailsOverlayClick($event)">
+    <div class="pa-modal pa-details-modal" (click)="$event.stopPropagation()">
+      <div class="pa-modal-header">
+        <h2>Agent Details: {{ selectedAgent?.fullName }}</h2>
+        <button class="pa-close-btn" (click)="closeDetailsModal()">
+          <svg class="pa-x-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="pa-details-content" *ngIf="selectedAgent">
+        <div class="pa-section">
+          <h3>Personal Information</h3>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Full Name:</span>
+            <span class="pa-detail-value">{{ selectedAgent.fullName }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Age/Gender:</span>
+            <span class="pa-detail-value">{{ selectedAgent.age }} / {{ selectedAgent.gender }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">DOB:</span>
+            <span class="pa-detail-value">{{ selectedAgent.dob }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Email/Phone:</span>
+            <span class="pa-detail-value">{{ selectedAgent.email }} / {{ selectedAgent.contactNo }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Address:</span>
+            <span class="pa-detail-value">{{ selectedAgent.address }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">ID Proof:</span>
+            <span class="pa-detail-value">{{ selectedAgent.identityProofType }} - {{ selectedAgent.identityProofNumber }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Designation/Experience:</span>
+            <span class="pa-detail-value">{{ selectedAgent.designation }} / {{ selectedAgent.experience }}</span>
+          </div>
+        </div>
+        <div class="pa-section">
+          <h3>Company Information</h3>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Company Name:</span>
+            <span class="pa-detail-value">{{ selectedAgent.companyName }} ({{ selectedAgent.businessType }})</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Registered Name:</span>
+            <span class="pa-detail-value">{{ selectedAgent.registeredBusinessName }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Reg. No / PAN/GST:</span>
+            <span class="pa-detail-value">{{ selectedAgent.registrationNumber }} / {{ selectedAgent.panOrGstNumber }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Registered Office:</span>
+            <span class="pa-detail-value">{{ selectedAgent.registeredOfficeAddress }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Branch Office:</span>
+            <span class="pa-detail-value">{{ selectedAgent.branchOfficeAddress }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Company Email/Phone:</span>
+            <span class="pa-detail-value">{{ selectedAgent.companyEmail }} / {{ selectedAgent.companyContactNo }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">Website:</span>
+            <span class="pa-detail-value">{{ selectedAgent.website }}</span>
+          </div>
+          <div class="pa-detail-row">
+            <span class="pa-detail-label">User ID/Password:</span>
+            <span class="pa-detail-value">{{ selectedAgent.userId }} / {{ selectedAgent.password }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approve Modal -->
+  <div *ngIf="isApproveModalOpen" class="pa-modal-overlay" (click)="onApproveOverlayClick($event)">
+    <div class="pa-modal" (click)="$event.stopPropagation()">
+      <div class="pa-modal-header">
+        <h2>Approve {{ selectedAgent?.fullName }}</h2>
+        <button class="pa-close-btn" (click)="closeApproveModal()">
+          <svg class="pa-x-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <div class="pa-agent-summary">
+        <h3>{{ selectedAgent?.fullName }}</h3>
+        <p>{{ selectedAgent?.companyName }} • {{ selectedAgent?.designation }}</p>
+      </div>
+
+      <div class="pa-details-content">
+        <div class="pa-section">
+          <h3>Select Colleges ({{ selectedCollegeIds.length }} selected)</h3>
+          <label class="pa-checkbox-item pa-all-india" (click)="toggleAllColleges(!isAllCollegesSelected(), $event)">
+            <input 
+              type="checkbox" 
+              [checked]="isAllCollegesSelected()" 
+              (change)="toggleAllColleges($any($event.target).checked, $event)">
+            <span class="pa-checkbox"></span>
+            <div class="pa-label-text">
+              <div class="pa-label-main">Select All Colleges</div>
+              <div class="pa-label-sub">Select all colleges across the list</div>
+            </div>
+          </label>
+          <div class="pa-scroll-box">
+            <label *ngFor="let college of colleges" class="pa-checkbox-item" (click)="toggleCollege(college.id, $event)">
+              <input 
+                type="checkbox" 
+                [checked]="selectedCollegeIds.includes(college.id)" 
+                (change)="toggleCollege(college.id, $event)">
+              <span class="pa-checkbox"></span>
+              <div class="pa-label-text">
+                <div class="pa-label-main">{{ college.collegeName }}</div>
+                <div class="pa-label-sub">{{ college.city }}, {{ college.country }}</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="pa-section">
+          <h3>Select Locations ({{ selectedLocationIds.length }} selected)</h3>
+          <label class="pa-checkbox-item pa-all-india" (click)="toggleAllLocations(!isAllLocationsSelected(), $event)">
+            <input 
+              type="checkbox" 
+              [checked]="isAllLocationsSelected()" 
+              (change)="toggleAllLocations($any($event.target).checked, $event)">
+            <span class="pa-checkbox"></span>
+            <div class="pa-label-text">
+              <div class="pa-label-main">All India</div>
+              <div class="pa-label-sub">Select all locations across India</div>
+            </div>
+          </label>
+          <div class="pa-scroll-box">
+            <div *ngFor="let group of stateGroups" class="pa-state-group">
+              <label class="pa-checkbox-item pa-state-all" (click)="toggleAllDistrictsInState(group, !isAllDistrictsInStateSelected(group), $event)">
+                <input 
+                  type="checkbox" 
+                  [checked]="isAllDistrictsInStateSelected(group)" 
+                  (change)="toggleAllDistrictsInState(group, $any($event.target).checked, $event)">
+                <span class="pa-checkbox"></span>
+                <span class="pa-label-main">Select All Districts in {{ group.state }}</span>
+              </label>
+              <div class="pa-state-header" (click)="toggleStateExpansion(group.state, $event)">
+                <span>{{ group.state }} ({{ getSelectedDistrictsCount(group) }}/{{ group.districts.length }} selected)</span>
+                <svg 
+                  class="pa-chevron" 
+                  [class.pa-chevron-open]="isStateExpanded(group.state)"
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div class="pa-district-grid" *ngIf="isStateExpanded(group.state)" [@slideDown]>
+                <label *ngFor="let loc of group.districts" class="pa-district-item" (click)="toggleLocation(loc.id, $event)">
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectedLocationIds.includes(loc.id)" 
+                    (change)="toggleLocation(loc.id, $event)">
+                  <span class="pa-checkbox"></span>
+                  <span class="pa-district-name">{{ loc.district }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pa-modal-footer">
+        <button class="pa-btn pa-btn-secondary" (click)="closeApproveModal()">Cancel</button>
+        <button 
+          class="pa-btn pa-btn-primary" 
+          [disabled]="isApproving || (selectedCollegeIds.length === 0 && selectedLocationIds.length === 0)"
+          (click)="approveAgent()">
+          <span *ngIf="!isApproving">Approve Agent</span>
+          <span *ngIf="isApproving">Approving...</span>
+          <div class="pa-cute-spinner" *ngIf="isApproving"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Processing Spinner Modal -->
+  <div *ngIf="isProcessingSpinnerOpen" class="pa-success-overlay">
+    <div class="pa-processing-modal">
+      <div class="pa-processing-spinner"></div>
+      <p class="pa-processing-text">Processing approval...</p>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div *ngIf="isSuccessModalOpen" class="pa-success-overlay">
+    <div class="pa-success-modal">
+      <button class="pa-success-close-btn" (click)="closeSuccessModal()">
+        <svg class="pa-x-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <div class="pa-success-icon-wrapper">
+        <div class="pa-success-icon-bg"></div>
+        <svg class="pa-success-checkmark" viewBox="0 0 52 52">
+          <circle class="pa-success-checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="pa-success-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+      </div>
+      <h3 class="pa-success-title">Approval Successful!</h3>
+      <p class="pa-success-message">{{ selectedAgent?.fullName }} has been approved and activated.</p>
+      <div class="pa-success-confetti">
+        <div class="pa-confetti" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]"></div>
+      </div>
+    </div>
+  </div>
+</div>

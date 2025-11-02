@@ -1,0 +1,211 @@
+<!-- addmission-manager-registration.html -->
+<div class="registration-container">
+  <div class="registration-card">
+    <!-- Header with Close Button -->
+    <div class="card-header">
+      <div class="header-content">
+        <div>
+          <h2 class="header-title">Admission Manager Registration</h2>
+          <p class="header-subtitle">Create a new admission manager account</p>
+        </div>
+        <button type="button" class="close-button" (click)="onClose()" aria-label="Close" title="Close">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Registration Form -->
+    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" *ngIf="!registrationSuccess">
+      <!-- Full Name -->
+      <div class="form-group">
+        <label for="fullName" class="form-label">
+          Full Name <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="fullName"
+          formControlName="fullName"
+          class="form-input"
+          placeholder="Enter full name"
+          [class.input-error]="registrationForm.get('fullName')?.invalid && registrationForm.get('fullName')?.touched"
+        />
+        <div class="error-message" *ngIf="registrationForm.get('fullName')?.invalid && registrationForm.get('fullName')?.touched">
+          <span *ngIf="registrationForm.get('fullName')?.errors?.['required']">Full name is required</span>
+          <span *ngIf="registrationForm.get('fullName')?.errors?.['minlength']">Name must be at least 3 characters</span>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email" class="form-label">
+          Email Address <span class="required">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-input"
+          placeholder="Enter email address"
+          [class.input-error]="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched"
+        />
+        <div class="error-message" *ngIf="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched">
+          <span *ngIf="registrationForm.get('email')?.errors?.['required']">Email is required</span>
+          <span *ngIf="registrationForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+        </div>
+      </div>
+
+      <!-- Contact Number -->
+      <div class="form-group">
+        <label for="contactNumber" class="form-label">
+          Contact Number <span class="required">*</span>
+        </label>
+        <input
+          type="tel"
+          id="contactNumber"
+          formControlName="contactNumber"
+          class="form-input"
+          placeholder="Enter 10-digit contact number"
+          maxlength="10"
+          [class.input-error]="registrationForm.get('contactNumber')?.invalid && registrationForm.get('contactNumber')?.touched"
+        />
+        <div class="error-message" *ngIf="registrationForm.get('contactNumber')?.invalid && registrationForm.get('contactNumber')?.touched">
+          <span *ngIf="registrationForm.get('contactNumber')?.errors?.['required']">Contact number is required</span>
+          <span *ngIf="registrationForm.get('contactNumber')?.errors?.['pattern']">Please enter a valid 10-digit number</span>
+        </div>
+      </div>
+
+      <!-- College Selection -->
+      <div class="form-group">
+        <label class="form-label">
+          Select Colleges <span class="required">*</span>
+        </label>
+        
+        <!-- Selected Colleges Display -->
+        <div class="selected-colleges" *ngIf="selectedColleges.length > 0">
+          <div class="college-chip" *ngFor="let collegeId of selectedColleges">
+            <span>{{ getCollegeName(collegeId) }}</span>
+            <button type="button" class="chip-remove" (click)="removeCollege(collegeId)" aria-label="Remove college">
+              ×
+            </button>
+          </div>
+        </div>
+
+        <!-- Dropdown Toggle -->
+        <button
+          type="button"
+          class="dropdown-toggle"
+          (click)="showCollegeDropdown = !showCollegeDropdown"
+          [disabled]="isLoadingColleges"
+        >
+          <span *ngIf="!isLoadingColleges">
+            {{ selectedColleges.length === 0 ? 'Select colleges' : 'Add more colleges' }}
+          </span>
+          <span *ngIf="isLoadingColleges" class="loading-text">
+            <span class="spinner-small"></span>
+            Loading colleges...
+          </span>
+          <span class="dropdown-arrow" [class.dropdown-arrow-up]="showCollegeDropdown">▼</span>
+        </button>
+
+        <!-- College Dropdown List -->
+        <div class="college-dropdown" *ngIf="showCollegeDropdown && !isLoadingColleges">
+          <div class="dropdown-header">
+            <span>Available Colleges</span>
+            <button type="button" class="close-dropdown" (click)="showCollegeDropdown = false" aria-label="Close">
+              ×
+            </button>
+          </div>
+          <div class="college-list">
+            <label class="college-item" *ngFor="let college of colleges">
+              <input
+                type="checkbox"
+                [checked]="isCollegeSelected(college.id)"
+                (change)="toggleCollegeSelection(college.id)"
+                class="college-checkbox"
+              />
+              <div class="college-info">
+                <div class="college-name">{{ college.collegeName }}</div>
+                <div class="college-location">{{ college.city }}, {{ college.country }}</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="error-message" *ngIf="selectedColleges.length === 0 && errorMessage">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div class="alert alert-error" *ngIf="errorMessage && selectedColleges.length > 0">
+        <span class="alert-icon">⚠</span>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="isLoading">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading || registrationForm.invalid || selectedColleges.length === 0">
+          <span *ngIf="!isLoading">Register Manager</span>
+          <span *ngIf="isLoading" class="loading-text">
+            <span class="spinner-small"></span>
+            Registering...
+          </span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Amazing Success Modal with Close Button -->
+    <div class="success-modal" *ngIf="registrationSuccess">
+      <!-- Close Button for Success Modal -->
+      <button type="button" class="success-close-button" (click)="onClose()" aria-label="Close" title="Close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- Confetti Animation -->
+      <div class="success-confetti">
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+      </div>
+
+      <!-- Animated Checkmark -->
+      <div class="success-icon-wrapper">
+        <div class="success-icon-bg"></div>
+        <svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+          <circle class="success-checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="success-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+      </div>
+
+      <h3 class="success-title">Registration Successful!</h3>
+      <p class="success-message">Admission manager has been registered successfully.</p>
+      
+      <div class="success-info">
+        <div class="info-label">Generated Username</div>
+        <div class="info-value">{{ registeredUsername }}</div>
+      </div>
+      
+      <p class="success-note">The credentials have been sent to the registered email address.</p>
+      
+      <button type="button" class="btn btn-primary btn-full" (click)="closeSuccessModal()">
+        Register Another Manager
+      </button>
+    </div>
+  </div>
+</div>

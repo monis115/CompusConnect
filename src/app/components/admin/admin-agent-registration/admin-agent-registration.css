@@ -1,0 +1,1538 @@
+/* admin-agent-registration.css */
+
+/* Base Container */
+.agent-registration-container {
+  min-height: 100vh;
+  padding: 20px;
+  background: #f7f9fb;
+  position: relative;
+}
+
+/* Subtle geometric pattern background */
+.agent-registration-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(34, 80, 98, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(212, 175, 55, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Main Card - Clean & Professional */
+.card {
+  max-width: 920px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* Minimalist Header */
+.card-header {
+  background: #225062;
+  padding: 28px 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle header gradient overlay */
+.card-header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.card-header h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.3px;
+}
+
+.card-header h2 i-lucide {
+  opacity: 0.9;
+}
+
+/* Card Body with Better Padding */
+.card-body {
+  padding: 40px 36px;
+}
+
+/* Professional Alert Styling */
+.alert.error {
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  color: #7f1d1d;
+  padding: 12px 16px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.alert.error i-lucide {
+  flex-shrink: 0;
+  color: #dc2626;
+}
+
+/* Form Grid with Proper Spacing */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 24px;
+  row-gap: 28px;
+  margin-bottom: 36px;
+}
+
+/* Single column for Age field */
+.form-grid > .form-group:nth-child(3) {
+  grid-column: span 1;
+}
+
+/* Professional Form Groups */
+.form-group {
+  position: relative;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.form-group label i-lucide {
+  width: 14px;
+  height: 14px;
+  color: #D4AF37;
+  opacity: 0.8;
+}
+
+/* Clean Input Styling */
+.form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #1f2937;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  height: 42px;
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.form-group input:hover:not([readonly]):not(:focus) {
+  border-color: #d1d5db;
+  background: #fafafa;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #D4AF37;
+  background: #fffef5;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.form-group input[readonly] {
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+  border-style: dashed;
+  opacity: 0.7;
+}
+
+.form-group input.invalid {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.form-group input.invalid:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Error Text Styling */
+.error-text {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* College Section - Clean Design */
+.college-section {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.section-header h3 i-lucide {
+  width: 18px;
+  height: 18px;
+  color: #D4AF37;
+}
+
+/* Professional Checkbox Label */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #374151;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.checkbox-label:hover {
+  background: rgba(212, 175, 55, 0.08);
+}
+
+/* College Grid - Refined */
+.college-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fafbfc;
+}
+
+/* Custom Scrollbar */
+.college-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.college-grid::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 3px;
+}
+
+.college-grid::-webkit-scrollbar-thumb {
+  background: #D4AF37;
+  border-radius: 3px;
+  opacity: 0.8;
+}
+
+.college-grid::-webkit-scrollbar-thumb:hover {
+  background: #b8941f;
+}
+
+/* Clean College Items */
+.college-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.college-item:hover {
+  border-color: #D4AF37;
+  background: #fffef5;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.college-item.selected {
+  background: linear-gradient(135deg, #fffef5 0%, #fef9e6 100%);
+  border-color: #D4AF37;
+  box-shadow: 0 1px 3px rgba(212, 175, 55, 0.2);
+}
+
+/* Selected indicator */
+.college-item.selected::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  background: #D4AF37;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+.college-info strong {
+  display: block;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.college-info small {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* Clean Checkbox Design */
+.checkmark {
+  width: 18px;
+  height: 18px;
+  background: white;
+  border: 1.5px solid #d1d5db;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.checkbox-label:hover .checkmark,
+.college-item:hover .checkmark {
+  border-color: #D4AF37;
+}
+
+.checkbox-label input:checked ~ .checkmark,
+.college-item input:checked ~ .checkmark {
+  background: #D4AF37;
+  border-color: #D4AF37;
+}
+
+.checkmark:after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-label input:checked ~ .checkmark:after,
+.college-item input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Hidden checkbox inputs */
+.checkbox-label input,
+.college-item input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: #6b7280;
+}
+
+.empty-state i-lucide {
+  color: #d1d5db;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Form Actions - Professional Buttons */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Primary Button */
+.btn-primary {
+  background: #D4AF37;
+  color: #1f2937;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  height: 40px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #b8941f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: white;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 40px;
+}
+
+.btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Loading Spinner */
+/* Loading Spinner - continued */
+.button-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(31, 41, 55, 0.2);
+  border-top-color: #1f2937;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Success Modal - Clean & Professional */
+.success-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.success-content {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 440px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.success-icon {
+  color: #10b981;
+  margin-bottom: 16px;
+}
+
+.success-content h3 {
+  color: #1f2937;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  letter-spacing: -0.2px;
+}
+
+.credentials-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.cred-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cred-item:last-child {
+  border-bottom: none;
+}
+
+.cred-item strong {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cred-value {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  background: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  flex: 1;
+  margin: 0 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.btn-copy {
+  background: #f3f4f6;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-copy:hover {
+  background: #D4AF37;
+  color: white;
+}
+
+.btn-copy i-lucide {
+  width: 14px;
+  height: 14px;
+}
+
+.note {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 16px 0;
+  line-height: 1.5;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Refined Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Toast Notification Styles */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Responsive Design - Mobile First */
+@media (max-width: 768px) {
+  .agent-registration-container {
+    padding: 16px;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  .card-header {
+    padding: 20px 24px;
+  }
+
+  .card-header h2 {
+    font-size: 18px;
+  }
+
+  .card-body {
+    padding: 24px 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .college-section {
+    margin-top: 32px;
+    padding-top: 24px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .college-grid {
+    max-height: 240px;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .college-item {
+    padding: 12px 14px;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .success-content {
+    padding: 24px;
+    margin: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-header h2 {
+    font-size: 16px;
+    gap: 8px;
+  }
+
+  .card-body {
+    padding: 20px 16px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+  }
+
+  .form-group input {
+    padding: 8px 12px;
+    font-size: 14px;
+    height: 38px;
+  }
+
+  .college-info strong {
+    font-size: 13px;
+  }
+
+  .college-info small {
+    font-size: 11px;
+  }
+
+  .credentials-box {
+    padding: 16px;
+  }
+
+  .cred-value {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .agent-registration-container {
+    background: white;
+    padding: 0;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-copy,
+  .form-actions {
+    display: none;
+  }
+
+  .college-grid {
+    max-height: none;
+    border: 1px solid #e5e7eb;
+  }
+}
+
+/* Accessibility - Focus States */
+*:focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+  outline-offset: 0;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .card {
+    border: 2px solid #1f2937;
+  }
+
+  .form-group input {
+    border-width: 2px;
+  }
+
+  .btn-primary {
+    border: 2px solid #1f2937;
+  }
+
+  .college-item {
+    border-width: 2px;
+  }
+}
+
+/* Hover Effects Only on Non-Touch Devices */
+@media (hover: hover) {
+  .college-item:hover {
+    border-color: #D4AF37;
+    background: #fffef5;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #b8941f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Custom Focus Styles for Better UX */
+input:focus,
+button:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+/* Ensure Proper Touch Targets */
+.college-item,
+.checkbox-label,
+.btn-primary,
+.btn-secondary,
+.btn-copy {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+/* Form Validation States */
+.form-group input:valid:not(:placeholder-shown):not([readonly]) {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+/* Loading State for Form */
+.card-body.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.card-body.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #D4AF37;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ensure Consistent Box Sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+/* --------------------------------------------------- */
+/* SECTION TITLE (Personal / Company)                */
+/* --------------------------------------------------- */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 36px 0 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Full-width fields (address, office address) */
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Textarea styling */
+textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 72px;
+  background: #fff;
+  transition: all .2s ease;
+}
+textarea:hover { border-color: #d1d5db; }
+textarea:focus { outline: none; border-color: #D4AF37; box-shadow: 0 0 0 3px rgba(212,175,55,.1); background:#fffef5; }
+textarea.invalid { border-color:#ef4444; background:#fef2f2; }
+
+/* Select styling */
+select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  height: 42px;
+  cursor: pointer;
+}
+select:hover { border-color:#d1d5db; }
+select:focus { outline:none; border-color:#D4AF37; box-shadow:0 0 0 3px rgba(212,175,55,.1); background:#fffef5; }
+select.invalid { border-color:#ef4444; background:#fef2f2; }
+
+/* Responsive – stack all fields on small screens */
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+
+.address-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+}
+.address-grid input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.address-grid input:hover { border-color: #d1d5db; }
+.address-grid input:focus { outline: none; border-color: #D4AF37; box-shadow: 0 0 0 3px rgba(212,175,55,.1); background: #fffef5; }
+.address-grid input.invalid { border-color: #ef4444; background: #fef2f2; }
+
+@media (max-width: 768px) {
+  .address-grid { grid-template-columns: 1fr; }
+}
+
+/* Base */
+.agent-registration-container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+.card { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.08); overflow: hidden; }
+.card-header { background: #225062; color: white; padding: 1.5rem; text-align: center; }
+.card-header h2 { margin: 0; font-size: 1.5rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.card-body { padding: 2rem; }
+
+.section-title {
+  display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 600;
+  color: #1f2937; margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;
+}
+.form-group { display: flex; flex-direction: column; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label { font-weight: 500; margin-bottom: 0.5rem; color: #374151; }
+.form-group input, .form-group select, .form-group textarea {
+  padding: 0.75rem 1rem; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 0.95rem;
+  transition: all 0.2s; background: #fff;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none; border-color: #D4AF37; box-shadow: 0 0 0 3px rgba(212,175,55,.1); background: #fffef5;
+}
+.form-group input.invalid, .form-group select.invalid { border-color: #ef4444; background: #fef2f2; }
+.error-text { color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem; }
+
+/* Address Grid */
+.address-grid {
+  display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr; gap: 0.75rem;
+}
+@media (max-width: 768px) { .address-grid { grid-template-columns: 1fr; } }
+
+/* College Section */
+.college-section, .location-section { margin-top: 2rem; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.college-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem;
+}
+.college-item {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border: 1.5px solid #e5e7eb;
+  border-radius: 10px; cursor: pointer; transition: all 0.2s;
+}
+.college-item:hover { border-color: #D4AF37; background: #fffef5; }
+.college-item.selected { border-color: #D4AF37; background: #fffef5; }
+.college-info strong { display: block; font-size: 0.95rem; }
+.college-info small { color: #6b7280; }
+
+/* Location - Clean Chips */
+.state-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.state-card { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+.state-header {
+  background: #f9fafb; padding: 0.75rem 1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;
+}
+.state-header .count { margin-left: auto; font-weight: normal; color: #6b7280; font-size: 0.85rem; }
+.district-chips {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 1rem;
+}
+.chip {
+  display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.75rem; border: 1.5px solid #d1d5db;
+  border-radius: 2rem; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; background: white;
+}
+.chip:hover { border-color: #D4AF37; }
+.chip.selected { background: #D4AF37; color: white; border-color: #D4AF37; }
+
+/* Checkboxes */
+.checkbox-label {
+  display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;
+}
+.checkmark {
+  width: 18px; height: 18px; border: 2px solid #d1d5db; border-radius: 4px; transition: all 0.2s;
+}
+.checkbox-label input:checked + .checkmark {
+  background: #D4AF37; border-color: #D4AF37;
+}
+.checkbox-label input:checked + .checkmark::after {
+  content: '✓'; color: white; font-weight: bold; font-size: 12px; display: flex; justify-content: center; align-items: center;
+}
+
+/* Actions */
+.form-actions {
+  display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;
+}
+.btn-primary, .btn-secondary {
+  padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.btn-primary { background: #225062; color: white; }
+.btn-primary:hover { background: #1a3f4d; }
+.btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+.btn-secondary { background: #e5e7eb; color: #374151; }
+.btn-secondary:hover { background: #d1d5db; }
+
+/* Loading & Success */
+.loading-state, .success-modal {
+  text-align: center; padding: 3rem 1rem;
+}
+.spinner {
+  width: 40px; height: 40px; border: 4px solid #f3f4f6; border-top: 4px solid #D4AF37; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.success-icon { color: #22c55e; margin-bottom: 1rem; }
+.credentials-box { background: #f3f4f6; padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+.cred-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; }
+.btn-copy { background: none; border: none; cursor: pointer; color: #6b7280; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .section-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .form-actions { flex-direction: column; }
+}
+
+/* --------------------------------------------------- */
+/* ++ NEW STYLES ++ COLLAPSIBLE LOCATION STYLES        */
+/* --------------------------------------------------- */
+
+.state-header {
+  cursor: pointer;
+  display: flex; /* Ensures flex properties */
+  justify-content: space-between; /* Pushes icon to the right */
+  align-items: center;
+  position: relative; /* For icon alignment if needed */
+  transition: background-color 0.2s ease;
+}
+
+.state-header:hover {
+  background-color: #f3f4f6; /* Subtle hover */
+}
+
+/* Make the label take up the available space */
+.state-header .checkbox-label {
+  flex: 1;
+  /* Override any hover effects from the label itself */
+  background: transparent !important; 
+  padding: 0 !important;
+}
+
+/* The expand icon */
+.expand-icon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  margin-left: 1rem; /* Add some spacing */
+  flex-shrink: 0; /* Don't let it shrink */
+}
+
+/* Rotate the icon when the card is expanded */
+.state-card.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+/* Animation for the district chips sliding down */
+.district-chips {
+  animation: slideDown 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px; /* Large value to allow for content */
+    /* Padding is already defined in your CSS, so it will animate back */
+  }
+}
+
+/* --------------------------------------------------- */
+/* ++ NEW STYLES ++ COLLAPSIBLE LOCATION STYLES        */
+/* --------------------------------------------------- */
+
+.state-header {
+  cursor: pointer;
+  /* ... (all lines in this block) ... */
+}
+
+/* ... (delete .state-header:hover) ... */
+
+/* ... (delete .state-header .checkbox-label) ... */
+
+/* ... (delete .expand-icon) ... */
+
+/* ... (delete .state-card.expanded .expand-icon) ... */
+
+/* ... (delete .district-chips) ... */
+
+/* ... (delete @keyframes slideDown) ... */
+
+
+/* --------------------------------------------------- */
+/* ++ NEW ++ LOADING/ERROR STATE STYLES               */
+/* --------------------------------------------------- */
+
+/* Styles for the "Retry" block */
+.loading-state .error-icon {
+  color: #ef4444; /* Red */
+  margin-bottom: 1rem;
+}
+
+.loading-state h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+/* Give the retry button an icon */
+.loading-state .btn-primary {
+  width: auto; /* Don't make it full-width */
+  min-width: 120px;
+  display: inline-flex; /* Align icon and text */
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Space between icon and text */
+}
+
+/* --------------------------------------------------- */
+/* ++ NEW ++ COLLAPSIBLE LOCATION STYLES (FIX)         */
+/* --------------------------------------------------- */
+
+/* 1. Ensure state-header is flex and has spacing */
+.state-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* 12px gap between checkbox, title, and count */
+  background: #f9fafb;
+  padding: 0.75rem 1rem;
+}
+
+/* 2. Style the checkbox (it has no text) */
+.state-checkbox {
+  padding: 0 !important;
+  background: transparent !important;
+  flex-shrink: 0; /* Don't let it shrink */
+}
+
+/* 3. Style the new clickable title area */
+.state-title-area {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* 8px space between name and icon */
+  flex: 1; /* This is the key: it takes up all the middle space */
+  cursor: pointer;
+  
+  /* Add a hover effect for usability */
+  padding: 4px;
+  margin: -4px; /* Negative margin to keep alignment */
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+.state-title-area:hover {
+  background-color: #e5e7eb;
+}
+
+.state-title-area strong {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.95rem; /* Match your other styles */
+}
+
+/* 4. Style the expand icon */
+.expand-icon {
+  width: 18px;
+  height: 18px;
+  color: #6b7280;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  flex-shrink: 0; /* Don't let it shrink */
+}
+
+/* 5. Rotate the icon when expanded */
+.state-card.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+/* 6. Ensure the count stays to the right */
+.state-header .count {
+  margin-left: auto; /* This is from your original CSS, it's correct! */
+  flex-shrink: 0; /* Don't let it shrink */
+}
+
+/* 7. Animation for the district chips sliding down */
+.district-chips {
+  /* This animation is from your CSS, just ensuring it's defined */
+  animation: slideDown 0.3s ease-out;
+  overflow: hidden;
+  /* Make sure padding is correct (from your original file) */
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Keyframe for the slide-down animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px; /* Large value to allow for content */
+    /* Restore padding */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}
+
+
+
+/* --------------------------------------------------- */
+/* PREMIUM SUCCESS MODAL - Glassmorphism + Elegance   */
+/* --------------------------------------------------- */
+.success-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.35s ease-out;
+  padding: 1rem;
+}
+
+.success-content {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 18px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  text-align: center;
+  animation: slideUp 0.4s ease-out;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.success-icon {
+  color: #10b981;
+  margin-bottom: 0.75rem;
+  animation: pulse 1.8s infinite ease-in-out;
+}
+
+.success-content h3 {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.2px;
+}
+
+.credentials-box {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1.25rem 0;
+  border: 1px solid #e2e8f0;
+  font-size: 0.875rem; /* 14px */
+}
+
+.cred-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 500;
+}
+
+.cred-item:last-child {
+  border-bottom: none;
+}
+
+.cred-value {
+  font-family: 'Courier New', monospace;
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.btn-copy {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.btn-copy:hover {
+  background: #e2e8f0;
+  color: #1d4ed8;
+  transform: scale(1.1);
+}
+
+.note {
+  font-size: 0.8rem; /* 12.8px */
+  color: #64748b;
+  margin: 1rem 0 1.5rem;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.success-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+/* --------------------------------------------------- */
+/* PREMIUM BUTTONS - Gradient + Lift                 */
+/* --------------------------------------------------- */
+.btn-primary,
+.btn-secondary {
+  padding: 0.65rem 1.25rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.875rem; /* 14px */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 100px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #225062 0%, #1e40af  100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(34, 80, 98, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(34, 80, 98, 0.35);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #475569;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------- */
+/* LOADING & ERROR STATE - Clean & Professional       */
+/* --------------------------------------------------- */
+.loading-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: #64748b;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.loading-state .error-icon {
+  color: #ef4444;
+  margin-bottom: 0.75rem;
+}
+
+.loading-state h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.5rem;
+}
+
+.loading-state p {
+  font-size: 0.875rem;
+  margin: 0 0 1.25rem;
+  color: #64748b;
+}
+
+.loading-state .btn-primary {
+  min-width: 130px;
+  font-size: 0.875rem;
+}
+
+/* Spinner */
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #D4AF37;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+/* --------------------------------------------------- */
+/* ANIMATIONS                                          */
+/* --------------------------------------------------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(25px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --------------------------------------------------- */
+/* RESPONSIVE - Mobile First                           */
+/* --------------------------------------------------- */
+@media (max-width: 480px) {
+  .success-content {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .success-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .cred-value {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+  }
+}

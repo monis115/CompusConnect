@@ -1,0 +1,235 @@
+<!-- admission-manager-access-college.html -->
+<div class="access-container">
+  <!-- Shared Loading Overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="spinner-large"></div>
+    <p *ngIf="listMode">Loading managers...</p>
+    <p *ngIf="!listMode">Loading data...</p>
+  </div>
+
+  <!-- List Mode -->
+  <div class="access-card" *ngIf="listMode">
+    <div class="card-header">
+      <div class="header-content">
+        <div>
+          <h1 class="header-title">Admission Managers</h1>
+          <p class="header-subtitle">Select a manager to edit college access</p>
+        </div>
+        <button class="close-button" (click)="onCancel()" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <span class="alert-icon">⚠️</span>
+        {{ errorMessage }}
+      </div>
+    </div>
+
+    <div class="search-section">
+      <div class="form-group">
+        <label class="form-label">Search Managers</label>
+        <input
+          type="text"
+          name="managerSearchTerm"
+          class="form-input"
+          placeholder="Search by name, email, or username..."
+          [(ngModel)]="managerSearchTerm"
+          (input)="onManagerSearch()"
+        />
+      </div>
+    </div>
+
+    <div class="managers-table-wrapper">
+      <table class="managers-table" *ngIf="filteredManagers.length > 0">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Contact</th>
+            <th>Colleges Assigned</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let manager of filteredManagers">
+            <td class="name-cell">
+              <div class="name-info">
+                <div class="full-name">{{ manager.fullName }}</div>
+                <div class="role">{{ manager.role }}</div>
+              </div>
+            </td>
+            <td>{{ manager.email }}</td>
+            <td>{{ manager.username }}</td>
+            <td>{{ manager.contactNumber }}</td>
+            <td>{{ manager.colleges.length }}</td>
+            <td>
+              <span class="status-badge" [class.active]="manager.status === 'Active'" [class.inactive]="manager.status !== 'Active'">
+                {{ manager.status }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-primary" (click)="onEditAccess(manager.id)">
+                Manage Colleges
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="filteredManagers.length === 0 && managerSearchTerm" class="no-results">
+        No managers found matching "{{ managerSearchTerm }}".
+      </div>
+      <div *ngIf="filteredManagers.length === 0 && !managerSearchTerm && !loading" class="no-results">
+        No managers available.
+      </div>
+    </div>
+
+    <!-- <div class="form-actions">
+      <button class="btn btn-secondary" (click)="onListRefresh()">
+        Refresh List
+      </button>
+    </div> -->
+  </div>
+
+  <!-- Edit Mode -->
+  <div class="access-card" *ngIf="!listMode && (!loading || errorMessage)">
+    <div class="card-header">
+      <div class="header-content">
+        <div>
+          <h1 class="header-title">Manage College Access</h1>
+          <p class="header-subtitle" *ngIf="manager">
+            Update access for {{ manager.fullName }} ({{ manager.username }})
+          </p>
+          <p class="header-subtitle" *ngIf="!manager && !errorMessage" class="loading-text">Loading manager...</p>
+        </div>
+        <button class="close-button" (click)="onBackToList()" aria-label="Back to List">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12,19 5,12 12,5"></polyline>
+          </svg>
+        </button>
+      </div>
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <span class="alert-icon">⚠️</span>
+        {{ errorMessage }}
+        <button class="close-dropdown" style="margin-left: auto;" (click)="onBackToList()">
+          Go Back
+        </button>
+      </div>
+    </div>
+
+    <form *ngIf="manager">
+      <div class="form-group">
+        <label class="form-label">Search Colleges</label>
+        <input
+          type="text"
+          name="collegeSearchTerm"
+          class="form-input"
+          placeholder="Search by name, city, or country..."
+          [(ngModel)]="collegeSearchTerm"
+          (input)="onCollegeSearch()"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Select Colleges</label>
+        <div class="college-dropdown" *ngIf="filteredColleges.length > 0">
+          <div class="dropdown-header">
+            <span>Available Colleges ({{ filteredColleges.length }})</span>
+            <button class="close-dropdown" (click)="clearCollegeSearch()" aria-label="Clear Search">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="college-list">
+            <label *ngFor="let college of filteredColleges" class="college-item">
+              <input
+                type="checkbox"
+                class="college-checkbox"
+                [name]="'college_' + college.id"
+                [checked]="selectedCollegeIds.has(college.id)"
+                (change)="onCollegeToggle(college, $event)"
+              />
+              <div class="college-info">
+                <div class="college-name">{{ college.collegeName }}</div>
+                <div class="college-location">{{ college.city }}, {{ college.country }}</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div *ngIf="filteredColleges.length === 0 && collegeSearchTerm" class="no-results">
+          No colleges found matching "{{ collegeSearchTerm }}".
+        </div>
+        <div *ngIf="colleges.length === 0 && !collegeSearchTerm" class="no-results">
+          No colleges available.
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-secondary" type="button" (click)="onEditRefresh()" [disabled]="loading">
+          <span class="loading-text" *ngIf="loading">
+            <div class="spinner-small"></div>
+            Refreshing...
+          </span>
+          <span *ngIf="!loading">Refresh</span>
+        </button>
+        <button
+          class="btn btn-primary btn-full"
+          type="button"
+          (click)="onUpdate()"
+          [disabled]="updating"
+        >
+          <span class="loading-text" *ngIf="updating">
+            <div class="spinner-small"></div>
+            Updating...
+          </span>
+          <span *ngIf="!updating">Update Access</span>
+        </button>
+      </div>
+    </form>
+    <div *ngIf="!manager && !loading" class="no-results" style="padding: 2rem; text-align: center;">
+      Select a manager to manage access.
+    </div>
+  </div>
+
+  <!-- Success Modal (shared) -->
+  <div class="success-overlay" *ngIf="showSuccessModal" (click)="closeSuccessModal()">
+    <div class="success-modal" (click)="$event.stopPropagation()">
+      <button class="success-close-button" (click)="closeSuccessModal()" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="success-confetti">
+        <div class="confetti" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]"></div>
+      </div>
+      <div class="success-icon-wrapper">
+        <div class="success-icon-bg"></div>
+        <svg class="success-checkmark" viewBox="0 0 78 78">
+          <circle class="success-checkmark-circle" cx="39" cy="39" r="37" />
+         <path class="success-checkmark-check" d="M23 39l8 8 16-16" />
+        </svg>
+      </div>
+      <h2 class="success-title">Access Updated Successfully!</h2>
+      <p class="success-message">
+        College access for {{ manager?.fullName }} has been updated.
+      </p>
+      <div class="success-info">
+        <div class="info-label">Colleges Assigned</div>
+        <div class="info-value">{{ selectedCollegeIds.size }}</div>
+      </div>
+      <p class="success-note">The admission manager can now manage the selected colleges.</p>
+      <button class="btn btn-primary btn-full" (click)="closeSuccessModal()">
+        Done
+      </button>
+    </div>
+  </div>
+</div>
