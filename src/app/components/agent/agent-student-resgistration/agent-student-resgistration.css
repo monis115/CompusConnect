@@ -681,29 +681,77 @@ form {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.reg-modal-btn {
+/* --- UPDATED: Modal Buttons --- */
+
+.reg-modal-actions-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 36px;
   width: 100%;
+}
+
+/* Base modal button style (from .reg-btn) */
+.reg-modal-actions-wrapper .reg-btn {
   height: 52px;
-  animation: regButtonSlideUp 0.6s ease-out 0.7s both;
   padding: 16px 32px;
   border: none;
   border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  text-decoration: none;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  animation: regButtonSlideUp 0.6s ease-out 0.7s both;
+}
+
+.reg-modal-actions-wrapper .reg-btn:disabled {
+  background: #E2E8F0; /* Slate 200 */
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.7;
+}
+
+/* Primary "Done" button */
+.reg-modal-btn-primary {
   background: linear-gradient(135deg, var(--primary-color) 0%, #6366F1 100%);
   color: white;
   box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
 }
 
-.reg-modal-btn:hover {
+.reg-modal-btn-primary:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow: 0 10px 24px rgba(79, 70, 229, 0.4);
 }
+
+/* Download button (secondary style) */
+.reg-modal-btn-download {
+  background: white;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  /* Stagger animation */
+  animation-delay: 0.6s; 
+}
+
+.reg-modal-btn-download:hover:not(:disabled) {
+  background: var(--bg-light);
+  color: #475569;
+  border-color: #CBD5E1;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
 
 @keyframes regButtonSlideUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -818,6 +866,11 @@ form {
   .reg-modal-title {
     font-size: 24px;
   }
+
+  /* Modal buttons stack nicely */
+  .reg-modal-actions-wrapper {
+    flex-direction: column-reverse; /* "Done" button on bottom */
+  }
 }
 
 @media (max-width: 480px) {
@@ -897,5 +950,14 @@ form {
   
   .reg-modal-content {
     background: #1E293B;
+  }
+
+  .reg-modal-btn-download {
+    background: #1E293B;
+    border-color: var(--border-color);
+  }
+  .reg-modal-btn-download:hover:not(:disabled) {
+    background: #0F172A;
+    border-color: #475569;
   }
 }

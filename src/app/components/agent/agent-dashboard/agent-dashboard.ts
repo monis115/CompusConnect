@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // <-- 1. Import ChangeDetectorRef
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -64,6 +64,7 @@ interface Student {
   applicationStatus: string;
   paymentStatus?: PaymentStatus;
   paymentAmount?: number;
+  confirmationPagePath?: string; 
 }
 
 interface AgentData {
@@ -182,7 +183,7 @@ export class AgentDashboard implements OnInit {
   agentData: AgentData | null = null;
   students: Student[] = [];
   selectedStudent: Student | null = null;
-  agentApiUrl = 'http://localhost:8080/api/agents/user/R1025329387';
+  agentApiUrl = 'http://localhost:8080/api/agents/user/R1025398681';
   isLoading = true;
   error: string | null = null;
 
@@ -205,6 +206,10 @@ export class AgentDashboard implements OnInit {
   searchQuery: string = '';
   statusFilter: StudentStatus | 'all' = 'all';
   
+  // NEW: For new success modal
+  isSuccessModalOpen: boolean = false; 
+  newlyRegisteredStudent: Student | null = null; 
+
   constructor(
     private http: HttpClient, 
     private sanitizer: DomSanitizer,
@@ -261,7 +266,8 @@ export class AgentDashboard implements OnInit {
         address: "123, MG Road, Mumbai", emergencyContactNo: "9876543211", emergencyRelation: "Father",
         passportNo: "R1234567", passportValidTill: "2030-05-20", highestDegree: "12th Standard (CBSE)",
         marks: 92.5, appliedFor: "MBBS", presentStatus: StudentStatus.ADMISSION_LETTER_GENERATED,
-        nextStep: StudentStatus.TELEX_INITIATED, college: colleges[1] || colleges[0]
+        nextStep: StudentStatus.TELEX_INITIATED, college: colleges[1] || colleges[0], 
+        confirmationPagePath: 'uploads/confirmation-pages/confirmation_1001_p_sharma.pdf'
       },
       {
         id: 1002, fullName: "Amit Patel", dob: "2001-07-22", age: 24, createdAt: "2025-10-25",
@@ -269,7 +275,8 @@ export class AgentDashboard implements OnInit {
         address: "45, Satellite, Ahmedabad", emergencyContactNo: "9123456781", emergencyRelation: "Mother",
         passportNo: "S7654321", passportValidTill: "2029-11-10", highestDegree: "B.Sc. Biology",
         marks: 88.0, appliedFor: "MBBS", presentStatus: StudentStatus.PENDING_APPROVAL,
-        nextStep: StudentStatus.APPROVED, college: colleges[0]
+        nextStep: StudentStatus.APPROVED, college: colleges[0],
+        confirmationPagePath: 'uploads/confirmation-pages/confirmation_1002_a_patel.pdf'
       },
       {
         id: 1003, fullName: "Sunita Singh", dob: "2000-11-05", age: 24, createdAt: "2025-10-22",
@@ -277,7 +284,8 @@ export class AgentDashboard implements OnInit {
         address: "B-10, Sector 15, Noida", emergencyContactNo: "9988776650", emergencyRelation: "Husband",
         passportNo: "T2345678", passportValidTill: "2032-01-30", highestDegree: "M.Sc. Biotechnology",
         marks: 75.2, appliedFor: "MD", presentStatus: StudentStatus.COMPLETED,
-        nextStep: StudentStatus.COMPLETED, college: colleges[2] || colleges[0]
+        nextStep: StudentStatus.COMPLETED, college: colleges[2] || colleges[0],
+        confirmationPagePath: 'uploads/confirmation-pages/confirmation_1003_s_singh.pdf'
       },
       {
         id: 1004, fullName: "Deepak Kumar", dob: "2003-01-30", age: 22, createdAt: "2025-10-20",
@@ -301,6 +309,7 @@ export class AgentDashboard implements OnInit {
   }
   
   calculateStats(): void {
+    if (!this.students) return; // Defensive check
     this.stats.totalStudents = this.students.length;
     this.stats.pending = this.students.filter(s => 
       [StudentStatus.REGISTERED, StudentStatus.UNDER_REVIEW, StudentStatus.PENDING_APPROVAL].includes(s.presentStatus)
@@ -522,12 +531,63 @@ export class AgentDashboard implements OnInit {
   }
 
 
-  onStudentRegistered(): void {
-    // 1. Reload all agent data to get the new student in the list
-    //    This automatically calls calculateStats(), generateDashboardTasks(), etc.
-    this.loadAgentData(); 
+  onStudentRegistered(newStudent?: Student): void { // <--- FIXED: Made parameter optional
     
-    // 2. Navigate back to the main dashboard view
-    this.navigateTo('dashboard');
+    // 1. Set the data for the success modal
+    // Only show the modal if student data is provided (the new student component emitted it)
+    this.navigateTo('students'); 
+    
+    // 2. Reload all agent data. 
+    // This will show the loading spinner while the new student list is fetched,
+    // which is the correct behavior.
+    this.cdr.detectChanges(); 
+    
+    // 2. Reload all agent data 
+    this.loadAgentData(); 
   }
+  
+  closeSuccessModal(): void { 
+    this.isSuccessModalOpen = false;
+    this.navigateTo('dashboard'); 
+    this.newlyRegisteredStudent = null;
+    this.cdr.detectChanges();
+  }
+  
+// ... (keep all existing code, only replace the downloadFile method)
+
+/**
+ * Downloads a file (confirmation page or admission letter) from the server
+ * @param path - Relative path to the file (e.g., 'uploads/confirmation-pages/confirmation_25_xxx.pdf')
+ */
+downloadFile(path: string | undefined): void { 
+  if (!path) {
+    console.error('File path is missing.');
+    alert('Error: File path is missing. Cannot download.');
+    return;
+  }
+
+  // Construct full URL
+  const baseUrl = 'http://localhost:8080';
+  const fullUrl = `${baseUrl}/${path}`;
+  
+  console.log(`Downloading file from: ${fullUrl}`);
+
+  // Create a temporary anchor element to trigger download
+  const link = document.createElement('a');
+  link.href = fullUrl;
+  link.target = '_blank'; // Open in new tab as fallback
+  
+  // Extract filename from path
+  const fileName = path.split('/').pop() || 'download.pdf';
+  link.download = fileName;
+  
+  // Trigger download
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  console.log(`Download initiated for: ${fileName}`);
+}
+
+// ... (keep all other existing code)
 }

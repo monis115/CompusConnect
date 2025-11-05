@@ -14,9 +14,29 @@
         The new student has been successfully registered and added to your list.
       </p>
       
-      <button type="button" class="reg-modal-btn" (click)="closeSuccessModal()">
-        Done
-      </button>
+      <!-- UPDATED: Button Wrapper -->
+      <div class="reg-modal-actions-wrapper">
+        <!-- NEW: Download Button -->
+        <button 
+          type="button" 
+          class="reg-btn reg-modal-btn-download" 
+          (click)="downloadConfirmation()"
+          [disabled]="!registeredStudentData?.confirmationPagePath">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download Confirmation
+        </button>
+        
+        <!-- "Done" button, now styled as primary -->
+        <button type="button" class="reg-btn reg-modal-btn-primary" (click)="closeSuccessModal()">
+          Done
+        </button>
+      </div>
+      <!-- END UPDATED -->
+
     </div>
   </div>
 </div>

@@ -2,16 +2,43 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetect
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
+import { StudentStatus } from '../agent-dashboard/agent-dashboard';
 
 // --- Interfaces from Parent ---
 interface College {
   id: number;
   collegeName: string;
+  city: string;
+  country: string;
 }
 interface Location {
   id: number;
   state: string;
   district: string;
+}
+
+// --- API Response Interface ---
+interface StudentRegistrationResponse {
+  id: number;
+  fullName: string;
+  dob: string;
+  age: number;
+  email: string;
+  contactNo: string;
+  address: string;
+  emergencyContactNo: string;
+  emergencyRelation: string;
+  passportNo: string;
+  passportValidTill: string;
+  highestDegree: string;
+  marks: number;
+  appliedFor: string;
+  presentStatus: StudentStatus;
+  nextStep: StudentStatus;
+  college: College;
+  createdAt: string;
+  applicationStatus: string;
+  confirmationPagePath?: string;
 }
 
 // --- Form Model (based on your POST JSON) ---
@@ -28,11 +55,10 @@ class StudentRegistration {
   passportValidTill: string = '';
   highestDegree: string = '';
   marks: number | null = null;
-  appliedFor: string = 'MBBS'; // Default value
+  appliedFor: string = 'MBBS';
   collegeIds: number[] = [];
   userNameAgent: string = '';
   
-  // These are not in the POST, just for the form
   age: number | null = null;
   selectedState: string = '';
   selectedCollege: number | null = null;
@@ -48,16 +74,14 @@ export class AgentStudentResgistration implements OnInit {
   
   @ViewChild('regForm') regForm!: NgForm;
 
-  // --- Data from Parent Component ---
   @Input() colleges: College[] = [];
   @Input() locations: Location[] = [];
   @Input() agentUserName: string = '';
 
-  // --- Events to Parent Component ---
-  @Output() onRegistrationSuccess = new EventEmitter<void>();
+  @Output() onRegistrationSuccess = new EventEmitter<StudentRegistrationResponse>();
   @Output() onCancel = new EventEmitter<void>();
+  @Output() onDownloadConfirmation = new EventEmitter<string>();
 
-  // --- Form & State Management ---
   public student = new StudentRegistration();
   public groupedLocations = new Map<string, Location[]>();
   public availableStates: string[] = [];
@@ -67,11 +91,14 @@ export class AgentStudentResgistration implements OnInit {
   public isSuccess = false;
   public errorMessage: string | null = null;
   
+  public registeredStudentData: StudentRegistrationResponse | null = null;
+  
   private registrationApiUrl = 'http://localhost:8080/students/add';
+  private baseUrl = 'http://localhost:8080'; // Base URL for file downloads
 
   constructor(
     private http: HttpClient,
-    private changeDetectorRef: ChangeDetectorRef // Added for manual change detection
+    private changeDetectorRef: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -112,7 +139,6 @@ export class AgentStudentResgistration implements OnInit {
 
   registerStudent(): void {
     if (this.regForm.invalid) {
-      // Mark all fields as "touched" to show validation errors
       Object.values(this.regForm.controls).forEach(control => {
         control.markAsTouched();
       });
@@ -123,7 +149,6 @@ export class AgentStudentResgistration implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    // --- Prepare Payload ---
     if (this.student.selectedCollege) {
       this.student.collegeIds = [this.student.selectedCollege];
     }
@@ -137,43 +162,77 @@ export class AgentStudentResgistration implements OnInit {
 
     console.log('Sending payload:', payload);
 
-    this.http.post(this.registrationApiUrl, payload)
+    this.http.post<StudentRegistrationResponse>(this.registrationApiUrl, payload)
       .pipe(
         finalize(() => {
           this.isLoading = false;
-          this.changeDetectorRef.detectChanges(); // Ensure change detection
+          this.changeDetectorRef.detectChanges();
         })
       )
       .subscribe({
-        next: (response) => {
+        next: (response: StudentRegistrationResponse) => {
           console.log('Registration successful:', response);
+          
+          this.registeredStudentData = response;
           this.isSuccess = true;
-          this.changeDetectorRef.detectChanges(); // Critical fix for modal display
+          this.changeDetectorRef.detectChanges();
         },
         error: (err: HttpErrorResponse) => {
           console.error('Registration failed:', err);
           this.errorMessage = `Failed to register student. ${err.error?.message || err.message}`;
-          this.changeDetectorRef.detectChanges(); // Ensure error message displays
+          this.changeDetectorRef.detectChanges();
         }
       });
   }
   
   cancel(): void {
-    if (confirm('Are you sure you want to cancel? All unsaved data will be lost.')) {
-      this.onCancel.emit();
-    }
+    this.onCancel.emit();
   }
   
+  /**
+   * Downloads the confirmation PDF for the registered student
+   */
+  downloadConfirmation(): void {
+    if (!this.registeredStudentData || !this.registeredStudentData.confirmationPagePath) {
+      console.error('No confirmation page path available for download.');
+      this.errorMessage = 'Confirmation page is not available for download.';
+      return;
+    }
+
+    const filePath = this.registeredStudentData.confirmationPagePath;
+    const fullUrl = `${this.baseUrl}/${filePath}`;
+    
+    console.log('Downloading confirmation from:', fullUrl);
+
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = fullUrl;
+    link.target = '_blank'; // Open in new tab as fallback
+    
+    // Extract filename from path
+    const fileName = filePath.split('/').pop() || `confirmation_${this.registeredStudentData.id}.pdf`;
+    link.download = fileName;
+    
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   closeSuccessModal(): void {
     this.isSuccess = false;
     
-    // --- Reset the form to its initial state ---
     this.regForm.resetForm();
     this.student = new StudentRegistration();
-    this.student.userNameAgent = this.agentUserName; // Re-apply the agent username
-    this.filteredDistricts = []; // Clear district dropdown
+    this.student.userNameAgent = this.agentUserName;
+    this.filteredDistricts = [];
     
-    // Tell parent to refresh and navigate away
-    this.onRegistrationSuccess.emit(); 
+    if (this.registeredStudentData) {
+      this.onRegistrationSuccess.emit(this.registeredStudentData);
+    } else {
+      this.onRegistrationSuccess.emit({} as StudentRegistrationResponse);
+    }
+    
+    this.registeredStudentData = null;
   }
 }
