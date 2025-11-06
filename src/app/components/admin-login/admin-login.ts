@@ -88,10 +88,7 @@ export class AdminLogin {
               this.spinnerText.set('Agent Login Successful');
               this.spinnerIcon.set('agent');
               break;
-            case 'student':
-              this.spinnerText.set('Student Login Successful');
-              this.spinnerIcon.set('student');
-              break;
+          
             case 'visa-manager':
               this.spinnerText.set('Visa Manager Login Successful');
               this.spinnerIcon.set('visa');
@@ -120,9 +117,7 @@ export class AdminLogin {
               case 'agent':
                 this.router.navigate(['/agent-dashboard']);
                 break;
-              case 'student':
-                this.router.navigate(['/student-dashboard']);
-                break;
+             
               case 'visa-manager':
                 this.router.navigate(['/visa-manager-dashboard']);
                 break;

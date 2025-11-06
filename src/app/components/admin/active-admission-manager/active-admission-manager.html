@@ -1,0 +1,330 @@
+<div class="container">
+  <div class="header">
+    <div class="header-content">
+      <h1 class="title">Active Admission Managers</h1>
+      <p class="subtitle">Manage and monitor admission manager activities</p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p class="loading-text">Loading admission managers...</p>
+  </div>
+
+  <div *ngIf="error && !isLoading" class="error-container">
+    <div class="error-icon">⚠</div>
+    <p class="error-text">{{ error }}</p>
+    <button class="btn-primary" (click)="loadManagers()">Retry</button>
+  </div>
+
+  <div *ngIf="!isLoading && !error && viewMode === 'list'" class="content animate-fade-in">
+    <div class="stats-bar">
+     <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-value">{{ managers.length }}</div>
+        <div class="stat-label">Total Managers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ totalStudents }}</div>
+        <div class="stat-label">Total Students</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ totalColleges }}</div>
+        <div class="stat-label">Total Colleges</div>
+      </div>
+    </div>
+    </div>
+
+    <div class="managers-grid">
+      <div *ngFor="let manager of managers" class="manager-card" (click)="selectManager(manager)">
+        <div class="manager-header">
+          <div class="manager-avatar">
+            {{ manager.fullName.charAt(0) }}
+          </div>
+          <div class="manager-info">
+            <h3 class="manager-name">{{ manager.fullName }}</h3>
+            <p class="manager-username">@{{ manager.username }}</p>
+          </div>
+          <span class="badge" [ngClass]="getStatusClass(manager.status)">
+            {{ manager.status }}
+          </span>
+        </div>
+        
+        <div class="manager-details">
+          <div class="detail-item">
+            <span class="detail-icon">📧</span>
+            <span class="detail-text">{{ manager.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-icon">📱</span>
+            <span class="detail-text">{{ manager.contactNumber }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-icon">👥</span>
+            <span class="detail-text">{{ manager.students.length }} Students</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-icon">🏫</span>
+            <span class="detail-text">{{ manager.colleges.length }} Colleges</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button *ngIf="loadingManagerId !== manager.id" class="btn-view">
+            View Details →
+          </button>
+          <div *ngIf="loadingManagerId === manager.id" class="card-spinner-container">
+            <div class="spinner-small"></div>
+          </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="viewMode === 'manager-detail' && selectedManager" class="content animate-fade-in">
+    <button class="btn-back" (click)="backToList()">
+      ← Back to List
+    </button>
+
+    <div class="detail-header">
+      <div class="detail-avatar-large">
+        {{ selectedManager.fullName.charAt(0) }}
+      </div>
+      <div class="detail-header-info">
+        <h2 class="detail-title">{{ selectedManager.fullName }}</h2>
+        <span class="badge large" [ngClass]="getStatusClass(selectedManager.status)">
+          {{ selectedManager.status }}
+        </span>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-label">Username</div>
+        <div class="info-value">{{ selectedManager.username }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Email</div>
+        <div class="info-value">{{ selectedManager.email }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Contact Number</div>
+        <div class="info-value">{{ selectedManager.contactNumber }}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Role</div>
+        <div class="info-value">{{ selectedManager.role }}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Assigned Colleges ({{ selectedManager.colleges.length }})</h3>
+      <div class="colleges-list">
+        <div *ngFor="let college of selectedManager.colleges" class="college-item">
+          <div class="college-icon">🏫</div>
+          <div class="college-details">
+            <div class="college-name">{{ college.collegeName }}</div>
+            <div class="college-location">{{ college.city }}, {{ college.country }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Students Under Management ({{ selectedManager.students.length }})</h3>
+      <div class="students-table-container">
+        <table class="students-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Applied For</th>
+              <th>College</th>
+              <th>Marks</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let student of selectedManager.students">
+              <td>
+                <div class="student-name-cell">
+                  <div class="student-avatar-small">{{ student.fullName.charAt(0) }}</div>
+                  <span>{{ student.fullName }}</span>
+                </div>
+              </td>
+              <td>{{ student.email }}</td>
+              <td><span class="course-badge">{{ student.appliedFor }}</span></td>
+              <td>{{ student.college.collegeName }}</td>
+              <td><span class="marks-badge">{{ student.marks }}%</span></td>
+              <td>
+                <span class="badge small" [ngClass]="getStatusClass(student.presentStatus)">
+                  {{ student.presentStatus }}
+                </span>
+              </td>
+              <td>
+                <button *ngIf="loadingStudentId !== student.id" class="btn-table-action" (click)="selectStudent(student)">
+                  View
+                </button>
+                <div *ngIf="loadingStudentId === student.id" class="table-spinner-container">
+                  <div class="spinner-small"></div>
+                </div>
+                </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="viewMode === 'student-detail' && selectedStudent" class="content animate-fade-in">
+    <button class="btn-back" (click)="backToManager()">
+      ← Back to Manager
+    </button>
+
+    <div class="detail-header">
+      <div class="detail-avatar-large">
+        {{ selectedStudent.fullName.charAt(0) }}
+      </div>
+      <div class="detail-header-info">
+        <h2 class="detail-title">{{ selectedStudent.fullName }}</h2>
+        <span class="badge large" [ngClass]="getStatusClass(selectedStudent.applicationStatus)">
+          {{ selectedStudent.applicationStatus }}
+        </span>
+      </div>
+    </div>
+
+    <div class="student-detail-grid">
+      <div class="info-section">
+        <h4 class="info-section-title">Personal Information</h4>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Date of Birth</div>
+            <div class="info-value">{{ formatDate(selectedStudent.dob) }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Age</div>
+            <div class="info-value">{{ selectedStudent.age }} years</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Email</div>
+            <div class="info-value">{{ selectedStudent.email }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Contact Number</div>
+            <div class="info-value">{{ selectedStudent.contactNo }}</div>
+          </div>
+          <div class="info-card full-width">
+            <div class="info-label">Address</div>
+            <div class="info-value">{{ selectedStudent.address }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h4 class="info-section-title">Emergency Contact</h4>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Contact Number</div>
+            <div class="info-value">{{ selectedStudent.emergencyContactNo }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Relation</div>
+            <div class="info-value">{{ selectedStudent.emergencyRelation }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h4 class="info-section-title">Passport Information</h4>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Passport Number</div>
+            <div class="info-value">{{ selectedStudent.passportNo }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Valid Till</div>
+            <div class="info-value">{{ formatDate(selectedStudent.passportValidTill) }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h4 class="info-section-title">Academic Information</h4>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Highest Degree</div>
+            <div class="info-value">{{ selectedStudent.highestDegree }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Marks</div>
+            <div class="info-value">{{ selectedStudent.marks }}%</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Applied For</div>
+            <div class="info-value">{{ selectedStudent.appliedFor }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Application Date</div>
+            <div class="info-value">{{ formatDate(selectedStudent.createdAt) }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h4 class="info-section-title">College Information</h4>
+        <div class="college-detail-card">
+          <div class="college-icon-large">🏫</div>
+          <div>
+            <div class="college-detail-name">{{ selectedStudent.college.collegeName }}</div>
+            <div class="college-detail-location">{{ selectedStudent.college.city }}, {{ selectedStudent.college.country }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h4 class="info-section-title">Application Status</h4>
+        <div class="status-timeline">
+          <div class="timeline-item">
+            <div class="timeline-icon">📝</div>
+            <div class="timeline-content">
+              <div class="timeline-label">Present Status</div>
+              <div class="timeline-value">
+                <span class="badge" [ngClass]="getStatusClass(selectedStudent.presentStatus)">
+                  {{ selectedStudent.presentStatus }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-icon">🔄</div>
+            <div class="timeline-content">
+              <div class="timeline-label">Next Step</div>
+              <div class="timeline-value">
+                <span class="badge" [ngClass]="getStatusClass(selectedStudent.nextStep)">
+                  {{ selectedStudent.nextStep }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-section" *ngIf="selectedStudent.confirmationPagePath || selectedStudent.admissionLetterPath">
+        <h4 class="info-section-title">Documents</h4>
+        <div classs="documents-list">
+          <div class="document-item" *ngIf="selectedStudent.confirmationPagePath">
+            <span class="document-icon">📄</span>
+            <span class="document-name">Confirmation Page</span>
+            <a [href]="selectedStudent.confirmationPagePath" target="_blank" class="btn-download">Download</a>
+          </div>
+          <div class="document-item" *ngIf="selectedStudent.admissionLetterPath">
+            <span class="document-icon">📄</span>
+            <span class="document-name">Admission Letter</span>
+            <a [href]="selectedStudent.admissionLetterPath" target="_blank" class="btn-download">Download</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

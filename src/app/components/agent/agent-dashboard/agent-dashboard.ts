@@ -1,9 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { Observable, of } from 'rxjs'; // Keep 'of' and 'Observable' if you still use them elsewhere, otherwise can be removed.
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { AdminAuthService } from '../../../services/admin-auth-service';
 
 // --- Enums ---
 export enum StudentStatus {
@@ -67,6 +66,7 @@ interface Student {
   confirmationPagePath?: string; 
 }
 
+// Note: This interface must match the 'AgentDetailsResponse' from your auth service
 interface AgentData {
   id: number;
   fullName: string;
@@ -183,7 +183,8 @@ export class AgentDashboard implements OnInit {
   agentData: AgentData | null = null;
   students: Student[] = [];
   selectedStudent: Student | null = null;
-  agentApiUrl = 'http://localhost:8080/api/agents/user/R1025398681';
+  // --- 2. REMOVED: No longer need hard-coded URL ---
+  // agentApiUrl = 'http://localhost:8080/api/agents/user/R1025398681'; 
   isLoading = true;
   error: string | null = null;
 
@@ -206,15 +207,15 @@ export class AgentDashboard implements OnInit {
   searchQuery: string = '';
   statusFilter: StudentStatus | 'all' = 'all';
   
-  // NEW: For new success modal
   isSuccessModalOpen: boolean = false; 
   newlyRegisteredStudent: Student | null = null; 
 
   constructor(
-    private http: HttpClient, 
     private sanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef // <-- 2. Inject ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AdminAuthService // <-- 3. INJECTED: AdminAuthService
   ) {
+    // This loop is correct, keep it
     for (const [key, value] of Object.entries(this.statusIcons)) {
       this.safeStatusIcons.set(key as StudentStatus, this.sanitizer.bypassSecurityTrustHtml(value));
     }
@@ -224,41 +225,48 @@ export class AgentDashboard implements OnInit {
     this.loadAgentData();
   }
   
+  // --- 4. REPLACED: loadAgentData now uses the auth service ---
   loadAgentData(): void {
     this.isLoading = true;
     this.error = null;
-    this.cdr.detectChanges(); // <-- Tell Angular "we are loading"
+    this.cdr.detectChanges(); // Show loading spinner
 
-    this.http.get<AgentData>(this.agentApiUrl).pipe(
-      catchError((err): Observable<null> => {
-        console.error('Error loading agent data:', err);
-        this.error = 'Failed to load agent data. Please try again later.';
-        return of(null);
-      }),
-      finalize(() => {
-        this.isLoading = false; 
-        this.cdr.detectChanges(); // <-- Tell Angular "we are done loading"
-      })
-    ).subscribe((data: AgentData | null) => {
-      if (data) {
-        this.agentData = data;
-        this.students = data.student || [];
-        
-        if (this.agentData) {
-          this.generateDummyStudents(this.agentData.collegePrivileges);
-        }
-        
-        this.calculateStats();
-        this.generateDashboardTasks();
-        this.generateActionableStudents(); 
-        this.generateCollegeDistribution();
-        
-        this.cdr.detectChanges(); // <-- Tell Angular "all data is processed"
+    // Get the profile data *directly* from the auth service's storage
+    // This was fetched at login and stored in sessionStorage
+    const data: AgentData | null = this.authService.getFullProfile();
+
+    if (data) {
+      // Data was found in session storage
+      console.log('Loaded agent profile from session storage.');
+      this.agentData = data;
+      this.students = data.student || [];
+      
+      if (this.agentData) {
+        // We still call this to add dummy data for testing
+        this.generateDummyStudents(this.agentData.collegePrivileges);
       }
-    });
+      
+      // Process all data
+      this.calculateStats();
+      this.generateDashboardTasks();
+      this.generateActionableStudents(); 
+      this.generateCollegeDistribution();
+      
+      this.isLoading = false;
+      this.cdr.detectChanges(); // Tell Angular "all data is processed"
+      
+    } else {
+      // This would happen if someone isn't an agent or not logged in
+      console.error('Agent profile not found in session storage.');
+      this.error = 'Failed to load agent data from session. Please try logging in again.';
+      this.isLoading = false;
+      this.cdr.detectChanges(); // Tell Angular "we are done loading"
+    }
   }
 
   generateDummyStudents(colleges: College[]): void {
+    if (!colleges) colleges = []; // Safety check
+    
     const dummyStudents: Student[] = [
       {
         id: 1001, fullName: "Priya Sharma", dob: "2002-03-15", age: 23, createdAt: "2025-10-28",
@@ -266,7 +274,7 @@ export class AgentDashboard implements OnInit {
         address: "123, MG Road, Mumbai", emergencyContactNo: "9876543211", emergencyRelation: "Father",
         passportNo: "R1234567", passportValidTill: "2030-05-20", highestDegree: "12th Standard (CBSE)",
         marks: 92.5, appliedFor: "MBBS", presentStatus: StudentStatus.ADMISSION_LETTER_GENERATED,
-        nextStep: StudentStatus.TELEX_INITIATED, college: colleges[1] || colleges[0], 
+        nextStep: StudentStatus.TELEX_INITIATED, college: colleges[1] || colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'}, 
         confirmationPagePath: 'uploads/confirmation-pages/confirmation_1001_p_sharma.pdf'
       },
       {
@@ -275,7 +283,7 @@ export class AgentDashboard implements OnInit {
         address: "45, Satellite, Ahmedabad", emergencyContactNo: "9123456781", emergencyRelation: "Mother",
         passportNo: "S7654321", passportValidTill: "2029-11-10", highestDegree: "B.Sc. Biology",
         marks: 88.0, appliedFor: "MBBS", presentStatus: StudentStatus.PENDING_APPROVAL,
-        nextStep: StudentStatus.APPROVED, college: colleges[0],
+        nextStep: StudentStatus.APPROVED, college: colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'},
         confirmationPagePath: 'uploads/confirmation-pages/confirmation_1002_a_patel.pdf'
       },
       {
@@ -284,7 +292,7 @@ export class AgentDashboard implements OnInit {
         address: "B-10, Sector 15, Noida", emergencyContactNo: "9988776650", emergencyRelation: "Husband",
         passportNo: "T2345678", passportValidTill: "2032-01-30", highestDegree: "M.Sc. Biotechnology",
         marks: 75.2, appliedFor: "MD", presentStatus: StudentStatus.COMPLETED,
-        nextStep: StudentStatus.COMPLETED, college: colleges[2] || colleges[0],
+        nextStep: StudentStatus.COMPLETED, college: colleges[2] || colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'},
         confirmationPagePath: 'uploads/confirmation-pages/confirmation_1003_s_singh.pdf'
       },
       {
@@ -293,7 +301,7 @@ export class AgentDashboard implements OnInit {
         address: "78, Kormangala, Bangalore", emergencyContactNo: "9001234560", emergencyRelation: "Father",
         passportNo: "U8765432", passportValidTill: "2033-08-15", highestDegree: "12th Standard (HSC)",
         marks: 95.8, appliedFor: "MBBS", presentStatus: StudentStatus.TELEX_APPROVED,
-        nextStep: StudentStatus.VISA_INITIATED, college: colleges[1] || colleges[0]
+        nextStep: StudentStatus.VISA_INITIATED, college: colleges[1] || colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'}
       },
       {
         id: 1005, fullName: "Anjali Mishra", dob: "2002-09-12", age: 23, createdAt: "2025-10-19",
@@ -301,7 +309,7 @@ export class AgentDashboard implements OnInit {
         address: "11, Boring Road, Patna", emergencyContactNo: "9112233440", emergencyRelation: "Mother",
         passportNo: "V3456789", passportValidTill: "2028-02-25", highestDegree: "12th Standard (BSEB)",
         marks: 82.0, appliedFor: "MBBS", presentStatus: StudentStatus.REJECTED,
-        nextStep: StudentStatus.REJECTED, college: colleges[0]
+        nextStep: StudentStatus.REJECTED, college: colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'}
       }
     ];
     this.students.push(...dummyStudents);
@@ -309,7 +317,7 @@ export class AgentDashboard implements OnInit {
   }
   
   calculateStats(): void {
-    if (!this.students) return; // Defensive check
+    if (!this.students) return;
     this.stats.totalStudents = this.students.length;
     this.stats.pending = this.students.filter(s => 
       [StudentStatus.REGISTERED, StudentStatus.UNDER_REVIEW, StudentStatus.PENDING_APPROVAL].includes(s.presentStatus)
@@ -347,8 +355,10 @@ export class AgentDashboard implements OnInit {
 
     const countMap = new Map<string, number>();
     for (const student of this.students) {
-      const name = student.college.collegeName;
-      countMap.set(name, (countMap.get(name) || 0) + 1);
+      if (student.college) { // Add safety check
+        const name = student.college.collegeName;
+        countMap.set(name, (countMap.get(name) || 0) + 1);
+      }
     }
     
     const total = this.students.length;
@@ -375,7 +385,7 @@ export class AgentDashboard implements OnInit {
     if (view !== 'student-detail') {
       this.selectedStudent = null;
     }
-    this.cdr.detectChanges(); // Force update on view change
+    this.cdr.detectChanges(); 
   }
   
   viewStudentDetails(student: Student): void {
@@ -402,7 +412,7 @@ export class AgentDashboard implements OnInit {
       this.generateActionableStudents();
       this.generateCollegeDistribution();
       
-      this.cdr.detectChanges(); // Force update
+      this.cdr.detectChanges();
     }
   }
     
@@ -481,7 +491,7 @@ export class AgentDashboard implements OnInit {
         s.fullName.toLowerCase().includes(query) ||
         s.email.toLowerCase().includes(query) ||
         s.contactNo.includes(query) ||
-        s.college.collegeName.toLowerCase().includes(query)
+        (s.college && s.college.collegeName.toLowerCase().includes(query)) // Safety check
       );
     }
     if (this.statusFilter !== 'all') {
@@ -526,23 +536,20 @@ export class AgentDashboard implements OnInit {
   logout(): void {
     if (confirm('Are you sure you want to logout?')) {
       console.log('Logging out...');
-      window.location.href = '/login';
+      // This is the correct way to log out using your service
+      this.authService.logout();
+      // After logging out, redirect to the login page
+      window.location.href = '/login'; 
+      // A better way is to use Angular's Router:
+      // e.g., this.router.navigate(['/login']);
+      // But this requires injecting the Router in your constructor.
     }
   }
 
-
-  onStudentRegistered(newStudent?: Student): void { // <--- FIXED: Made parameter optional
-    
-    // 1. Set the data for the success modal
-    // Only show the modal if student data is provided (the new student component emitted it)
+  onStudentRegistered(newStudent?: Student): void {
     this.navigateTo('students'); 
-    
-    // 2. Reload all agent data. 
-    // This will show the loading spinner while the new student list is fetched,
-    // which is the correct behavior.
     this.cdr.detectChanges(); 
-    
-    // 2. Reload all agent data 
+    // Reload data to get the new student
     this.loadAgentData(); 
   }
   
@@ -552,42 +559,24 @@ export class AgentDashboard implements OnInit {
     this.newlyRegisteredStudent = null;
     this.cdr.detectChanges();
   }
-  
-// ... (keep all existing code, only replace the downloadFile method)
 
-/**
- * Downloads a file (confirmation page or admission letter) from the server
- * @param path - Relative path to the file (e.g., 'uploads/confirmation-pages/confirmation_25_xxx.pdf')
- */
-downloadFile(path: string | undefined): void { 
-  if (!path) {
-    console.error('File path is missing.');
-    alert('Error: File path is missing. Cannot download.');
-    return;
+  downloadFile(path: string | undefined): void { 
+    if (!path) {
+      console.error('File path is missing.');
+      alert('Error: File path is missing. Cannot download.');
+      return;
+    }
+    const baseUrl = 'http://localhost:8080';
+    const fullUrl = `${baseUrl}/${path}`;
+    console.log(`Downloading file from: ${fullUrl}`);
+    const link = document.createElement('a');
+    link.href = fullUrl;
+    link.target = '_blank';
+    const fileName = path.split('/').pop() || 'download.pdf';
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    console.log(`Download initiated for: ${fileName}`);
   }
-
-  // Construct full URL
-  const baseUrl = 'http://localhost:8080';
-  const fullUrl = `${baseUrl}/${path}`;
-  
-  console.log(`Downloading file from: ${fullUrl}`);
-
-  // Create a temporary anchor element to trigger download
-  const link = document.createElement('a');
-  link.href = fullUrl;
-  link.target = '_blank'; // Open in new tab as fallback
-  
-  // Extract filename from path
-  const fileName = path.split('/').pop() || 'download.pdf';
-  link.download = fileName;
-  
-  // Trigger download
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  console.log(`Download initiated for: ${fileName}`);
-}
-
-// ... (keep all other existing code)
 }

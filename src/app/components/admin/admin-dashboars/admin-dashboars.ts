@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AdminAuthService } from '../../../services/admin-auth-service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 
 interface MenuItem {
   id: string;
@@ -36,7 +37,8 @@ export class AdminDashboars implements OnInit {
   constructor(
     private authService: AdminAuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private http: HttpClient // <-- ADD THIS
   ) {}
 
   ngOnInit() {

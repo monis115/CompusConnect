@@ -81,6 +81,7 @@ import { AddmissionManagerRegistration } from './components/admin/addmission-man
 import { AdmissionManagerAccessCollege } from './components/admin/admission-manager-access-college/admission-manager-access-college';
 import { AdmissionManagerUpdate } from './components/admin/admission-manager-update/admission-manager-update';
 import { AgentStudentResgistration } from './components/agent/agent-student-resgistration/agent-student-resgistration';
+import { ActiveAdmissionManager } from './components/admin/active-admission-manager/active-admission-manager';
 
 @NgModule({
   declarations: [
@@ -98,7 +99,8 @@ import { AgentStudentResgistration } from './components/agent/agent-student-resg
     PendingAgents,
     AddmissionManagerRegistration,
     AdmissionManagerAccessCollege,
-    AdmissionManagerUpdate
+    AdmissionManagerUpdate,
+    ActiveAdmissionManager
     
     
   ],

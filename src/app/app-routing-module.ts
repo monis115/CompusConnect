@@ -14,6 +14,7 @@ import { PendingAgents } from './components/admin/pending-agents/pending-agents'
 import { AddmissionManagerRegistration } from './components/admin/addmission-manager-registration/addmission-manager-registration';
 import { AdmissionManagerAccessCollege } from './components/admin/admission-manager-access-college/admission-manager-access-college';
 import { AdmissionManagerUpdate } from './components/admin/admission-manager-update/admission-manager-update';
+import { ActiveAdmissionManager } from './components/admin/active-admission-manager/active-admission-manager';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -44,7 +45,8 @@ const routes: Routes = [
       { path: 'pending-agents', component: PendingAgents, data: { section: 'agents' } },
       { path: 'addmission-manager-registration', component: AddmissionManagerRegistration, data: { section: 'admission-managers' } },
       { path: 'admission-manager-access', component: AdmissionManagerAccessCollege },
-      { path: 'update-admission-manager-details', component: AdmissionManagerUpdate }
+      { path: 'update-admission-manager-details', component: AdmissionManagerUpdate },
+      {path: 'active-admission-manager', component:ActiveAdmissionManager }
     ]
   },
   

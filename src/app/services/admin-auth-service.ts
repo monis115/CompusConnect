@@ -1,8 +1,9 @@
-// Updated AdminAuthService (from previous context) - complete version for reference
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, switchMap, of, map } from 'rxjs';
 import { map as rxMap } from 'rxjs/operators'; // Alias to avoid conflict if needed
+
+// --- Interface definitions remain the same ---
 
 interface LoginRequest {
   username: string;
@@ -12,7 +13,7 @@ interface LoginRequest {
 interface LoginResponse {
   id: number;
   username: string;
-  password: string;
+  password: string; // Note: Received but NOT stored for security
   role: 'admin' | 'agent' | 'student' | 'visa-manager' | 'admission-manager';
 }
 
@@ -59,6 +60,7 @@ interface AgentDetailsResponse {
   student: any[];
 }
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -69,7 +71,7 @@ export class AdminAuthService {
   private fullProfileKey = 'fullUserProfile';
 
   constructor(private http: HttpClient) {
-    console.log('🔧 AdminAuthService initialized');
+    console.log('🔧 AdminAuthService initialized (using sessionStorage)');
     console.log('📡 API URL:', this.apiUrl);
     console.log('📡 Agents API URL:', this.agentsApiUrl);
   }
@@ -93,7 +95,7 @@ export class AdminAuthService {
           console.log('👤 Received User ID:', response.id);
           console.log('📧 Received Username (UserId):', response.username);
           console.log('🎭 Received Role:', response.role);
-          console.log('🔑 Received Password (hidden):', '***');
+          // Note: Password is received but intentionally not logged or stored
         },
         error: (error) => {
           console.error('❌ Login API Error:', error);
@@ -103,7 +105,7 @@ export class AdminAuthService {
         }
       }),
       switchMap((loginResponse: LoginResponse) => {
-        // Store basic login data immediately
+        // Store basic login data immediately in sessionStorage
         const userData = {
           id: loginResponse.id,
           username: loginResponse.username,
@@ -111,50 +113,46 @@ export class AdminAuthService {
           loginTime: new Date().toISOString()
         };
         
-        console.log('💾 Storing basic user data in localStorage:', userData);
-        localStorage.setItem(this.storageKey, JSON.stringify(userData));
-        localStorage.setItem('userRole', loginResponse.role);
-        localStorage.setItem('userId', loginResponse.username);
-        localStorage.setItem('authToken', `token_${loginResponse.id}_${Date.now()}`);
-        console.log('💾 Stored in localStorage:');
+        console.log('💾 Storing basic user data in sessionStorage:', userData);
+        sessionStorage.setItem(this.storageKey, JSON.stringify(userData));
+        sessionStorage.setItem('userRole', loginResponse.role);
+        sessionStorage.setItem('userId', loginResponse.username);
+        sessionStorage.setItem('authToken', `token_${loginResponse.id}_${Date.now()}`);
+        console.log('💾 Stored in sessionStorage:');
         console.log('   - userData:', JSON.stringify(userData));
         console.log('   - userRole:', loginResponse.role);
         console.log('   - userId:', loginResponse.username);
         console.log('   - authToken: token_***');
 
-        // If agent role, fetch full profile
+        // This is the logic you asked for:
+        // If agent role, fetch full profile using the username
         if (loginResponse.role === 'agent') {
           console.log('🎭 Agent role detected. Fetching full profile...');
-          const agentsUrl = `${this.agentsApiUrl}/${loginResponse.username}`;
+          const agentsUrl = `${this.agentsApiUrl}/${loginResponse.username}`; // Using username
           console.log('📤 Sending GET request to agents API:', agentsUrl);
+          
           return this.http.get<AgentDetailsResponse>(agentsUrl).pipe(
             tap({
               next: (agentProfile) => {
                 console.log('✅ Agent profile received from API:', agentProfile);
                 console.log('👤 Agent ID:', agentProfile.id);
                 console.log('📛 Agent Full Name:', agentProfile.fullName);
-                console.log('📧 Agent Email:', agentProfile.email);
-                console.log('🏢 Agent Company Name:', agentProfile.companyName);
-                console.log('🏫 Agent College Privileges Count:', agentProfile.collegePrivileges?.length || 0);
-                console.log('📍 Agent Accessible Locations Count:', agentProfile.accessibleLocations?.length || 0);
-                console.log('👥 Agent Students Count:', agentProfile.student?.length || 0);
-                // Store full profile
-                localStorage.setItem(this.fullProfileKey, JSON.stringify(agentProfile));
-                console.log('💾 Full agent profile stored in localStorage (key: fullUserProfile)');
-                console.log('💾 Stored full profile size:', JSON.stringify(agentProfile).length, 'characters');
+                
+                // Store full profile in sessionStorage
+                sessionStorage.setItem(this.fullProfileKey, JSON.stringify(agentProfile));
+                console.log('💾 Full agent profile stored in sessionStorage (key: fullUserProfile)');
               },
               error: (err) => {
                 console.error('❌ Failed to fetch agent profile:', err);
-                console.error('📊 Agent API Error Status:', err.status);
-                console.error('💬 Agent API Error Message:', err.message);
               }
             }),
             rxMap(() => loginResponse),  // Transform to return the original LoginResponse
-            tap(() => console.log('🔄 Agent profile fetch completed. Returning original login response:', loginResponse))
+            tap(() => console.log('🔄 Agent profile fetch completed. Returning original login response.'))
           );
         }
+        
         // For non-agent roles, just return the login response
-        console.log('🎭 Non-agent role. Skipping full profile fetch. Returning login response:', loginResponse);
+        console.log('🎭 Non-agent role. Skipping full profile fetch.');
         return of(loginResponse);
       })
     );
@@ -162,8 +160,8 @@ export class AdminAuthService {
 
   getUserData(): any {
     console.log('🔍 AdminAuthService.getUserData() called');
-    const data = localStorage.getItem(this.storageKey);
-    console.log('📦 Retrieved userData from localStorage:', data);
+    const data = sessionStorage.getItem(this.storageKey);
+    console.log('📦 Retrieved userData from sessionStorage:', data);
     const parsedData = data ? JSON.parse(data) : null;
     console.log('📦 Parsed userData:', parsedData);
     return parsedData;
@@ -171,30 +169,28 @@ export class AdminAuthService {
 
   getFullProfile(): AgentDetailsResponse | null {
     console.log('🔍 AdminAuthService.getFullProfile() called');
-    const profileStr = localStorage.getItem(this.fullProfileKey);
-    console.log('📦 Retrieved fullUserProfile from localStorage:', profileStr ? 'Found (length: ' + profileStr.length + ')' : 'Not found');
+    const profileStr = sessionStorage.getItem(this.fullProfileKey);
+    console.log('📦 Retrieved fullUserProfile from sessionStorage:', profileStr ? 'Found' : 'Not found');
     const parsedProfile = profileStr ? JSON.parse(profileStr) : null;
     if (parsedProfile) {
       console.log('📦 Parsed full profile summary:');
       console.log('   - Full Name:', parsedProfile.fullName);
       console.log('   - User ID:', parsedProfile.userId);
-      console.log('   - College Privileges:', parsedProfile.collegePrivileges?.length || 0);
-      console.log('   - Accessible Locations:', parsedProfile.accessibleLocations?.length || 0);
     }
     return parsedProfile;
   }
 
   logout(): void {
     console.log('🚪 AdminAuthService.logout() called');
-    console.log('🗑️ Clearing localStorage before logout:');
-    console.log('   - Keys before clear:', Object.keys(localStorage));
-    localStorage.removeItem(this.storageKey);
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem(this.fullProfileKey);
+    console.log('🗑️ Clearing sessionStorage before logout:');
+    console.log('   - Keys before clear:', Object.keys(sessionStorage));
+    sessionStorage.removeItem(this.storageKey);
+    sessionStorage.removeItem('userRole');
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem(this.fullProfileKey);
     console.log('🗑️ Cleared keys after logout:');
-    console.log('   - Keys after clear:', Object.keys(localStorage));
+    console.log('   - Keys after clear:', Object.keys(sessionStorage));
     console.log('✅ Logout completed');
   }
 
@@ -205,7 +201,7 @@ export class AdminAuthService {
   }
 
   getUserRole(): string | null {
-    const role = localStorage.getItem('userRole');
+    const role = sessionStorage.getItem('userRole');
     console.log('🎭 getUserRole():', role);
     return role;
   }
