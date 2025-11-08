@@ -15,6 +15,8 @@ import { AddmissionManagerRegistration } from './components/admin/addmission-man
 import { AdmissionManagerAccessCollege } from './components/admin/admission-manager-access-college/admission-manager-access-college';
 import { AdmissionManagerUpdate } from './components/admin/admission-manager-update/admission-manager-update';
 import { ActiveAdmissionManager } from './components/admin/active-admission-manager/active-admission-manager';
+import { StudentAgentDetails } from './components/admin/student-agent-details/student-agent-details';
+import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-details';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -46,7 +48,9 @@ const routes: Routes = [
       { path: 'addmission-manager-registration', component: AddmissionManagerRegistration, data: { section: 'admission-managers' } },
       { path: 'admission-manager-access', component: AdmissionManagerAccessCollege },
       { path: 'update-admission-manager-details', component: AdmissionManagerUpdate },
-      {path: 'active-admission-manager', component:ActiveAdmissionManager }
+      {path: 'active-admission-manager', component:ActiveAdmissionManager },
+      {path: 'student-agent-details', component:StudentAgentDetails },
+      {path: 'all-agent-details', component:AllAgentDetails }
     ]
   },
   

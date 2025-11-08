@@ -66,19 +66,21 @@
       <div class="info-card" (click)="navigateTo('active-agents')">
         <div class="icon"><i-lucide name="check-circle" size="28"></i-lucide></div>
         <h3>Active Agents</h3>
-        <p>Currently operational</p>
+        <p> College and Location Access</p>
       </div>
-      <div class="info-card" (click)="navigateTo('new-agents')">
-        <div class="icon"><i-lucide name="clock" size="28"></i-lucide></div>
-        <h3>New Agents</h3>
-        <p>Recently joined</p>
-      </div>
+    <div class="info-card" (click)="navigateTo('student-agent-details')">
+  <div class="icon">
+    <i-lucide name="database" size="28"></i-lucide>
+  </div>
+  <h3>Active Agents</h3>
+  <p>Operational agents with all student details</p>
+</div>
       <div class="info-card" (click)="navigateTo('pending-agents')">
         <div class="icon"><i-lucide name="alert-circle" size="28"></i-lucide></div>
         <h3>Approval Pending</h3>
         <p>Awaiting admin review</p>
       </div>
-      <div class="info-card" (click)="navigateTo('all-agents')">
+      <div class="info-card" (click)="navigateTo('all-agent-details')">
         <div class="icon"><i-lucide name="list" size="28"></i-lucide></div>
         <h3>All Agents</h3>
         <p>Complete directory</p>

@@ -1,6 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* Global Loading Spinner - Yellow Theme */
+
+
+
 .global-loading-overlay {
   position: fixed;
   top: 0;

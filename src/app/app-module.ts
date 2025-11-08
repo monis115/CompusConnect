@@ -63,7 +63,8 @@ import {
   ShieldCheck,
   ChevronDown,
   Info,
-  Edit3
+  Edit3,
+  Database
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -82,6 +83,8 @@ import { AdmissionManagerAccessCollege } from './components/admin/admission-mana
 import { AdmissionManagerUpdate } from './components/admin/admission-manager-update/admission-manager-update';
 import { AgentStudentResgistration } from './components/agent/agent-student-resgistration/agent-student-resgistration';
 import { ActiveAdmissionManager } from './components/admin/active-admission-manager/active-admission-manager';
+import { StudentAgentDetails } from './components/admin/student-agent-details/student-agent-details';
+import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-details';
 
 @NgModule({
   declarations: [
@@ -100,7 +103,9 @@ import { ActiveAdmissionManager } from './components/admin/active-admission-mana
     AddmissionManagerRegistration,
     AdmissionManagerAccessCollege,
     AdmissionManagerUpdate,
-    ActiveAdmissionManager
+    ActiveAdmissionManager,
+    StudentAgentDetails,
+    AllAgentDetails
     
     
   ],
@@ -165,6 +170,8 @@ import { ActiveAdmissionManager } from './components/admin/active-admission-mana
         ChevronDown,
         Info,
           Edit3,
+          Database
+
 
         
     }),

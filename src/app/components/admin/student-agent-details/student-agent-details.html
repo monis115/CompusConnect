@@ -1,0 +1,136 @@
+<!-- Main Component Container -->
+<div class="component-wrapper">
+
+  <!-- Loading Screen -->
+  <div *ngIf="isLoading" class="loader-container">
+    <div class="loader"></div>
+    <p>Loading Agents...</p>
+  </div>
+
+  <!-- Agent List View -->
+  <div *ngIf="!isLoading && viewState === 'list'" class="agent-list-container animate-fade-in">
+    <header class="component-header">
+      <button (click)="onBack()" class="back-button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+        Back
+      </button>
+      <h1>Our Agents</h1>
+    </header>
+
+    <div class="agent-grid">
+      <!-- Loop through each agent -->
+      <div *ngFor="let agent of agents" class="agent-card animate-slide-up" (click)="selectAgent(agent)">
+        <div class="agent-card-header">
+          <div class="agent-avatar">
+            {{ agent.fullName.charAt(0) }}
+          </div>
+          <div class="agent-info">
+            <h2 class="agent-name">{{ agent.fullName }}</h2>
+            <p class="agent-designation">{{ agent.designation }}</p>
+          </div>
+        </div>
+        <div class="agent-card-body">
+          <p class="agent-company">{{ agent.companyName }}</p>
+          <div class="agent-details-grid">
+            <div class="agent-info-item">
+              <span class="label">Email:</span>
+              <span class="value">{{ agent.email }}</span>
+            </div>
+            <div class="agent-info-item">
+              <span class="label">Phone:</span>
+              <span class="value">{{ agent.contactNo }}</span>
+            </div>
+            <div class="agent-info-item">
+              <span class="label">Address:</span>
+              <span class="value">{{ agent.address }}</span>
+            </div>
+            <div class="agent-info-item">
+              <span class="label">Status:</span>
+              <span class="value status" [ngClass]="agent.status.toLowerCase()">{{ agent.status | titlecase }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="agent-card-footer">
+          <span class="student-count-badge">
+            View {{ agent.student.length }} Student(s)
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Detail View -->
+  <div *ngIf="!isLoading && viewState === 'detail' && selectedAgent" class="student-detail-container animate-fade-in">
+    <header class="component-header">
+      <button (click)="goBackToList()" class="back-button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+        All Agents
+      </button>
+      <h1>{{ selectedAgent.fullName }}'s Students</h1>
+    </header>
+
+    <div class="student-list">
+      <!-- Handle case with no students -->
+      <div *ngIf="selectedAgent.student.length === 0" class="no-students">
+        <p>This agent does not have any students assigned yet.</p>
+      </div>
+
+      <!-- Loop through students of the selected agent -->
+      <div *ngFor="let student of selectedAgent.student" class="student-card animate-slide-up">
+        <div class="student-card-header">
+          <h3 class="student-name">{{ student.fullName }}</h3>
+          <span class="student-status" [ngClass]="getStudentStatusClass(student.presentStatus)">
+            {{ student.presentStatus | titlecase }}
+          </span>
+        </div>
+        <div class="student-card-body">
+          <div class="student-info-item">
+            <span class="label">Email:</span>
+            <span class="value">{{ student.email }}</span>
+          </div>
+          <div class="student-info-item">
+            <span class="label">Phone:</span>
+            <span class="value">{{ student.contactNo }}</span>
+          </div>
+          <div class="student-info-item">
+            <span class="label">Applying For:</span>
+            <span class="value">{{ student.appliedFor }}</span>
+          </div>
+          <div class="student-info-item">
+            <span class="label">College:</span>
+            <span class="value">{{ student.college.collegeName }}</span>
+          </div>
+          <div class="student-info-item">
+            <span class="label">Application Status:</span>
+            <span class="value">{{ student.applicationStatus }}</span>
+          </div>
+          <div class="student-info-item">
+            <span class="label">Address:</span>
+            <span class="value">{{ student.address }}</span>
+          </div>
+          <div class="student-info-item">
+            <span class="label">Date of Birth:</span>
+            <span class="value">{{ student.dob | date:'longDate' }} ({{student.age}} yrs)</span>
+          </div>
+          <div class="student-info-item">
+            <span class="label">Passport No:</span>
+            <span class="value">{{ student.passportNo }}</span>
+          </div>
+          <div class="student-info-item">
+            <span class="label">Highest Degree:</span>
+            <span class="value">{{ student.highestDegree }} ({{student.marks}}%)</span>
+          </div>
+          <div class="student-info-item">
+            <span class="label">Next Step:</span>
+            <span class="value status" [ngClass]="getStudentStatusClass(student.nextStep)">{{ student.nextStep | titlecase }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

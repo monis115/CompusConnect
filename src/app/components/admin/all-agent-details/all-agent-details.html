@@ -1,0 +1,120 @@
+<div class="agent-container">
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loader-container">
+    <div class="loader"></div>
+    <p>Loading Agents...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && error" class="error-container">
+    <h2>Oops!</h2>
+    <p>{{ error }}</p>
+    <button (click)="fetchAgents()" class="retry-button">Try Again</button>
+  </div>
+
+  <!-- Agent List View -->
+  <div *ngIf="!isLoading && !error && !selectedAgent" class="agent-list-wrapper">
+    <header class="list-header">
+      <h1>Our Agents</h1>
+      <p>Select an agent to view their details and registered students.</p>
+    </header>
+    <div class="agent-grid">
+      <div *ngFor="let agent of agents" class="agent-card" (click)="selectAgent(agent)">
+        <div class="card-header">
+          <h3>{{ agent.fullName }}</h3>
+          <span class="status-badge" [ngClass]="'status-' + getStatusClass(agent.status)">
+            {{ agent.status }}
+          </span>
+        </div>
+        <div class="card-body">
+          <p class="agent-id">{{ agent.userId }}</p>
+          <p class="agent-contact">{{ agent.email }}</p>
+          <p class="agent-contact">{{ agent.contactNo }}</p>
+        </div>
+        <div class="card-footer">
+          <p class="student-count">{{ getStudentCountText(agent) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Detail View -->
+  <div *ngIf="!isLoading && !error && selectedAgent" class="agent-detail-wrapper">
+    <button (click)="goBack()" class="back-button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+      </svg>
+      <span>Back to list</span>
+    </button>
+
+    <header class="detail-header">
+      <h2>{{ selectedAgent.fullName }}</h2>
+      <span class="status-badge" [ngClass]="'status-' + getStatusClass(selectedAgent.status)">
+        {{ selectedAgent.status }}
+      </span>
+      <p class="agent-id">{{ selectedAgent.userId }}</p>
+    </header>
+
+    <div class="detail-grid">
+      <!-- Column 1: Info -->
+      <div class="detail-card">
+        <h3>Contact & Company</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ selectedAgent.email }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Phone</span>
+            <span class="info-value">{{ selectedAgent.contactNo }}</span>
+          </div>
+          <div class="info-item info-item-full">
+            <span class="info-label">Address</span>
+            <span class="info-value">{{ selectedAgent.address || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Company</span>
+            <span class="info-value">{{ selectedAgent.companyName || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Website</span>
+            <span class="info-value">
+              <a *ngIf="selectedAgent.website" [href]="selectedAgent.website" target="_blank" rel="noopener noreferrer">{{ selectedAgent.website }}</a>
+              <span *ngIf="!selectedAgent.website">N/A</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 2: Privileges -->
+      <div class="detail-card">
+        <h3>College Privileges</h3>
+        <div *ngIf="selectedAgent.collegePrivileges?.length > 0" class="privilege-list">
+          <span *ngFor="let college of selectedAgent.collegePrivileges" class="privilege-tag">
+            {{ college.collegeName }}
+          </span>
+        </div>
+        <p *ngIf="!selectedAgent.collegePrivileges?.length" class="no-data-text">
+          No college privileges assigned.
+        </p>
+      </div>
+    </div>
+    
+    <!-- Full-Width Students Card -->
+    <div class="detail-card">
+      <h3>Registered Students ({{ selectedAgent.student?.length || 0 }})</h3>
+      <div *ngIf="selectedAgent.student?.length > 0" class="student-list">
+        <div *ngFor="let student of selectedAgent.student" class="student-item">
+          <span class="student-name">{{ student.fullName }}</span>
+          <span class="student-email">{{ student.email }}</span>
+        </div>
+      </div>
+      <p *ngIf="!selectedAgent.student?.length" class="no-data-text">
+        No students registered by this agent yet.
+      </p>
+    </div>
+
+  </div>
+
+</div>
