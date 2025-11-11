@@ -2,9 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { Home } from './components/home/home';
 import { StudentLogin } from './components/student-login/student-login';
-import { AgentLogin } from './components/agent-login/agent-login';
-import { VisaManagerLogin } from './components/visa-manager-login/visa-manager-login';
-import { AdmissionManagerLogin } from './components/admission-manager-login/admission-manager-login';
 import { AdminLogin } from './components/admin-login/admin-login';
 import { AdminDashboars } from './components/admin/admin-dashboars/admin-dashboars';
 import { AdminAgentRegistration } from './components/admin/admin-agent-registration/admin-agent-registration';
@@ -21,9 +18,6 @@ import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-
 const routes: Routes = [
   { path: '', component: Home },
   { path: 'StudentLogin', component: StudentLogin },
-  { path: 'AgentLogin', component: AgentLogin },
-  { path: 'VisaManagerLogin', component: VisaManagerLogin },
-  { path: 'AdmissionManagerLogin', component: AdmissionManagerLogin },
   { path: 'AdminLogin', component: AdminLogin },
   
   // Admin Dashboard Routes
@@ -59,6 +53,12 @@ const routes: Routes = [
     path: 'agent-dashboard',
     loadChildren: () => import('../app/components/agent/agent-dashboard/agent.module').then(m => m.AgentModule)
   },
+  // Add this route inside your routes array (after agent-dashboard or before wildcard)
+{
+  path: 'admission-manager-dashboard',
+  loadChildren: () => import('../app/components/admissionManager/admission-manager-dashboard/admission-manager.module')
+    .then(m => m.AdmissionManagerModule)
+},
   
   // Wildcard route
   { path: '**', redirectTo: '', pathMatch: 'full' }

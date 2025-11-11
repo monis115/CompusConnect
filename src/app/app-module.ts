@@ -8,9 +8,6 @@ import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
 import { Home } from './components/home/home';
 import { StudentLogin } from './components/student-login/student-login';
-import { AgentLogin } from './components/agent-login/agent-login';
-import { VisaManagerLogin } from './components/visa-manager-login/visa-manager-login';
-import { AdmissionManagerLogin } from './components/admission-manager-login/admission-manager-login';
 import { AdminLogin } from './components/admin-login/admin-login';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -81,7 +78,6 @@ import { PendingAgents } from './components/admin/pending-agents/pending-agents'
 import { AddmissionManagerRegistration } from './components/admin/addmission-manager-registration/addmission-manager-registration';
 import { AdmissionManagerAccessCollege } from './components/admin/admission-manager-access-college/admission-manager-access-college';
 import { AdmissionManagerUpdate } from './components/admin/admission-manager-update/admission-manager-update';
-import { AgentStudentResgistration } from './components/agent/agent-student-resgistration/agent-student-resgistration';
 import { ActiveAdmissionManager } from './components/admin/active-admission-manager/active-admission-manager';
 import { StudentAgentDetails } from './components/admin/student-agent-details/student-agent-details';
 import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-details';
@@ -91,9 +87,8 @@ import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-
     App,
     Home,
     StudentLogin,
-    AgentLogin,
-    VisaManagerLogin,
-    AdmissionManagerLogin,
+    
+    
     AdminLogin,
     AdminDashboars,
     AdminAgentRegistration,
@@ -105,7 +100,8 @@ import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-
     AdmissionManagerUpdate,
     ActiveAdmissionManager,
     StudentAgentDetails,
-    AllAgentDetails
+    AllAgentDetails,
+    
     
     
   ],

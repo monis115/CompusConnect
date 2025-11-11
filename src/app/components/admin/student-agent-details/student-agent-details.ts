@@ -26,6 +26,7 @@ export interface AccessibleLocation {
 }
 
 export interface Student {
+approvalDate: string|number|Date;
   id: number;
   fullName: string;
   dob: string;
