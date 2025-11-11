@@ -5,6 +5,12 @@
   --color-primary-gradient: #8B5CF6; /* Premium Purple */
   --color-primary-light-bg: #EEF2FF; /* Lightest Indigo for backgrounds */
   
+  /* --- NEW: Premium Colors --- */
+  --color-premium: #EC4899; /* Premium Pink */
+  --color-premium-gradient: #D946EF; /* Premium Fuchsia */
+  --color-premium-light-bg: #FDF2F8; /* Lightest Pink */
+  --color-premium-text: #86198F;     /* Dark Magenta */
+
   --color-bg: #F9FAFB;           /* Main background (very light gray) */
   --color-bg-light: #FFFFFF;     /* Card/Sidebar background (white) */
   
@@ -84,6 +90,11 @@
   animation: fadeIn 0.3s ease;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .modal-content {
   background: var(--color-bg-light);
   border-radius: 20px;
@@ -95,7 +106,12 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  animation: scaleIn 0.3s ease;
+  animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .modal-icon {
@@ -172,6 +188,11 @@
   background: var(--color-bg);
   border-radius: 10px;
   padding: 10px 14px;
+  border: 1px solid var(--color-bg);
+  transition: border-color 0.3s ease;
+}
+.search-bar:focus-within {
+  border-color: var(--color-primary);
 }
 .search-bar svg { color: var(--color-text-secondary); flex-shrink: 0; }
 .search-bar input {
@@ -220,6 +241,32 @@
 .nav-item.active .badge { background: rgba(255, 255, 255, 0.25); color: white; }
 .badge.badge-action { background: var(--color-yellow-bg); color: var(--color-yellow-text); }
 .badge.badge-approve { background: var(--color-green-bg); color: var(--color-green-text); }
+
+/* --- NEW: Premium Section Styles --- */
+.nav-item.premium-section:hover {
+  background: var(--color-premium-light-bg);
+  color: var(--color-premium);
+}
+.nav-item.premium-section.active {
+  background: linear-gradient(135deg, var(--color-premium) 0%, var(--color-premium-gradient) 100%);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+.badge.badge-premium {
+  background: var(--color-premium-light-bg);
+  color: var(--color-premium-text);
+}
+.nav-item.premium-section.active .badge.badge-premium {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+.section-header.premium-header h2 {
+  background: linear-gradient(135deg, var(--color-premium) 0%, var(--color-premium-gradient) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* --- END: Premium Section Styles --- */
+
 
 .sidebar-footer {
   padding: 16px;
@@ -654,9 +701,102 @@
 
 /* Section Search */
 .section-search {
-  padding: 0 24px 16px;
+  margin-bottom: 24px;
 }
 .section-search .search-bar {
-  background: var(--color-bg);
+  background: var(--color-bg-light);
   border: 1px solid var(--color-border);
+  max-width: 400px;
 }
+
+/* --- NEW: Action Modal Styles --- */
+
+/* Override default modal width to be wider for details */
+.modal-content.action-modal {
+  max-width: 800px; /* Wider for showing details */
+  width: 90%;
+  padding: 0; /* Remove default padding, sections will add it */
+  animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modal Header with Close Button */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modal-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Modal Body - enables scrolling for long content */
+.modal-body {
+  padding: 32px;
+  max-height: 60vh; /* Set a max height */
+  overflow-y: auto; /* Enable scrolling */
+  
+  /* Re-use detail card header style from main CSS */
+}
+.modal-body .detail-card-header {
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+}
+
+.modal-body .detail-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.modal-body .detail-section h3 {
+  margin-bottom: 16px;
+}
+.modal-body .detail-grid {
+  gap: 16px;
+}
+.modal-body .no-doc-text {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+
+/* Modal Footer - for action buttons */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 32px;
+  background: var(--color-bg); /* Light background */
+  border-top: 1px solid var(--color-border);
+  border-radius: 0 0 20px 20px;
+}
+
+/* Ensure buttons in footer have correct styling */
+.modal-footer .btn {
+  padding: 10px 20px; /* Slightly smaller buttons for modal */
+  font-size: 14px;
+}
+
+/* ... (omitted code is unchanged) ... */
+
+/* Ensure buttons in footer have correct styling */
+.modal-footer .btn {
+  padding: 10px 20px; /* Slightly smaller buttons for modal */
+  font-size: 14px;
+}
+
+/* --- NEW: Small Button for Cards --- */
+.btn-small {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  gap: 6px;
+}
+/* --- END OF NEW --- */
