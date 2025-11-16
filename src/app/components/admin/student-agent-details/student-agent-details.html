@@ -1,133 +1,252 @@
-<!-- Main Component Container -->
 <div class="component-wrapper">
 
-  <!-- Loading Screen -->
   <div *ngIf="isLoading" class="loader-container">
     <div class="loader"></div>
-    <p>Loading Agents...</p>
+    <p>Loading Dashboard...</p>
   </div>
 
-  <!-- Agent List View -->
-  <div *ngIf="!isLoading && viewState === 'list'" class="agent-list-container animate-fade-in">
+  <div *ngIf="!isLoading && viewState === 'list'" class="animate-fade-in">
     <header class="component-header">
-      <button (click)="onBack()" class="back-button">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-        Back
-      </button>
-      <h1>Our Agents</h1>
+      <div class="header-content">
+        <button (click)="onBack()" class="back-button">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+          <span>Back</span>
+        </button>
+        <div class="header-titles">
+          <h1>Agent Directory</h1>
+          <p>Manage agents and view their student portfolio</p>
+        </div>
+      </div>
     </header>
 
     <div class="agent-grid">
-      <!-- Loop through each agent -->
-      <div *ngFor="let agent of agents" class="agent-card animate-slide-up" (click)="selectAgent(agent)">
-        <div class="agent-card-header">
-          <div class="agent-avatar">
-            {{ agent.fullName.charAt(0) }}
-          </div>
-          <div class="agent-info">
-            <h2 class="agent-name">{{ agent.fullName }}</h2>
-            <p class="agent-designation">{{ agent.designation }}</p>
+      <div *ngFor="let agent of agents" class="agent-card" (click)="selectAgent(agent)">
+        <div class="card-top">
+          <div class="agent-avatar">{{ agent.fullName.charAt(0) }}</div>
+          <div class="agent-meta">
+            <h2>{{ agent.fullName }}</h2>
+            <span class="company-tag">{{ agent.companyName }}</span>
           </div>
         </div>
-        <div class="agent-card-body">
-          <p class="agent-company">{{ agent.companyName }}</p>
-          <div class="agent-details-grid">
-            <div class="agent-info-item">
-              <span class="label">Email:</span>
-              <span class="value">{{ agent.email }}</span>
-            </div>
-            <div class="agent-info-item">
-              <span class="label">Phone:</span>
-              <span class="value">{{ agent.contactNo }}</span>
-            </div>
-            <div class="agent-info-item">
-              <span class="label">Address:</span>
-              <span class="value">{{ agent.address }}</span>
-            </div>
-            <div class="agent-info-item">
-              <span class="label">Status:</span>
-              <span class="value status" [ngClass]="agent.status.toLowerCase()">{{ agent.status | titlecase }}</span>
-            </div>
+        <div class="card-stats">
+          <div class="stat">
+            <span class="stat-val">{{ agent.student.length }}</span>
+            <span class="stat-lbl">Students</span>
           </div>
-        </div>
-        <div class="agent-card-footer">
-          <span class="student-count-badge">
-            View {{ agent.student.length }} Student(s)
-          </span>
+          <div class="stat action">
+            <span class="link-text">View Profile &rarr;</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Student Detail View -->
-  <div *ngIf="!isLoading && viewState === 'detail' && selectedAgent" class="student-detail-container animate-fade-in">
+  <div *ngIf="!isLoading && viewState === 'detail' && selectedAgent" class="animate-fade-in">
     <header class="component-header">
-      <button (click)="goBackToList()" class="back-button">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-        All Agents
-      </button>
-      <h1>{{ selectedAgent.fullName }}'s Students</h1>
+      <div class="header-content">
+        <button (click)="goBackToList()" class="back-button">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+          <span>Agents</span>
+        </button>
+        <div class="header-titles">
+          <h1>{{ selectedAgent.fullName }}</h1>
+          <p>Student Application Portfolio</p>
+        </div>
+      </div>
     </header>
 
-    <div class="student-list">
-      <!-- Handle case with no students -->
-      <div *ngIf="selectedAgent.student.length === 0" class="no-students">
-        <p>This agent does not have any students assigned yet.</p>
+    <div class="toolbar animate-slide-up">
+      <div class="search-wrapper">
+        <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+        <input 
+          type="text" 
+          placeholder="Search by name, email or ID..." 
+          (input)="onSearchChange($event)"
+          [value]="searchTerm"
+        >
+      </div>
+      
+      <div class="filter-wrapper">
+        <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/></svg>
+        <select (change)="onStatusChange($event)">
+          <option value="">Filter by Status</option>
+          <option *ngFor="let status of availableStatuses" [value]="status">
+            {{ status | titlecase }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-card animate-slide-up">
+      <div *ngIf="filteredStudents.length === 0" class="empty-state">
+        <h3>No students found</h3>
+        <p>Try adjusting your search or filter criteria.</p>
       </div>
 
-      <!-- Loop through students of the selected agent -->
-      <div *ngFor="let student of selectedAgent.student" class="student-card animate-slide-up">
-        <div class="student-card-header">
-          <h3 class="student-name">{{ student.fullName }}</h3>
-          <span class="student-status" [ngClass]="getStudentStatusClass(student.presentStatus)">
-            {{ student.presentStatus | titlecase }}
-          </span>
+      <table *ngIf="filteredStudents.length > 0" class="premium-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Target University</th>
+            <th>Contact</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let student of filteredStudents">
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar">{{ student.fullName.charAt(0) }}</div>
+                <div class="user-info">
+                  <span class="name">{{ student.fullName }}</span>
+                  <span class="email">{{ student.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="college-cell">
+                 <span class="college-name">{{ student.college?.collegeName || 'Not Assigned' }}</span>
+                 <span class="college-loc" *ngIf="student.college">{{ student.college.city }}, {{ student.college.country }}</span>
+              </div>
+            </td>
+            <td><span class="contact-text">{{ student.contactNo }}</span></td>
+            <td>
+              <span class="status-badge" [ngClass]="getStudentStatusClass(student.presentStatus)">
+                {{ student.presentStatus | titlecase }}
+              </span>
+            </td>
+            <td class="text-right">
+              <button class="btn-action" (click)="openStudentModal(student)">
+                <span>View</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeStudentModal()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      
+      <div class="modal-top-bar">
+        <div class="student-summary">
+            <div class="modal-avatar">{{ selectedStudent?.fullName?.charAt(0) }}</div>
+            <div>
+                <h2>{{ selectedStudent?.fullName }}</h2>
+                <span class="id-badge">ID: #{{ selectedStudent?.id }}</span>
+            </div>
         </div>
-        <div class="student-card-body">
-          <div class="student-info-item">
-            <span class="label">Email:</span>
-            <span class="value">{{ student.email }}</span>
-          </div>
-          <div class="student-info-item">
-            <span class="label">Phone:</span>
-            <span class="value">{{ student.contactNo }}</span>
-          </div>
-          <div class="student-info-item">
-            <span class="label">Applying For:</span>
-            <span class="value">{{ student.appliedFor }}</span>
-          </div>
-          <div class="student-info-item">
-            <span class="label">College:</span>
-            <span class="value">{{ student.college.collegeName }}</span>
-          </div>
-          <div class="student-info-item">
-            <span class="label">Application Status:</span>
-            <span class="value">{{ student.applicationStatus }}</span>
-          </div>
-          <div class="student-info-item">
-            <span class="label">Address:</span>
-            <span class="value">{{ student.address }}</span>
-          </div>
-          <div class="student-info-item">
-            <span class="label">Date of Birth:</span>
-            <span class="value">{{ student.dob | date:'longDate' }} ({{student.age}} yrs)</span>
-          </div>
-          <div class="student-info-item">
-            <span class="label">Passport No:</span>
-            <span class="value">{{ student.passportNo }}</span>
-          </div>
-          <div class="student-info-item">
-            <span class="label">Highest Degree:</span>
-            <span class="value">{{ student.highestDegree }} ({{student.marks}}%)</span>
-          </div>
-          <div class="student-info-item">
-            <span class="label">Next Step:</span>
-            <span class="value status" [ngClass]="getStudentStatusClass(student.nextStep)">{{ student.nextStep | titlecase }}</span>
-          </div>
+        <button class="btn-icon-close" (click)="closeStudentModal()">
+            <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-scroll-area" *ngIf="selectedStudent">
+        
+        <div class="status-alert" [ngClass]="getStudentStatusClass(selectedStudent.presentStatus)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="alert-icon"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>
+            <span>Current Status: <strong>{{ selectedStudent.presentStatus }}</strong></span>
+        </div>
+
+        <div class="content-grid">
+            <div class="grid-col">
+                <h6 class="section-header">Personal Information</h6>
+                <div class="data-row">
+                    <label>Email Address</label>
+                    <div class="value">{{ selectedStudent.email }}</div>
+                </div>
+                <div class="data-row">
+                    <label>Phone Number</label>
+                    <div class="value">{{ selectedStudent.contactNo }}</div>
+                </div>
+                <div class="data-row">
+                    <label>Date of Birth</label>
+                    <div class="value">{{ selectedStudent.dob | date:'mediumDate' }} ({{selectedStudent.age}} yrs)</div>
+                </div>
+                <div class="data-row">
+                    <label>Passport Number</label>
+                    <div class="value mono">{{ selectedStudent.passportNo }}</div>
+                </div>
+                <div class="data-row">
+                    <label>Passport Valid Till</label>
+                    <div class="value">{{ selectedStudent.passportValidTill | date:'mediumDate' }}</div>
+                </div>
+                <div class="data-row">
+                    <label>Address</label>
+                    <div class="value">{{ selectedStudent.address }}</div>
+                </div>
+                <div class="data-row emergency-row">
+                    <label>Emergency Contact</label>
+                    <div class="value">{{ selectedStudent.emergencyContactNo }}</div>
+                    <div class="sub-value">Relation: {{ selectedStudent.emergencyRelation }}</div>
+                </div>
+            </div>
+
+            <div class="grid-col">
+                <h6 class="section-header">Academic & Admission</h6>
+                <div class="data-row">
+                    <label>Applied For</label>
+                    <div class="value highlight">{{ selectedStudent.appliedFor }}</div>
+                </div>
+                <div class="data-row">
+                    <label>Target University</label>
+                    <div class="value highlight">{{ selectedStudent.college?.collegeName }}</div>
+                </div>
+                <div class="data-row">
+                    <label>Highest Degree</label>
+                    <div class="value">{{ selectedStudent.highestDegree }}</div>
+                </div>
+                <div class="data-row">
+                    <label>Marks / Percentage</label>
+                    <div class="value">{{ selectedStudent.marks }}%</div>
+                </div>
+
+                <div class="divider"></div>
+
+                <h6 class="section-header">Documents</h6>
+                
+                <div class="download-stack">
+                    <a *ngIf="selectedStudent.confirmationPagePath; else noConfirm" 
+                       [href]="getFileUrl(selectedStudent.confirmationPagePath)" 
+                       target="_blank" 
+                       class="file-btn">
+                       <div class="file-icon pdf">
+                           <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M5.523 12.424c.14-.082.293-.162.459-.238a7.878 7.878 0 0 1-.45.606c-.28.337-.498.516-.635.572a.266.266 0 0 1-.035.012.282.282 0 0 1-.026-.044c-.056-.11-.054-.216.04-.36.106-.165.319-.354.647-.548zm2.455-1.647c-.119.025-.237.05-.356.078a21.148 21.148 0 0 0 .5-1.05 12.045 12.045 0 0 0 .51.858c-.217.032-.436.07-.654.114zm2.525.939a3.881 3.881 0 0 1-.435-.41c.228.005.434.02.612.054.317.057.466.147.518.209a.095.095 0 0 1 .026.064.436.436 0 0 1-.72.083z"/><path d="M4.612 1.5 3 3.043V13.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V1.5a1.5 1.5 0 0 0-1.5-1.5h-9zM11 6.5v-2h2v2h-2zM8 9.5v-2h2v2H8zm-3-2v2H3v-2h2zm-2 3h2v2H3v-2zm3 0h2v2H6v-2zm3 0h2v2H9v-2z"/></svg>
+                       </div>
+                       <div class="file-info">
+                           <span class="fname">Confirmation Page</span>
+                           <span class="fmeta">PDF Document</span>
+                       </div>
+                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="dl-icon"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                    </a>
+                    <ng-template #noConfirm>
+                        <div class="file-btn disabled">
+                            <span class="fname">Confirmation Page Pending</span>
+                        </div>
+                    </ng-template>
+
+                    <a *ngIf="selectedStudent.admissionLetterPath; else noLetter" 
+                       [href]="getFileUrl(selectedStudent.admissionLetterPath)" 
+                       target="_blank" 
+                       class="file-btn primary">
+                       <div class="file-icon letter">
+                           <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M9.669.864 8 0 6.331.864l-1.858.282-.842 1.68-1.337 1.32L2.6 6l-.306 1.854 1.337 1.32.842 1.68 1.858.282L8 12l1.669-.864 1.858-.282.842-1.68 1.337-1.32L13.4 6l.306-1.854-1.337-1.32-.842-1.68L9.669.864z"/><path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1 4 11.794z"/></svg>
+                       </div>
+                       <div class="file-info">
+                           <span class="fname">Admission Letter</span>
+                           <span class="fmeta">Official Document</span>
+                       </div>
+                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="dl-icon"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                    </a>
+                    <ng-template #noLetter>
+                        <div class="file-btn disabled">
+                            <span class="fname">Admission Letter Pending</span>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
         </div>
       </div>
     </div>
