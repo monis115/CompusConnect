@@ -1,9 +1,10 @@
 <div class="dashboard-container" [class.collapsed]="isSidebarCollapsed">
-  
+
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="logo">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
           <path d="M2 17l10 5 10-5"></path>
           <path d="M2 12l10 5 10-5"></path>
@@ -11,59 +12,94 @@
         <span>CampusConnect</span>
       </div>
     </div>
-    
+
     <nav class="sidebar-nav">
       <button class="nav-item" [class.active]="currentView === 'dashboard'" (click)="navigateTo('dashboard')">
-        <svg class="nav-icon-dashboard" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <svg class="nav-icon-dashboard" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
         <span>Dashboard</span>
       </button>
-      
+
       <button class="nav-item" [class.active]="currentView === 'students'" (click)="navigateTo('students')">
-        <svg class="nav-icon-students" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <svg class="nav-icon-students" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
         <span>All Students</span>
         <span class="badge" *ngIf="!isLoading">{{ students.length }}</span>
       </button>
-      
-     <button 
-        class="nav-item" 
-        (click)="navigateTo('register')"
-        [class.active]="currentView === 'register'">
-        <svg class="nav-icon-register" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+
+      <button class="nav-item" (click)="navigateTo('register')" [class.active]="currentView === 'register'">
+        <svg class="nav-icon-register" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="8.5" cy="7" r="4"></circle>
+          <line x1="20" y1="8" x2="20" y2="14"></line>
+          <line x1="23" y1="11" x2="17" y2="11"></line>
+        </svg>
         <span>Register Student</span>
       </button>
 
-      <button class="nav-item" [class.active]="currentView === 'admission-letters'" (click)="navigateTo('admission-letters')">
-        <svg class="nav-icon-letters" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+      <button class="nav-item" [class.active]="currentView === 'admission-letters'"
+        (click)="navigateTo('admission-letters')">
+        <svg class="nav-icon-letters" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+          <polyline points="13 2 13 9 20 9"></polyline>
+        </svg>
         <span>Admission Letters</span>
       </button>
 
       <button class="nav-item" [class.active]="currentView === 'payments'" (click)="navigateTo('payments')">
-        <svg class="nav-icon-payments" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        <svg class="nav-icon-payments" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+          <line x1="1" y1="10" x2="23" y2="10"></line>
+        </svg>
         <span>Payments</span>
       </button>
-      
+
       <button class="nav-item" [class.active]="currentView === 'profile'" (click)="navigateTo('profile')">
-        <svg class="nav-icon-profile" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <svg class="nav-icon-profile" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
         <span>Agent Profile</span>
       </button>
     </nav>
-    
+
     <div class="sidebar-footer">
-      <button class="nav-item sidebar-toggle" (click)="isSidebarCollapsed = !isSidebarCollapsed" [title]="isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline>
+      <button class="nav-item sidebar-toggle" (click)="isSidebarCollapsed = !isSidebarCollapsed"
+        [title]="isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="11 17 6 12 11 7"></polyline>
+          <polyline points="18 17 13 12 18 7"></polyline>
         </svg>
       </button>
 
       <button class="logout-btn" (click)="logout()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
         <span>Logout</span>
       </button>
     </div>
   </aside>
 
   <main class="main-content">
-    
+
     <header class="header" *ngIf="agentData || isLoading">
       <div class="header-left">
         <h1 *ngIf="currentView === 'dashboard' && agentData">Welcome, {{ agentData.fullName.split(' ')[0] }}</h1>
@@ -77,7 +113,7 @@
       </div>
       <div class="header-right" *ngIf="agentData">
         <div class="user-info">
-          <div class="user-avatar">{{ agentData.fullName?.charAt(0) }}</div>
+          <div class="user-avatar">{{ agentData.fullName.charAt(0) }}</div>
           <div class="user-details">
             <div class="user-name">{{ agentData.fullName }}</div>
             <div class="user-role">{{ agentData.designation }}</div>
@@ -97,14 +133,18 @@
       </div>
     </div>
 
-    <div class="content-area" 
-         *ngIf="!isLoading && !error && currentView === 'dashboard'" 
-         [@listAnimation]="stats.totalStudents + dashboardTasks.length + actionableStudents.length">
-      
+    <div class="content-area" *ngIf="!isLoading && !error && currentView === 'dashboard'"
+      [@listAnimation]="stats.totalStudents + dashboardTasks.length + actionableStudents.length">
+
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon icon-primary">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ stats.totalStudents }}</div>
@@ -113,7 +153,10 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon icon-warning">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ stats.pending }}</div>
@@ -122,7 +165,10 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon icon-success">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ stats.approved }}</div>
@@ -131,7 +177,9 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon icon-completed">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
           </div>
           <div class="stat-content">
             <div class="stat-value">{{ stats.completed }}</div>
@@ -148,17 +196,23 @@
           <div class="widget-content">
             <div class="task-list" *ngIf="dashboardTasks.length > 0; else noTasks">
               <div class="task-item" *ngFor="let task of dashboardTasks" (click)="viewStudentFromTask(task.studentId)">
-                <div class="task-avatar" [style.background]="getStatusColor(task.status)">{{ task.studentName.charAt(0) }}</div>
+                <div class="task-avatar" [style.background]="getStatusColor(task.status)">{{ task.studentName.charAt(0)
+                  }}</div>
                 <div class="task-details">
                   <div class="task-name">{{ task.studentName }}</div>
                   <div class="task-message">{{ task.message }}</div>
                 </div>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
               </div>
             </div>
             <ng-template #noTasks>
               <div class="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
                 <p>No approvals pending!</p>
               </div>
             </ng-template>
@@ -172,24 +226,31 @@
           <div class="widget-content">
             <div class="task-list" *ngIf="actionableStudents.length > 0; else noActions">
               <div class="task-item" *ngFor="let student of actionableStudents">
-                <div class="task-avatar" [style.background]="getStatusColor(student.presentStatus)">{{ student.fullName.charAt(0) }}</div>
+                <div class="task-avatar" [style.background]="getStatusColor(student.applicationStatus)">{{
+                  student.fullName.charAt(0) }}</div>
                 <div class="task-details">
                   <div class="task-name">{{ student.fullName }}</div>
-                  <div class="task-message" [style.color]="getStatusColor(student.presentStatus)">
-                    {{ student.presentStatus === StudentStatus.ADMISSION_LETTER_GENERATED ? 'Ready for Telex' : 'Ready for Visa' }}
+                  <div class="task-message" [style.color]="getStatusColor(student.applicationStatus)">
+                    {{ student.applicationStatus === StudentStatus.ADMISSION_LETTER_APPROVED ? 'Ready for Telex' :
+                    'Ready for Visa' }}
                   </div>
                 </div>
-                <button *ngIf="canInitiateTelex(student.presentStatus)" class="btn btn-primary btn-sm" (click)="initiateTelex(student)">
+                <button *ngIf="canInitiateTelex(student.applicationStatus)" class="btn btn-primary btn-sm"
+                  (click)="initiateTelex(student)">
                   Telex
                 </button>
-                <button *ngIf="canInitiateVisa(student.presentStatus)" class="btn btn-success btn-sm" (click)="initiateVisa(student)">
+                <button *ngIf="canInitiateVisa(student.applicationStatus)" class="btn btn-success btn-sm"
+                  (click)="initiateVisa(student)">
                   Visa
                 </button>
               </div>
             </div>
             <ng-template #noActions>
               <div class="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
                 <p>No student actions required.</p>
               </div>
             </ng-template>
@@ -203,22 +264,30 @@
           <div class="widget-content">
             <div class="chart-widget-content" *ngIf="collegeDistribution.length > 0; else noChartData">
               <div class="pie-chart-placeholder">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5">
+                  <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                  <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                </svg>
               </div>
               <div class="chart-legend">
-                <div class="legend-item" *ngFor="let item of collegeDistribution.slice(0, 4)"> <div class="legend-color" [style.background-color]="item.color"></div>
+                <div class="legend-item" *ngFor="let item of collegeDistribution.slice(0, 4)">
+                  <div class="legend-color" [style.background-color]="item.color"></div>
                   <span class="legend-name">{{ item.collegeName }}</span>
                   <span class="legend-value">{{ item.count }}</span>
                 </div>
                 <div class="legend-item" *ngIf="collegeDistribution.length > 4">
                   <div class="legend-color" style="background-color: #94A3B8;"></div>
                   <span class="legend-name">Others</span>
-<span class="legend-value">{{ otherCollegesCount }}</span>                </div>
+                  <span class="legend-value">{{ otherCollegesCount }}</span>
+                </div>
               </div>
             </div>
             <ng-template #noChartData>
               <div class="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5">
+                  <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                  <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                </svg>
                 <p>No student data for chart.</p>
               </div>
             </ng-template>
@@ -259,16 +328,22 @@
                 <td>{{ student.college.collegeName }}</td>
                 <td>{{ formatDate(student.createdAt) }}</td>
                 <td>
-                  <span class="status-badge" [style.background-color]="getStatusColor(student.presentStatus) + '1A'" [style.color]="getStatusColor(student.presentStatus)">
-                    {{ formatStatus(student.presentStatus) }}
+                  <span class="status-badge" [style.background-color]="getStatusColor(student.applicationStatus) + '1A'"
+                    [style.color]="getStatusColor(student.applicationStatus)">
+                    {{ formatStatus(student.applicationStatus) }}
                   </span>
                 </td>
                 <td>
                   <button class="btn-icon" (click)="viewStudentDetails(student)" title="View Details">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
                   </button>
                   <button class="btn-icon" (click)="openHistoryModal(student)" title="View History">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
+                    </svg>
                   </button>
                 </td>
               </tr>
@@ -282,12 +357,16 @@
       <div class="section-card">
         <div class="search-filter-bar">
           <div class="search-box">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
             <input type="text" placeholder="Search by name, email, contact, or college..." [(ngModel)]="searchQuery">
           </div>
           <select class="filter-select" [(ngModel)]="statusFilter">
             <option value="all">All Status</option>
-            <option *ngFor="let status of (StudentStatus | keyvalue)" [value]="status.value">{{ formatStatus(status.value) | titlecase }}</option>
+            <option *ngFor="let status of (StudentStatus | keyvalue)" [value]="status.value">{{
+              formatStatus(status.value) | titlecase }}</option>
           </select>
         </div>
 
@@ -303,7 +382,8 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody [@listAnimation]="getFilteredStudents().length"> <tr *ngIf="getFilteredStudents().length === 0">
+            <tbody [@listAnimation]="getFilteredStudents().length">
+              <tr *ngIf="getFilteredStudents().length === 0">
                 <td colspan="6" class="text-center">No students match your criteria.</td>
               </tr>
               <tr *ngFor="let student of getFilteredStudents()">
@@ -324,18 +404,26 @@
                   </div>
                 </td>
                 <td>
-                  <span class="status-badge" [style.background-color]="getStatusColor(student.presentStatus) + '1A'" [style.color]="getStatusColor(student.presentStatus)">
-                    {{ formatStatus(student.presentStatus) }}
+                  <span class="status-badge" [style.background-color]="getStatusColor(student.applicationStatus) + '1A'"
+                    [style.color]="getStatusColor(student.applicationStatus)">
+                    {{ formatStatus(student.applicationStatus) }}
                   </span>
                 </td>
                 <td>{{ formatDate(student.createdAt) }}</td>
                 <td>
                   <div class="action-buttons">
                     <button class="btn-icon" (click)="viewStudentDetails(student)" title="View Details">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
                     </button>
                     <button class="btn-icon" (click)="openHistoryModal(student)" title="View History">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path></svg>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
+                      </svg>
                     </button>
                   </div>
                 </td>
@@ -348,7 +436,9 @@
 
     <div class="content-area" *ngIf="!isLoading && !error && currentView === 'student-detail' && selectedStudent">
       <button class="btn-back" (click)="navigateTo('students')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
         Back to All Students
       </button>
 
@@ -415,7 +505,11 @@
             <div class="info-section">
               <h3>College Information</h3>
               <div class="college-card">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                  <path d="M2 17l10 5 10-5"></path>
+                  <path d="M2 12l10 5 10-5"></path>
+                </svg>
                 <div>
                   <h4>{{ selectedStudent.college.collegeName }}</h4>
                   <p>{{ selectedStudent.college.city }}, {{ selectedStudent.college.country }}</p>
@@ -433,39 +527,49 @@
                 <div class="status-marker active"></div>
                 <div class="status-content">
                   <div class="status-title">Current Status</div>
-                  <span class="status-badge" [style.background-color]="getStatusColor(selectedStudent.presentStatus) + '1A'" [style.color]="getStatusColor(selectedStudent.presentStatus)">
-                    {{ formatStatus(selectedStudent.presentStatus) }}
+                  <span class="status-badge"
+                    [style.background-color]="getStatusColor(selectedStudent.applicationStatus) + '1A'"
+                    [style.color]="getStatusColor(selectedStudent.applicationStatus)">
+                    {{ formatStatus(selectedStudent.applicationStatus) }}
                   </span>
                 </div>
               </div>
-              <div class="status-item" *ngIf="selectedStudent.presentStatus !== StudentStatus.COMPLETED && selectedStudent.presentStatus !== StudentStatus.REJECTED">
+              <div class="status-item"
+                *ngIf="selectedStudent.applicationStatus !== StudentStatus.COMPLETED && selectedStudent.applicationStatus !== StudentStatus.REJECTED">
                 <div class="status-marker"></div>
                 <div class="status-content">
                   <div class="status-title">Next Step</div>
-                  <span class="status-badge" [style.background-color]="getStatusColor(selectedStudent.nextStep) + '1A'" [style.color]="getStatusColor(selectedStudent.nextStep)">
-                    {{ formatStatus(selectedStudent.nextStep) }}
+                  <span class="status-badge"
+                    [style.background-color]="getStatusColor(selectedStudent.nextStep || StudentStatus.UNDER_REVIEW) + '1A'"
+                    [style.color]="getStatusColor(selectedStudent.nextStep || StudentStatus.UNDER_REVIEW)">
+                    {{ formatStatus(selectedStudent.nextStep || StudentStatus.UNDER_REVIEW) }}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div class="action-section" *ngIf="canInitiateTelex(selectedStudent.presentStatus)">
+            <div class="action-section" *ngIf="canInitiateTelex(selectedStudent.applicationStatus)">
               <button class="btn btn-primary btn-block" (click)="initiateTelex(selectedStudent)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+                </svg>
                 Initiate Telex
               </button>
             </div>
-            <div class="action-section" *ngIf="canInitiateVisa(selectedStudent.presentStatus)">
+            <div class="action-section" *ngIf="canInitiateVisa(selectedStudent.applicationStatus)">
               <button class="btn btn-success btn-block" (click)="initiateVisa(selectedStudent)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
                 Initiate Visa
               </button>
             </div>
 
-            <!-- NEW DOWNLOAD SECTION -->
             <div class="action-section" *ngIf="selectedStudent.confirmationPagePath">
               <button class="btn btn-secondary btn-block" (click)="downloadFile(selectedStudent.confirmationPagePath)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="7 10 12 15 17 10"></polyline>
                   <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -473,11 +577,11 @@
                 Download Confirmation
               </button>
             </div>
-            <!-- END NEW SECTION -->
-
             <div class="action-section">
               <button class="btn btn-secondary btn-block" (click)="openHistoryModal(selectedStudent)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
+                </svg>
                 View Full History
               </button>
             </div>
@@ -486,28 +590,36 @@
       </div>
     </div>
 
-    <div class="content-area" *ngIf="!isLoading && !error && (currentView === 'admission-letters' || currentView === 'payments' || currentView === 'register')">
+    <div class="content-area"
+      *ngIf="!isLoading && !error && (currentView === 'admission-letters' || currentView === 'payments' || currentView === 'register')">
       <div class="section-card">
-     <div *ngIf="currentView === 'register' && agentData">
-  <app-agent-student-resgistration 
-    [colleges]="agentData.collegePrivileges"
-    [locations]="agentData.accessibleLocations"
-    [agentUserName]="agentData.userId"
-    (onRegistrationSuccess)="onStudentRegistered($event)"
-    (onCancel)="navigateTo('dashboard')"
-    (onDownloadConfirmation)="downloadFile($event)"
-  ></app-agent-student-resgistration>
-</div>   
-       
-        
-        <div class="placeholder-page" *ngIf="currentView === 'admission-letters'">
-          <svg class="nav-icon-letters" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-          <h2>Admission Letter Management</h2>
-          <p>This feature is coming soon. You will be able to manage and download student admission letters from here.</p>
+        <div *ngIf="currentView === 'register' && agentData">
+          <div *ngIf="currentView === 'register' && agentData">
+            <app-agent-student-resgistration [collegeAccess]="agentData.collegeAccess"
+              [agentUserName]="agentData.userId" (onRegistrationSuccess)="onStudentRegistered($event)"
+              (onCancel)="navigateTo('dashboard')">
+            </app-agent-student-resgistration>
+          </div>
         </div>
-        
+
+
+        <div class="placeholder-page" *ngIf="currentView === 'admission-letters'">
+          <svg class="nav-icon-letters" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.5">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
+          <h2>Admission Letter Management</h2>
+          <p>This feature is coming soon. You will be able to manage and download student admission letters from here.
+          </p>
+        </div>
+
         <div class="placeholder-page" *ngIf="currentView === 'payments'">
-          <svg class="nav-icon-payments" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          <svg class="nav-icon-payments" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.5">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
           <h2>Payment Management</h2>
           <p>This feature is coming soon. You will be able to track and manage student payments from here.</p>
         </div>
@@ -516,46 +628,35 @@
 
     <div class="content-area" *ngIf="!isLoading && !error && currentView === 'profile' && agentData">
       <div class="profile-grid-new">
+
         <div class="profile-sidebar-sticky">
           <div class="section-card">
             <div class="profile-avatar-large">{{ agentData.fullName.charAt(0) }}</div>
             <h2>{{ agentData.fullName }}</h2>
             <p class="profile-designation">{{ agentData.designation }}</p>
-            
+
             <div class="profile-contact-list">
               <div class="info-item">
-                <label>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                  Email
-                </label>
+                <label>Email</label>
                 <a [href]="'mailto:' + agentData.email">{{ agentData.email }}</a>
               </div>
               <div class="info-item">
-                <label>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                  Phone
-                </label>
+                <label>Phone</label>
                 <span>{{ agentData.contactNo }}</span>
               </div>
               <div class="info-item">
-                <label>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                  User ID
-                </label>
+                <label>User ID</label>
                 <span>{{ agentData.userId }}</span>
               </div>
               <div class="info-item">
-                <label>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  Address
-                </label>
+                <label>Address</label>
                 <span>{{ agentData.address }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="profile-content-main" [@listAnimation]="agentData.collegePrivileges.length + agentData.accessibleLocations.length">
+        <div class="profile-content-main" [@listAnimation]="agentData.collegeAccess.length">
           <div class="section-card">
             <div class="info-section">
               <h3>Experience & Company</h3>
@@ -585,27 +686,37 @@
           </div>
 
           <div class="section-card">
-            <h3>College Access ({{ agentData.collegePrivileges.length }})</h3>
-            <div class="privileges-list">
-              <div class="privilege-item" *ngFor="let college of agentData.collegePrivileges">
-                <div class="privilege-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
-                </div>
-                <div class="privilege-content">
-                  <div class="privilege-name">{{ college.collegeName }}</div>
-                  <div class="privilege-location">{{ college.city }}, {{ college.country }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
+            <h3>College Access & Locations</h3>
+            <div class="college-access-grid">
 
-          <div class="section-card">
-            <h3>Location Access ({{ agentData.accessibleLocations.length }})</h3>
-            <div class="location-list">
-              <div class="location-item" *ngFor="let location of agentData.accessibleLocations">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                <span>{{ location.district }}, {{ location.state }}</span>
+              <div class="college-group-card" *ngFor="let group of groupedCollegeAccess">
+                <div class="college-group-header">
+                  <div class="icon-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-4h8v4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4>{{ group.college.collegeName }}</h4>
+                    <p class="text-muted">{{ group.college.city }}, {{ group.college.country }}</p>
+                  </div>
+                  <span class="badge-all" *ngIf="group.accessAllLocations">All Locations Access</span>
+                </div>
+
+                <div class="location-breakdown" *ngIf="!group.accessAllLocations && group.locationsByState.length > 0">
+                  <div class="state-group" *ngFor="let state of group.locationsByState">
+                    <div class="state-name">{{ state.stateName }}</div>
+                    <div class="district-tags">
+                      <span class="district-tag" *ngFor="let district of state.districts">{{ district }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="no-locs" *ngIf="!group.accessAllLocations && group.locationsByState.length === 0">
+                  No specific locations assigned.
+                </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -615,70 +726,77 @@
   </main>
 </div>
 
+<div class="history-modal-overlay" [class.open]="isHistoryModalOpen" (click)="closeHistoryModal()">
 
-<div class="history-modal-overlay" 
-     [class.open]="isHistoryModalOpen" 
-     (click)="closeHistoryModal()">
-  
   <div class="history-modal-content" (click)="$event.stopPropagation()">
     <button class="modal-close-btn" (click)="closeHistoryModal()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
     </button>
-    
+
     <div class="modal-header" *ngIf="selectedStudentForHistory">
       <h3>Application History</h3>
       <p>{{ selectedStudentForHistory.fullName }}</p>
     </div>
 
     <div class="modal-body" *ngIf="selectedStudentForHistory">
-      <ul class="timeline-tracker" 
-          *ngIf="selectedStudentForHistory.presentStatus !== StudentStatus.REJECTED"
-          [@modalListAnimation]="allStatuses.length"> <li class="timeline-step" 
-            *ngFor="let status of allStatuses" 
-            [ngClass]="getHistoryStepClass(status)">
-          
+      <ul class="timeline-tracker" *ngIf="selectedStudentForHistory.applicationStatus !== StudentStatus.REJECTED">
+        <li class="timeline-step" *ngFor="let status of allStatuses" [ngClass]="getHistoryStepClass(status)">
           <div class="timeline-marker"></div>
-          
           <div class="timeline-icon" [style.color]="getStatusColor(status)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-                 [innerHTML]="safeStatusIcons.get(status)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeStatusIcons.get(status)">
             </svg>
           </div>
-          
           <div class="timeline-content">
             <span class="timeline-title" [style.color]="getStatusColor(status)">
               {{ formatStatus(status) | titlecase }}
-            </span>
-            
-            <span class="timeline-action-tag" *ngIf="status === StudentStatus.ADMISSION_LETTER_GENERATED">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path></svg>
-              Action: Initiate Telex
-            </span>
-            <span class="timeline-action-tag" *ngIf="status === StudentStatus.TELEX_APPROVED">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-              Action: Initiate Visa
             </span>
           </div>
         </li>
       </ul>
 
-      <ul class="timeline-tracker" 
-          *ngIf="selectedStudentForHistory.presentStatus === StudentStatus.REJECTED"
-          [@modalListAnimation]="1"> <li class="timeline-step active-rejected">
-          <div class="timeline-marker"></div>
+      <ul class="timeline-tracker" *ngIf="selectedStudentForHistory.applicationStatus === StudentStatus.REJECTED">
+        <li class="timeline-step active-rejected">
           <div class="timeline-icon" [style.color]="getStatusColor(StudentStatus.REJECTED)">
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-                  [innerHTML]="safeStatusIcons.get(StudentStatus.REJECTED)">
-             </svg>
           </div>
           <div class="timeline-content">
-            <span class="timeline-title">{{ formatStatus(StudentStatus.REJECTED) | titlecase }}</span>
-            <span class="timeline-action-tag-rejected">
-              Application was rejected.
-            </span>
+            <span class="timeline-title">Rejected</span>
           </div>
         </li>
       </ul>
+
+      <div class="detailed-history-section"
+        *ngIf="selectedStudentForHistory.studentStatusHistory && selectedStudentForHistory.studentStatusHistory.length > 0">
+        <h4>Full Application Log</h4>
+        <div class="history-log-container">
+
+          <div class="log-entry" *ngFor="let entry of selectedStudentForHistory.studentStatusHistory">
+            <div class="log-left">
+              <div class="log-line"></div>
+              <div class="log-dot"></div>
+            </div>
+            <div class="log-content">
+              <div class="log-header">
+                <span class="log-status"
+                  [style.color]="getStatusColor(entry.newStatus || entry.studentApplicationStatus)">
+                  {{ formatStatus(entry.newStatus || entry.studentApplicationStatus) }}
+                </span>
+                <span class="log-date">{{ entry.updatedAt | date:'medium' }}</span>
+              </div>
+              <div class="log-meta" *ngIf="entry.updatedBy">
+                Updated by: <strong>{{ entry.updatedBy }}</strong>
+              </div>
+              <div class="log-remarks" *ngIf="entry.remarks">
+                "{{ entry.remarks }}"
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </div>

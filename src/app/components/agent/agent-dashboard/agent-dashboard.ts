@@ -1,17 +1,41 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Observable, of } from 'rxjs'; // Keep 'of' and 'Observable' if you still use them elsewhere, otherwise can be removed.
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AdminAuthService } from '../../../services/admin-auth-service';
+import { AgentService, AgentData, Student, CollegeAccess, College, Location as AgentLocation } from '../../../services/agent.service';
 
 // --- Enums ---
+// Updated to match the provided Java Enum exactly
 export enum StudentStatus {
+  Submitted = 'Submitted',
   REGISTERED = 'REGISTERED',
   UNDER_REVIEW = 'UNDER_REVIEW',
   PENDING_APPROVAL = 'PENDING_APPROVAL',
   APPROVED = 'APPROVED',
+  FORWARDED_TO_UNI = 'FORWARDED_TO_UNI',
+
+  // New Admission Steps
+  CONDITIONAL_OFFER_LETTER_ISSUED = 'CONDITIONAL_OFFER_LETTER_ISSUED',
+  PENDING_ADMISSION_LETTER = 'PENDING_ADMISSION_LETTER',
+  ADMISSION_LETTER_RECEIVED = 'ADMISSION_LETTER_RECEIVED',
+
+  // Telex Process
+  APPLIED_FOR_TELEX = 'APPLIED_FOR_TELEX',
+  TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY = 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY',
+  TELEX_APPLICATION_SUBMITTED_TO_MEA = 'TELEX_APPLICATION_SUBMITTED_TO_MEA',
+  TELEX_NUMBER_ISSUED = 'TELEX_NUMBER_ISSUED',
+
+  // Visa Process
+  VISA_FEE_PENDING = 'VISA_FEE_PENDING',
+  VISA_FEE_RECEIVED = 'VISA_FEE_RECEIVED',
+  VISA_APPLIED = 'VISA_APPLIED',
+  PASSPORT_SUBMITTED_TO_EMBASSY = 'PASSPORT_SUBMITTED_TO_EMBASSY',
+  VISA_STAMPED = 'VISA_STAMPED',
+
+  // Legacy/Existing
   ADMISSION_LETTER_WAITING = 'ADMISSION_LETTER_WAITING',
   ADMISSION_LETTER_GENERATED = 'ADMISSION_LETTER_GENERATED',
+  ADMISSION_LETTER_APPROVED = 'ADMISSION_LETTER_APPROVED',
   TELEX_INITIATED = 'TELEX_INITIATED',
   TELEX_APPROVED = 'TELEX_APPROVED',
   VISA_INITIATED = 'VISA_INITIATED',
@@ -28,81 +52,11 @@ export enum PaymentStatus {
 }
 
 // --- Interfaces ---
-interface College {
-  id: number;
-  collegeName: string;
-  city: string;
-  country: string;
-}
-
-interface Location {
-  id: number;
-  state: string;
-  district: string;
-}
-
-interface Student {
-  id: number;
-  fullName: string;
-  dob: string;
-  age: number;
-  email: string;
-  contactNo: string;
-  address: string;
-  emergencyContactNo: string;
-  emergencyRelation: string;
-  passportNo: string;
-  passportValidTill: string;
-  highestDegree: string;
-  marks: number;
-  appliedFor: string;
-  presentStatus: StudentStatus;
-  nextStep: StudentStatus;
-  college: College;
-  createdAt: string; 
-  applicationStatus: string;
-  paymentStatus?: PaymentStatus;
-  paymentAmount?: number;
-  confirmationPagePath?: string; 
-}
-
-// Note: This interface must match the 'AgentDetailsResponse' from your auth service
-interface AgentData {
-  id: number;
-  fullName: string;
-  age: number;
-  dob: string;
-  email: string;
-  contactNo: string;
-  gender: string;
-  address: string;
-  identityProofType: string;
-  identityProofNumber: string;
-  designation: string;
-  experience: string;
-  status: string;
-  creationDate: string;
-  companyName: string;
-  registeredBusinessName: string;
-  businessType: string;
-  registrationNumber: string;
-  panOrGstNumber: string;
-  registeredOfficeAddress: string;
-  branchOfficeAddress: string;
-  companyEmail: string;
-  companyContactNo: string;
-  website: string;
-  userId: string;
-  collegePrivileges: College[];
-  accessibleLocations: Location[];
-  student: Student[];
-}
-
 interface DashboardTask {
   studentName: string;
   studentId: number;
   message: string;
-  status: StudentStatus;
+  status: string;
 }
 
 interface CollegeDistribution {
@@ -110,6 +64,25 @@ interface CollegeDistribution {
   count: number;
   percentage: number;
   color: string;
+}
+
+// New interfaces for College Grouping
+interface StateGroup {
+  stateName: string;
+  districts: string[];
+}
+
+interface GroupedCollegeAccess {
+  college: College;
+  accessAllLocations: boolean;
+  locationsByState: StateGroup[];
+}
+
+interface StudentHistory {
+  status: string;
+  timestamp: string;
+  remarks?: string;
+  updatedBy?: string;
 }
 
 // --- Animations ---
@@ -148,51 +121,58 @@ export class AgentDashboard implements OnInit {
   public readonly StudentStatus = StudentStatus;
   public otherCollegesCount: number = 0;
 
+  // Updated status list for the visual timeline (simplified view)
   public allStatuses: StudentStatus[] = [
     StudentStatus.REGISTERED,
-    StudentStatus.UNDER_REVIEW,
-    StudentStatus.PENDING_APPROVAL,
-    StudentStatus.APPROVED,
-    StudentStatus.ADMISSION_LETTER_WAITING,
+    StudentStatus.FORWARDED_TO_UNI,
     StudentStatus.ADMISSION_LETTER_GENERATED,
-    StudentStatus.TELEX_INITIATED,
-    StudentStatus.TELEX_APPROVED,
-    StudentStatus.VISA_INITIATED,
-    StudentStatus.VISA_APPROVED,
-    StudentStatus.COMPLETED
+    StudentStatus.ADMISSION_LETTER_APPROVED,
+    StudentStatus.APPLIED_FOR_TELEX,
+    StudentStatus.TELEX_NUMBER_ISSUED,
+    StudentStatus.VISA_APPLIED,
+    StudentStatus.VISA_STAMPED
   ];
 
+  // Extended icon mapping to handle new statuses
   private statusIcons: { [key: string]: string } = {
     [StudentStatus.REGISTERED]: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line>',
     [StudentStatus.UNDER_REVIEW]: '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>',
     [StudentStatus.PENDING_APPROVAL]: '<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>',
     [StudentStatus.APPROVED]: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>',
-    [StudentStatus.ADMISSION_LETTER_WAITING]: '<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>',
-    [StudentStatus.ADMISSION_LETTER_GENERATED]: '<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline><polyline points="9 14 11 16 15 12"></polyline>',
-    [StudentStatus.TELEX_INITIATED]: '<path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>',
+
+    // Admission
+    [StudentStatus.FORWARDED_TO_UNI]: '<path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>',
+    [StudentStatus.ADMISSION_LETTER_GENERATED]: '<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>',
+    [StudentStatus.ADMISSION_LETTER_APPROVED]: '<path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>',
+
+    // Telex
+    [StudentStatus.APPLIED_FOR_TELEX]: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line>',
+    [StudentStatus.TELEX_NUMBER_ISSUED]: '<rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>',
     [StudentStatus.TELEX_APPROVED]: '<path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path><polyline points="9 14 11 16 15 12"></polyline>',
-    [StudentStatus.VISA_INITIATED]: '<rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>',
+
+    // Visa
+    [StudentStatus.VISA_APPLIED]: '<path d="M2 12h20M2 12l5-5m-5 5 5 5"></path>',
+    [StudentStatus.VISA_STAMPED]: '<path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path>',
     [StudentStatus.VISA_APPROVED]: '<rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><polyline points="9 14 11 16 15 12"></polyline>',
+
     [StudentStatus.COMPLETED]: '<path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path>',
     [StudentStatus.REJECTED]: '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'
   };
   public safeStatusIcons = new Map<StudentStatus, SafeHtml>();
 
   currentView: 'dashboard' | 'students' | 'register' | 'profile' | 'student-detail' | 'payments' | 'admission-letters' = 'dashboard';
-  
+
   agentData: AgentData | null = null;
   students: Student[] = [];
   selectedStudent: Student | null = null;
-  // --- 2. REMOVED: No longer need hard-coded URL ---
-  // agentApiUrl = 'http://localhost:8080/api/agents/user/R1025398681'; 
   isLoading = true;
   error: string | null = null;
 
   isHistoryModalOpen = false;
-  selectedStudentForHistory: Student | null = null;
-  
+  selectedStudentForHistory: any | null = null; // Changed type to any to accept json structure easily or define strict interface
+
   isSidebarCollapsed = false;
-  
+
   stats = {
     totalStudents: 0,
     pending: 0,
@@ -203,19 +183,20 @@ export class AgentDashboard implements OnInit {
   dashboardTasks: DashboardTask[] = [];
   actionableStudents: Student[] = [];
   collegeDistribution: CollegeDistribution[] = [];
-  
+  groupedCollegeAccess: GroupedCollegeAccess[] = [];
+
   searchQuery: string = '';
   statusFilter: StudentStatus | 'all' = 'all';
-  
-  isSuccessModalOpen: boolean = false; 
-  newlyRegisteredStudent: Student | null = null; 
+
+  isSuccessModalOpen: boolean = false;
+  newlyRegisteredStudent: Student | null = null;
 
   constructor(
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
-    private authService: AdminAuthService // <-- 3. INJECTED: AdminAuthService
+    private authService: AdminAuthService,
+    private agentService: AgentService
   ) {
-    // This loop is correct, keep it
     for (const [key, value] of Object.entries(this.statusIcons)) {
       this.safeStatusIcons.set(key as StudentStatus, this.sanitizer.bypassSecurityTrustHtml(value));
     }
@@ -224,126 +205,83 @@ export class AgentDashboard implements OnInit {
   ngOnInit(): void {
     this.loadAgentData();
   }
-  
-  // --- 4. REPLACED: loadAgentData now uses the auth service ---
+
   loadAgentData(): void {
     this.isLoading = true;
     this.error = null;
-    this.cdr.detectChanges(); // Show loading spinner
+    this.cdr.detectChanges();
 
-    // Get the profile data *directly* from the auth service's storage
-    // This was fetched at login and stored in sessionStorage
-    const data: AgentData | null = this.authService.getFullProfile();
+    const authUser = this.authService.getUserData();
 
-    if (data) {
-      // Data was found in session storage
-      console.log('Loaded agent profile from session storage.');
-      this.agentData = data;
-      this.students = data.student || [];
-      
-      if (this.agentData) {
-        // We still call this to add dummy data for testing
-        this.generateDummyStudents(this.agentData.collegePrivileges);
-      }
-      
-      // Process all data
-      this.calculateStats();
-      this.generateDashboardTasks();
-      this.generateActionableStudents(); 
-      this.generateCollegeDistribution();
-      
-      this.isLoading = false;
-      this.cdr.detectChanges(); // Tell Angular "all data is processed"
-      
+    if (authUser && authUser.username) {
+      this.agentService.getAgentProfile(authUser.username).subscribe({
+        next: (data: AgentData) => {
+          this.agentData = data;
+          this.students = data.student || [];
+          this.generateDummyStudents();
+
+          this.calculateStats();
+          this.generateDashboardTasks();
+          this.generateActionableStudents();
+          this.generateCollegeDistribution();
+          this.groupCollegeAccess(); // New Grouping Logic
+
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to fetch agent profile:', err);
+          this.error = 'Failed to load agent data. Please try again.';
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
     } else {
-      // This would happen if someone isn't an agent or not logged in
-      console.error('Agent profile not found in session storage.');
-      this.error = 'Failed to load agent data from session. Please try logging in again.';
+      console.error('No auth user found.');
+      this.error = 'Not authenticated. Please login.';
       this.isLoading = false;
-      this.cdr.detectChanges(); // Tell Angular "we are done loading"
+      this.cdr.detectChanges();
     }
   }
 
-  generateDummyStudents(colleges: College[]): void {
-    if (!colleges) colleges = []; // Safety check
-    
-    const dummyStudents: Student[] = [
-      {
-        id: 1001, fullName: "Priya Sharma", dob: "2002-03-15", age: 23, createdAt: "2025-10-28",
-        applicationStatus: "Approved", email: "priya.sharma@example.com", contactNo: "9876543210",
-        address: "123, MG Road, Mumbai", emergencyContactNo: "9876543211", emergencyRelation: "Father",
-        passportNo: "R1234567", passportValidTill: "2030-05-20", highestDegree: "12th Standard (CBSE)",
-        marks: 92.5, appliedFor: "MBBS", presentStatus: StudentStatus.ADMISSION_LETTER_GENERATED,
-        nextStep: StudentStatus.TELEX_INITIATED, college: colleges[1] || colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'}, 
-        confirmationPagePath: 'uploads/confirmation-pages/confirmation_1001_p_sharma.pdf'
-      },
-      {
-        id: 1002, fullName: "Amit Patel", dob: "2001-07-22", age: 24, createdAt: "2025-10-25",
-        applicationStatus: "Pending", email: "amit.patel@example.com", contactNo: "9123456780",
-        address: "45, Satellite, Ahmedabad", emergencyContactNo: "9123456781", emergencyRelation: "Mother",
-        passportNo: "S7654321", passportValidTill: "2029-11-10", highestDegree: "B.Sc. Biology",
-        marks: 88.0, appliedFor: "MBBS", presentStatus: StudentStatus.PENDING_APPROVAL,
-        nextStep: StudentStatus.APPROVED, college: colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'},
-        confirmationPagePath: 'uploads/confirmation-pages/confirmation_1002_a_patel.pdf'
-      },
-      {
-        id: 1003, fullName: "Sunita Singh", dob: "2000-11-05", age: 24, createdAt: "2025-10-22",
-        applicationStatus: "Completed", email: "sunita.singh@example.com", contactNo: "9988776655",
-        address: "B-10, Sector 15, Noida", emergencyContactNo: "9988776650", emergencyRelation: "Husband",
-        passportNo: "T2345678", passportValidTill: "2032-01-30", highestDegree: "M.Sc. Biotechnology",
-        marks: 75.2, appliedFor: "MD", presentStatus: StudentStatus.COMPLETED,
-        nextStep: StudentStatus.COMPLETED, college: colleges[2] || colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'},
-        confirmationPagePath: 'uploads/confirmation-pages/confirmation_1003_s_singh.pdf'
-      },
-      {
-        id: 1004, fullName: "Deepak Kumar", dob: "2003-01-30", age: 22, createdAt: "2025-10-20",
-        applicationStatus: "In Progress", email: "deepak.kumar@example.com", contactNo: "9001234567",
-        address: "78, Kormangala, Bangalore", emergencyContactNo: "9001234560", emergencyRelation: "Father",
-        passportNo: "U8765432", passportValidTill: "2033-08-15", highestDegree: "12th Standard (HSC)",
-        marks: 95.8, appliedFor: "MBBS", presentStatus: StudentStatus.TELEX_APPROVED,
-        nextStep: StudentStatus.VISA_INITIATED, college: colleges[1] || colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'}
-      },
-      {
-        id: 1005, fullName: "Anjali Mishra", dob: "2002-09-12", age: 23, createdAt: "2025-10-19",
-        applicationStatus: "Rejected", email: "anjali.mishra@example.com", contactNo: "9112233445",
-        address: "11, Boring Road, Patna", emergencyContactNo: "9112233440", emergencyRelation: "Mother",
-        passportNo: "V3456789", passportValidTill: "2028-02-25", highestDegree: "12th Standard (BSEB)",
-        marks: 82.0, appliedFor: "MBBS", presentStatus: StudentStatus.REJECTED,
-        nextStep: StudentStatus.REJECTED, college: colleges[0] || {id: 1, collegeName: 'Default College', city: 'N/A', country: 'N/A'}
-      }
-    ];
-    this.students.push(...dummyStudents);
+  generateDummyStudents(): void {
+    this.students = this.students.map(s => ({
+      ...s,
+      applicationStatus: s.applicationStatus,
+      nextStep: s.nextStep || StudentStatus.UNDER_REVIEW
+    }));
+
     this.students.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
-  
+
   calculateStats(): void {
     if (!this.students) return;
     this.stats.totalStudents = this.students.length;
-    this.stats.pending = this.students.filter(s => 
-      [StudentStatus.REGISTERED, StudentStatus.UNDER_REVIEW, StudentStatus.PENDING_APPROVAL].includes(s.presentStatus)
+    this.stats.pending = this.students.filter(s =>
+      [StudentStatus.REGISTERED, StudentStatus.UNDER_REVIEW, StudentStatus.PENDING_APPROVAL].includes(s.applicationStatus as StudentStatus)
     ).length;
-    this.stats.approved = this.students.filter(s => 
-      [StudentStatus.APPROVED, StudentStatus.ADMISSION_LETTER_WAITING, StudentStatus.ADMISSION_LETTER_GENERATED, StudentStatus.TELEX_INITIATED, StudentStatus.TELEX_APPROVED, StudentStatus.VISA_INITIATED, StudentStatus.VISA_APPROVED].includes(s.presentStatus)
+    this.stats.approved = this.students.filter(s =>
+      [StudentStatus.APPROVED, StudentStatus.ADMISSION_LETTER_GENERATED, StudentStatus.ADMISSION_LETTER_APPROVED, StudentStatus.TELEX_NUMBER_ISSUED, StudentStatus.VISA_STAMPED].includes(s.applicationStatus as StudentStatus)
     ).length;
-    this.stats.completed = this.students.filter(s => s.presentStatus === StudentStatus.COMPLETED).length;
+    this.stats.completed = this.students.filter(s => s.applicationStatus === StudentStatus.COMPLETED).length;
   }
 
   generateDashboardTasks(): void {
     this.dashboardTasks = this.students
-      .filter(s => s.presentStatus === StudentStatus.PENDING_APPROVAL)
+      .filter(s => s.applicationStatus === StudentStatus.PENDING_APPROVAL)
       .map(s => ({
-          studentName: s.fullName,
-          studentId: s.id,
-          message: 'Needs admission approval.',
-          status: s.presentStatus
+        studentName: s.fullName,
+        studentId: s.id,
+        message: 'Needs admission approval.',
+        status: s.applicationStatus
       }))
       .slice(0, 5);
   }
 
   generateActionableStudents(): void {
     this.actionableStudents = this.students.filter(s =>
-      s.presentStatus === StudentStatus.ADMISSION_LETTER_GENERATED ||
-      s.presentStatus === StudentStatus.TELEX_APPROVED
+      s.applicationStatus === StudentStatus.ADMISSION_LETTER_APPROVED ||
+      s.applicationStatus === StudentStatus.TELEX_NUMBER_ISSUED
     ).slice(0, 5);
   }
 
@@ -355,12 +293,12 @@ export class AgentDashboard implements OnInit {
 
     const countMap = new Map<string, number>();
     for (const student of this.students) {
-      if (student.college) { // Add safety check
+      if (student.college) {
         const name = student.college.collegeName;
         countMap.set(name, (countMap.get(name) || 0) + 1);
       }
     }
-    
+
     const total = this.students.length;
     const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#06B6D4', '#A855F7'];
 
@@ -371,7 +309,7 @@ export class AgentDashboard implements OnInit {
       color: colors[index % colors.length]
     })).sort((a, b) => b.count - a.count);
 
-    this.collegeDistribution = allDistribution; 
+    this.collegeDistribution = allDistribution;
 
     if (allDistribution.length > 4) {
       this.otherCollegesCount = allDistribution.slice(4).reduce((acc, i) => acc + i.count, 0);
@@ -379,15 +317,85 @@ export class AgentDashboard implements OnInit {
       this.otherCollegesCount = 0;
     }
   }
-  
-  navigateTo(view: 'dashboard' | 'students' | 'register' | 'profile' | 'student-detail' | 'payments' | 'admission-letters'): void {
+
+  // --- UPDATED COLLEGE GROUPING LOGIC ---
+  groupCollegeAccess(): void {
+    if (!this.agentData || !this.agentData.collegeAccess) {
+      this.groupedCollegeAccess = [];
+      return;
+    }
+
+    const collegeMap = new Map<number, {
+      college: College,
+      accessAllLocations: boolean,
+      locations: AgentLocation[]
+    }>();
+
+    // 1. Consolidate duplicate college entries
+    for (const access of this.agentData.collegeAccess) {
+      const collegeId = access.college.id;
+
+      if (!collegeMap.has(collegeId)) {
+        collegeMap.set(collegeId, {
+          college: access.college,
+          accessAllLocations: access.accessAllLocations,
+          locations: [...(access.allowedLocations || [])]
+        });
+      } else {
+        const existing = collegeMap.get(collegeId)!;
+        if (access.accessAllLocations) {
+          existing.accessAllLocations = true;
+        }
+        // Append locations
+        if (access.allowedLocations) {
+          existing.locations.push(...access.allowedLocations);
+        }
+      }
+    }
+
+    // 2. Transform into grouped structure (College -> State -> Districts)
+    this.groupedCollegeAccess = Array.from(collegeMap.values()).map(group => {
+      const stateMap = new Map<string, Set<string>>();
+
+      if (!group.accessAllLocations) {
+        // Deduplicate locations first by ID
+        const uniqueLocs = new Map<number, AgentLocation>();
+        group.locations.forEach(loc => uniqueLocs.set(loc.id, loc));
+
+        // Group by State
+        uniqueLocs.forEach(loc => {
+          if (!stateMap.has(loc.state)) {
+            stateMap.set(loc.state, new Set());
+          }
+          stateMap.get(loc.state)!.add(loc.district);
+        });
+      }
+
+      // Convert Map to Array
+      const locationsByState: StateGroup[] = [];
+      stateMap.forEach((districts, state) => {
+        locationsByState.push({
+          stateName: state,
+          districts: Array.from(districts).sort()
+        });
+      });
+
+      return {
+        college: group.college,
+        accessAllLocations: group.accessAllLocations,
+        locationsByState: locationsByState.sort((a, b) => a.stateName.localeCompare(b.stateName))
+      };
+    });
+  }
+
+  navigateTo(view: any): void {
     this.currentView = view;
     if (view !== 'student-detail') {
       this.selectedStudent = null;
     }
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
   }
-  
+
   viewStudentDetails(student: Student): void {
     this.selectedStudent = student;
     this.currentView = 'student-detail';
@@ -399,48 +407,58 @@ export class AgentDashboard implements OnInit {
       this.viewStudentDetails(student);
     }
   }
-    
-  updateStudent(student: Student): void {
-    const index = this.students.findIndex(s => s.id === student.id);
-    if (index !== -1) {
-      this.students[index] = { ...student };
-      if (this.selectedStudent) {
-        this.selectedStudent = { ...student };
-      }
-      this.calculateStats();
-      this.generateDashboardTasks();
-      this.generateActionableStudents();
-      this.generateCollegeDistribution();
-      
-      this.cdr.detectChanges();
-    }
+
+  canInitiateTelex(status: string): boolean {
+    return status === StudentStatus.ADMISSION_LETTER_APPROVED;
   }
-    
-  canInitiateTelex(status: StudentStatus): boolean {
-    return status === StudentStatus.ADMISSION_LETTER_GENERATED;
+
+  canInitiateVisa(status: string): boolean {
+    return status === StudentStatus.TELEX_NUMBER_ISSUED;
   }
-  
-  canInitiateVisa(status: StudentStatus): boolean {
-    return status === StudentStatus.TELEX_APPROVED;
-  }
-  
+
   initiateTelex(student: Student): void {
-    if (confirm(`Are you sure you want to initiate the telex process for ${student.fullName}?`)) {
-      student.presentStatus = StudentStatus.TELEX_INITIATED;
-      student.nextStep = StudentStatus.TELEX_APPROVED;
-      this.updateStudent(student);
-    }
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.pdf, .jpg, .jpeg, .png';
+    fileInput.style.display = 'none';
+
+    fileInput.onchange = (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        if (confirm(`Are you sure you want to upload ${file.name} and initiate the telex process for ${student.fullName}?`)) {
+          this.isLoading = true;
+          this.cdr.detectChanges();
+          const agentUsername = this.agentData?.userId || '';
+
+          this.agentService.initiateTelex(student.id, file, agentUsername).subscribe({
+            next: (response) => {
+              console.log('Telex initiated successfully', response);
+              alert('Telex process initiated successfully!');
+              this.loadAgentData();
+            },
+            error: (err) => {
+              console.error('Error initiating telex', err);
+              alert('Failed to initiate telex. Please try again.');
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            }
+          });
+        }
+      }
+    };
+
+    document.body.appendChild(fileInput);
+    fileInput.click();
+    document.body.removeChild(fileInput);
   }
-  
+
   initiateVisa(student: Student): void {
     if (confirm(`Are you sure you want to initiate the visa process for ${student.fullName}?`)) {
-      student.presentStatus = StudentStatus.VISA_INITIATED;
-      student.nextStep = StudentStatus.VISA_APPROVED;
-      this.updateStudent(student);
+      alert('Visa initiation API not yet integrated.');
     }
   }
-  
-  openHistoryModal(student: Student): void {
+
+  openHistoryModal(student: any): void {
     this.selectedStudentForHistory = student;
     this.isHistoryModalOpen = true;
     this.cdr.detectChanges();
@@ -456,13 +474,14 @@ export class AgentDashboard implements OnInit {
 
   getHistoryStepClass(stepStatus: StudentStatus): string {
     if (!this.selectedStudentForHistory) return 'pending';
+    const currentStatus = this.selectedStudentForHistory.applicationStatus as StudentStatus;
 
-    if (this.selectedStudentForHistory.presentStatus === StudentStatus.REJECTED) {
+    if (currentStatus === StudentStatus.REJECTED) {
       return stepStatus === StudentStatus.REJECTED ? 'active-rejected' : 'pending';
     }
 
     const allStatuses = this.allStatuses;
-    const currentStepIndex = allStatuses.indexOf(this.selectedStudentForHistory.presentStatus);
+    const currentStepIndex = allStatuses.indexOf(currentStatus);
     const thisStepIndex = allStatuses.indexOf(stepStatus);
 
     if (thisStepIndex < 0) return 'pending';
@@ -470,7 +489,7 @@ export class AgentDashboard implements OnInit {
     if (thisStepIndex === currentStepIndex) return 'active';
     return 'pending';
   }
-  
+
   calculateAge(dob: string): number {
     if (!dob) return 0;
     const birthDate = new Date(dob);
@@ -482,45 +501,43 @@ export class AgentDashboard implements OnInit {
     }
     return age;
   }
-  
+
   getFilteredStudents(): Student[] {
     let filtered = [...this.students];
     const query = this.searchQuery.toLowerCase().trim();
     if (query) {
-      filtered = filtered.filter(s => 
+      filtered = filtered.filter(s =>
         s.fullName.toLowerCase().includes(query) ||
         s.email.toLowerCase().includes(query) ||
         s.contactNo.includes(query) ||
-        (s.college && s.college.collegeName.toLowerCase().includes(query)) // Safety check
+        (s.college && s.college.collegeName.toLowerCase().includes(query))
       );
     }
     if (this.statusFilter !== 'all') {
-      filtered = filtered.filter(s => s.presentStatus === this.statusFilter);
+      filtered = filtered.filter(s => s.applicationStatus === this.statusFilter);
     }
     return filtered;
   }
-  
+
   formatStatus(status: string): string {
     if (!status) return 'N/A';
     return status.replace(/_/g, ' ').toLowerCase();
   }
 
-  getStatusColor(status: StudentStatus | string): string {
+  getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
-      [StudentStatus.REGISTERED]: '#3B82F6', // Blue 500
-      [StudentStatus.UNDER_REVIEW]: '#A855F7', // Purple 500
-      [StudentStatus.PENDING_APPROVAL]: '#F59E0B', // Amber 500
-      [StudentStatus.APPROVED]: '#10B981', // Emerald 500
-      [StudentStatus.ADMISSION_LETTER_WAITING]: '#06B6D4', // Cyan 500
-      [StudentStatus.ADMISSION_LETTER_GENERATED]: '#10B981', // Emerald 500
-      [StudentStatus.TELEX_INITIATED]: '#3B82F6', // Blue 500
-      [StudentStatus.TELEX_APPROVED]: '#10B981', // Emerald 500
-      [StudentStatus.VISA_INITIATED]: '#3B82F6', // Blue 500
-      [StudentStatus.VISA_APPROVED]: '#10B981', // Emerald 500
-      [StudentStatus.COMPLETED]: '#22C55E', // Green 500
-      [StudentStatus.REJECTED]: '#EF4444' // Red 500
+      [StudentStatus.REGISTERED]: '#3B82F6',
+      [StudentStatus.UNDER_REVIEW]: '#A855F7',
+      [StudentStatus.PENDING_APPROVAL]: '#F59E0B',
+      [StudentStatus.APPROVED]: '#10B981',
+      [StudentStatus.ADMISSION_LETTER_GENERATED]: '#10B981',
+      [StudentStatus.ADMISSION_LETTER_APPROVED]: '#10B981',
+      [StudentStatus.TELEX_NUMBER_ISSUED]: '#3B82F6',
+      [StudentStatus.VISA_STAMPED]: '#22C55E',
+      [StudentStatus.COMPLETED]: '#22C55E',
+      [StudentStatus.REJECTED]: '#EF4444'
     };
-    return colors[status] || '#64748B'; // Slate 500
+    return colors[status] || '#64748B';
   }
 
   formatDate(dateString: string): string {
@@ -532,43 +549,34 @@ export class AgentDashboard implements OnInit {
       return dateString;
     }
   }
-  
+
   logout(): void {
     if (confirm('Are you sure you want to logout?')) {
-      console.log('Logging out...');
-      // This is the correct way to log out using your service
       this.authService.logout();
-      // After logging out, redirect to the login page
-      window.location.href = '/login'; 
-      // A better way is to use Angular's Router:
-      // e.g., this.router.navigate(['/login']);
-      // But this requires injecting the Router in your constructor.
+      window.location.href = '/login';
     }
   }
 
-  onStudentRegistered(newStudent?: Student): void {
-    this.navigateTo('students'); 
-    this.cdr.detectChanges(); 
-    // Reload data to get the new student
-    this.loadAgentData(); 
+  onStudentRegistered(newStudent?: any): void {
+    this.navigateTo('students');
+    this.cdr.detectChanges();
+    this.loadAgentData();
   }
-  
-  closeSuccessModal(): void { 
+
+  closeSuccessModal(): void {
     this.isSuccessModalOpen = false;
-    this.navigateTo('dashboard'); 
+    this.navigateTo('dashboard');
     this.newlyRegisteredStudent = null;
     this.cdr.detectChanges();
   }
 
-  downloadFile(path: string | undefined): void { 
+  downloadFile(path: string | undefined): void {
     if (!path) {
-      console.error('File path is missing.');
       alert('Error: File path is missing. Cannot download.');
       return;
     }
     const baseUrl = 'http://localhost:8080';
     const fullUrl = `${baseUrl}/${path}`;
-    console.log(`Downloading file from: ${fullUrl}`);
     const link = document.createElement('a');
     link.href = fullUrl;
     link.target = '_blank';
@@ -577,6 +585,5 @@ export class AgentDashboard implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    console.log(`Download initiated for: ${fileName}`);
   }
 }

@@ -29,7 +29,7 @@ export class AdminLogin {
   constructor(
     private router: Router,
     private authService: AdminAuthService
-  ) {}
+  ) { }
 
   onUserIdInput(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -72,7 +72,12 @@ export class AdminLogin {
           this.userRole.set(res.role);
 
           // Success message based on role
-          switch (res.role) {
+          // Normalize role to handle case sensitivity (e.g. AGENT vs agent)
+          const normalizedRole = res.role.toLowerCase();
+          console.log(`🔐 Role normalized: ${res.role} -> ${normalizedRole}`);
+
+          // Success message based on role
+          switch (normalizedRole) {
             case 'admin':
               this.spinnerText.set('Admin Login Successful');
               this.spinnerIcon.set('admin');
@@ -81,52 +86,81 @@ export class AdminLogin {
               this.spinnerText.set('Agent Login Successful');
               this.spinnerIcon.set('agent');
               break;
-            case 'visa-manager':
+            case 'visa_manager':
+            case 'visa-manager': // Handle both potential formats
               this.spinnerText.set('Visa Manager Login Successful');
               this.spinnerIcon.set('visa');
               break;
-            case 'AdmissionManager':
+            case 'admissionmanager':
+            case 'admission_manager':
               this.spinnerText.set('Admission Manager Login Successful');
               this.spinnerIcon.set('admission');
               break;
-            // The 'student' case is now valid because of the correct interface
+            case 'telex_manager':
+              this.spinnerText.set('Telex Manager Login Successful');
+              this.spinnerIcon.set('telex'); // Ensure icon exists or use default
+              break;
+            case 'accountant':
+              this.spinnerText.set('Accountant Login Successful');
+              this.spinnerIcon.set('accountant');
+              break;
+            case 'doc_manager':
+              this.spinnerText.set('Doc Manager Login Successful');
+              this.spinnerIcon.set('doc');
+              break;
+            case 'universitycoordinator':
+              this.spinnerText.set('University Coordinator Login Successful');
+              this.spinnerIcon.set('university');
+              break;
             case 'student':
               this.spinnerText.set('Student Login Successful');
-              this.spinnerIcon.set('student'); // Assuming you have a 'student' icon
+              this.spinnerIcon.set('student');
               break;
+            default:
+              console.warn(`⚠️ Unhandled role for spinner: ${normalizedRole}`);
+              this.spinnerText.set('Login Successful');
           }
 
           // Navigate after success animation
           setTimeout(() => {
             this.isLoading.set(false);
 
-            // -----------------------------------------------------------------
-            // 🛑 IMPORTANT: Removed redundant localStorage calls.
-            // Your AdminAuthService already saves everything to sessionStorage.
-            // Rely on the service as the single source of truth.
-            // -----------------------------------------------------------------
+            console.log(`🚀 Navigating for role: ${normalizedRole}`);
 
             // Navigate to correct dashboard
-            switch (res.role) {
+            switch (normalizedRole) {
               case 'admin':
                 this.router.navigate(['/admin-dashboard']);
                 break;
               case 'agent':
                 this.router.navigate(['/agent-dashboard']);
                 break;
+              case 'visa_manager':
               case 'visa-manager':
                 this.router.navigate(['/visa-manager-dashboard']);
                 break;
-              case 'AdmissionManager':
+              case 'admissionmanager':
+              case 'admission_manager':
                 this.router.navigate(['/admission-manager-dashboard']);
                 break;
+              case 'telex_manager':
+                this.router.navigate(['/telex-manager-dashboard']); // Assuming route exists
+                break;
+              case 'accountant':
+                this.router.navigate(['/accountant-dashboard']); // Assuming route exists
+                break;
+              case 'doc_manager':
+                this.router.navigate(['/doc-manager-dashboard']); // Assuming route exists
+                break;
+              case 'universitycoordinator':
+                this.router.navigate(['/university-dashboard']); // Assuming route exists
+                break;
               case 'student':
-                 this.router.navigate(['/student-dashboard']); // Example for student
-                 break;
+                this.router.navigate(['/student-dashboard']);
+                break;
               default:
-                // This logic handles any role not explicitly defined in the switch
-                console.warn(`Unknown role encountered: ${res.role}`);
-                this.errorMessage.set('Unknown role. Contact support.');
+                console.error(`❌ Unknown role encountered during navigation: ${normalizedRole}`);
+                this.errorMessage.set(`Unknown role: ${res.role}. Contact support.`);
             }
           }, 1500);
         }, 1000);

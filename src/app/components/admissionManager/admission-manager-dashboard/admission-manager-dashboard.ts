@@ -1,15 +1,15 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Subject, takeUntil, finalize, forkJoin } from 'rxjs';
+import { Subject, takeUntil, finalize } from 'rxjs';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { AdmissionManagerService } from '../../../services/admission-manager.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 // --- Interfaces ---
-interface College {
+interface User {
   id: number;
-  collegeName: string;
-  city: string;
-  country: string;
+  fullName: string;
+  email: string;
 }
 
 interface Student {
@@ -22,48 +22,61 @@ interface Student {
   email: string;
   contactNo: string;
   address: string;
+
+  // Family
   emergencyContactNo: string;
   emergencyRelation: string;
+  mothersName: string;
+  fathersName: string;
+
+  // ID & Passport
   passportNo: string;
   passportValidTill: string;
-  collegePreferences: College[];
-  highestDegree: string;
-  marks: number;
+  passportPath: string | null;
+  adhaarCardNo: string;
+  adhaarPath: string | null;
+
+  // Academic
+  class12thPassingYear: string;
+  baords: string;
+  class12thMarks: number;
+  maxMarks: number;
+  markseetPath: string | null;
+  hasGivenNEET: boolean;
+  neetScore: number | null;
+  neetYear: string | null;
+
+  // Application
+  intake: string;
   appliedFor: string;
-  presentStatus: string;
-  nextStep: string | null; // Ensures 'null' is allowed
-  college: College;
+  college: { id: number; collegeName: string } | null;
+
+  // Docs
   confirmationPagePath: string | null;
-  admissionLetterPath: string | null;
-  updatedBy: string | null;
+  admissionLetterPathInternal: string | null;
+  profileImagePath: string | null;
+
+  // Telex & Visa Details
+  telexMan: User | null;
+  visaMan: User | null;
+  telexNumber: string | null;
+  telexIssueDate: string | null;
+  telexDocumentsPath: string | null; // Comma separated
+  paymentStatus: string | null;
 }
 
 interface ManagerData {
   id: number;
   fullName: string;
-  email: string;
-  contactNumber: string;
-  role: string;
-  status: string;
   username: string;
-  colleges: College[];
   students: Student[];
 }
 
-// DTO for the new update API
-interface StudentUpdatePayload {
-  presentStatus: string;
-  updatedByRole: string;
-  updatedByUsername: string;
-  nextStep?: string | null;
-}
-
-// --- Component ---
 @Component({
   selector: 'app-admission-manager-dashboard',
   standalone: false,
   templateUrl: './admission-manager-dashboard.html',
-  styleUrls: ['./admission-manager-dashboard.css'], // Main CSS
+  styleUrls: ['./admission-manager-dashboard.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   animations: [
@@ -73,65 +86,47 @@ interface StudentUpdatePayload {
         animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
       ]),
     ]),
-    trigger('slideInRight', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateX(20px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' })),
-      ]),
-    ]),
   ],
 })
 export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  private avatarColors = ['#FFC107', '#E91E63', '#4CAF50', '#2196F3', '#9C27B0', '#FF5722', '#009688'];
+  private avatarColors = ['#2563EB', '#059669', '#D97706', '#DC2626', '#7C3AED'];
 
-  // --- State Properties ---
   managerData: ManagerData | null = null;
   selectedStudent: Student | null = null;
-  
-  // View Management
-  activeView: 'dashboard' | 'allStudents' | 'actionSection' | 'uploadLetter' | 'letterGenerated' | 'profile' = 'dashboard';
-  showStudentDetail = false;
-  
-  // Data for New Views
-  actionableStudents: Student[] = [];
-  approvedStudents: Student[] = [];
-  letterGeneratedStudents: Student[] = []; 
 
-  // Loading States
+  // Views
+  activeView: 'actions-required' | 'pending-university' | 'processing' | 'completed' = 'actions-required';
+
+  // Lists
+  actionRequiredStudents: Student[] = [];
+  pendingUniversityStudents: Student[] = [];
+  processingStudents: Student[] = [];
+  allStudents: Student[] = [];
+  filteredList: Student[] = [];
+
+  // State
   isLoading = true;
   isSubmitting = false;
-  isUploadingLetter = false;
+  searchTerm = '';
 
-  // Search & Filter
-  searchTerm: string = '';
-  filteredStudentList: Student[] = [];
-  uploadLetterSearchTerm: string = ''; 
-  filteredApprovedStudents: Student[] = []; 
-  letterGeneratedSearchTerm: string = ''; 
-  filteredLetterGeneratedStudents: Student[] = []; 
-
-  // Upload Management
-  selectedFile: File | null = null;
-  studentIdForUpload: number | null = null;
-  
-  // Modal State
+  // Modals
+  showStudentDetail = false;
+  showActionModal = false;
   showSuccessModal = false;
   successModalMessage = '';
-  
-  showActionModal = false;
-  studentForAction: Student | null = null;
 
-  // API Base URL
-  private apiBaseUrl = 'http://localhost:8080';
+  // Action Logic
+  studentForAction: Student | null = null;
+  actionType: 'forward' | 'approve' | 'assign-telex' | 'assign-visa' | null = null;
+  selectedManagerUsername: string = '';
 
   constructor(
-    private http: HttpClient,
+    private admissionService: AdmissionManagerService,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
-  // --- Lifecycle Hooks ---
   ngOnInit(): void {
     this.loadInitialData();
   }
@@ -141,7 +136,6 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // --- Data Loading ---
   loadInitialData(): void {
     const username = sessionStorage.getItem('userId');
     if (!username) {
@@ -152,61 +146,220 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    forkJoin({
-      manager: this.http.get<ManagerData>(`${this.apiBaseUrl}/api/managers/userName/${username}`),
-      actionable: this.http.get<Student[]>(`${this.apiBaseUrl}/api/managers/students/registered-or-under-review/${username}`),
-      approved: this.http.get<Student[]>(`${this.apiBaseUrl}/api/managers/approved-students/${username}`),
-      // <<< NEW: Use the new API endpoint for Letter Generated students >>>
-      letterGenerated: this.http.get<Student[]>(`${this.apiBaseUrl}/students/generated-by-manager-username/${username}`)
-    })
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => {
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      })
-    )
-    .subscribe({
-      next: (results) => {
-        this.managerData = results.manager;
-        this.actionableStudents = results.actionable;
-        this.approvedStudents = results.approved;
-        this.letterGeneratedStudents = results.letterGenerated; // <<< NEW
-        
-        // Initialize filtered lists
-        this.filteredStudentList = results.manager.students || [];
-        this.filteredApprovedStudents = results.approved || []; 
-        this.filteredLetterGeneratedStudents = results.letterGenerated || []; // <<< NEW
+    this.admissionService.getManagerDetails(username)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (data) => {
+          this.managerData = data;
+          this.categorizeStudents();
+          this.filterStudents();
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Error loading data:', error);
+        }
+      });
+  }
 
-        this.cdr.markForCheck();
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Error loading initial data:', error);
-      }
+  categorizeStudents(): void {
+    if (!this.managerData || !this.managerData.students) return;
+
+    this.allStudents = this.managerData.students;
+
+    // 1. Actions Required (The "To-Do" List for Manager)
+    this.actionRequiredStudents = this.allStudents.filter(s => {
+      const status = s.applicationStatus?.toUpperCase();
+      // Forwarding
+      if (status === 'REGISTERED') return true;
+      // Approving Letter
+      if (status === 'ADMISSION_LETTER_GENERATED') return true;
+      // Assigning Telex Man (Only if not assigned yet)
+      if (status === 'APPLIED_FOR_TELEX' && !s.telexMan) return true;
+      // Assigning Visa Man (Only if Telex issued and no Visa Man yet)
+      if (status === 'TELEX_NUMBER_ISSUED' && !s.visaMan) return true;
+
+      return false;
+    });
+
+    // 2. Pending University (Waiting on Uni Person)
+    this.pendingUniversityStudents = this.allStudents.filter(s =>
+      s.applicationStatus?.toUpperCase() === 'FORWARDED_TO_UNI'
+    );
+
+    // 3. In Processing (Waiting on Telex/Visa Managers)
+    this.processingStudents = this.allStudents.filter(s => {
+      const status = s.applicationStatus?.toUpperCase();
+      return (status === 'APPLIED_FOR_TELEX' && s.telexMan) || // Manager working on it
+        status === 'TELEX_APPLICATION_SUBMITTED_TO_MEA' ||
+        status === 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY' ||
+        status === 'VISA_FEE_PENDING' ||
+        status === 'VISA_FEE_RECEIVED' ||
+        status === 'VISA_APPLIED' ||
+        status === 'PASSPORT_SUBMITTED_TO_EMBASSY';
     });
   }
 
-  // --- View Switching ---
-  switchView(view: 'dashboard' | 'allStudents' | 'actionSection' | 'uploadLetter' | 'letterGenerated' | 'profile'): void {
+  switchView(view: typeof this.activeView): void {
     this.activeView = view;
-    this.showStudentDetail = false;
     this.searchTerm = '';
-    this.uploadLetterSearchTerm = ''; 
-    this.letterGeneratedSearchTerm = ''; 
-    
-    if (this.managerData?.students) {
-      this.filterStudents(); 
-    }
-    if (this.approvedStudents) {
-      this.filterApprovedStudents(); 
-    }
-    if (this.letterGeneratedStudents) {
-      this.filterLetterGeneratedStudents(); 
-    }
+    this.filterStudents();
     this.cdr.markForCheck();
   }
 
-  // --- 'All Students' View Logic ---
+  filterStudents(): void {
+    let sourceList: Student[] = [];
+    switch (this.activeView) {
+      case 'actions-required': sourceList = this.actionRequiredStudents; break;
+      case 'pending-university': sourceList = this.pendingUniversityStudents; break;
+      case 'processing': sourceList = this.processingStudents; break;
+      case 'completed': sourceList = this.allStudents; break;
+    }
+
+    const term = this.searchTerm.toLowerCase();
+    this.filteredList = sourceList.filter(student =>
+      !term ||
+      student.fullName?.toLowerCase().includes(term) ||
+      student.email?.toLowerCase().includes(term) ||
+      student.passportNo?.toLowerCase().includes(term)
+    );
+  }
+
+  // --- Actions Setup ---
+
+  initiateForwardToUniversity(student: Student): void {
+    this.studentForAction = student;
+    this.actionType = 'forward';
+    this.showActionModal = true;
+    this.cdr.markForCheck();
+  }
+
+  initiateApproveLetter(student: Student): void {
+    this.studentForAction = student;
+    this.actionType = 'approve';
+    this.showActionModal = true;
+    this.cdr.markForCheck();
+  }
+
+  initiateAssignManager(student: Student, type: 'telex' | 'visa'): void {
+    this.studentForAction = student;
+    this.actionType = type === 'telex' ? 'assign-telex' : 'assign-visa';
+    this.selectedManagerUsername = ''; // Reset
+    this.showActionModal = true;
+    this.cdr.markForCheck();
+  }
+
+  // --- BUG FIX IMPLEMENTED HERE ---
+  confirmAction(): void {
+    if (!this.studentForAction || !this.managerData) return;
+
+    const studentId = this.studentForAction.id;
+    const managerUsername = this.managerData.username;
+
+    this.isSubmitting = true;
+    this.cdr.markForCheck(); // Trigger spinner
+
+    // 1. Forward To University
+    if (this.actionType === 'forward') {
+      this.admissionService.forwardToUniversity(studentId, managerUsername).subscribe({
+        next: () => {
+          // CRITICAL FIX: Force update immediately
+          this.isSubmitting = false;
+          this.showActionModal = false;
+          this.cdr.detectChanges();
+
+          this.updateLocalStudentStatus(studentId, 'FORWARDED_TO_UNI');
+          this.handleActionSuccess('Student forwarded to University successfully.');
+        },
+        error: (err) => this.handleError(err)
+      });
+    }
+    // 2. Approve Admission Letter
+    else if (this.actionType === 'approve') {
+      this.admissionService.approveAdmissionLetter(studentId, managerUsername).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.showActionModal = false;
+          this.cdr.detectChanges();
+
+          this.updateLocalStudentStatus(studentId, 'ADMISSION_LETTER_APPROVED');
+          this.handleActionSuccess('Admission Letter Approved.');
+        },
+        error: (err) => this.handleError(err)
+      });
+    }
+    // 3. Assign Telex Manager
+    else if (this.actionType === 'assign-telex') {
+      // Assuming service method exists based on API guide: POST /api/telex/assign/{studentId}
+      // Passing object { managerUsername: "TELEX_001" }
+      this.admissionService.assignTelexManager(studentId, this.selectedManagerUsername).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.showActionModal = false;
+          this.cdr.detectChanges();
+
+          this.updateLocalStudentStatus(studentId, 'APPLIED_FOR_TELEX'); // Status usually stays same but manager added
+          this.loadInitialData(); // Reload to get full manager object
+          this.handleActionSuccess(`Telex Manager ${this.selectedManagerUsername} assigned.`);
+        },
+        error: (err) => this.handleError(err)
+      });
+    }
+    // 4. Assign Visa Manager
+    else if (this.actionType === 'assign-visa') {
+      this.admissionService.assignVisaManager(studentId, this.selectedManagerUsername).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.showActionModal = false;
+          this.cdr.detectChanges();
+
+          this.updateLocalStudentStatus(studentId, 'VISA_FEE_PENDING');
+          this.loadInitialData();
+          this.handleActionSuccess(`Visa Manager ${this.selectedManagerUsername} assigned.`);
+        },
+        error: (err) => this.handleError(err)
+      });
+    }
+  }
+
+  handleError(err: any): void {
+    console.error(err);
+    this.isSubmitting = false;
+    this.cdr.detectChanges(); // Ensure spinner stops on error
+  }
+
+  updateLocalStudentStatus(studentId: number, newStatus: string): void {
+    const student = this.allStudents.find(s => s.id === studentId);
+    if (student) {
+      student.applicationStatus = newStatus;
+    }
+    this.categorizeStudents();
+    this.filterStudents();
+  }
+
+  handleActionSuccess(message: string): void {
+    this.studentForAction = null;
+    this.actionType = null;
+    this.successModalMessage = message;
+    setTimeout(() => {
+      this.showSuccessModal = true;
+      this.cdr.detectChanges();
+    }, 150);
+  }
+
+  closeActionModal(): void {
+    this.showActionModal = false;
+    this.studentForAction = null;
+    this.actionType = null;
+    this.cdr.markForCheck();
+  }
+
+  // --- Helpers ---
   selectStudent(student: Student): void {
     this.selectedStudent = student;
     this.showStudentDetail = true;
@@ -215,289 +368,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   closeStudentDetail(): void {
     this.showStudentDetail = false;
-    this.selectedStudent = null;
-    this.selectedFile = null;
-    this.studentIdForUpload = null;
-    this.cdr.markForCheck();
-  }
-
-  filterStudents(): void {
-    if (!this.managerData?.students) {
-      this.filteredStudentList = [];
-      return;
-    }
-    if (!this.searchTerm) {
-      this.filteredStudentList = this.managerData.students;
-    } else {
-      const term = this.searchTerm.toLowerCase();
-      this.filteredStudentList = this.managerData.students.filter(student => 
-        student.fullName.toLowerCase().includes(term) ||
-        student.email.toLowerCase().includes(term) ||
-        student.appliedFor.toLowerCase().includes(term)
-      );
-    }
-    this.cdr.markForCheck();
-  }
-
-  // --- 'Action Section' Logic ---
-  openActionModal(student: Student): void {
-    this.studentForAction = student;
-    this.showActionModal = true;
-    this.cdr.markForCheck();
-  }
-
-  closeActionModal(): void {
-    this.showActionModal = false;
-    this.studentForAction = null;
-    this.cdr.markForCheck();
-  }
-
-  quickUpdateStudentStatus(student: Student, newStatus: 'APPROVED' | 'UNDER_REVIEW' | 'REJECTED'): void {
-    if (!this.managerData) return;
-
-    this.isSubmitting = true;
-    this.cdr.markForCheck();
-
-    const payload: StudentUpdatePayload = {
-      presentStatus: newStatus,
-      updatedByRole: this.managerData.role,
-      updatedByUsername: this.managerData.username
-    };
-
-    if (newStatus === 'APPROVED') {
-      payload.nextStep = 'ADMISSION_LETTER_WAITING';
-    } else if (newStatus === 'REJECTED') {
-      payload.nextStep = null;
-    } else if (newStatus === 'UNDER_REVIEW') {
-      payload.nextStep = 'PENDING_APPROVAL';
-    }
-
-    this.http.put(`${this.apiBaseUrl}/students/update-status/${student.id}`, payload)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isSubmitting = false;
-          this.cdr.markForCheck(); 
-        })
-      )
-      .subscribe({
-        next: () => {
-          this.showSuccess(`Student ${student.fullName} has been ${newStatus.toLowerCase()}.`);
-          if (this.showActionModal) {
-            this.closeActionModal();
-          }
-
-          if (this.managerData && this.managerData.students) {
-            const index = this.managerData.students.findIndex(s => s.id === student.id);
-            if (index > -1) {
-              const updatedStudent = { 
-                ...this.managerData.students[index], 
-                presentStatus: newStatus, 
-                nextStep: payload.nextStep ?? this.managerData.students[index].nextStep
-              };
-              this.managerData.students = [
-                ...this.managerData.students.slice(0, index),
-                updatedStudent,
-                ...this.managerData.students.slice(index + 1)
-              ];
-              this.filterStudents(); 
-            }
-          }
-          
-          this.loadActionableStudents();
-          this.loadApprovedStudents();
-
-          this.cdr.markForCheck(); 
-        },
-        error: (error: HttpErrorResponse) => {
-          console.error(`Error updating status for student ${student.id}:`, error);
-        }
-      });
-  }
-
-  loadActionableStudents(): void {
-    if (!this.managerData) return;
-    this.http.get<Student[]>(`${this.apiBaseUrl}/api/managers/students/registered-or-under-review/${this.managerData.username}`)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
-        this.actionableStudents = data;
-        this.cdr.markForCheck();
-      });
-  }
-
-  // --- 'Upload Letter' Logic ---
-  loadApprovedStudents(): void {
-    if (!this.managerData) return;
-    this.http.get<Student[]>(`${this.apiBaseUrl}/api/managers/approved-students/${this.managerData.username}`)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
-        this.approvedStudents = data;
-        this.filterApprovedStudents(); 
-        this.cdr.markForCheck();
-      });
-  }
-
-  filterApprovedStudents(): void {
-    if (!this.approvedStudents) {
-      this.filteredApprovedStudents = [];
-      return;
-    }
-    if (!this.uploadLetterSearchTerm) {
-      this.filteredApprovedStudents = this.approvedStudents;
-    } else {
-      const term = this.uploadLetterSearchTerm.toLowerCase();
-      this.filteredApprovedStudents = this.approvedStudents.filter(student => 
-        student.fullName.toLowerCase().includes(term) ||
-        student.email.toLowerCase().includes(term) ||
-        student.college?.collegeName.toLowerCase().includes(term)
-      );
-    }
-    this.cdr.markForCheck();
-  }
-
-  onFileSelected(event: Event, studentId: number): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      if (input.files[0].type !== 'application/pdf') {
-        input.value = '';
-        return;
-      }
-      this.selectedFile = input.files[0];
-      this.studentIdForUpload = studentId;
-      this.cdr.markForCheck();
-    }
-  }
-
-  clearFileSelection(): void {
-    this.selectedFile = null;
-    this.studentIdForUpload = null;
-    this.cdr.markForCheck();
-  }
-
-  // <<< UPDATED: This function now sends 'username' in FormData and switches view on success >>>
- // ... (omitted code is unchanged)
-
-  uploadAdmissionLetter(studentId: number): void {
-    if (!this.selectedFile || this.studentIdForUpload !== studentId) {
-      return;
-    }
-
-    const username = sessionStorage.getItem('userId');
-    if (!username) {
-      console.error('Username not found in session');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', this.selectedFile);
-    formData.append('username', username); 
-
-    this.isUploadingLetter = true;
-    this.cdr.markForCheck();
-
-    this.http.post(`${this.apiBaseUrl}/students/upload-admission-letter/${studentId}`, formData)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isUploadingLetter = false;
-          this.clearFileSelection();
-          this.cdr.markForCheck(); 
-        })
-      )
-      .subscribe({
-        next: () => {
-          // --- FIX: Update states locally for instant feedback ---
-          
-          // 1. Remove from 'Approved' (Upload Letter) list
-          this.approvedStudents = this.approvedStudents.filter(s => s.id !== studentId);
-          this.filterApprovedStudents();
-
-          // 2. Update 'All Students' list
-          if (this.managerData && this.managerData.students) {
-            const index = this.managerData.students.findIndex(s => s.id === studentId);
-            if (index > -1) {
-              const updatedStudent = { 
-                ...this.managerData.students[index], 
-                admissionLetterPath: 'uploaded', 
-                presentStatus: 'ADMISSION_LETTER_GENERATED' 
-              };
-              this.managerData.students = [
-                ...this.managerData.students.slice(0, index),
-                updatedStudent,
-                ...this.managerData.students.slice(index + 1)
-              ];
-              this.filterStudents();
-            }
-          }
-
-          // 3. Reload the 'Letter Generated' list from server
-          this.loadLetterGeneratedStudents();
-          
-          this.showSuccess('Admission letter uploaded successfully');
-          this.switchView('letterGenerated');
-          
-          // <<< --- THIS IS THE FIX --- >>>
-          // Manually tell Angular to update the view right now.
-          this.cdr.markForCheck(); 
-          // <<< --- END OF FIX --- >>>
-
-        },
-        error: (error: HttpErrorResponse) => {
-          console.error(`Error uploading admission letter for student ${studentId}:`, error);
-        }
-      });
-  }
-
-// ... (rest of the file is unchanged)
-
-  // --- 'Letter Generated' Logic (UPDATED) ---
-  loadLetterGeneratedStudents(): void {
-    const username = sessionStorage.getItem('userId');
-    if (!username) {
-      console.error('Username not found in session');
-      return;
-    }
-
-    this.http.get<Student[]>(`${this.apiBaseUrl}/students/generated-by-manager-username/${username}`)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
-        this.letterGeneratedStudents = data;
-        this.filterLetterGeneratedStudents(); // Apply filter
-        this.cdr.markForCheck();
-      });
-  }
-
-  filterLetterGeneratedStudents(): void {
-    if (!this.letterGeneratedStudents) {
-      this.filteredLetterGeneratedStudents = [];
-      return;
-    }
-    if (!this.letterGeneratedSearchTerm) {
-      this.filteredLetterGeneratedStudents = this.letterGeneratedStudents;
-    } else {
-      const term = this.letterGeneratedSearchTerm.toLowerCase();
-      this.filteredLetterGeneratedStudents = this.letterGeneratedStudents.filter(student => 
-        student.fullName.toLowerCase().includes(term) ||
-        student.email.toLowerCase().includes(term)
-      );
-    }
-    this.cdr.markForCheck();
-  }
-
-
-  // --- Utility & Helper Functions ---
-
-  getConfirmationPageUrl(path: string): string {
-    return `${this.apiBaseUrl}/${path}`;
-  }
-
-  getAdmissionLetterUrl(path: string): string {
-    return `${this.apiBaseUrl}/${path}`;
-  }
-
-  showSuccess(message: string): void {
-    this.successModalMessage = message;
-    this.showSuccessModal = true;
+    setTimeout(() => { this.selectedStudent = null; }, 200);
     this.cdr.markForCheck();
   }
 
@@ -511,34 +382,31 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  // <<< UPDATED: Handles null status >>>
+  getDocUrl(path: string | null): string {
+    if (!path) return '';
+    return `http://localhost:8080/${path}`;
+  }
+
+  getDocsArray(pathStr: string | null): string[] {
+    if (!pathStr) return [];
+    return pathStr.split(',');
+  }
+
   getStatusLabel(status: string | null): string {
-    if (!status) return 'N/A'; // Handle null or empty string
+    if (!status) return 'Pending';
     return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
 
-  getStatusClass(status: string): string {
+  getStatusClass(status: string | null): string {
     if (!status) return 'status-default';
-    const statusMap: { [key: string]: string } = {
-      'REGISTERED': 'status-pending',
-      'UNDER_REVIEW': 'status-review',
-      'PENDING_APPROVAL': 'status-pending',
-      'APPROVED': 'status-approved',
-      'ADMISSION_LETTER_WAITING': 'status-waiting',
-      'ADMISSION_LETTER_GENERATED': 'status-generated',
-      'TELEX_INITIATED': 'status-telex',
-      'TELEX_APPROVED': 'status-telex-approved',
-      'VISA_INITIATD': 'status-visa',
-      'VISA_APPROVED': 'status-visa-approved',
-      'COMPLETED': 'status-completed',
-      'REJECTED': 'status-rejected'
-    };
-    return statusMap[status] || 'status-default';
+    const s = status.toUpperCase();
+    if (s === 'REGISTERED') return 'status-pending'; // Yellow
+    if (s === 'ADMISSION_LETTER_APPROVED' || s === 'VISA_STAMPED') return 'status-approved'; // Green
+    return 'status-default';
   }
 
   getAvatarColor(name: string): string {
     if (!name) return this.avatarColors[0];
-    const charCode = name.charCodeAt(0) || 0;
-    return this.avatarColors[charCode % this.avatarColors.length];
+    return this.avatarColors[name.charCodeAt(0) % this.avatarColors.length];
   }
 }

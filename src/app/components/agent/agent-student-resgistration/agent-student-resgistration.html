@@ -1,47 +1,37 @@
 <div class="reg-modal-overlay" [class.open]="isSuccess">
   <div class="reg-modal-content">
     <div class="reg-modal-body">
-      
       <div class="reg-success-icon-wrapper">
-        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
       </div>
-      
       <h3 class="reg-modal-title">Registration Successful!</h3>
       <p class="reg-modal-text">
-        The new student has been successfully registered and added to your list.
+        The student has been successfully registered. Application ID: <strong>{{registeredStudentData?.id}}</strong>
       </p>
-      
-      <!-- UPDATED: Button Wrapper -->
       <div class="reg-modal-actions-wrapper">
-        <!-- NEW: Download Button -->
-        <button 
-          type="button" 
-          class="reg-btn reg-modal-btn-download" 
-          (click)="downloadConfirmation()"
+        <button type="button" class="reg-btn reg-modal-btn-download" (click)="downloadConfirmation()"
           [disabled]="!registeredStudentData?.confirmationPagePath">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
           Download Confirmation
         </button>
-        
-        <!-- "Done" button, now styled as primary -->
         <button type="button" class="reg-btn reg-modal-btn-primary" (click)="closeSuccessModal()">
           Done
         </button>
       </div>
-      <!-- END UPDATED -->
-
     </div>
   </div>
 </div>
 
-<form #regForm="ngForm" (ngSubmit)="registerStudent()" novalidate>
+<div class="reg-container">
 
   <div class="reg-header">
     <h2>
@@ -54,216 +44,738 @@
       New Student Registration
     </h2>
     <button type="button" class="reg-close-btn" title="Cancel" (click)="cancel()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
       </svg>
     </button>
   </div>
-  
-  <div class="reg-error-message" *ngIf="errorMessage">
-    <strong>Registration Failed:</strong> {{ errorMessage }}
-  </div>
 
-  <h3 class="reg-section-header">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-    Personal Information
-  </h3>
-  <div class="reg-form-grid">
-    <div class="reg-form-group">
-      <label for="fullName">
-        <span class="icon" style="color: #3B82F6;">👤</span>
-        Full Name<span class="required">*</span>
-      </label>
-      <input type="text" id="fullName" name="fullName" [(ngModel)]="student.fullName" required #fullNameInput="ngModel" placeholder="Enter full name">
-      <div *ngIf="fullNameInput.invalid && fullNameInput.touched" class="reg-form-error">Full Name is required.</div>
+  <div class="reg-progress-container">
+    <div class="reg-progress-bar">
+      <div class="reg-progress-fill" [style.width.%]="(currentStep / totalSteps) * 100"></div>
     </div>
-    <div class="reg-form-group">
-      <label for="dob">
-        <span class="icon" style="color: #EC4899;">📅</span>
-        Date of Birth<span class="required">*</span>
-      </label>
-      <input type="date" id="dob" name="dob" [(ngModel)]="student.dob" (change)="calculateAge()" required #dobInput="ngModel">
-      <div *ngIf="dobInput.invalid && dobInput.touched" class="reg-form-error">Date of Birth is required.</div>
-    </div>
-    <div class="reg-form-group">
-      <label for="age">
-        <span class="icon" style="color: #F59E0B;">🎂</span>
-        Age
-      </label>
-      <input type="number" id="age" name="age" [(ngModel)]="student.age" readonly placeholder="Auto-calculated">
-    </div>
-    <div class="reg-form-group">
-      <label for="email">
-        <span class="icon" style="color: #8B5CF6;">📧</span>
-        Email Address<span class="required">*</span>
-      </label>
-      <input type="email" id="email" name="email" [(ngModel)]="student.email" required email #emailInput="ngModel" placeholder="student@example.com">
-      <div *ngIf="emailInput.invalid && emailInput.touched" class="reg-form-error">
-        <span *ngIf="emailInput.errors?.['required']">Email is required.</span>
-        <span *ngIf="emailInput.errors?.['email']">Please enter a valid email.</span>
+    <div class="reg-steps-indicator">
+      <div class="reg-step-item" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1"
+        (click)="goToStep(1)">
+        <div class="reg-step-circle">
+          <span *ngIf="currentStep <= 1">1</span>
+          <svg *ngIf="currentStep > 1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <span class="reg-step-label">Intake & College</span>
+      </div>
+      <div class="reg-step-item" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2"
+        (click)="goToStep(2)">
+        <div class="reg-step-circle">
+          <span *ngIf="currentStep <= 2">2</span>
+          <svg *ngIf="currentStep > 2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <span class="reg-step-label">Personal Info</span>
+      </div>
+      <div class="reg-step-item" [class.active]="currentStep >= 3" [class.completed]="currentStep > 3">
+        <div class="reg-step-circle">
+          <span>3</span>
+        </div>
+        <span class="reg-step-label">Documents</span>
       </div>
     </div>
-    <div class="reg-form-group">
-      <label for="contactNo">
-        <span class="icon" style="color: #10B981;">📱</span>
-        Contact Number<span class="required">*</span>
-      </label>
-      <input type="tel" id="contactNo" name="contactNo" [(ngModel)]="student.contactNo" required #contactInput="ngModel" placeholder="+91 98765 43210">
-      <div *ngIf="contactInput.invalid && contactInput.touched" class="reg-form-error">Contact Number is required.</div>
-    </div>
-  </div>
-  
-  <h3 class="reg-section-header">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-    Location & Address
-  </h3>
-  <div class="reg-form-grid">
-    <div class="reg-form-group">
-      <label for="state">
-        <span class="icon" style="color: #06B6D4;">🏢</span>
-        State (Agent Access)<span class="required">*</span>
-      </label>
-      <select id="state" name="state" [(ngModel)]="student.selectedState" (change)="onStateChange()" required #stateInput="ngModel">
-        <option value="" disabled>-- Select State --</option>
-        <option *ngFor="let state of availableStates" [value]="state">{{ state }}</option>
-      </select>
-      <div *ngIf="stateInput.invalid && stateInput.touched" class="reg-form-error">State is required.</div>
-    </div>
-    <div class="reg-form-group">
-      <label for="district">
-        <span class="icon" style="color: #F97316;">📍</span>
-        District (Agent Access)<span class="required">*</span>
-      </label>
-      <select id="district" name="districtId" [(ngModel)]="student.districtId" required [disabled]="!student.selectedState" #districtInput="ngModel">
-        <option [ngValue]="null" disabled>-- Select District --</option>
-        <option *ngFor="let loc of filteredDistricts" [value]="loc.id">{{ loc.district }}</option>
-      </select>
-      <div *ngIf="districtInput.invalid && districtInput.touched" class="reg-form-error">District is required.</div>
-    </div>
-    <div class="reg-form-group reg-form-span-2">
-      <label for="address">
-        <span class="icon" style="color: #EF4444;">🏠</span>
-        Street Address<span class="required">*</span>
-      </label>
-      <input type="text" id="address" name="address" [(ngModel)]="student.address" placeholder="e.g., B-45, Rajouri Garden" required #addressInput="ngModel">
-      <div *ngIf="addressInput.invalid && addressInput.touched" class="reg-form-error">Address is required.</div>
-    </div>
-  </div>
-  
-  <h3 class="reg-section-header">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-    Emergency Contact
-  </h3>
-  <div class="reg-form-grid">
-    <div class="reg-form-group">
-      <label for="emergencyContactNo">
-        <span class="icon" style="color: #DC2626;">🚨</span>
-        Emergency Contact Number<span class="required">*</span>
-      </label>
-      <input type="tel" id="emergencyContactNo" name="emergencyContactNo" [(ngModel)]="student.emergencyContactNo" required #eContactInput="ngModel" placeholder="+91 98765 43210">
-      <div *ngIf="eContactInput.invalid && eContactInput.touched" class="reg-form-error">Emergency Contact is required.</div>
-    </div>
-    <div class="reg-form-group">
-      <label for="emergencyRelation">
-        <span class="icon" style="color: #7C3AED;">👨‍👩‍👧‍👦</span>
-        Relation<span class="required">*</span>
-      </label>
-      <input type="text" id="emergencyRelation" name="emergencyRelation" [(ngModel)]="student.emergencyRelation" placeholder="e.g., Father, Mother" required #eRelationInput="ngModel">
-      <div *ngIf="eRelationInput.invalid && eRelationInput.touched" class="reg-form-error">Relation is required.</div>
-    </div>
-  </div>
-  
-  <h3 class="reg-section-header">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-    Passport & Academics
-  </h3>
-  <div class="reg-form-grid">
-    <div class="reg-form-group">
-      <label for="passportNo">
-        <span class="icon" style="color: #0891B2;">🛂</span>
-        Passport Number<span class="required">*</span>
-      </label>
-      <input type="text" id="passportNo" name="passportNo" [(ngModel)]="student.passportNo" required #passportInput="ngModel" placeholder="A12345678">
-      <div *ngIf="passportInput.invalid && passportInput.touched" class="reg-form-error">Passport Number is required.</div>
-    </div>
-    <div class="reg-form-group">
-      <label for="passportValidTill">
-        <span class="icon" style="color: #059669;">📋</span>
-        Passport Valid Till<span class="required">*</span>
-      </label>
-      <input type="date" id="passportValidTill" name="passportValidTill" [(ngModel)]="student.passportValidTill" required #passportDateInput="ngModel">
-      <div *ngIf="passportDateInput.invalid && passportDateInput.touched" class="reg-form-error">Passport Expiry is required.</div>
-    </div>
-    <div class="reg-form-group">
-      <label for="highestDegree">
-        <span class="icon" style="color: #6366F1;">🎓</span>
-        Highest Degree<span class="required">*</span>
-      </label>
-      <input type="text" id="highestDegree" name="highestDegree" [(ngModel)]="student.highestDegree" placeholder="e.g., 12th Standard, B.Sc." required #degreeInput="ngModel">
-      <div *ngIf="degreeInput.invalid && degreeInput.touched" class="reg-form-error">Highest Degree is required.</div>
-    </div>
-    <div class="reg-form-group">
-      <label for="marks">
-        <span class="icon" style="color: #D946EF;">📊</span>
-        Marks (%)<span class="required">*</span>
-      </label>
-      <input type="number" id="marks" name="marks" [(ngModel)]="student.marks" required #marksInput="ngModel" placeholder="85">
-      <div *ngIf="marksInput.invalid && marksInput.touched" class="reg-form-error">Marks are required.</div>
-    </div>
   </div>
 
-  <h3 class="reg-section-header">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
-    Application Details
-  </h3>
-  <div class="reg-form-grid">
-    <div class="reg-form-group">
-      <label for="appliedFor">
-        <span class="icon" style="color: #14B8A6;">🎯</span>
-        Applying For<span class="required">*</span>
-      </label>
-      <select id="appliedFor" name="appliedFor" [(ngModel)]="student.appliedFor" required>
-        <option value="MBBS">MBBS</option>
-        <option value="MD">MD</option>
-        <option value="BDS">BDS</option>
-      </select>
-    </div>
-    <div class="reg-form-group">
-      <label for="college">
-        <span class="icon" style="color: #F59E0B;">🏫</span>
-        College (Agent Access)<span class="required">*</span>
-      </label>
-      <select id="college" name="selectedCollege" [(ngModel)]="student.selectedCollege" required #collegeInput="ngModel">
-        <option [ngValue]="null" disabled>-- Select College --</option>
-        <option *ngFor="let college of colleges" [value]="college.id">{{ college.collegeName }}</option>
-      </select>
-      <div *ngIf="collegeInput.invalid && collegeInput.touched" class="reg-form-error">College is required.</div>
-    </div>
+  <div class="reg-error-message" *ngIf="errorMessage">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <strong>Error:</strong> {{ errorMessage }}
   </div>
 
-  <div class="reg-form-actions">
-    <button type="button" class="reg-btn reg-btn-cancel" (click)="cancel()" [disabled]="isLoading">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
+  <!-- STEP 1: INTAKE & COLLEGE -->
+  <form #step1Form="ngForm" *ngIf="currentStep === 1">
+
+    <h3 class="reg-section-header">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
       </svg>
-      Cancel
-    </button>
-    <button type="submit" class="reg-btn reg-btn-submit" [disabled]="regForm.invalid || isLoading" [class.reg-btn-loading]="isLoading">
-      
-      <span class="reg-btn-content">
+      Select Intake Period
+    </h3>
+
+    <div class="reg-intake-selection">
+      <div *ngFor="let intake of intakes" class="reg-intake-card" [class.selected]="selectedIntake === intake.value"
+        (click)="selectedIntake = intake.value; onIntakeChange()">
+        <div class="reg-intake-radio">
+          <div class="reg-radio-dot" *ngIf="selectedIntake === intake.value"></div>
+        </div>
+        <div class="reg-intake-info">
+          <h4>{{ intake.label }}</h4>
+          <p>Academic Year 2024-2025</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="reg-section-header" style="margin-top: 2rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      Select College (Restricted Access)
+    </h3>
+
+    <div class="reg-form-grid">
+      <div class="reg-form-group reg-form-span-2">
+        <label for="collegeSelect">
+          <span class="icon" style="color: #3B82F6;">🏫</span>
+          Select College<span class="required">*</span>
+        </label>
+        <select id="collegeSelect" name="collegeSelect" [(ngModel)]="selectedCollegeId" (change)="onCollegeChange()"
+          required #collegeInput="ngModel">
+          <option [ngValue]="null" disabled>-- Choose a College --</option>
+          <option *ngFor="let college of uniqueColleges" [ngValue]="college.id">
+            {{ college.collegeName }} ({{ college.city }}, {{ college.country }})
+          </option>
+        </select>
+        <div *ngIf="collegeInput.invalid && collegeInput.touched" class="reg-form-error">
+          Please select a college.
+        </div>
+        <div *ngIf="uniqueColleges.length === 0" class="reg-form-info">
+          No colleges assigned to your account. Please contact admin.
+        </div>
+      </div>
+    </div>
+
+    <div class="reg-form-navigation">
+      <button type="button" class="reg-btn reg-btn-secondary" (click)="cancel()">
+        Cancel
+      </button>
+      <button type="button" class="reg-btn reg-btn-primary" (click)="nextStep()">
+        Next: Personal Information
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="8.5" cy="7" r="4"></circle>
-          <line x1="20" y1="8" x2="20" y2="14"></line>
-          <line x1="23" y1="11" x2="17" y2="11"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
         </svg>
-        Register Student
-      </span>
-      
-      <span class="reg-btn-spinner"></span>
-      
-    </button>
-  </div>
-</form>
+      </button>
+    </div>
+  </form>
+
+  <!-- STEP 2: PERSONAL INFO & LOCATION -->
+  <form #step2Form="ngForm" *ngIf="currentStep === 2">
+    <h3 class="reg-section-header">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      Basic Information
+    </h3>
+
+    <div class="reg-form-grid">
+      <div class="reg-form-group">
+        <label for="fullName">
+          <span class="icon" style="color: #3B82F6;">👤</span>
+          Full Name<span class="required">*</span>
+        </label>
+        <input type="text" id="fullName" name="fullName" [(ngModel)]="student.fullName" required
+          #fullNameInput="ngModel" placeholder="Enter full name">
+        <div *ngIf="fullNameInput.invalid && fullNameInput.touched" class="reg-form-error">
+          Full Name is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="dob">
+          <span class="icon" style="color: #EC4899;">📅</span>
+          Date of Birth<span class="required">*</span>
+        </label>
+        <input type="date" id="dob" name="dob" [(ngModel)]="student.dob" (change)="calculateAge()" required
+          #dobInput="ngModel">
+        <div *ngIf="dobInput.invalid && dobInput.touched" class="reg-form-error">
+          Date of Birth is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="age">
+          <span class="icon" style="color: #F59E0B;">🎂</span>
+          Age
+        </label>
+        <input type="number" id="age" name="age" [(ngModel)]="student.age" readonly placeholder="Auto-calculated">
+      </div>
+
+      <div class="reg-form-group">
+        <label for="email">
+          <span class="icon" style="color: #8B5CF6;">📧</span>
+          Email Address<span class="required">*</span>
+        </label>
+        <input type="email" id="email" name="email" [(ngModel)]="student.email" required email #emailInput="ngModel"
+          placeholder="student@example.com">
+        <div *ngIf="emailInput.invalid && emailInput.touched" class="reg-form-error">
+          <span *ngIf="emailInput.errors?.['required']">Email is required.</span>
+          <span *ngIf="emailInput.errors?.['email']">Please enter a valid email.</span>
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="contactNo">
+          <span class="icon" style="color: #10B981;">📱</span>
+          Contact Number<span class="required">*</span>
+        </label>
+        <input type="tel" id="contactNo" name="contactNo" [(ngModel)]="student.contactNo" required
+          #contactInput="ngModel" placeholder="+91 98765 43210">
+        <div *ngIf="contactInput.invalid && contactInput.touched" class="reg-form-error">
+          Contact Number is required.
+        </div>
+      </div>
+    </div>
+
+    <h3 class="reg-section-header" style="margin-top: 2rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+      Parent Information
+    </h3>
+
+    <div class="reg-form-grid">
+      <div class="reg-form-group">
+        <label for="fathersName">
+          <span class="icon" style="color: #3B82F6;">👨</span>
+          Father's Name<span class="required">*</span>
+        </label>
+        <input type="text" id="fathersName" name="fathersName" [(ngModel)]="student.fathersName" required
+          #fathersNameInput="ngModel" placeholder="Enter father's name">
+        <div *ngIf="fathersNameInput.invalid && fathersNameInput.touched" class="reg-form-error">
+          Father's Name is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="mothersName">
+          <span class="icon" style="color: #EC4899;">👩</span>
+          Mother's Name<span class="required">*</span>
+        </label>
+        <input type="text" id="mothersName" name="mothersName" [(ngModel)]="student.mothersName" required
+          #mothersNameInput="ngModel" placeholder="Enter mother's name">
+        <div *ngIf="mothersNameInput.invalid && mothersNameInput.touched" class="reg-form-error">
+          Mother's Name is required.
+        </div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC LOCATION FIELDS -->
+    <h3 class="reg-section-header" style="margin-top: 2rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+      </svg>
+      Location & Address (Restricted to College)
+    </h3>
+
+    <div class="reg-form-grid">
+      <div class="reg-form-group">
+        <label for="state">
+          <span class="icon" style="color: #06B6D4;">🏢</span>
+          State<span class="required">*</span>
+        </label>
+        <select id="state" name="state" [(ngModel)]="student.selectedState" (change)="onStateChange()" required
+          #stateInput="ngModel" [disabled]="!selectedCollegeId || availableStates.length === 0">
+          <option value="" disabled>-- Select State --</option>
+          <option *ngFor="let state of availableStates" [value]="state">{{ state }}</option>
+        </select>
+        <div *ngIf="stateInput.invalid && stateInput.touched" class="reg-form-error">
+          State is required.
+        </div>
+        <div *ngIf="selectedCollegeId && availableStates.length === 0 && !isLoading" class="reg-form-info">
+          No allowed states found for this college.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="district">
+          <span class="icon" style="color: #F97316;">📍</span>
+          District<span class="required">*</span>
+        </label>
+        <select id="district" name="districtId" [(ngModel)]="student.districtId" required
+          [disabled]="!student.selectedState" #districtInput="ngModel">
+          <option [ngValue]="null" disabled>-- Select District --</option>
+          <option *ngFor="let loc of filteredDistricts" [value]="loc.id">{{ loc.district }}</option>
+        </select>
+        <div *ngIf="districtInput.invalid && districtInput.touched" class="reg-form-error">
+          District is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group reg-form-span-2">
+        <label for="address">
+          <span class="icon" style="color: #EF4444;">🏠</span>
+          Street Address<span class="required">*</span>
+        </label>
+        <input type="text" id="address" name="address" [(ngModel)]="student.address"
+          placeholder="e.g., B-45, Rajouri Garden" required #addressInput="ngModel">
+        <div *ngIf="addressInput.invalid && addressInput.touched" class="reg-form-error">
+          Address is required.
+        </div>
+      </div>
+    </div>
+
+    <!-- EMERGENCY CONTACT -->
+    <h3 class="reg-section-header" style="margin-top: 2rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path
+          d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+        </path>
+      </svg>
+      Emergency Contact
+    </h3>
+
+    <div class="reg-form-grid">
+      <div class="reg-form-group">
+        <label for="emergencyContactNo">
+          <span class="icon" style="color: #DC2626;">🚨</span>
+          Emergency Contact Number<span class="required">*</span>
+        </label>
+        <input type="tel" id="emergencyContactNo" name="emergencyContactNo" [(ngModel)]="student.emergencyContactNo"
+          required #eContactInput="ngModel" placeholder="+91 98765 43210">
+        <div *ngIf="eContactInput.invalid && eContactInput.touched" class="reg-form-error">
+          Emergency Contact is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="emergencyRelation">
+          <span class="icon" style="color: #7C3AED;">👨‍👩‍👧‍👦</span>
+          Relation<span class="required">*</span>
+        </label>
+        <input type="text" id="emergencyRelation" name="emergencyRelation" [(ngModel)]="student.emergencyRelation"
+          placeholder="e.g., Father, Mother" required #eRelationInput="ngModel">
+        <div *ngIf="eRelationInput.invalid && eRelationInput.touched" class="reg-form-error">
+          Relation is required.
+        </div>
+      </div>
+    </div>
+
+    <h3 class="reg-section-header" style="margin-top: 2rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+      </svg>
+      Identity Documents
+    </h3>
+
+    <div class="reg-form-grid">
+      <div class="reg-form-group">
+        <label for="passportNo">
+          <span class="icon" style="color: #0891B2;">🛂</span>
+          Passport Number<span class="required">*</span>
+        </label>
+        <input type="text" id="passportNo" name="passportNo" [(ngModel)]="student.passportNo" required
+          #passportInput="ngModel" placeholder="A12345678">
+        <div *ngIf="passportInput.invalid && passportInput.touched" class="reg-form-error">
+          Passport Number is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="passportValidTill">
+          <span class="icon" style="color: #059669;">📋</span>
+          Passport Valid Till<span class="required">*</span>
+        </label>
+        <input type="date" id="passportValidTill" name="passportValidTill" [(ngModel)]="student.passportValidTill"
+          required #passportDateInput="ngModel">
+        <div *ngIf="passportDateInput.invalid && passportDateInput.touched" class="reg-form-error">
+          Passport Expiry is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="adhaarCardNo">
+          <span class="icon" style="color: #6366F1;">🆔</span>
+          Aadhaar Card Number<span class="required">*</span>
+        </label>
+        <input type="text" id="adhaarCardNo" name="adhaarCardNo" [(ngModel)]="student.adhaarCardNo" required
+          maxlength="12" pattern="[0-9]{12}" #adhaarInput="ngModel" placeholder="123456789012">
+        <div *ngIf="adhaarInput.invalid && adhaarInput.touched" class="reg-form-error">
+          Valid 12-digit Aadhaar Number is required.
+        </div>
+      </div>
+    </div>
+
+    <h3 class="reg-section-header" style="margin-top: 2rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      Academic Information
+    </h3>
+
+    <div class="reg-form-grid">
+      <div class="reg-form-group">
+        <label for="boards">
+          <span class="icon" style="color: #D946EF;">🎓</span>
+          Board<span class="required">*</span>
+        </label>
+        <select id="boards" name="boards" [(ngModel)]="student.baords" required #boardsInput="ngModel">
+          <option value="" disabled>-- Select Board --</option>
+          <option *ngFor="let board of boardOptions" [value]="board">{{ board }}</option>
+        </select>
+        <div *ngIf="boardsInput.invalid && boardsInput.touched" class="reg-form-error">
+          Board is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="class12thPassingYear">
+          <span class="icon" style="color: #14B8A6;">📅</span>
+          12th Passing Year<span class="required">*</span>
+        </label>
+        <input type="text" id="class12thPassingYear" name="class12thPassingYear"
+          [(ngModel)]="student.class12thPassingYear" required #passingYearInput="ngModel" placeholder="2023">
+        <div *ngIf="passingYearInput.invalid && passingYearInput.touched" class="reg-form-error">
+          Passing Year is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="class12thMarks">
+          <span class="icon" style="color: #F59E0B;">📊</span>
+          Marks Obtained<span class="required">*</span>
+        </label>
+        <input type="number" id="class12thMarks" name="class12thMarks" [(ngModel)]="student.class12thMarks" required
+          #marksInput="ngModel" placeholder="450">
+        <div *ngIf="marksInput.invalid && marksInput.touched" class="reg-form-error">
+          Marks are required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="maxMarks">
+          <span class="icon" style="color: #EF4444;">💯</span>
+          Maximum Marks<span class="required">*</span>
+        </label>
+        <input type="number" id="maxMarks" name="maxMarks" [(ngModel)]="student.maxMarks" required
+          #maxMarksInput="ngModel" placeholder="500">
+        <div *ngIf="maxMarksInput.invalid && maxMarksInput.touched" class="reg-form-error">
+          Maximum Marks are required.
+        </div>
+      </div>
+    </div>
+
+    <h3 class="reg-section-header" style="margin-top: 2rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      NEET Information
+    </h3>
+
+    <div class="reg-form-group reg-checkbox-group">
+      <label class="reg-checkbox-label">
+        <input type="checkbox" name="hasGivenNEET" [(ngModel)]="student.hasGivenNEET" (change)="onNEETToggle()">
+        <span class="reg-checkmark"></span>
+        <span class="reg-checkbox-text">I have given NEET examination</span>
+      </label>
+    </div>
+
+    <div class="reg-form-grid" *ngIf="student.hasGivenNEET">
+      <div class="reg-form-group">
+        <label for="neetYear">
+          <span class="icon" style="color: #8B5CF6;">📅</span>
+          NEET Year<span class="required">*</span>
+        </label>
+        <input type="text" id="neetYear" name="neetYear" [(ngModel)]="student.neetYear"
+          [required]="student.hasGivenNEET" #neetYearInput="ngModel" placeholder="2024">
+        <div *ngIf="neetYearInput.invalid && neetYearInput.touched" class="reg-form-error">
+          NEET Year is required.
+        </div>
+      </div>
+
+      <div class="reg-form-group">
+        <label for="neetScore">
+          <span class="icon" style="color: #10B981;">📊</span>
+          NEET Score<span class="required">*</span>
+        </label>
+        <input type="number" id="neetScore" name="neetScore" [(ngModel)]="student.neetScore"
+          [required]="student.hasGivenNEET" #neetScoreInput="ngModel" placeholder="520">
+        <div *ngIf="neetScoreInput.invalid && neetScoreInput.touched" class="reg-form-error">
+          NEET Score is required.
+        </div>
+      </div>
+    </div>
+
+    <h3 class="reg-section-header" style="margin-top: 2rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      Application Details
+    </h3>
+
+    <div class="reg-form-grid">
+      <div class="reg-form-group">
+        <label for="appliedFor">
+          <span class="icon" style="color: #14B8A6;">🎯</span>
+          Applying For<span class="required">*</span>
+        </label>
+        <select id="appliedFor" name="appliedFor" [(ngModel)]="student.appliedFor" required>
+          <option value="MBBS">MBBS</option>
+          <option value="MD">MD</option>
+          <option value="BDS">BDS</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="reg-form-navigation">
+      <button type="button" class="reg-btn reg-btn-secondary" (click)="previousStep()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Previous
+      </button>
+      <button type="button" class="reg-btn reg-btn-primary" (click)="nextStep()">
+        Next: Upload Documents
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+    </div>
+  </form>
+
+  <!-- STEP 3: DOCUMENTS -->
+  <form #step3Form="ngForm" *ngIf="currentStep === 3">
+
+    <h3 class="reg-section-header">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      Upload Required Documents
+    </h3>
+
+    <p class="reg-upload-info">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      Please upload clear, readable documents. Accepted formats: JPG, PNG, PDF (Max 5MB each)
+    </p>
+
+    <div class="reg-upload-grid">
+
+      <div class="reg-upload-card">
+        <div class="reg-upload-header">
+          <h4>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            Aadhaar Card<span class="required">*</span>
+          </h4>
+        </div>
+        <div class="reg-upload-body">
+          <input type="file" id="adhaarFile" accept="image/*,.pdf" (change)="onFileSelect($event, 'adhaar')"
+            #adhaarFileInput style="display: none;">
+
+          <div *ngIf="!documents.adhaar" class="reg-upload-dropzone" (click)="adhaarFileInput.click()">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p>Click to upload</p>
+          </div>
+
+          <div *ngIf="documents.adhaar" class="reg-upload-preview">
+            <img *ngIf="documentPreviews.adhaar !== 'pdf-icon'" [src]="documentPreviews.adhaar" alt="Aadhaar Preview">
+            <div *ngIf="documentPreviews.adhaar === 'pdf-icon'" class="reg-pdf-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span>PDF</span>
+            </div>
+            <div class="reg-upload-file-info">
+              <span class="reg-file-name">{{ getFileName('adhaar') }}</span>
+              <button type="button" class="reg-btn-remove" (click)="removeDocument('adhaar')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reg-upload-card">
+        <div class="reg-upload-header">
+          <h4>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            12th Marksheet<span class="required">*</span>
+          </h4>
+        </div>
+        <div class="reg-upload-body">
+          <input type="file" id="marksheetFile" accept="image/*,.pdf"
+            (change)="onFileSelect($event, 'class12thMarksheet')" #marksheetFileInput style="display: none;">
+
+          <div *ngIf="!documents.class12thMarksheet" class="reg-upload-dropzone" (click)="marksheetFileInput.click()">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p>Click to upload</p>
+          </div>
+
+          <div *ngIf="documents.class12thMarksheet" class="reg-upload-preview">
+            <img *ngIf="documentPreviews.class12thMarksheet !== 'pdf-icon'" [src]="documentPreviews.class12thMarksheet"
+              alt="Marksheet Preview">
+            <div *ngIf="documentPreviews.class12thMarksheet === 'pdf-icon'" class="reg-pdf-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span>PDF</span>
+            </div>
+            <div class="reg-upload-file-info">
+              <span class="reg-file-name">{{ getFileName('class12thMarksheet') }}</span>
+              <button type="button" class="reg-btn-remove" (click)="removeDocument('class12thMarksheet')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reg-upload-card">
+        <div class="reg-upload-header">
+          <h4>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            Photograph<span class="required">*</span>
+          </h4>
+        </div>
+        <div class="reg-upload-body">
+          <input type="file" id="photographFile" accept="image/*" (change)="onFileSelect($event, 'photograph')"
+            #photographFileInput style="display: none;">
+
+          <div *ngIf="!documents.photograph" class="reg-upload-dropzone" (click)="photographFileInput.click()">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p>Click to upload</p>
+          </div>
+
+          <div *ngIf="documents.photograph" class="reg-upload-preview">
+            <img [src]="documentPreviews.photograph" alt="Photograph Preview">
+            <div class="reg-upload-file-info">
+              <span class="reg-file-name">{{ getFileName('photograph') }}</span>
+              <button type="button" class="reg-btn-remove" (click)="removeDocument('photograph')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="reg-review-section">
+      <h3 class="reg-section-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+        Review Your Application
+      </h3>
+
+      <div class="reg-review-grid">
+        <div class="reg-review-item">
+          <span class="reg-review-label">Intake:</span>
+          <span class="reg-review-value">{{ selectedIntake }}</span>
+        </div>
+        <div class="reg-review-item">
+          <span class="reg-review-label">College:</span>
+          <ng-container *ngFor="let college of uniqueColleges">
+            <span *ngIf="college.id === selectedCollegeId">
+              {{ college.collegeName }}
+            </span>
+          </ng-container>
+        </div>
+        <div class="reg-review-item">
+          <span class="reg-review-label">Full Name:</span>
+          <span class="reg-review-value">{{ student.fullName }}</span>
+        </div>
+        <div class="reg-review-item">
+          <span class="reg-review-label">Age:</span>
+          <span class="reg-review-value">{{ student.age }}</span>
+        </div>
+        <div class="reg-review-item">
+          <span class="reg-review-label">Email:</span>
+          <span class="reg-review-value">{{ student.email }}</span>
+        </div>
+        <div class="reg-review-item">
+          <span class="reg-review-label">Applied For:</span>
+          <span class="reg-review-value">{{ student.appliedFor }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reg-form-navigation">
+      <button type="button" class="reg-btn reg-btn-secondary" (click)="previousStep()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Previous
+      </button>
+      <button type="button" class="reg-btn reg-btn-submit" (click)="submitRegistration()" [disabled]="isLoading"
+        [class.reg-btn-loading]="isLoading">
+        <span class="reg-btn-content">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+          Submit Application
+        </span>
+        <span class="reg-btn-spinner"></span>
+      </button>
+    </div>
+
+  </form>
+</div>
