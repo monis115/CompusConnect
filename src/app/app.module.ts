@@ -81,14 +81,13 @@ import { AdmissionManagerUpdate } from './components/admin/admission-manager-upd
 import { ActiveAdmissionManager } from './components/admin/active-admission-manager/active-admission-manager';
 import { StudentAgentDetails } from './components/admin/student-agent-details/student-agent-details';
 import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-details';
+import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
 
 @NgModule({
   declarations: [
     App,
     Home,
     StudentLogin,
-    
-    
     AdminLogin,
     AdminDashboars,
     AdminAgentRegistration,
@@ -101,18 +100,15 @@ import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-
     ActiveAdmissionManager,
     StudentAgentDetails,
     AllAgentDetails,
-    
-    
-    
+    UniversityPersonDashboard
   ],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule, // Required for Material
+    BrowserAnimationsModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    // Material Modules
     MatTableModule,
     MatIconModule,
     MatBadgeModule,
@@ -120,60 +116,52 @@ import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatButtonModule,
-
-    MatFormFieldModule, // <-- This is correct
-    MatInputModule,     // <-- This is correct
-    FormsModule,
-    // Lucide Icons (picked)
+    MatFormFieldModule,
+    MatInputModule,
     LucideAngularModule.pick({
-        LayoutDashboard,
-        GraduationCap,
-        Users,
-        Plane,
-        Building,
-        University,
-        Shield,
-        FileText,
-        CreditCard,
-        BarChart,
-        ChevronLeft,
-        ChevronRight,
-        UserPlus,
-        CheckCircle,
-        Clock,
-        AlertCircle,
-        List,
-        Check,
-        AlertTriangle,
-        Key,
-        Search,
-        DollarSign,
-        Mail,
-        Plus,
-        Edit,
-        Bell,
-        Trash2,
-        FolderOpen,
-        PlusCircle,
-        X,
-        MapPin,
-        Flag,
-        User,
-        Calendar,
-        Phone,
-        Copy,
-        ShieldCheck,
-        ChevronDown,
-        Info,
-          Edit3,
-          Database
-
-
-        
-    }),
-    // MatFormField, <-- REMOVED
-    // MatLabel      <-- REMOVED
-],
+      LayoutDashboard,
+      GraduationCap,
+      Users,
+      Plane,
+      Building,
+      University,
+      Shield,
+      FileText,
+      CreditCard,
+      BarChart,
+      ChevronLeft,
+      ChevronRight,
+      UserPlus,
+      CheckCircle,
+      Clock,
+      AlertCircle,
+      List,
+      Check,
+      AlertTriangle,
+      Key,
+      Search,
+      DollarSign,
+      Mail,
+      Plus,
+      Edit,
+      Bell,
+      Trash2,
+      FolderOpen,
+      PlusCircle,
+      X,
+      MapPin,
+      Flag,
+      User,
+      Calendar,
+      Phone,
+      Copy,
+      ShieldCheck,
+      ChevronDown,
+      Info,
+      Edit3,
+      Database
+    })
+  ],
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),

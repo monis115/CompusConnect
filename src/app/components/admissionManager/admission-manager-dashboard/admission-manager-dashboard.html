@@ -14,8 +14,18 @@
 
     <div class="sidebar-content">
       <nav class="nav-menu">
-        <div class="nav-label">Main Menu</div>
+        <div class="nav-label">Overview</div>
+        <a class="nav-link" [class.active]="activeView === 'dashboard'" (click)="switchView('dashboard')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </a>
 
+        <div class="nav-label" style="margin-top: 20px;">Workflow</div>
         <a class="nav-link" [class.active]="activeView === 'actions-required'" (click)="switchView('actions-required')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -69,7 +79,7 @@
           <span class="user-role">Admission Manager</span>
         </div>
       </div>
-      <button class="logout-btn" (click)="logout()">
+      <button class="logout-btn" (click)="logout()" title="Logout">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
           <polyline points="16 17 21 12 16 7"></polyline>
@@ -80,141 +90,273 @@
   </aside>
 
   <main class="main-content">
+
     <header class="top-bar">
       <div class="page-title">
+        <h1 *ngIf="activeView === 'dashboard'">Dashboard Overview</h1>
         <h1 *ngIf="activeView === 'actions-required'">Actions Required</h1>
         <h1 *ngIf="activeView === 'pending-university'">Pending Response</h1>
         <h1 *ngIf="activeView === 'processing'">In Processing</h1>
         <h1 *ngIf="activeView === 'completed'">All Students</h1>
-        <p>Manage your student pipeline efficiently</p>
+        <p>Manage your student pipeline & workflow</p>
       </div>
 
-      <div class="search-wrapper">
+      <div class="search-wrapper" *ngIf="activeView !== 'dashboard'">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" placeholder="Search by name, passport or email..." [(ngModel)]="searchTerm"
+        <input type="text" placeholder="Search by Name, Passport, or Email..." [(ngModel)]="searchTerm"
           (input)="filterStudents()">
       </div>
     </header>
 
     <div class="content-body">
+
       <div class="loading-state" *ngIf="isLoading">
         <div class="spinner"></div>
+        <p>Loading dashboard data...</p>
       </div>
 
-      <div class="empty-state" *ngIf="!isLoading && filteredList.length === 0">
-        <div class="empty-icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
+      <div class="dashboard-view" *ngIf="!isLoading && activeView === 'dashboard' && dashboardStats" [@fadeIn]>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">{{dashboardStats.totalStudents}}</span>
+              <span class="stat-label">Total Students</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">{{dashboardStats.newApplications}}</span>
+              <span class="stat-label">New Applications</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon amber">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">{{dashboardStats.pendingUniversityAction}}</span>
+              <span class="stat-label">Pending University</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon purple">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">{{dashboardStats.admissionLettersGenerated}}</span>
+              <span class="stat-label">Admission Letters</span>
+            </div>
+          </div>
         </div>
-        <h3>No students found</h3>
-        <p>There are no students matching your criteria at the moment.</p>
-      </div>
 
-      <div class="table-card" *ngIf="!isLoading && filteredList.length > 0" [@fadeIn]>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Applicant</th>
-              <th>Passport / ID</th>
-              <th>Academic Info</th>
-              <th>Status</th>
-              <th>Applied Date</th>
-              <th class="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let student of filteredList">
-              <td>
-                <div class="student-profile">
-                  <div class="table-avatar" [style.background-color]="getAvatarColor(student.fullName)">
-                    {{student.fullName.charAt(0)}}
-                  </div>
-                  <div class="student-meta">
-                    <span class="name">{{student.fullName}}</span>
-                    <span class="email">{{student.email}}</span>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div class="id-info">
-                  <span class="passport">{{student.passportNo || 'N/A'}}</span>
-                  <span class="sub-text" *ngIf="student.passportValidTill">Exp: {{student.passportValidTill}}</span>
-                </div>
-              </td>
-              <td>
-                <div class="academic-info">
-                  <span class="course">{{student.appliedFor}}</span>
-                  <span class="sub-text">{{student.college?.collegeName || 'No College Assigned'}}</span>
-                </div>
-              </td>
-              <td>
+        <div class="dashboard-grid">
+          <div class="chart-card main-chart">
+            <div class="card-header">
+              <h3>Workflow Pipeline</h3>
+            </div>
+            <div class="chart-container">
+              <canvas baseChart [data]="pipelineChartData" [options]="pipelineChartOptions" [type]="pipelineChartType">
+              </canvas>
+            </div>
+          </div>
+
+          <div class="chart-card side-chart">
+            <div class="card-header">
+              <h3>Status Distribution</h3>
+            </div>
+            <div class="chart-container doughnut">
+              <canvas baseChart [data]="distributionChartData" [options]="distributionChartOptions"
+                [type]="distributionChartType">
+              </canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="activity-card full-width">
+          <div class="card-header">
+            <h3>Recent Student Activity</h3>
+          </div>
+          <div class="activity-list">
+            <div class="activity-item" *ngFor="let student of dashboardStats.recentStudents"
+              (click)="onRecentStudentClick(student.id)" style="cursor: pointer;">
+              <div class="activity-avatar" [style.background-color]="getAvatarColor(student.fullName)">
+                {{student.fullName.charAt(0)}}
+              </div>
+              <div class="activity-details">
+                <span class="activity-name">{{student.fullName}}</span>
+                <span class="activity-email">{{student.email}}</span>
+              </div>
+              <div class="activity-status">
                 <span class="status-pill" [ngClass]="getStatusClass(student.applicationStatus)">
                   {{getStatusLabel(student.applicationStatus)}}
                 </span>
-              </td>
-              <td>{{student.createdAt | date:'mediumDate'}}</td>
-              <td class="text-right">
-                <div class="action-group">
-                  <button class="btn-icon" (click)="selectStudent(student)" title="View Full Profile">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                  </button>
+              </div>
+              <span class="activity-time">{{student.updatedAt | date:'mediumDate'}}</span>
+              <button class="btn-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
 
-                  <!-- Actions for 'Actions Required' View -->
-                  <ng-container *ngIf="activeView === 'actions-required'">
-                    <button class="btn-primary btn-sm" *ngIf="student.applicationStatus === 'REGISTERED'"
-                      (click)="initiateForwardToUniversity(student)">
-                      Forward
+            <div class="empty-activity" *ngIf="dashboardStats.recentStudents.length === 0">
+              No recent activity found.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="list-view-container" *ngIf="!isLoading && activeView !== 'dashboard'">
+
+        <div class="empty-state" *ngIf="filteredList.length === 0">
+          <div class="empty-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+              stroke-dasharray="4 4">
+              <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+          </div>
+          <h3>No students found</h3>
+          <p>There are no students matching your criteria in this section.</p>
+        </div>
+
+        <div class="table-card" *ngIf="filteredList.length > 0" [@fadeIn]>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Applicant</th>
+                <th>Passport / ID</th>
+                <th>Academic Info</th>
+                <th>Status</th>
+                <th>Next Step</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let student of filteredList">
+                <td>
+                  <div class="student-profile">
+                    <div class="table-avatar" [style.background-color]="getAvatarColor(student.fullName)">
+                      {{student.fullName.charAt(0)}}
+                    </div>
+                    <div class="student-meta">
+                      <span class="name">{{student.fullName}}</span>
+                      <span class="email">{{student.email}}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="id-info">
+                    <span class="passport">{{student.passportNo || 'N/A'}}</span>
+                    <span class="sub-text" *ngIf="student.passportValidTill">Exp: {{student.passportValidTill}}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="academic-info">
+                    <span class="course">{{student.appliedFor}}</span>
+                    <span class="sub-text">{{student.college?.collegeName || 'No College Assigned'}}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="status-pill" [ngClass]="getStatusClass(student.applicationStatus)">
+                    {{getStatusLabel(student.applicationStatus)}}
+                  </span>
+                </td>
+                <td>
+                  <span class="text-action" *ngIf="student.action">
+                    {{student.action.replace('_', ' ')}}
+                  </span>
+                  <span class="sub-text" *ngIf="!student.action">-</span>
+                </td>
+                <td class="text-right">
+                  <div class="action-group">
+                    <button class="btn-icon" (click)="selectStudent(student)" title="View Full Profile">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
                     </button>
 
-                    <button class="btn-success btn-sm"
-                      *ngIf="student.applicationStatus === 'ADMISSION_LETTER_GENERATED'"
-                      (click)="initiateApproveLetter(student)">
-                      Approve Letter
-                    </button>
+                    <ng-container *ngIf="activeView === 'actions-required'">
+                      <button class="btn-primary btn-sm" *ngIf="student.action === 'FORWARD_TO_UNI'"
+                        (click)="initiateForwardToUniversity(student)">
+                        Forward
+                      </button>
 
-                    <button class="btn-assign btn-sm"
-                      *ngIf="student.applicationStatus === 'APPLIED_FOR_TELEX' && !student.telexMan"
-                      (click)="initiateAssignManager(student, 'telex')">
-                      Assign Telex
-                    </button>
+                      <button class="btn-success btn-sm" *ngIf="student.action === 'APPROVE_ADMISSION_LETTER'"
+                        (click)="initiateApproveLetter(student)">
+                        Approve
+                      </button>
 
-                    <button class="btn-assign btn-sm"
-                      *ngIf="student.applicationStatus === 'TELEX_NUMBER_ISSUED' && !student.visaMan"
-                      (click)="initiateAssignManager(student, 'visa')">
-                      Assign Visa
-                    </button>
-                  </ng-container>
+                      <button class="btn-assign btn-sm" *ngIf="student.action === 'ASSIGN_TELEX_MAN'"
+                        (click)="initiateAssignManager(student, 'telex')">
+                        Assign Telex
+                      </button>
 
-                  <a class="btn-outline btn-sm" *ngIf="student.admissionLetterPathInternal"
-                    [href]="getDocUrl(student.admissionLetterPathInternal)" target="_blank">
-                    Letter
-                  </a>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                      <button class="btn-assign btn-sm" *ngIf="student.action === 'ASSIGN_TO_VISA_MAN'"
+                        (click)="initiateAssignManager(student, 'visa')">
+                        Assign Visa
+                      </button>
+                    </ng-container>
+
+                    <a class="btn-outline btn-sm" *ngIf="student.admissionLetterPathInternal"
+                      [href]="getDocUrl(student.admissionLetterPathInternal)" target="_blank">
+                      Letter
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
+    <button class="floating-refresh-btn" [class.spinning]="isRefreshing" (click)="refreshData()" title="Refresh Data">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="M23 4v6h-6"></path>
+        <path d="M1 20v-6h6"></path>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+    </button>
   </main>
+
 
   <div class="modal-backdrop" *ngIf="showStudentDetail" (click)="closeStudentDetail()">
     <div class="modal-panel" (click)="$event.stopPropagation()" [@fadeIn]>
       <div class="modal-header">
         <div>
           <h2>Applicant Profile</h2>
-          <p class="modal-subtitle">ID: #{{selectedStudent?.id}}</p>
+          <p class="modal-subtitle">Student ID: #{{selectedStudent?.id}}</p>
         </div>
         <button class="close-btn" (click)="closeStudentDetail()">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -234,29 +376,16 @@
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              <h3>Personal Details</h3>
+              <h3>Personal Info</h3>
             </div>
             <div class="info-list">
-              <div class="info-item">
-                <label>Full Name</label>
-                <span>{{selectedStudent.fullName}}</span>
-              </div>
-              <div class="info-item">
-                <label>Date of Birth</label>
-                <span>{{selectedStudent.dob}} ({{selectedStudent.age}} yrs)</span>
-              </div>
-              <div class="info-item">
-                <label>Email</label>
-                <span>{{selectedStudent.email}}</span>
-              </div>
-              <div class="info-item">
-                <label>Contact No</label>
-                <span>{{selectedStudent.contactNo}}</span>
-              </div>
-              <div class="info-item full-width" *ngIf="selectedStudent.address">
-                <label>Address</label>
-                <span>{{selectedStudent.address}}</span>
-              </div>
+              <div class="info-item"><label>Full Name</label><span>{{selectedStudent.fullName || 'N/A'}}</span></div>
+              <div class="info-item"><label>Email</label><span>{{selectedStudent.email || 'N/A'}}</span></div>
+              <div class="info-item"><label>DOB</label><span>{{selectedStudent.dob}} ({{selectedStudent.age}}
+                  yrs)</span></div>
+              <div class="info-item"><label>Contact</label><span>{{selectedStudent.contactNo || 'N/A'}}</span></div>
+              <div class="info-item" style="grid-column: span 2"><label>Address</label><span>{{selectedStudent.address
+                  || 'N/A'}}</span></div>
             </div>
           </div>
 
@@ -266,27 +395,15 @@
                 stroke-width="2">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
-              <h3>Family & Emergency</h3>
+              <h3>Family Details</h3>
             </div>
             <div class="info-list">
-              <div class="info-item" *ngIf="selectedStudent.fathersName">
-                <label>Father's Name</label>
-                <span>{{selectedStudent.fathersName}}</span>
-              </div>
-              <div class="info-item" *ngIf="selectedStudent.mothersName">
-                <label>Mother's Name</label>
-                <span>{{selectedStudent.mothersName}}</span>
-              </div>
-              <div class="info-item" *ngIf="selectedStudent.emergencyContactNo">
-                <label>Emergency Contact</label>
-                <span>{{selectedStudent.emergencyContactNo}}</span>
-              </div>
-              <div class="info-item" *ngIf="selectedStudent.emergencyRelation">
-                <label>Relation</label>
-                <span>{{selectedStudent.emergencyRelation}}</span>
+              <div class="info-item"><label>Father</label><span>{{selectedStudent.fathersName || 'N/A'}}</span></div>
+              <div class="info-item"><label>Mother</label><span>{{selectedStudent.mothersName || 'N/A'}}</span></div>
+              <div class="info-item"><label>Emergency</label><span>{{selectedStudent.emergencyContactNo ||
+                  'N/A'}}</span></div>
+              <div class="info-item"><label>Relation</label><span>{{selectedStudent.emergencyRelation || 'N/A'}}</span>
               </div>
             </div>
           </div>
@@ -298,29 +415,17 @@
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
                 <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
               </svg>
-              <h3>Academic & Application</h3>
+              <h3>Academic & Course</h3>
             </div>
             <div class="info-list">
-              <div class="info-item">
-                <label>Applying For</label>
-                <span>{{selectedStudent.appliedFor}} ({{selectedStudent.intake}})</span>
-              </div>
-              <div class="info-item" *ngIf="selectedStudent.college">
-                <label>Target College</label>
-                <span>{{selectedStudent.college.collegeName}}</span>
-              </div>
-              <div class="info-item" *ngIf="selectedStudent.baords">
-                <label>12th Board</label>
-                <span>{{selectedStudent.baords}} ({{selectedStudent.class12thPassingYear}})</span>
-              </div>
-              <div class="info-item">
-                <label>12th Marks</label>
-                <span>{{selectedStudent.class12thMarks}} / {{selectedStudent.maxMarks}}</span>
-              </div>
-              <div class="info-item" *ngIf="selectedStudent.hasGivenNEET">
-                <label>NEET Score</label>
-                <span>{{selectedStudent.neetScore}} ({{selectedStudent.neetYear}})</span>
-              </div>
+              <div class="info-item"><label>Applied For</label><span>{{selectedStudent.appliedFor}}
+                  ({{selectedStudent.intake}})</span></div>
+              <div class="info-item"><label>College</label><span>{{selectedStudent.college?.collegeName ||
+                  'N/A'}}</span></div>
+              <div class="info-item"><label>12th Board</label><span>{{selectedStudent.baords}}
+                  ({{selectedStudent.class12thPassingYear}})</span></div>
+              <div class="info-item"><label>Marks</label><span>{{selectedStudent.class12thMarks}} /
+                  {{selectedStudent.maxMarks}}</span></div>
             </div>
           </div>
 
@@ -330,24 +435,36 @@
                 stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
               <h3>Identification</h3>
             </div>
             <div class="info-list">
-              <div class="info-item" *ngIf="selectedStudent.passportNo">
-                <label>Passport No</label>
-                <span>{{selectedStudent.passportNo}}</span>
+              <div class="info-item"><label>Passport</label><span>{{selectedStudent.passportNo || 'N/A'}}</span></div>
+              <div class="info-item"><label>Valid Till</label><span>{{selectedStudent.passportValidTill ||
+                  'N/A'}}</span></div>
+              <div class="info-item"><label>Adhaar</label><span>{{selectedStudent.adhaarCardNo || 'N/A'}}</span></div>
+            </div>
+          </div>
+
+          <div class="detail-card full-width">
+            <div class="card-header">
+              <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <h3>Assigned Staff</h3>
+            </div>
+            <div class="info-list">
+              <div class="info-item"><label>Telex Manager</label><span>{{selectedStudent.telexMan?.fullName || 'Not
+                  Assigned'}}</span></div>
+              <div class="info-item"><label>Visa Manager</label><span>{{selectedStudent.visaMan?.fullName || 'Not
+                  Assigned'}}</span></div>
+              <div class="info-item"><label>Telex No</label><span>{{selectedStudent.telexNumber || 'Pending'}}</span>
               </div>
-              <div class="info-item" *ngIf="selectedStudent.passportValidTill">
-                <label>Passport Validity</label>
-                <span>{{selectedStudent.passportValidTill}}</span>
-              </div>
-              <div class="info-item" *ngIf="selectedStudent.adhaarCardNo">
-                <label>Adhaar No</label>
-                <span>{{selectedStudent.adhaarCardNo}}</span>
-              </div>
+              <div class="info-item"><label>Payment</label><span>{{selectedStudent.paymentStatus || 'N/A'}}</span></div>
             </div>
           </div>
 
@@ -357,49 +474,65 @@
                 stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
               </svg>
-              <h3>Attached Documents</h3>
+              <h3>Documents</h3>
             </div>
             <div class="document-grid">
               <a *ngIf="selectedStudent.passportPath" [href]="getDocUrl(selectedStudent.passportPath)" target="_blank"
                 class="doc-tile">
-                <div class="doc-icon">PDF</div>
                 <div class="doc-name">Passport</div>
               </a>
               <a *ngIf="selectedStudent.markseetPath" [href]="getDocUrl(selectedStudent.markseetPath)" target="_blank"
                 class="doc-tile">
-                <div class="doc-icon">PDF</div>
                 <div class="doc-name">Marksheet</div>
               </a>
               <a *ngIf="selectedStudent.adhaarPath" [href]="getDocUrl(selectedStudent.adhaarPath)" target="_blank"
                 class="doc-tile">
-                <div class="doc-icon">PDF</div>
-                <div class="doc-name">Adhaar Card</div>
-              </a>
-              <a *ngIf="selectedStudent.confirmationPagePath" [href]="getDocUrl(selectedStudent.confirmationPagePath)"
-                target="_blank" class="doc-tile">
-                <div class="doc-icon">PDF</div>
-                <div class="doc-name">Confirmation</div>
+                <div class="doc-name">Adhaar</div>
               </a>
               <a *ngIf="selectedStudent.profileImagePath" [href]="getDocUrl(selectedStudent.profileImagePath)"
                 target="_blank" class="doc-tile">
-                <div class="doc-icon">IMG</div>
-                <div class="doc-name">Profile Photo</div>
+                <div class="doc-name">Photo</div>
+              </a>
+              <a *ngIf="selectedStudent.confirmationPagePath" [href]="getDocUrl(selectedStudent.confirmationPagePath)"
+                target="_blank" class="doc-tile">
+                <div class="doc-name">Confirmation</div>
               </a>
               <a *ngIf="selectedStudent.admissionLetterPathInternal"
-                [href]="getDocUrl(selectedStudent.admissionLetterPathInternal)" target="_blank"
-                class="doc-tile success">
-                <div class="doc-icon">PDF</div>
+                [href]="getDocUrl(selectedStudent.admissionLetterPathInternal)" target="_blank" class="doc-tile">
                 <div class="doc-name">Admission Letter</div>
               </a>
-              <div class="no-docs" *ngIf="!selectedStudent.passportPath && !selectedStudent.markseetPath">
-                No documents available for this student.
-              </div>
+              <div *ngIf="!selectedStudent.passportPath && !selectedStudent.markseetPath"
+                style="color: #94a3b8; font-style: italic;">No documents available.</div>
             </div>
           </div>
+
+          <div class="detail-card full-width">
+            <div class="card-header">
+              <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <h3>History</h3>
+            </div>
+            <div class="history-timeline" *ngIf="selectedStudent.studentStatusHistory?.length; else noHistory">
+              <div class="history-item" *ngFor="let history of selectedStudent.studentStatusHistory">
+                <div class="timeline-dot"></div>
+                <div class="history-content">
+                  <h4>{{getStatusLabel(history.studentApplicationStatus)}}</h4>
+                  <div class="history-meta">
+                    <span class="history-actor">By: {{history.updatedBy || 'System'}}</span>
+                    <span> • {{history.updatedAt | date:'medium'}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ng-template #noHistory>
+              <div style="padding: 20px; color: #94a3b8;">No history available.</div>
+            </ng-template>
+          </div>
+
         </div>
       </div>
     </div>
@@ -418,14 +551,22 @@
         <p *ngIf="actionType === 'approve'">
           Are you sure you want to approve the Admission Letter for <strong>{{studentForAction?.fullName}}</strong>?
         </p>
-        <p *ngIf="actionType === 'assign-telex'">
-          Assign Telex Manager <strong>{{selectedManagerUsername}}</strong> to
-          <strong>{{studentForAction?.fullName}}</strong>?
-        </p>
-        <p *ngIf="actionType === 'assign-visa'">
-          Assign Visa Manager <strong>{{selectedManagerUsername}}</strong> to
-          <strong>{{studentForAction?.fullName}}</strong>?
-        </p>
+
+        <div *ngIf="actionType === 'assign-telex'" class="form-group">
+          <label>Select Telex Manager</label>
+          <select class="form-select" [(ngModel)]="selectedManagerUsername">
+            <option value="" disabled selected>Select Manager...</option>
+            <option *ngFor="let man of availableTelexManagers" [value]="man">{{man}}</option>
+          </select>
+        </div>
+
+        <div *ngIf="actionType === 'assign-visa'" class="form-group">
+          <label>Select Visa Manager</label>
+          <select class="form-select" [(ngModel)]="selectedManagerUsername">
+            <option value="" disabled selected>Select Manager...</option>
+            <option *ngFor="let man of availableVisaManagers" [value]="man">{{man}}</option>
+          </select>
+        </div>
       </div>
       <div class="dialog-footer">
         <button class="btn-text" (click)="closeActionModal()" [disabled]="isSubmitting">Cancel</button>
@@ -438,15 +579,27 @@
   </div>
 
   <div class="modal-backdrop z-high" *ngIf="showSuccessModal">
-    <div class="modal-dialog success" [@fadeIn]>
-      <div class="success-icon-wrapper">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
+    <div class="modal-dialog success-modal" [@scaleIn]>
+      <div class="success-content">
+        <div class="success-icon-large">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3>Success!</h3>
+        <p>{{successModalMessage}}</p>
+        <button class="btn-primary full-width" (click)="closeSuccessModal()">Continue</button>
       </div>
-      <h3>Success!</h3>
-      <p>{{successModalMessage}}</p>
-      <button class="btn-primary full-width" (click)="closeSuccessModal()">Okay, Got it</button>
+    </div>
+  </div>
+
+  <!-- Logout Spinner Overlay -->
+  <div class="logout-overlay" *ngIf="isLoggingOut" [@fadeIn]>
+    <div class="logout-content">
+      <div class="spinner-large"></div>
+      <h3>Logging Out...</h3>
+      <p>Securely ending your session</p>
     </div>
   </div>
 

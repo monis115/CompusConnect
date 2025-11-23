@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -14,37 +14,40 @@ export class AdmissionManagerService {
         return this.http.get(`${this.apiBaseUrl}/api/managers/userName/${username}`);
     }
 
-    getPendingStudents(username: string): Observable<any[]> {
-        return this.http.get<any[]>(`${this.apiBaseUrl}/api/managers/students/registered-or-under-review/${username}`);
+    getDashboardStats(username: string): Observable<any> {
+        return this.http.get(`${this.apiBaseUrl}/api/managers/dashboard/stats/${username}`);
     }
 
-    getApprovedStudents(username: string): Observable<any[]> {
-        return this.http.get<any[]>(`${this.apiBaseUrl}/api/managers/approved-students/${username}`);
+    // --- Status Actions ---
+
+    forwardToUniversity(studentId: number, payload: any): Observable<any> {
+        // FIX: Changed from /api/admission-manager to /api/managers
+        return this.http.post(`${this.apiBaseUrl}/api/managers/forward-student/${studentId}`, payload);
     }
 
-    forwardToUniversity(studentId: number, managerUsername: string): Observable<any> {
-        return this.http.post(`${this.apiBaseUrl}/api/managers/forward-student/${studentId}`, { admissionManagerUsername: managerUsername });
-    }
-
-    approveAdmissionLetter(studentId: number, managerUsername: string): Observable<any> {
-        return this.http.post(`${this.apiBaseUrl}/api/managers/approve-admission-letter/${studentId}`, { admissionManagerUsername: managerUsername });
+    approveAdmissionLetter(studentId: number, payload: any): Observable<any> {
+        // FIX: Changed from /api/admission-manager to /api/managers
+        return this.http.post(`${this.apiBaseUrl}/api/managers/approve-admission-letter/${studentId}`, payload);
     }
 
     // --- Telex & Visa Manager Assignment ---
 
-    getTelexManager(): Observable<any> {
-        return this.http.get(`${this.apiBaseUrl}/api/telex-man/get-one`);
+    // FIX: Changed return type and extract username from response
+    getTelexManagerUsernames(): Observable<string[]> {
+        return this.http.get<{ username: string }>(`${this.apiBaseUrl}/api/telex-man/username-only`)
+            .pipe(map(response => [response.username])); // Return as array with single username
     }
 
-    getVisaManager(): Observable<any> {
-        return this.http.get(`${this.apiBaseUrl}/api/visa-man/get-one`);
+    getVisaManagerUsernames(): Observable<string[]> {
+        return this.http.get<{ username: string }>(`${this.apiBaseUrl}/api/visa-man/username-only`)
+            .pipe(map(response => [response.username])); // Return as array with single username
     }
 
-    assignTelexManager(studentId: number, managerUsername: string): Observable<any> {
-        return this.http.post(`${this.apiBaseUrl}/api/telex/assign/${studentId}`, { managerUsername });
+    assignTelexManager(studentId: number, payload: any): Observable<any> {
+        return this.http.post(`${this.apiBaseUrl}/api/telex/assign/${studentId}`, payload);
     }
 
-    assignVisaManager(studentId: number, managerUsername: string): Observable<any> {
-        return this.http.post(`${this.apiBaseUrl}/api/visa/assign/${studentId}`, { managerUsername });
+    assignVisaManager(studentId: number, payload: any): Observable<any> {
+        return this.http.post(`${this.apiBaseUrl}/api/visa/assign/${studentId}`, payload);
     }
 }

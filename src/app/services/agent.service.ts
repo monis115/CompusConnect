@@ -25,6 +25,12 @@ export interface CollegeAccess {
 }
 
 export interface Student {
+    action: string;
+    telexPaymentScreenshotPath: string | undefined;
+    adhaarPath: any;
+    markseetPath: string | undefined;
+    passportPath: string | undefined;
+    conditionalOfferLetterPath: any;
     id: number;
     fullName: string;
     dob: string;
@@ -38,6 +44,8 @@ export interface Student {
     passportValidTill: string;
     highestDegree?: string; // Optional as it might not be in all responses
     marks?: number; // Optional
+    intake?: string;
+    neetScore?: number;
     appliedFor: string;
     applicationStatus: string;
     nextStep: string | null;
@@ -53,6 +61,7 @@ export interface Student {
     telexNumber?: string;
     telexIssueDate?: string;
     studentStatusHistory?: any[];
+    actionOnUser?: string;
 }
 
 export interface AgentData {

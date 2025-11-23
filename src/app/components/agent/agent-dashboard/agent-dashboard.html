@@ -1,428 +1,383 @@
 <div class="dashboard-container" [class.collapsed]="isSidebarCollapsed">
 
+  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="logo">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-          <path d="M2 17l10 5 10-5"></path>
-          <path d="M2 12l10 5 10-5"></path>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
         </svg>
         <span>CampusConnect</span>
       </div>
     </div>
-
     <nav class="sidebar-nav">
       <button class="nav-item" [class.active]="currentView === 'dashboard'" (click)="navigateTo('dashboard')">
-        <svg class="nav-icon-dashboard" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2">
-          <rect x="3" y="3" width="7" height="7"></rect>
-          <rect x="14" y="3" width="7" height="7"></rect>
-          <rect x="14" y="14" width="7" height="7"></rect>
-          <rect x="3" y="14" width="7" height="7"></rect>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
         </svg>
         <span>Dashboard</span>
       </button>
-
       <button class="nav-item" [class.active]="currentView === 'students'" (click)="navigateTo('students')">
-        <svg class="nav-icon-students" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
-        <span>All Students</span>
-        <span class="badge" *ngIf="!isLoading">{{ students.length }}</span>
+        <span>Students</span>
       </button>
-
-      <button class="nav-item" (click)="navigateTo('register')" [class.active]="currentView === 'register'">
-        <svg class="nav-icon-register" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="8.5" cy="7" r="4"></circle>
-          <line x1="20" y1="8" x2="20" y2="14"></line>
-          <line x1="23" y1="11" x2="17" y2="11"></line>
+      <button class="nav-item" [class.active]="currentView === 'register'" (click)="navigateTo('register')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="8.5" cy="7" r="4" />
+          <line x1="20" y1="8" x2="20" y2="14" />
+          <line x1="23" y1="11" x2="17" y2="11" />
         </svg>
-        <span>Register Student</span>
+        <span>Register New</span>
       </button>
-
-      <button class="nav-item" [class.active]="currentView === 'admission-letters'"
-        (click)="navigateTo('admission-letters')">
-        <svg class="nav-icon-letters" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2">
-          <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-          <polyline points="13 2 13 9 20 9"></polyline>
-        </svg>
-        <span>Admission Letters</span>
-      </button>
-
-      <button class="nav-item" [class.active]="currentView === 'payments'" (click)="navigateTo('payments')">
-        <svg class="nav-icon-payments" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2">
-          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-          <line x1="1" y1="10" x2="23" y2="10"></line>
-        </svg>
-        <span>Payments</span>
-      </button>
-
       <button class="nav-item" [class.active]="currentView === 'profile'" (click)="navigateTo('profile')">
-        <svg class="nav-icon-profile" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
-        <span>Agent Profile</span>
+        <span>My Profile</span>
       </button>
     </nav>
-
     <div class="sidebar-footer">
-      <button class="nav-item sidebar-toggle" (click)="isSidebarCollapsed = !isSidebarCollapsed"
-        [title]="isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-          stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="11 17 6 12 11 7"></polyline>
-          <polyline points="18 17 13 12 18 7"></polyline>
-        </svg>
-      </button>
-
-      <button class="logout-btn" (click)="logout()">
+      <button class="nav-item logout-btn" (click)="logout()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
         </svg>
         <span>Logout</span>
       </button>
     </div>
   </aside>
 
+  <!-- Main Content -->
   <main class="main-content">
 
-    <header class="header" *ngIf="agentData || isLoading">
+    <!-- Header -->
+    <header class="header" *ngIf="agentData">
       <div class="header-left">
-        <h1 *ngIf="currentView === 'dashboard' && agentData">Welcome, {{ agentData.fullName.split(' ')[0] }}</h1>
-        <h1 *ngIf="currentView === 'students'">All Students</h1>
-        <h1 *ngIf="currentView === 'register'">Register New Student</h1>
-        <h1 *ngIf="currentView === 'admission-letters'">Admission Letters</h1>
-        <h1 *ngIf="currentView === 'payments'">Payment Management</h1>
-        <h1 *ngIf="currentView === 'profile'">Agent Profile</h1>
-        <h1 *ngIf="currentView === 'student-detail'">Student Details</h1>
-        <h1 *ngIf="isLoading">Loading...</h1>
+        <h1>{{ currentView === 'dashboard' ? 'Welcome, ' + agentData.fullName.split(' ')[0] : (currentView | titlecase)
+          }}</h1>
+        <p class="header-subtitle">{{ getCurrentDate() }}</p>
       </div>
-      <div class="header-right" *ngIf="agentData">
-        <div class="user-info">
-          <div class="user-avatar">{{ agentData.fullName.charAt(0) }}</div>
-          <div class="user-details">
-            <div class="user-name">{{ agentData.fullName }}</div>
-            <div class="user-role">{{ agentData.designation }}</div>
+      <div class="header-right">
+        <div class="user-pill">
+          <div class="avatar">{{ agentData.fullName.charAt(0) }}</div>
+          <div class="info">
+            <span class="name">{{ agentData.fullName }}</span>
+            <span class="role">{{ agentData.userId }}</span>
           </div>
         </div>
       </div>
     </header>
 
-    <div class="content-area" *ngIf="isLoading">
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Loading CampusConnect data...</p>
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading Data...</p>
     </div>
 
-    <div class="content-area" *ngIf="!isLoading && error">
-      <div class="error-message">
-        <strong>Error:</strong> {{ error }}
-      </div>
+    <!-- Error State -->
+    <div class="error-state" *ngIf="error && !isLoading">
+      <p>{{ error }}</p>
+      <button class="btn btn-primary" (click)="loadAgentData()">Retry</button>
     </div>
 
-    <div class="content-area" *ngIf="!isLoading && !error && currentView === 'dashboard'"
-      [@listAnimation]="stats.totalStudents + dashboardTasks.length + actionableStudents.length">
+    <!-- Dashboard View -->
+    <div class="content-body" *ngIf="!isLoading && currentView === 'dashboard'">
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon icon-primary">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card stat-gradient-blue">
+          <div class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
             </svg>
           </div>
-          <div class="stat-content">
-            <div class="stat-value">{{ stats.totalStudents }}</div>
-            <div class="stat-label">Total Students</div>
+          <div class="stat-details">
+            <span class="stat-value">{{ stats.totalStudents }}</span>
+            <span class="stat-label">Total Students</span>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon icon-warning">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
+
+        <div class="stat-card stat-gradient-orange">
+          <div class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
           </div>
-          <div class="stat-content">
-            <div class="stat-value">{{ stats.pending }}</div>
-            <div class="stat-label">Pending Review</div>
+          <div class="stat-details">
+            <span class="stat-value">{{ stats.pending }}</span>
+            <span class="stat-label">Pending Action</span>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon icon-success">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+
+        <div class="stat-card stat-gradient-green">
+          <div class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
-          <div class="stat-content">
-            <div class="stat-value">{{ stats.approved }}</div>
-            <div class="stat-label">In Progress</div>
+          <div class="stat-details">
+            <span class="stat-value">{{ stats.approved }}</span>
+            <span class="stat-label">In Progress</span>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon icon-completed">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"></polyline>
+
+        <div class="stat-card stat-gradient-red">
+          <div class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
             </svg>
           </div>
-          <div class="stat-content">
-            <div class="stat-value">{{ stats.completed }}</div>
-            <div class="stat-label">Completed</div>
+          <div class="stat-details">
+            <span class="stat-value">{{ stats.rejected }}</span>
+            <span class="stat-label">Rejected</span>
           </div>
         </div>
       </div>
 
-      <div class="dashboard-widgets-grid-3">
-        <div class="section-card">
-          <div class="section-header">
-            <h2>Pending Approvals</h2>
-          </div>
-          <div class="widget-content">
-            <div class="task-list" *ngIf="dashboardTasks.length > 0; else noTasks">
-              <div class="task-item" *ngFor="let task of dashboardTasks" (click)="viewStudentFromTask(task.studentId)">
-                <div class="task-avatar" [style.background]="getStatusColor(task.status)">{{ task.studentName.charAt(0)
-                  }}</div>
-                <div class="task-details">
-                  <div class="task-name">{{ task.studentName }}</div>
-                  <div class="task-message">{{ task.message }}</div>
-                </div>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </div>
-            </div>
-            <ng-template #noTasks>
-              <div class="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                <p>No approvals pending!</p>
-              </div>
-            </ng-template>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <div class="section-header">
-            <h2>Agent Actions</h2>
-          </div>
-          <div class="widget-content">
-            <div class="task-list" *ngIf="actionableStudents.length > 0; else noActions">
-              <div class="task-item" *ngFor="let student of actionableStudents">
-                <div class="task-avatar" [style.background]="getStatusColor(student.applicationStatus)">{{
-                  student.fullName.charAt(0) }}</div>
-                <div class="task-details">
-                  <div class="task-name">{{ student.fullName }}</div>
-                  <div class="task-message" [style.color]="getStatusColor(student.applicationStatus)">
-                    {{ student.applicationStatus === StudentStatus.ADMISSION_LETTER_APPROVED ? 'Ready for Telex' :
-                    'Ready for Visa' }}
-                  </div>
-                </div>
-                <button *ngIf="canInitiateTelex(student.applicationStatus)" class="btn btn-primary btn-sm"
-                  (click)="initiateTelex(student)">
-                  Telex
-                </button>
-                <button *ngIf="canInitiateVisa(student.applicationStatus)" class="btn btn-success btn-sm"
-                  (click)="initiateVisa(student)">
-                  Visa
-                </button>
-              </div>
-            </div>
-            <ng-template #noActions>
-              <div class="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                <p>No student actions required.</p>
-              </div>
-            </ng-template>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <div class="section-header">
-            <h2>College Distribution</h2>
-          </div>
-          <div class="widget-content">
-            <div class="chart-widget-content" *ngIf="collegeDistribution.length > 0; else noChartData">
-              <div class="pie-chart-placeholder">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5">
-                  <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
-                  <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
-                </svg>
-              </div>
-              <div class="chart-legend">
-                <div class="legend-item" *ngFor="let item of collegeDistribution.slice(0, 4)">
-                  <div class="legend-color" [style.background-color]="item.color"></div>
-                  <span class="legend-name">{{ item.collegeName }}</span>
-                  <span class="legend-value">{{ item.count }}</span>
-                </div>
-                <div class="legend-item" *ngIf="collegeDistribution.length > 4">
-                  <div class="legend-color" style="background-color: #94A3B8;"></div>
-                  <span class="legend-name">Others</span>
-                  <span class="legend-value">{{ otherCollegesCount }}</span>
-                </div>
-              </div>
-            </div>
-            <ng-template #noChartData>
-              <div class="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5">
-                  <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
-                  <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
-                </svg>
-                <p>No student data for chart.</p>
-              </div>
-            </ng-template>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-card">
+      <!-- Action Items Section -->
+      <div class="action-section" *ngIf="dashboardTasks.length > 0">
         <div class="section-header">
-          <h2>Recent Students</h2>
-          <button class="btn-link" (click)="navigateTo('students')">View All →</button>
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            Action Required
+          </h2>
+          <span class="badge-count">{{ dashboardTasks.length }}</span>
         </div>
-        <div class="table-responsive">
-          <table class="data-table">
+
+        <div class="action-cards-grid">
+          <div class="action-card-simplified" *ngFor="let task of dashboardTasks">
+            <div class="card-content-simplified">
+              <div class="student-identity">
+                <div class="avatar-circle-sm">{{ task.fullName.charAt(0) }}</div>
+                <span class="student-name-bold">{{ task.fullName }}</span>
+              </div>
+
+              <div class="action-buttons-simplified">
+                <button class="btn-icon-eye" (click)="viewStudentDetails(task)" title="View Details">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+
+                <button class="btn-initiate-telex" *ngIf="showInitiateTelexButton(task)" (click)="openTelexModal(task)">
+                  Initiate Telex
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid Layout -->
+      <div class="dashboard-grid">
+
+        <!-- College Distribution -->
+        <div class="glass-card">
+          <div class="card-header-modern">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              </svg>
+              College Distribution
+            </h3>
+          </div>
+          <div class="card-body-modern">
+            <div class="college-list-modern">
+              <div class="college-item-modern" *ngFor="let c of collegeDistribution">
+                <div class="college-info">
+                  <div class="college-dot" [style.background]="c.color"></div>
+                  <span class="college-name">{{ c.collegeName }}</span>
+                </div>
+                <div class="college-count-badge" [style.background]="c.color + '20'" [style.color]="c.color">
+                  {{ c.count }}
+                </div>
+              </div>
+            </div>
+            <div class="empty-msg" *ngIf="collegeDistribution.length === 0">
+              No data available
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="glass-card">
+          <div class="card-header-modern">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+              Quick Stats
+            </h3>
+          </div>
+          <div class="card-body-modern">
+            <div class="quick-stats-list">
+              <div class="quick-stat-item">
+                <div class="quick-stat-icon blue">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                </div>
+                <div class="quick-stat-details">
+                  <span class="quick-stat-label">Visa Stamped</span>
+                  <span class="quick-stat-value">{{ getVisaStampedCount() }}</span>
+                </div>
+              </div>
+
+              <div class="quick-stat-item">
+                <div class="quick-stat-icon orange">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                  </svg>
+                </div>
+                <div class="quick-stat-details">
+                  <span class="quick-stat-label">Telex Pending</span>
+                  <span class="quick-stat-value">{{ getTelexPendingCount() }}</span>
+                </div>
+              </div>
+
+              <div class="quick-stat-item">
+                <div class="quick-stat-icon green">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                </div>
+                <div class="quick-stat-details">
+                  <span class="quick-stat-label">Documents Pending</span>
+                  <span class="quick-stat-value">{{ getDocsPendingCount() }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rejected Students Section -->
+      <div class="rejected-section" *ngIf="getRejectedStudents().length > 0">
+        <div class="section-header">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+            Rejected Applications
+          </h2>
+          <span class="badge-count rejected">{{ getRejectedStudents().length }}</span>
+        </div>
+
+        <div class="rejected-cards">
+          <div class="rejected-card" *ngFor="let student of getRejectedStudents()">
+            <div class="rejected-overlay"></div>
+            <div class="rejected-content">
+              <div class="rejected-header">
+                <div class="avatar-circle rejected">{{ student.fullName.charAt(0) }}</div>
+                <div class="rejected-info">
+                  <h4>{{ student.fullName }}</h4>
+                  <p>{{ student.email }}</p>
+                </div>
+              </div>
+              <div class="rejected-details">
+                <span class="detail-item">{{ student.college?.collegeName }}</span>
+                <span class="detail-item">{{ student.contactNo }}</span>
+              </div>
+              <button class="btn-view-rejected" (click)="viewStudentDetails(student)">
+                View Details
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Students List View -->
+    <div class="content-body" *ngIf="!isLoading && currentView === 'students'">
+      <div class="glass-card">
+        <div class="card-header-with-search">
+          <h3>All Students</h3>
+          <div class="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery">
+          </div>
+        </div>
+        <div class="modern-table-container">
+          <table class="modern-table">
             <thead>
               <tr>
-                <th>Student Name</th>
+                <th>Student</th>
+                <th>Contact</th>
                 <th>College</th>
-                <th>Registered On</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngIf="students.length === 0">
-                <td colspan="5" class="text-center">No students found.</td>
-              </tr>
-              <tr *ngFor="let student of students.slice(0, 5)">
+              <tr *ngFor="let s of students" [@listAnimation]>
                 <td>
                   <div class="student-cell">
-                    <div class="student-avatar">{{ student.fullName.charAt(0) }}</div>
-                    <div>
-                      <div class="student-name">{{ student.fullName }}</div>
-                      <div class="student-email">{{ student.email }}</div>
+                    <div class="avatar-sm">{{ s.fullName.charAt(0) }}</div>
+                    <div class="student-info-cell">
+                      <span class="student-name">{{ s.fullName }}</span>
+                      <span class="student-email">{{ s.email }}</span>
                     </div>
                   </div>
                 </td>
-                <td>{{ student.college.collegeName }}</td>
-                <td>{{ formatDate(student.createdAt) }}</td>
+                <td>{{ s.contactNo }}</td>
                 <td>
-                  <span class="status-badge" [style.background-color]="getStatusColor(student.applicationStatus) + '1A'"
-                    [style.color]="getStatusColor(student.applicationStatus)">
-                    {{ formatStatus(student.applicationStatus) }}
-                  </span>
-                </td>
-                <td>
-                  <button class="btn-icon" (click)="viewStudentDetails(student)" title="View Details">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                  </button>
-                  <button class="btn-icon" (click)="openHistoryModal(student)" title="View History">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="content-area" *ngIf="!isLoading && !error && currentView === 'students'">
-      <div class="section-card">
-        <div class="search-filter-bar">
-          <div class="search-box">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
-            <input type="text" placeholder="Search by name, email, contact, or college..." [(ngModel)]="searchQuery">
-          </div>
-          <select class="filter-select" [(ngModel)]="statusFilter">
-            <option value="all">All Status</option>
-            <option *ngFor="let status of (StudentStatus | keyvalue)" [value]="status.value">{{
-              formatStatus(status.value) | titlecase }}</option>
-          </select>
-        </div>
-
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Student Name</th>
-                <th>Contact</th>
-                <th>College</th>
-                <th>Status</th>
-                <th>Registered On</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody [@listAnimation]="getFilteredStudents().length">
-              <tr *ngIf="getFilteredStudents().length === 0">
-                <td colspan="6" class="text-center">No students match your criteria.</td>
-              </tr>
-              <tr *ngFor="let student of getFilteredStudents()">
-                <td>
-                  <div class="student-cell">
-                    <div class="student-avatar">{{ student.fullName.charAt(0) }}</div>
-                    <div>
-                      <div class="student-name">{{ student.fullName }}</div>
-                      <div class="student-email">{{ student.email }}</div>
-                    </div>
-                  </div>
-                </td>
-                <td>{{ student.contactNo }}</td>
-                <td>
-                  <div>
-                    <div class="college-name">{{ student.college.collegeName }}</div>
-                    <div class="college-location">{{ student.college.city }}, {{ student.college.country }}</div>
+                  <div class="college-cell">
+                    <span>{{ s.college?.collegeName }}</span>
                   </div>
                 </td>
                 <td>
-                  <span class="status-badge" [style.background-color]="getStatusColor(student.applicationStatus) + '1A'"
-                    [style.color]="getStatusColor(student.applicationStatus)">
-                    {{ formatStatus(student.applicationStatus) }}
+                  <span class="modern-status-badge" [style.background]="getStatusColor(s.applicationStatus) + '20'"
+                    [style.color]="getStatusColor(s.applicationStatus)">
+                    {{ formatStatus(s.applicationStatus) }}
                   </span>
                 </td>
-                <td>{{ formatDate(student.createdAt) }}</td>
                 <td>
                   <div class="action-buttons">
-                    <button class="btn-icon" (click)="viewStudentDetails(student)" title="View Details">
+                    <button class="btn-icon-modern" (click)="viewStudentDetails(s)" title="View Details">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
                       </svg>
                     </button>
-                    <button class="btn-icon" (click)="openHistoryModal(student)" title="View History">
+                    <button class="btn-icon-modern primary" *ngIf="showInitiateTelexButton(s)"
+                      (click)="openTelexModal(s)" title="Initiate Telex">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2">
-                        <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
                       </svg>
                     </button>
                   </div>
@@ -434,369 +389,564 @@
       </div>
     </div>
 
-    <div class="content-area" *ngIf="!isLoading && !error && currentView === 'student-detail' && selectedStudent">
-      <button class="btn-back" (click)="navigateTo('students')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="15 18 9 12 15 6"></polyline>
+    <!-- Student Detail View -->
+    <div class="content-body" *ngIf="!isLoading && currentView === 'student-detail' && selectedStudent">
+      <button class="btn-back-modern" (click)="navigateTo('students')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
         </svg>
-        Back to All Students
+        Back to Students
       </button>
 
-      <div class="detail-grid">
-        <div class="detail-main">
-          <div class="section-card">
-            <div class="student-header">
-              <div class="student-avatar-large">{{ selectedStudent.fullName.charAt(0) }}</div>
-              <div class="student-header-info">
-                <h2>{{ selectedStudent.fullName }}</h2>
-                <p class="student-meta">
-                  <span>{{ selectedStudent.email }}</span>
-                  <span>{{ selectedStudent.contactNo }}</span>
-                </p>
+      <div class="detail-layout-modern">
+        <!-- Left Column -->
+        <div class="detail-left">
+          <!-- Profile Card -->
+          <div class="glass-card profile-card-modern">
+            <div class="profile-header-bg"></div>
+            <div class="profile-content">
+              <div class="profile-avatar-large">{{ selectedStudent.fullName.charAt(0) }}</div>
+              <h2>{{ selectedStudent.fullName }}</h2>
+              <div class="profile-contact">
+                <span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                  {{ selectedStudent.email }}
+                </span>
+                <span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                  {{ selectedStudent.contactNo }}
+                </span>
+              </div>
+              <div class="profile-status-badge" [style.background]="getStatusColor(selectedStudent.applicationStatus)">
+                {{ formatStatus(selectedStudent.applicationStatus) }}
               </div>
             </div>
-            <div class="info-section">
-              <h3>Personal Information</h3>
+          </div>
+
+          <!-- Student Information -->
+          <div class="glass-card">
+            <div class="card-header-modern">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                Student Information
+              </h3>
+            </div>
+            <div class="card-body-modern">
               <div class="info-grid">
                 <div class="info-item">
-                  <label>Date of Birth</label>
-                  <span>{{ formatDate(selectedStudent.dob) }} ({{ calculateAge(selectedStudent.dob) }} years)</span>
+                  <span class="info-label">College</span>
+                  <span class="info-value">{{ selectedStudent.college?.collegeName }}</span>
                 </div>
                 <div class="info-item">
-                  <label>Emergency Contact</label>
-                  <span>{{ selectedStudent.emergencyContactNo }} ({{ selectedStudent.emergencyRelation }})</span>
+                  <span class="info-label">Applied For</span>
+                  <span class="info-value">{{ selectedStudent.appliedFor }}</span>
                 </div>
                 <div class="info-item">
-                  <label>Address</label>
-                  <span>{{ selectedStudent.address }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="info-section">
-              <h3>Passport Details</h3>
-              <div class="info-grid">
-                <div class="info-item">
-                  <label>Passport Number</label>
-                  <span>{{ selectedStudent.passportNo }}</span>
+                  <span class="info-label">DOB</span>
+                  <span class="info-value">{{ selectedStudent.dob | date:'mediumDate' }}</span>
                 </div>
                 <div class="info-item">
-                  <label>Valid Till</label>
-                  <span>{{ formatDate(selectedStudent.passportValidTill) }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="info-section">
-              <h3>Academic & Application</h3>
-              <div class="info-grid">
-                <div class="info-item">
-                  <label>Highest Degree</label>
-                  <span>{{ selectedStudent.highestDegree }}</span>
+                  <span class="info-label">Age</span>
+                  <span class="info-value">{{ selectedStudent.age }} years</span>
                 </div>
                 <div class="info-item">
-                  <label>Marks</label>
-                  <span>{{ selectedStudent.marks }}%</span>
+                  <span class="info-label">Intake</span>
+                  <span class="info-value">{{ selectedStudent.intake }}</span>
                 </div>
                 <div class="info-item">
-                  <label>Applied For</label>
-                  <span>{{ selectedStudent.appliedFor }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="info-section">
-              <h3>College Information</h3>
-              <div class="college-card">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                  <path d="M2 17l10 5 10-5"></path>
-                  <path d="M2 12l10 5 10-5"></path>
-                </svg>
-                <div>
-                  <h4>{{ selectedStudent.college.collegeName }}</h4>
-                  <p>{{ selectedStudent.college.city }}, {{ selectedStudent.college.country }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="detail-sidebar">
-          <div class="section-card">
-            <h3>Application Status</h3>
-            <div class="status-timeline">
-              <div class="status-item">
-                <div class="status-marker active"></div>
-                <div class="status-content">
-                  <div class="status-title">Current Status</div>
-                  <span class="status-badge"
-                    [style.background-color]="getStatusColor(selectedStudent.applicationStatus) + '1A'"
-                    [style.color]="getStatusColor(selectedStudent.applicationStatus)">
-                    {{ formatStatus(selectedStudent.applicationStatus) }}
-                  </span>
-                </div>
-              </div>
-              <div class="status-item"
-                *ngIf="selectedStudent.applicationStatus !== StudentStatus.COMPLETED && selectedStudent.applicationStatus !== StudentStatus.REJECTED">
-                <div class="status-marker"></div>
-                <div class="status-content">
-                  <div class="status-title">Next Step</div>
-                  <span class="status-badge"
-                    [style.background-color]="getStatusColor(selectedStudent.nextStep || StudentStatus.UNDER_REVIEW) + '1A'"
-                    [style.color]="getStatusColor(selectedStudent.nextStep || StudentStatus.UNDER_REVIEW)">
-                    {{ formatStatus(selectedStudent.nextStep || StudentStatus.UNDER_REVIEW) }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="action-section" *ngIf="canInitiateTelex(selectedStudent.applicationStatus)">
-              <button class="btn btn-primary btn-block" (click)="initiateTelex(selectedStudent)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
-                </svg>
-                Initiate Telex
-              </button>
-            </div>
-            <div class="action-section" *ngIf="canInitiateVisa(selectedStudent.applicationStatus)">
-              <button class="btn btn-success btn-block" (click)="initiateVisa(selectedStudent)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                </svg>
-                Initiate Visa
-              </button>
-            </div>
-
-            <div class="action-section" *ngIf="selectedStudent.confirmationPagePath">
-              <button class="btn btn-secondary btn-block" (click)="downloadFile(selectedStudent.confirmationPagePath)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                Download Confirmation
-              </button>
-            </div>
-            <div class="action-section">
-              <button class="btn btn-secondary btn-block" (click)="openHistoryModal(selectedStudent)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
-                </svg>
-                View Full History
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="content-area"
-      *ngIf="!isLoading && !error && (currentView === 'admission-letters' || currentView === 'payments' || currentView === 'register')">
-      <div class="section-card">
-        <div *ngIf="currentView === 'register' && agentData">
-          <div *ngIf="currentView === 'register' && agentData">
-            <app-agent-student-resgistration [collegeAccess]="agentData.collegeAccess"
-              [agentUserName]="agentData.userId" (onRegistrationSuccess)="onStudentRegistered($event)"
-              (onCancel)="navigateTo('dashboard')">
-            </app-agent-student-resgistration>
-          </div>
-        </div>
-
-
-        <div class="placeholder-page" *ngIf="currentView === 'admission-letters'">
-          <svg class="nav-icon-letters" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.5">
-            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-            <polyline points="13 2 13 9 20 9"></polyline>
-          </svg>
-          <h2>Admission Letter Management</h2>
-          <p>This feature is coming soon. You will be able to manage and download student admission letters from here.
-          </p>
-        </div>
-
-        <div class="placeholder-page" *ngIf="currentView === 'payments'">
-          <svg class="nav-icon-payments" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.5">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-            <line x1="1" y1="10" x2="23" y2="10"></line>
-          </svg>
-          <h2>Payment Management</h2>
-          <p>This feature is coming soon. You will be able to track and manage student payments from here.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="content-area" *ngIf="!isLoading && !error && currentView === 'profile' && agentData">
-      <div class="profile-grid-new">
-
-        <div class="profile-sidebar-sticky">
-          <div class="section-card">
-            <div class="profile-avatar-large">{{ agentData.fullName.charAt(0) }}</div>
-            <h2>{{ agentData.fullName }}</h2>
-            <p class="profile-designation">{{ agentData.designation }}</p>
-
-            <div class="profile-contact-list">
-              <div class="info-item">
-                <label>Email</label>
-                <a [href]="'mailto:' + agentData.email">{{ agentData.email }}</a>
-              </div>
-              <div class="info-item">
-                <label>Phone</label>
-                <span>{{ agentData.contactNo }}</span>
-              </div>
-              <div class="info-item">
-                <label>User ID</label>
-                <span>{{ agentData.userId }}</span>
-              </div>
-              <div class="info-item">
-                <label>Address</label>
-                <span>{{ agentData.address }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="profile-content-main" [@listAnimation]="agentData.collegeAccess.length">
-          <div class="section-card">
-            <div class="info-section">
-              <h3>Experience & Company</h3>
-              <div class="info-grid-2">
-                <div class="info-item">
-                  <label>Experience</label>
-                  <span>{{ agentData.experience }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Company Name</label>
-                  <span>{{ agentData.companyName }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Company Email</label>
-                  <a [href]="'mailto:' + agentData.companyEmail">{{ agentData.companyEmail }}</a>
-                </div>
-                <div class="info-item">
-                  <label>Website</label>
-                  <a [href]="agentData.website" target="_blank" rel="noopener noreferrer">{{ agentData.website }}</a>
-                </div>
-                <div class="info-item">
-                  <label>Registered Address</label>
-                  <span>{{ agentData.registeredOfficeAddress }}</span>
+                  <span class="info-label">NEET Score</span>
+                  <span class="info-value">{{ selectedStudent.neetScore }}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="section-card">
-            <h3>College Access & Locations</h3>
-            <div class="college-access-grid">
-
-              <div class="college-group-card" *ngFor="let group of groupedCollegeAccess">
-                <div class="college-group-header">
-                  <div class="icon-box">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-4h8v4" />
+          <!-- Documents -->
+          <div class="glass-card">
+            <div class="card-header-modern">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                Documents
+              </h3>
+            </div>
+            <div class="card-body-modern">
+              <div class="documents-grid">
+                <div class="doc-card" *ngIf="selectedStudent.passportPath">
+                  <div class="doc-icon passport">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
                     </svg>
                   </div>
-                  <div>
-                    <h4>{{ group.college.collegeName }}</h4>
-                    <p class="text-muted">{{ group.college.city }}, {{ group.college.country }}</p>
-                  </div>
-                  <span class="badge-all" *ngIf="group.accessAllLocations">All Locations Access</span>
+                  <span class="doc-name">Passport</span>
+                  <button class="btn-doc-download" (click)="downloadFile(selectedStudent.passportPath)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </button>
                 </div>
 
-                <div class="location-breakdown" *ngIf="!group.accessAllLocations && group.locationsByState.length > 0">
-                  <div class="state-group" *ngFor="let state of group.locationsByState">
-                    <div class="state-name">{{ state.stateName }}</div>
-                    <div class="district-tags">
-                      <span class="district-tag" *ngFor="let district of state.districts">{{ district }}</span>
-                    </div>
+                <div class="doc-card" *ngIf="selectedStudent.markseetPath">
+                  <div class="doc-icon marksheet">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
                   </div>
+                  <span class="doc-name">Marksheet</span>
+                  <button class="btn-doc-download" (click)="downloadFile(selectedStudent.markseetPath)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </button>
                 </div>
 
-                <div class="no-locs" *ngIf="!group.accessAllLocations && group.locationsByState.length === 0">
-                  No specific locations assigned.
+                <div class="doc-card" *ngIf="selectedStudent.adhaarPath">
+                  <div class="doc-icon adhaar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <line x1="2" y1="10" x2="22" y2="10" />
+                    </svg>
+                  </div>
+                  <span class="doc-name">Adhaar</span>
+                  <button class="btn-doc-download" (click)="downloadFile(selectedStudent.adhaarPath)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="doc-card" *ngIf="selectedStudent.confirmationPagePath">
+                  <div class="doc-icon confirmation">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="9 11 12 14 22 4" />
+                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                    </svg>
+                  </div>
+                  <span class="doc-name">Confirmation</span>
+                  <button class="btn-doc-download" (click)="downloadFile(selectedStudent.confirmationPagePath)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="doc-card" *ngIf="selectedStudent.conditionalOfferLetterPath">
+                  <div class="doc-icon conditional">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                  </div>
+                  <span class="doc-name">Conditional Letter</span>
+                  <button class="btn-doc-download" (click)="downloadFile(selectedStudent.conditionalOfferLetterPath)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="doc-card"
+                  *ngIf="selectedStudent.admissionLetterPathInternal || selectedStudent.admissionLetterPath">
+                  <div class="doc-icon admission">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                      <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                    </svg>
+                  </div>
+                  <span class="doc-name">Admission Letter</span>
+                  <button class="btn-doc-download"
+                    (click)="downloadFile(selectedStudent.admissionLetterPathInternal || selectedStudent.admissionLetterPath)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </button>
                 </div>
               </div>
+              <div class="empty-msg"
+                *ngIf="!selectedStudent.passportPath && !selectedStudent.markseetPath && !selectedStudent.adhaarPath">
+                No documents available
+              </div>
+            </div>
+          </div>
+        </div>
 
+        <!-- Right Column -->
+        <div class="detail-right">
+
+          <!-- Action Card -->
+          <div class="glass-card action-card-modern" *ngIf="showInitiateTelexButton(selectedStudent)">
+            <div class="action-alert">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+            <h3>Action Required</h3>
+            <p>Admission letter has been approved. Please initiate the Telex process to proceed.</p>
+            <button class="btn-primary-large" (click)="openTelexModal(selectedStudent)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              Initiate Telex Application
+            </button>
+          </div>
+
+          <!-- Timeline -->
+          <div class="glass-card">
+            <div class="card-header-modern">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                Application Timeline
+              </h3>
+            </div>
+            <div class="card-body-modern">
+              <div class="timeline-modern">
+                <div class="timeline-item-modern" *ngFor="let log of selectedStudent.studentStatusHistory">
+                  <div class="timeline-dot" [style.background]="getStatusColor(log.newStatus)"></div>
+                  <div class="timeline-content-modern">
+                    <h4 [style.color]="getStatusColor(log.newStatus)">{{ formatStatus(log.newStatus) }}</h4>
+                    <p class="timeline-date">{{ log.updatedAt | date:'medium' }}</p>
+                    <p class="timeline-user" *ngIf="log.updatedBy">Updated by: {{ log.updatedBy }}</p>
+                    <p class="timeline-remark" *ngIf="log.remarks">{{ log.remarks }}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="empty-msg"
+                *ngIf="!selectedStudent.studentStatusHistory || selectedStudent.studentStatusHistory.length === 0">
+                No history available
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Profile View -->
+    <div class="content-body" *ngIf="!isLoading && currentView === 'profile' && agentData">
+      <div class="profile-layout-modern">
+        <!-- Header Card -->
+        <div class="glass-card profile-header-card">
+          <div class="profile-cover-bg"></div>
+          <div class="profile-header-content">
+            <div class="profile-avatar-xl">{{ agentData.fullName.charAt(0) }}</div>
+            <div class="profile-header-info">
+              <h2>{{ agentData.fullName }}</h2>
+              <p class="profile-role">{{ agentData.designation }} at {{ agentData.companyName }}</p>
+              <div class="profile-badges">
+                <span class="status-badge-modern" [class.active]="agentData.status === 'ACTIVE'">
+                  {{ agentData.status }}
+                </span>
+                <span class="id-badge">ID: {{ agentData.userId }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-grid-modern">
+          <!-- Personal Information -->
+          <div class="glass-card">
+            <div class="card-header-modern">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                Personal Information
+              </h3>
+            </div>
+            <div class="card-body-modern">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">Full Name</span>
+                  <span class="info-value">{{ agentData.fullName }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Email</span>
+                  <span class="info-value">{{ agentData.email }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Contact Number</span>
+                  <span class="info-value">{{ agentData.contactNo }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Date of Birth</span>
+                  <span class="info-value">{{ agentData.dob | date:'mediumDate' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Gender</span>
+                  <span class="info-value">{{ agentData.gender }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Experience</span>
+                  <span class="info-value">{{ agentData.experience }} Years</span>
+                </div>
+                <div class="info-item full-width">
+                  <span class="info-label">Address</span>
+                  <span class="info-value">{{ agentData.address }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Company Information -->
+          <div class="glass-card">
+            <div class="card-header-modern">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 21h18" />
+                  <path d="M5 21V7l8-4 8 4v14" />
+                  <path d="M17 21v-8H7v8" />
+                </svg>
+                Company Details
+              </h3>
+            </div>
+            <div class="card-body-modern">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">Company Name</span>
+                  <span class="info-value">{{ agentData.companyName }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Registered Name</span>
+                  <span class="info-value">{{ agentData.registeredBusinessName }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Business Type</span>
+                  <span class="info-value">{{ agentData.businessType }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Registration No.</span>
+                  <span class="info-value">{{ agentData.registrationNumber }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">PAN / GST</span>
+                  <span class="info-value">{{ agentData.panOrGstNumber }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Website</span>
+                  <a [href]="agentData.website" target="_blank" class="link-value">{{ agentData.website }}</a>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Company Email</span>
+                  <span class="info-value">{{ agentData.companyEmail }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Company Contact</span>
+                  <span class="info-value">{{ agentData.companyContactNo }}</span>
+                </div>
+                <div class="info-item full-width">
+                  <span class="info-label">Registered Office</span>
+                  <span class="info-value">{{ agentData.registeredOfficeAddress }}</span>
+                </div>
+                <div class="info-item full-width">
+                  <span class="info-label">Branch Office</span>
+                  <span class="info-value">{{ agentData.branchOfficeAddress }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Identity Information -->
+          <div class="glass-card">
+            <div class="card-header-modern">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Identity Proof
+              </h3>
+            </div>
+            <div class="card-body-modern">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">ID Type</span>
+                  <span class="info-value">{{ agentData.identityProofType }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">ID Number</span>
+                  <span class="info-value">{{ agentData.identityProofNumber }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Joined On</span>
+                  <span class="info-value">{{ agentData.creationDate | date:'mediumDate' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Register View -->
+    <div class="content-body" *ngIf="currentView === 'register' && agentData">
+      <app-agent-student-resgistration [collegeAccess]="agentData.collegeAccess" [agentUserName]="agentData.userId"
+        (onRegistrationSuccess)="refreshDashboard(); navigateTo('students')" (onCancel)="navigateTo('dashboard')">
+      </app-agent-student-resgistration>
     </div>
 
   </main>
 </div>
 
-<div class="history-modal-overlay" [class.open]="isHistoryModalOpen" (click)="closeHistoryModal()">
+<!-- Floating Refresh Button -->
+<button class="floating-fab" (click)="refreshDashboard()" title="Refresh Data" [class.spinning]="isRefreshing">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="23 4 23 10 17 10" />
+    <polyline points="1 20 1 14 7 14" />
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+  </svg>
+</button>
 
-  <div class="history-modal-content" (click)="$event.stopPropagation()">
-    <button class="modal-close-btn" (click)="closeHistoryModal()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
-
-    <div class="modal-header" *ngIf="selectedStudentForHistory">
-      <h3>Application History</h3>
-      <p>{{ selectedStudentForHistory.fullName }}</p>
+<!-- Telex Modal -->
+<div class="modal-backdrop-modern" [class.show]="isTelexModalOpen" (click)="closeTelexModal()">
+  <div class="modal-container-modern" (click)="$event.stopPropagation()">
+    <div class="modal-header-modern">
+      <div class="modal-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      </div>
+      <h2>Initiate Telex Process</h2>
+      <button class="btn-close-modern" (click)="closeTelexModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
     </div>
 
-    <div class="modal-body" *ngIf="selectedStudentForHistory">
-      <ul class="timeline-tracker" *ngIf="selectedStudentForHistory.applicationStatus !== StudentStatus.REJECTED">
-        <li class="timeline-step" *ngFor="let status of allStatuses" [ngClass]="getHistoryStepClass(status)">
-          <div class="timeline-marker"></div>
-          <div class="timeline-icon" [style.color]="getStatusColor(status)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeStatusIcons.get(status)">
-            </svg>
-          </div>
-          <div class="timeline-content">
-            <span class="timeline-title" [style.color]="getStatusColor(status)">
-              {{ formatStatus(status) | titlecase }}
-            </span>
-          </div>
-        </li>
-      </ul>
-
-      <ul class="timeline-tracker" *ngIf="selectedStudentForHistory.applicationStatus === StudentStatus.REJECTED">
-        <li class="timeline-step active-rejected">
-          <div class="timeline-icon" [style.color]="getStatusColor(StudentStatus.REJECTED)">
-          </div>
-          <div class="timeline-content">
-            <span class="timeline-title">Rejected</span>
-          </div>
-        </li>
-      </ul>
-
-      <div class="detailed-history-section"
-        *ngIf="selectedStudentForHistory.studentStatusHistory && selectedStudentForHistory.studentStatusHistory.length > 0">
-        <h4>Full Application Log</h4>
-        <div class="history-log-container">
-
-          <div class="log-entry" *ngFor="let entry of selectedStudentForHistory.studentStatusHistory">
-            <div class="log-left">
-              <div class="log-line"></div>
-              <div class="log-dot"></div>
-            </div>
-            <div class="log-content">
-              <div class="log-header">
-                <span class="log-status"
-                  [style.color]="getStatusColor(entry.newStatus || entry.studentApplicationStatus)">
-                  {{ formatStatus(entry.newStatus || entry.studentApplicationStatus) }}
-                </span>
-                <span class="log-date">{{ entry.updatedAt | date:'medium' }}</span>
-              </div>
-              <div class="log-meta" *ngIf="entry.updatedBy">
-                Updated by: <strong>{{ entry.updatedBy }}</strong>
-              </div>
-              <div class="log-remarks" *ngIf="entry.remarks">
-                "{{ entry.remarks }}"
-              </div>
-            </div>
-          </div>
-
+    <div class="modal-body-modern" *ngIf="studentForTelex">
+      <div class="modal-student-info">
+        <div class="avatar-circle">{{ studentForTelex.fullName.charAt(0) }}</div>
+        <div>
+          <h3>{{ studentForTelex.fullName }}</h3>
+          <p>{{ studentForTelex.email }}</p>
         </div>
       </div>
+
+      <form (ngSubmit)="submitTelexApplication()">
+        <div class="form-grid">
+          <div class="form-group-modern">
+            <label>Passport Number</label>
+            <input type="text" [(ngModel)]="telexForm.passportNumber" name="passportNumber" required
+              class="input-modern">
+          </div>
+
+          <div class="form-group-modern">
+            <label>Passport Valid Till</label>
+            <input type="date" [(ngModel)]="telexForm.passportValidationDate" name="validTill" required
+              class="input-modern">
+          </div>
+
+          <div class="form-group-modern">
+            <label>Amount (USD)</label>
+            <input type="number" [(ngModel)]="telexForm.telexPaymentAmount" name="amount" required class="input-modern">
+          </div>
+
+          <div class="form-group-modern">
+            <label>Transaction ID</label>
+            <input type="text" [(ngModel)]="telexForm.telexPaymentTxId" name="txId" required class="input-modern">
+          </div>
+        </div>
+
+        <div class="file-upload-section">
+          <div class="file-group-modern">
+            <label>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              Passport PDF
+            </label>
+            <input type="file" (change)="onFileSelected($event, 'passport')" accept=".pdf" required
+              class="file-input-modern">
+          </div>
+
+          <div class="file-group-modern">
+            <label>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              Payment Screenshot
+            </label>
+            <input type="file" (change)="onFileSelected($event, 'screenshot')" accept="image/*" required
+              class="file-input-modern">
+          </div>
+        </div>
+
+        <div class="modal-footer-modern">
+          <button type="button" class="btn-secondary-modern" (click)="closeTelexModal()">Cancel</button>
+          <button type="submit" class="btn-primary-modern" [disabled]="isSubmittingTelex">
+            <span *ngIf="!isSubmittingTelex">Submit Application</span>
+            <span *ngIf="isSubmittingTelex">
+              <svg class="spinner-small" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+              Uploading...
+            </span>
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
+</div>
+
+<!-- Logout Spinner Overlay -->
+<div class="logout-overlay" *ngIf="isLoggingOut">
+  <div class="logout-spinner"></div>
+  <p>Logging out...</p>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-backdrop-modern" [class.show]="isSuccessModalOpen" (click)="isSuccessModalOpen = false">
+  <div class="success-modal" (click)="$event.stopPropagation()">
+    <div class="success-icon-circle">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    </div>
+    <h3>Success!</h3>
+    <p>Telex application has been submitted successfully.</p>
+    <button class="btn-primary-modern" (click)="isSuccessModalOpen = false">Close</button>
   </div>
 </div>

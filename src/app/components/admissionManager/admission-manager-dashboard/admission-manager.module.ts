@@ -1,26 +1,41 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdmissionManagerDashboard } from './admission-manager-dashboard';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
-// 1. IMPORT THE ROUTING MODULE
+// Routing
 import { AdmissionManagerRoutingModule } from './admission-manager-routing.module';
+
+// Components
+import { AdmissionManagerDashboard } from './admission-manager-dashboard';
+
+// Charts (Required for the Graphs)
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
+
+// Angular Material (Optional: The new dashboard uses custom CSS, but keeping these is fine)
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatIcon } from "@angular/material/icon";
 import { MatFormFieldModule } from "@angular/material/form-field";
-import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [AdmissionManagerDashboard],
+  declarations: [
+    AdmissionManagerDashboard
+  ],
   imports: [
     CommonModule,
     HttpClientModule,
-    // 2. ADD IT TO THE 'imports' ARRAY
+    FormsModule,
     AdmissionManagerRoutingModule,
+    // Critical for Graphs:
+    BaseChartDirective,
+    // Material Modules (Safe to keep):
     MatProgressSpinner,
     MatIcon,
-    MatFormFieldModule,
-    FormsModule
-]
+    MatFormFieldModule
+  ],
+  providers: [
+    // Critical for Chart.js registration:
+    provideCharts(withDefaultRegisterables())
+  ]
 })
 export class AdmissionManagerModule { }

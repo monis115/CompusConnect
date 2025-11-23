@@ -10,7 +10,7 @@ describe('AdmissionManagerDashboard', () => {
     await TestBed.configureTestingModule({
       declarations: [AdmissionManagerDashboard]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AdmissionManagerDashboard);
     component = fixture.componentInstance;

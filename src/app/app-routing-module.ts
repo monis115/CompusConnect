@@ -14,12 +14,13 @@ import { AdmissionManagerUpdate } from './components/admin/admission-manager-upd
 import { ActiveAdmissionManager } from './components/admin/active-admission-manager/active-admission-manager';
 import { StudentAgentDetails } from './components/admin/student-agent-details/student-agent-details';
 import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-details';
+import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
 
 const routes: Routes = [
   { path: '', component: Home },
   { path: 'StudentLogin', component: StudentLogin },
   { path: 'AdminLogin', component: AdminLogin },
-  
+
   // Admin Dashboard Routes
   {
     path: 'admin-dashboard',
@@ -42,24 +43,28 @@ const routes: Routes = [
       { path: 'addmission-manager-registration', component: AddmissionManagerRegistration, data: { section: 'admission-managers' } },
       { path: 'admission-manager-access', component: AdmissionManagerAccessCollege },
       { path: 'update-admission-manager-details', component: AdmissionManagerUpdate },
-      {path: 'active-admission-manager', component:ActiveAdmissionManager },
-      {path: 'student-agent-details', component:StudentAgentDetails },
-      {path: 'all-agent-details', component:AllAgentDetails }
+      { path: 'active-admission-manager', component: ActiveAdmissionManager },
+      { path: 'student-agent-details', component: StudentAgentDetails },
+      { path: 'all-agent-details', component: AllAgentDetails }
     ]
   },
-  
+
   // Agent Dashboard Routes (Lazy Loaded Module) - NO AUTH GUARD
   {
     path: 'agent-dashboard',
     loadChildren: () => import('../app/components/agent/agent-dashboard/agent.module').then(m => m.AgentModule)
   },
   // Add this route inside your routes array (after agent-dashboard or before wildcard)
-{
-  path: 'admission-manager-dashboard',
-  loadChildren: () => import('../app/components/admissionManager/admission-manager-dashboard/admission-manager.module')
-    .then(m => m.AdmissionManagerModule)
-},
-  
+  {
+    path: 'admission-manager-dashboard',
+    loadChildren: () => import('../app/components/admissionManager/admission-manager-dashboard/admission-manager.module')
+      .then(m => m.AdmissionManagerModule)
+  },
+  {
+    path: 'university-dashboard',
+    component: UniversityPersonDashboard
+  },
+
   // Wildcard route
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

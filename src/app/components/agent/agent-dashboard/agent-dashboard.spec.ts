@@ -17,7 +17,7 @@ describe('AgentDashboard', () => {
         FormsModule              // <-- 6. Add
       ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AgentDashboard);
     component = fixture.componentInstance;
