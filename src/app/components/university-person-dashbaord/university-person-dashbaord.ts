@@ -1,6 +1,11 @@
-// university-person-dashboard.component.ts
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectorRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { finalize } from 'rxjs/operators';
+import { UniversityService, DashboardStats, StatusBreakdown, AdmittedStudent } from '../../services/university.service';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 
+// Interfaces
 interface College {
   id: number;
   collegeName: string;
@@ -10,254 +15,549 @@ interface College {
 
 interface Student {
   id: number;
+  applicationId: string;
   fullName: string;
   applicationStatus: string;
   passportNo: string;
   dob: string;
+  age: number;
   email: string;
   contactNo: string;
   appliedFor: string;
   intake: string;
-  admissionLetterPath?: string | null;
+  action?: string | null;
+  actionOnUser?: string | null;
+  createdAt: string;
+  passportPath?: string;
+  adhaarPath?: string;
+  markseetPath?: string;
+  confirmationPagePath?: string;
+  admissionLetterPath?: string;
+  conditionalOfferLetterPath?: string;
   profileImagePath?: string;
+  class12thMarks?: number;
+  maxMarks?: number;
+  class12thPassingYear?: string;
+  baords?: string;
+  neetScore?: number;
+  neetYear?: number;
+  mothersName?: string;
+  fathersName?: string;
+  address?: string;
+  emergencyContactNo?: string;
+  emergencyRelation?: string;
+  hasGivenNEET?: boolean;
 }
 
 interface UniversityPerson {
   id: number;
   userName: string;
   role: string;
+  status: string;
   college: College;
   students: Student[];
 }
 
 @Component({
-  selector: 'app-university-person-dashboard',
+  selector: 'app-university-person-dashbaord',
   standalone: false,
   templateUrl: './university-person-dashbaord.html',
   styleUrls: ['./university-person-dashbaord.css']
-
 })
 export class UniversityPersonDashboard implements OnInit {
-  // Data signals
+  // Data Signals
   universityData = signal<UniversityPerson | null>(null);
+  isLoading = signal<boolean>(true);
+  isRefreshing = signal<boolean>(false);
 
   // UI State
   activeSection = signal<string>('dashboard');
-  sidebarOpen = signal<boolean>(true);
-  searchTerm = signal<string>('');
+  sidebarCollapsed = signal<boolean>(false);
+  searchQuery = signal<string>('');
 
-  // Modal State
+  // Modal States
   isModalOpen = signal<boolean>(false);
+  isUploadModalOpen = signal<boolean>(false);
+  isSuccessModalOpen = signal<boolean>(false);
+  isDocViewModalOpen = signal<boolean>(false);
+  isLoggingOut = signal<boolean>(false);
+
   selectedStudent = signal<Student | null>(null);
+  selectedStudentForUpload = signal<Student | null>(null);
+  selectedStudentForDocs = signal<Student | null>(null);
   selectedFile = signal<File | null>(null);
   isUploading = signal<boolean>(false);
-  uploadProgress = signal<number>(0);
+  uploadSuccess = signal<boolean>(false);
+  uploadMessage = signal<string>('');
 
-  // Toast State
-  toastMessage = signal<string | null>(null);
-  toastType = signal<'success' | 'error'>('success');
+  // Analytics Signals
+  dashboardStats = signal<DashboardStats | null>(null);
+  statusBreakdown = signal<StatusBreakdown[]>([]);
+  admittedStudentsList = signal<AdmittedStudent[]>([]);
+  admittedStudentsSearch = signal<string>('');
 
-  // Computed values
   stats = computed(() => {
     const students = this.universityData()?.students || [];
+    const actionRequiredCount = this.actionRequiredStudents().length;
+
+    const totalStudents = students.length;
+    const admittedCount = students.filter(s =>
+      s.applicationStatus === 'ADMISSION_LETTER_GENERATED' ||
+      s.admissionLetterPath
+    ).length;
+    const pendingCount = students.filter(s =>
+      s.applicationStatus === 'FORWARDED_TO_UNI' ||
+      s.applicationStatus === 'CONDITIONAL_OFFER_LETTER_GENERATED' ||
+      s.applicationStatus === 'PENDING_ADMISSION_LETTER'
+    ).length;
+    const visaStamped = students.filter(s => s.applicationStatus === 'VISA_STAMPED').length;
+
     return {
-      total: students.length,
-      pending: students.filter(s => s.applicationStatus === 'FORWARDED_TO_UNI').length,
-      approved: students.filter(s => s.applicationStatus === 'ADMISSION_LETTER_APPROVED').length,
-      processed: students.filter(s =>
-        s.applicationStatus === 'ADMISSION_LETTER_GENERATED' ||
-        s.applicationStatus === 'ADMISSION_LETTER_APPROVED' ||
-        s.applicationStatus === 'VISA_STAMPED'
-      ).length
+      totalStudents,
+      admittedStudents: admittedCount,
+      pendingApplications: pendingCount,
+      visaStamped,
+      actionRequired: actionRequiredCount
     };
   });
 
-  filteredStudents = computed(() => {
-    const students = this.universityData()?.students || [];
-    const term = this.searchTerm().toLowerCase();
-    if (!term) return students;
+  // Chart Data
+  public pieChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom',
+        labels: {
+          color: '#2c3e50',
+          font: { family: 'Inter', size: 12 },
+          padding: 15,
+          usePointStyle: true
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        padding: 12,
+        titleFont: { size: 14, weight: 'bold' },
+        bodyFont: { size: 13 }
+      }
+    }
+  };
 
-    return students.filter(student =>
-      student.fullName.toLowerCase().includes(term) ||
-      student.passportNo.toLowerCase().includes(term) ||
-      student.email.toLowerCase().includes(term)
-    );
-  });
+  public pieChartData: ChartData<'pie', number[], string | string[]> = {
+    labels: [],
+    datasets: [{ data: [], backgroundColor: [], hoverBackgroundColor: [] }]
+  };
+  public pieChartType: ChartType = 'pie';
+
+  public barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#546e7a', font: { family: 'Inter', size: 11 } }
+      },
+      y: {
+        min: 0,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { color: '#546e7a', font: { family: 'Inter', size: 11 } }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        padding: 12,
+        titleFont: { size: 14, weight: 'bold' },
+        bodyFont: { size: 13 }
+      }
+    }
+  };
+
+  public barChartData: ChartData<'bar'> = {
+    labels: ['Registered', 'Forwarded', 'Admitted', 'Visa Stamped'],
+    datasets: [
+      {
+        data: [0, 0, 0, 0],
+        label: 'Student Pipeline',
+        backgroundColor: ['#630018', '#8a0f2e', '#c5a059', '#137333'],
+        borderRadius: 8,
+        borderSkipped: false
+      }
+    ]
+  };
+  public barChartType: ChartType = 'bar';
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private universityService: UniversityService
+  ) { }
 
   ngOnInit() {
     this.loadData();
   }
 
   loadData() {
-    const mockResponse: UniversityPerson = {
-      id: 1,
-      userName: "UE12345",
-      role: "UniversityCoordinator",
-      college: {
-        id: 1,
-        collegeName: "National University of Uzbekistan",
-        city: "Tashkent",
-        country: "Uzbekistan"
-      },
-      students: [
-        {
-          id: 1,
-          fullName: "Rohit Verma",
-          dob: "2003-11-25",
-          applicationStatus: "ADMISSION_LETTER_APPROVED",
-          email: "rohit.verma@example.com",
-          contactNo: "9876543333",
-          passportNo: "P3333333",
-          intake: "Sept 2024",
-          appliedFor: "MBBS",
-          admissionLetterPath: "uploads/admission-letters/...",
-          profileImagePath: "uploads/profile/..."
+    const username = sessionStorage.getItem('userId');
+    if (!username) {
+      this.router.navigate(['/admin-login']);
+      return;
+    }
+
+    this.isLoading.set(true);
+    const apiUrl = `http://localhost:8080/api/universityPerson/username/${username}`;
+
+    this.http.get<UniversityPerson>(apiUrl)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (data) => {
+          this.universityData.set(data);
+          this.updateChartData();
+          this.loadAnalytics(username);
         },
-        {
-          id: 6,
-          fullName: "Mashkoor",
-          dob: "2003-11-25",
-          applicationStatus: "VISA_STAMPED",
-          email: "mashkoor@gmail.com",
-          contactNo: "9876543333",
-          passportNo: "P3333333",
-          intake: "Sept 2024",
-          appliedFor: "MBBS",
-          profileImagePath: "uploads/profile/..."
-        },
-        {
-          id: 99,
-          fullName: "Sarah Jenkins",
-          dob: "2004-05-12",
-          applicationStatus: "FORWARDED_TO_UNI",
-          email: "sarah.j@example.com",
-          contactNo: "9988776655",
-          passportNo: "X998877",
-          intake: "Sept 2024",
-          appliedFor: "BDS"
-        },
-        {
-          id: 100,
-          fullName: "Amit Kumar",
-          dob: "2003-08-15",
-          applicationStatus: "FORWARDED_TO_UNI",
-          email: "amit.k@example.com",
-          contactNo: "9876541234",
-          passportNo: "P7654321",
-          intake: "Sept 2024",
-          appliedFor: "MBBS"
+        error: (err) => {
+          console.error('Error fetching data:', err);
+          if (err.status === 401 || err.status === 403) {
+            this.router.navigate(['/admin-login']);
+          }
         }
-      ]
+      });
+  }
+
+  updateChartData() {
+    const students = this.universityData()?.students || [];
+
+    // Status breakdown for pie chart
+    const statusCounts = new Map<string, number>();
+    students.forEach(s => {
+      const count = statusCounts.get(s.applicationStatus) || 0;
+      statusCounts.set(s.applicationStatus, count + 1);
+    });
+
+    const labels: string[] = [];
+    const data: number[] = [];
+    const colors = ['#630018', '#8a0f2e', '#c5a059', '#137333', '#1967d2', '#b06000'];
+    const bgColors: string[] = [];
+    const hoverColors: string[] = [];
+
+    let colorIndex = 0;
+    statusCounts.forEach((count, status) => {
+      labels.push(this.formatStatusLabel(status));
+      data.push(count);
+      bgColors.push(colors[colorIndex % colors.length]);
+      hoverColors.push(this.lightenColor(colors[colorIndex % colors.length]));
+      colorIndex++;
+    });
+
+    this.pieChartData = {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: bgColors,
+        hoverBackgroundColor: hoverColors
+      }]
     };
 
-    this.universityData.set(mockResponse);
+    // Pipeline bar chart
+    const registered = students.filter(s => s.applicationStatus === 'REGISTERED').length;
+    const forwarded = students.filter(s => s.applicationStatus === 'FORWARDED_TO_UNI').length;
+    const admitted = students.filter(s => s.applicationStatus === 'ADMISSION_LETTER_GENERATED' || s.admissionLetterPath).length;
+    const visaStamped = students.filter(s => s.applicationStatus === 'VISA_STAMPED').length;
+
+    this.barChartData = {
+      labels: ['Registered', 'Forwarded', 'Admitted', 'Visa Stamped'],
+      datasets: [{
+        data: [registered, forwarded, admitted, visaStamped],
+        label: 'Student Pipeline',
+        backgroundColor: ['#630018', '#8a0f2e', '#c5a059', '#137333'],
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    };
   }
 
-  // Helper Methods
-  getInitials(name: string): string {
-    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  formatStatusLabel(status: string): string {
+    return status.split('_').map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
   }
 
-  formatStatus(status: string): string {
-    return status.replace(/_/g, ' ');
+  lightenColor(color: string): string {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.8)`;
   }
 
-  getStatusClass(status: string): string {
-    const baseClass = 'status-';
-    return baseClass + status.toLowerCase();
+  loadAnalytics(username: string) {
+    this.universityService.getDashboardStats(username).subscribe(stats => {
+      this.dashboardStats.set(stats);
+    });
+
+    this.universityService.getStatusBreakdown(username).subscribe(data => {
+      this.statusBreakdown.set(data);
+    });
+
+    this.universityService.getAdmittedStudents(username).subscribe(students => {
+      this.admittedStudentsList.set(students);
+    });
   }
 
-  // Navigation
+  refreshData() {
+    this.isRefreshing.set(true);
+
+    setTimeout(() => {
+      this.loadData();
+      setTimeout(() => {
+        this.isRefreshing.set(false);
+        this.cdr.detectChanges();
+      }, 100);
+    }, 1900);
+  }
+
+  onSearchInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery.set(input.value);
+  }
+
+  clearSearch() {
+    this.searchQuery.set('');
+  }
+
+  toggleSidebar() {
+    this.sidebarCollapsed.update(collapsed => !collapsed);
+  }
+
   setActiveSection(section: string) {
     this.activeSection.set(section);
   }
 
-  toggleSidebar() {
-    this.sidebarOpen.set(!this.sidebarOpen());
-  }
+  // Computed Lists
+  actionRequiredStudents = computed(() => {
+    const students = this.universityData()?.students || [];
+    const query = this.searchQuery().toLowerCase();
+    return students.filter(s =>
+      s.action === 'UPLOAD_ADMISSION_LETTER' &&
+      (s.actionOnUser === 'UniversityCoordinator' || s.actionOnUser === 'UNIVERSITY_COORDINATOR') &&
+      (s.fullName.toLowerCase().includes(query) ||
+        s.passportNo.toLowerCase().includes(query) ||
+        s.email.toLowerCase().includes(query) ||
+        s.appliedFor.toLowerCase().includes(query))
+    );
+  });
 
-  // Search
-  onSearchChange(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchTerm.set(value);
-  }
+  inPipelineStudents = computed(() => {
+    const students = this.universityData()?.students || [];
+    const query = this.searchQuery().toLowerCase();
+    return students.filter(s =>
+      s.applicationStatus !== 'VISA_STAMPED' &&
+      s.applicationStatus !== 'REGISTERED' &&
+      (s.fullName.toLowerCase().includes(query) ||
+        s.passportNo.toLowerCase().includes(query) ||
+        s.email.toLowerCase().includes(query) ||
+        s.appliedFor.toLowerCase().includes(query))
+    );
+  });
 
-  // Modal Actions
+  admissionLetterGeneratedStudents = computed(() => {
+    const students = this.universityData()?.students || [];
+    const query = this.searchQuery().toLowerCase();
+    return students.filter(s =>
+      (s.applicationStatus === 'ADMISSION_LETTER_GENERATED' || s.admissionLetterPath) &&
+      (s.fullName.toLowerCase().includes(query) ||
+        s.passportNo.toLowerCase().includes(query) ||
+        s.email.toLowerCase().includes(query) ||
+        s.appliedFor.toLowerCase().includes(query))
+    );
+  });
+
+  allStudents = computed(() => {
+    const students = this.universityData()?.students || [];
+    const query = this.searchQuery().toLowerCase();
+    return students.filter(s =>
+      s.fullName.toLowerCase().includes(query) ||
+      s.passportNo.toLowerCase().includes(query) ||
+      s.email.toLowerCase().includes(query) ||
+      s.appliedFor.toLowerCase().includes(query)
+    );
+  });
+
+  filteredAdmittedStudents = computed(() => {
+    const students = this.admittedStudentsList();
+    const query = this.admittedStudentsSearch().toLowerCase();
+    return students.filter(s =>
+      s.fullName.toLowerCase().includes(query) ||
+      s.passportNumber.toLowerCase().includes(query) ||
+      s.courseName.toLowerCase().includes(query)
+    );
+  });
+
+  // Upload Logic
   openUploadModal(student: Student) {
-    this.selectedStudent.set(student);
-    this.isModalOpen.set(true);
+    this.selectedStudentForUpload.set(student);
     this.selectedFile.set(null);
-    this.uploadProgress.set(0);
+    this.uploadSuccess.set(false);
+    this.isUploadModalOpen.set(true);
   }
 
   closeModal() {
-    if (this.isUploading()) return;
     this.isModalOpen.set(false);
     this.selectedStudent.set(null);
-    this.selectedFile.set(null);
   }
 
-  // File Handling
+  closeUploadModal() {
+    if (!this.isUploading()) {
+      this.isUploadModalOpen.set(false);
+      this.selectedStudentForUpload.set(null);
+      this.selectedFile.set(null);
+      this.uploadSuccess.set(false);
+    }
+  }
+
+  closeSuccessModal() {
+    this.isSuccessModalOpen.set(false);
+    this.uploadMessage.set('');
+  }
+
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedFile.set(input.files[0]);
+      const file = input.files[0];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
+      if (file.size > maxSize) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        alert('Only PDF, JPG, and PNG files are allowed');
+        return;
+      }
+
+      this.selectedFile.set(file);
     }
   }
 
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-      this.selectedFile.set(event.dataTransfer.files[0]);
-    }
+  uploadAdmissionLetter() {
+    this.submitAdmissionLetter();
   }
 
-  clearFile(event: Event) {
-    event.stopPropagation();
-    this.selectedFile.set(null);
-  }
+  submitAdmissionLetter() {
+    const student = this.selectedStudentForUpload();
+    const file = this.selectedFile();
+    const username = sessionStorage.getItem('userId');
 
-  // Upload
-  submitUpload() {
-    if (!this.selectedFile() || !this.selectedStudent()) return;
+    if (!student || !file || !username) return;
 
     this.isUploading.set(true);
-    this.uploadProgress.set(0);
 
-    const interval = setInterval(() => {
-      const current = this.uploadProgress();
-      if (current >= 100) {
-        clearInterval(interval);
-        this.finishUpload();
-      } else {
-        this.uploadProgress.set(current + 10);
-      }
-    }, 200);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('universityPersonUsername', username);
+
+    const apiUrl = `http://localhost:8080/api/universityPerson/upload-admission-letter/${student.id}`;
+
+    this.http.post(apiUrl, formData)
+      .pipe(finalize(() => this.isUploading.set(false)))
+      .subscribe({
+        next: (response) => {
+          this.updateLocalDataAfterUpload(student.id);
+
+          // Close upload modal immediately (don't use closeUploadModal as it checks isUploading)
+          this.isUploadModalOpen.set(false);
+          this.selectedStudentForUpload.set(null);
+          this.selectedFile.set(null);
+          this.uploadSuccess.set(false);
+
+          // Show success modal
+          this.uploadMessage.set(`Admission letter uploaded successfully for ${student.fullName}`);
+          this.isSuccessModalOpen.set(true);
+
+          setTimeout(() => {
+            this.refreshData();
+          }, 2000);
+        },
+        error: (err) => {
+          console.error('Upload failed', err);
+          alert('Upload failed. Please try again.');
+        }
+      });
   }
 
-  finishUpload() {
-    const studentId = this.selectedStudent()?.id;
-
-    this.universityData.update(data => {
-      if (!data) return null;
-      const updatedStudents = data.students.map(s => {
+  private updateLocalDataAfterUpload(studentId: number) {
+    this.universityData.update(current => {
+      if (!current) return null;
+      const updatedStudents = current.students.map(s => {
         if (s.id === studentId) {
-          return { ...s, applicationStatus: 'ADMISSION_LETTER_GENERATED' };
+          return {
+            ...s,
+            action: null,
+            actionOnUser: null,
+            applicationStatus: 'ADMISSION_LETTER_GENERATED'
+          };
         }
         return s;
       });
-      return { ...data, students: updatedStudents };
+      return { ...current, students: updatedStudents };
     });
-
-    this.isUploading.set(false);
-    this.closeModal();
-    this.showToast(`Admission Letter uploaded for ${this.selectedStudent()?.fullName}`, 'success');
   }
 
-  // Toast
-  showToast(message: string, type: 'success' | 'error') {
-    this.toastMessage.set(message);
-    this.toastType.set(type);
-    setTimeout(() => this.toastMessage.set(null), 4000);
+  // Document Viewer
+  openDocViewer(student: Student) {
+    this.selectedStudentForDocs.set(student);
+    this.isDocViewModalOpen.set(true);
+  }
+
+  closeDocViewer() {
+    this.isDocViewModalOpen.set(false);
+    this.selectedStudentForDocs.set(null);
+  }
+
+  downloadDocument(path: string, fileName: string) {
+    if (!path) return;
+    const fullUrl = `http://localhost:8080/${path}`;
+    window.open(fullUrl, '_blank');
+  }
+
+  getDocumentIcon(path: string): string {
+    if (!path) return 'file';
+    const ext = path.split('.').pop()?.toLowerCase();
+    if (ext === 'pdf') return 'pdf';
+    if (['jpg', 'jpeg', 'png'].includes(ext || '')) return 'image';
+    return 'file';
+  }
+
+  // Logout
+  logout() {
+    this.isLoggingOut.set(true);
+
+    setTimeout(() => {
+      sessionStorage.clear();
+      this.router.navigate(['/AdminLogin']);
+    }, 2000);
+  }
+
+  getInitials(name: string): string {
+    if (!name) return 'U';
+    const words = name.trim().split(' ');
+    if (words.length === 1) return words[0].charAt(0).toUpperCase();
+    return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+  }
+
+  getDocumentFileName(path: string): string {
+    if (!path) return 'N/A';
+    return path.split('/').pop() || 'Document';
+  }
+
+  formatPercentage(value: number, total: number): string {
+    if (total === 0) return '0%';
+    return `${Math.round((value / total) * 100)}%`;
   }
 }

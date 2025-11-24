@@ -1,5 +1,15 @@
 <div class="dashboard-wrapper">
-  <aside class="sidebar">
+  <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+    <button class="sidebar-toggle" (click)="toggleSidebar()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        *ngIf="!isSidebarCollapsed">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        *ngIf="isSidebarCollapsed">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
     <div class="sidebar-header">
       <div class="brand">
         <div class="brand-logo">
@@ -8,13 +18,13 @@
             <path d="M6 12v5c3 3 9 3 12 0v-5" />
           </svg>
         </div>
-        <span class="brand-name">CampusConnect</span>
+        <span class="brand-name" *ngIf="!isSidebarCollapsed">CampusConnect</span>
       </div>
     </div>
 
     <div class="sidebar-content">
       <nav class="nav-menu">
-        <div class="nav-label">Overview</div>
+        <div class="nav-label" *ngIf="!isSidebarCollapsed">Overview</div>
         <a class="nav-link" [class.active]="activeView === 'dashboard'" (click)="switchView('dashboard')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7"></rect>
@@ -22,10 +32,10 @@
             <rect x="14" y="14" width="7" height="7"></rect>
             <rect x="3" y="14" width="7" height="7"></rect>
           </svg>
-          <span>Dashboard</span>
+          <span *ngIf="!isSidebarCollapsed">Dashboard</span>
         </a>
 
-        <div class="nav-label" style="margin-top: 20px;">Workflow</div>
+        <div class="nav-label" style="margin-top: 20px;" *ngIf="!isSidebarCollapsed">Workflow</div>
         <a class="nav-link" [class.active]="activeView === 'actions-required'" (click)="switchView('actions-required')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -33,7 +43,7 @@
             <line x1="8" y1="2" x2="8" y2="6"></line>
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
-          <span>Actions Required</span>
+          <span *ngIf="!isSidebarCollapsed">Actions Required</span>
           <span class="nav-badge warning" *ngIf="actionRequiredStudents.length">{{actionRequiredStudents.length}}</span>
         </a>
 
@@ -43,7 +53,7 @@
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
-          <span>Pending University</span>
+          <span *ngIf="!isSidebarCollapsed">Pending University</span>
           <span class="nav-badge" *ngIf="pendingUniversityStudents.length">{{pendingUniversityStudents.length}}</span>
         </a>
 
@@ -55,7 +65,7 @@
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span>In Processing</span>
+          <span *ngIf="!isSidebarCollapsed">In Processing</span>
           <span class="nav-badge" *ngIf="processingStudents.length">{{processingStudents.length}}</span>
         </a>
 
@@ -64,12 +74,40 @@
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
-          <span>All Students</span>
+          <span *ngIf="!isSidebarCollapsed">All Students</span>
+        </a>
+
+        <div class="nav-label" style="margin-top: 20px;" *ngIf="!isSidebarCollapsed">Management</div>
+
+        <a class="nav-link" [class.active]="activeView === 'reports'" (click)="switchView('reports')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span *ngIf="!isSidebarCollapsed">Reports</span>
+        </a>
+
+        <a class="nav-link" [class.active]="activeView === 'payment'" (click)="switchView('payment')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+          <span *ngIf="!isSidebarCollapsed">Payment</span>
+        </a>
+
+        <a class="nav-link" [class.active]="activeView === 'profile'" (click)="switchView('profile')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+          <span *ngIf="!isSidebarCollapsed">Profile</span>
         </a>
       </nav>
     </div>
 
-    <div class="sidebar-footer">
+    <div class="sidebar-footer" *ngIf="!isSidebarCollapsed">
       <div class="user-profile" *ngIf="managerData">
         <div class="user-avatar">
           {{managerData.fullName.charAt(0)}}
@@ -98,6 +136,9 @@
         <h1 *ngIf="activeView === 'pending-university'">Pending Response</h1>
         <h1 *ngIf="activeView === 'processing'">In Processing</h1>
         <h1 *ngIf="activeView === 'completed'">All Students</h1>
+        <h1 *ngIf="activeView === 'reports'">Reports</h1>
+        <h1 *ngIf="activeView === 'payment'">Payments</h1>
+        <h1 *ngIf="activeView === 'profile'">My Profile</h1>
         <p>Manage your student pipeline & workflow</p>
       </div>
 
@@ -338,6 +379,54 @@
           </table>
         </div>
       </div>
+
+
+      <!-- Profile View -->
+      <div class="profile-view-container" *ngIf="!isLoading && activeView === 'profile' && managerData" [@fadeIn]>
+        <div class="profile-card-large">
+          <div class="profile-header-bg"></div>
+          <div class="profile-content">
+            <div class="profile-avatar-large">
+              {{managerData.fullName.charAt(0)}}
+            </div>
+            <div class="profile-info-main">
+              <h2>{{managerData.fullName}}</h2>
+              <span class="role-badge">Admission Manager</span>
+            </div>
+
+            <div class="profile-details-grid">
+              <div class="detail-item">
+                <label>Username</label>
+                <span>{{managerData.username}}</span>
+              </div>
+              <div class="detail-item">
+                <label>Role ID</label>
+                <span>#{{managerData.id}}</span>
+              </div>
+              <div class="detail-item">
+                <label>Status</label>
+                <span class="status-active">Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Placeholder Views for Reports & Payment -->
+      <div class="placeholder-view" *ngIf="!isLoading && (activeView === 'reports' || activeView === 'payment')"
+        [@fadeIn]>
+        <div class="placeholder-content">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+            stroke-dasharray="4 4">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <h3>Coming Soon</h3>
+          <p>This module is currently under development.</p>
+        </div>
+      </div>
+
     </div>
 
     <button class="floating-refresh-btn" [class.spinning]="isRefreshing" (click)="refreshData()" title="Refresh Data">
@@ -501,6 +590,10 @@
               <a *ngIf="selectedStudent.admissionLetterPathInternal"
                 [href]="getDocUrl(selectedStudent.admissionLetterPathInternal)" target="_blank" class="doc-tile">
                 <div class="doc-name">Admission Letter</div>
+              </a>
+              <a *ngIf="selectedStudent.conditionalOfferLetterPath"
+                [href]="getDocUrl(selectedStudent.conditionalOfferLetterPath)" target="_blank" class="doc-tile">
+                <div class="doc-name">Conditional Offer</div>
               </a>
               <div *ngIf="!selectedStudent.passportPath && !selectedStudent.markseetPath"
                 style="color: #94a3b8; font-style: italic;">No documents available.</div>

@@ -18,6 +18,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 // Lucide Icons
 import {
@@ -82,6 +84,8 @@ import { ActiveAdmissionManager } from './components/admin/active-admission-mana
 import { StudentAgentDetails } from './components/admin/student-agent-details/student-agent-details';
 import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-details';
 import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
+import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
+import { ReplaceUnderscorePipe } from './pipes/replace-underscore.pipe';
 
 @NgModule({
   declarations: [
@@ -100,7 +104,8 @@ import { UniversityPersonDashboard } from './components/university-person-dashba
     ActiveAdmissionManager,
     StudentAgentDetails,
     AllAgentDetails,
-    UniversityPersonDashboard
+    UniversityPersonDashboard,
+    DocPersonDashbaord
   ],
   imports: [
     BrowserModule,
@@ -110,6 +115,8 @@ import { UniversityPersonDashboard } from './components/university-person-dashba
     ReactiveFormsModule,
     HttpClientModule,
     MatTableModule,
+    MatSelectModule,
+    BaseChartDirective,
     MatIconModule,
     MatBadgeModule,
     MatCardModule,
@@ -160,9 +167,11 @@ import { UniversityPersonDashboard } from './components/university-person-dashba
       Info,
       Edit3,
       Database
-    })
+    }),
+    ReplaceUnderscorePipe
   ],
   providers: [
+    provideCharts(withDefaultRegisterables()),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideClientHydration(withEventReplay())

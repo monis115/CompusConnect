@@ -71,7 +71,7 @@ export interface UploadLetterResponse {
 export class ManagerDataService {
   private baseUrl = 'http://localhost:8080/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getManagerData(username = 'M2501287'): Observable<ManagerData> {
     return this.http

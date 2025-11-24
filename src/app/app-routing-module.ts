@@ -15,6 +15,7 @@ import { ActiveAdmissionManager } from './components/admin/active-admission-mana
 import { StudentAgentDetails } from './components/admin/student-agent-details/student-agent-details';
 import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-details';
 import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
+import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -63,6 +64,10 @@ const routes: Routes = [
   {
     path: 'university-dashboard',
     component: UniversityPersonDashboard
+  },
+  {
+    path: 'doc-manager-dashboard',
+    component: DocPersonDashbaord
   },
 
   // Wildcard route

@@ -153,7 +153,7 @@ export class AdminLogin {
                 this.router.navigate(['/doc-manager-dashboard']); // Assuming route exists
                 break;
               case 'universitycoordinator':
-                this.router.navigate(['/university-dashboard']); // Assuming route exists
+                this.router.navigate(['/university-dashboard']);
                 break;
               case 'student':
                 this.router.navigate(['/student-dashboard']);

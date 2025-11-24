@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AdminAuthService } from '../../../services/admin-auth-service';
-import { AgentService, AgentData, Student, College, Location as AgentLocation } from '../../../services/agent.service';
+import { AgentService, AgentData, Student, College, Location as AgentLocation, DashboardStats, StatusBreakdown, DashboardActivity } from '../../../services/agent.service';
 import { HttpClient } from '@angular/common/http';
 
 // --- Updated Enum based on your provided list ---
@@ -60,9 +60,10 @@ export class AgentDashboard implements OnInit {
   public readonly StudentStatus = StudentStatus;
 
   // --- View State ---
-  currentView: 'dashboard' | 'students' | 'register' | 'profile' | 'student-detail' = 'dashboard';
+  currentView: 'dashboard' | 'students' | 'register' | 'profile' | 'student-detail' | 'action' | 'in-process' | 'visa-stamped' | 'reports' | 'payments' = 'dashboard';
   isLoading = true;
   isRefreshing = false;
+  isReloadingData = false; // For floating button
   isSidebarCollapsed = false;
   error: string | null = null;
 
@@ -73,6 +74,12 @@ export class AgentDashboard implements OnInit {
 
   // --- Stats & Widgets ---
   stats = { totalStudents: 0, pending: 0, approved: 0, completed: 0, rejected: 0 };
+
+  // --- New Dashboard Data ---
+  dashboardStats: DashboardStats | null = null;
+  statusBreakdown: StatusBreakdown[] = [];
+  recentActivities: DashboardActivity[] = [];
+
   dashboardTasks: any[] = [];
   collegeDistribution: any[] = [];
 
@@ -116,44 +123,91 @@ export class AgentDashboard implements OnInit {
   }
 
   // --- Core Data Loading ---
+
+
+  refreshDashboard(): void {
+    this.isReloadingData = true;
+    this.cdr.detectChanges();
+
+    // 1.9 second delay as requested
+    setTimeout(() => {
+      this.loadAgentData();
+    }, 1900);
+  }
+
+  // --- Data Loading Internal ---
+  private loadDataInternal(username: string): void {
+    this.agentService.getAgentProfile(username).subscribe({
+      next: (data: AgentData) => {
+        this.agentData = data;
+        this.students = data.student || [];
+
+        this.calculateStats();
+        this.generateDashboardTasks();
+        this.generateCollegeDistribution();
+
+        // Fetch new dashboard data
+        this.fetchDashboardData(username);
+
+        this.isLoading = false;
+        this.isRefreshing = false;
+        this.isReloadingData = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch agent profile:', err);
+        this.error = 'Failed to load data.';
+        this.isLoading = false;
+        this.isRefreshing = false;
+        this.isReloadingData = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   loadAgentData(): void {
-    this.isLoading = true;
+    // If it's a full reload (not refresh), show main loader
+    if (!this.isReloadingData && !this.isRefreshing) {
+      this.isLoading = true;
+    }
     this.cdr.detectChanges();
 
     const authUser = this.authService.getUserData();
 
     if (authUser && authUser.username) {
-      this.agentService.getAgentProfile(authUser.username).subscribe({
-        next: (data: AgentData) => {
-          this.agentData = data;
-          this.students = data.student || [];
-
-          this.calculateStats();
-          this.generateDashboardTasks();
-          this.generateCollegeDistribution();
-
-          this.isLoading = false;
-          this.isRefreshing = false;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('Failed to fetch agent profile:', err);
-          this.error = 'Failed to load data.';
-          this.isLoading = false;
-          this.isRefreshing = false;
-          this.cdr.detectChanges();
-        }
-      });
+      this.loadDataInternal(authUser.username);
     } else {
       this.error = 'Not authenticated.';
       this.isLoading = false;
+      this.isReloadingData = false;
       this.cdr.detectChanges();
     }
   }
 
-  refreshDashboard(): void {
-    this.isRefreshing = true;
-    this.loadAgentData();
+  fetchDashboardData(username: string): void {
+    this.agentService.getDashboardStats(username).subscribe({
+      next: (stats) => {
+        this.dashboardStats = stats;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to fetch dashboard stats', err)
+    });
+
+    this.agentService.getStatusBreakdown(username).subscribe({
+      next: (breakdown) => {
+        this.statusBreakdown = breakdown;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to fetch status breakdown', err)
+    });
+
+    this.agentService.getRecentActivities(username).subscribe({
+      next: (activities) => {
+        this.recentActivities = activities;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to fetch recent activities', err)
+    });
   }
 
   // --- Logic ---
@@ -213,6 +267,54 @@ export class AgentDashboard implements OnInit {
     this.currentView = 'student-detail';
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this.cdr.detectChanges();
+  }
+
+  get filteredStudents(): Student[] {
+    let filtered = this.students;
+
+    // 1. View Filtering
+    if (this.currentView === 'visa-stamped') {
+      filtered = filtered.filter(s => s.applicationStatus === 'VISA_STAMPED');
+    } else if (this.currentView === 'action') {
+      // Show students where Action is required by Agent or those with ADMISSION_LETTER_APPROVED status
+      filtered = filtered.filter(s =>
+        s['actionOnUser'] === 'AGENT' ||
+        s['actionOnUser'] === 'agent' ||
+        s.applicationStatus === StudentStatus.ADMISSION_LETTER_APPROVED ||
+        (s['action'] === 'INITIATE_TELEX' && s['actionOnUser'] === 'agent')
+      );
+    } else if (this.currentView === 'in-process') {
+      // "put all student in m process section" - User Request
+      // We will show all students here as requested
+      filtered = this.students;
+    }
+
+    // 2. Search Filtering
+    if (this.searchQuery) {
+      const query = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(s =>
+        s.fullName.toLowerCase().includes(query) ||
+        s.email.toLowerCase().includes(query) ||
+        (s.college?.collegeName || '').toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }
+
+  getViewTitle(): string {
+    switch (this.currentView) {
+      case 'dashboard': return 'Dashboard';
+      case 'students': return 'All Students';
+      case 'in-process': return 'In Process';
+      case 'visa-stamped': return 'Visa Stamped';
+      case 'action': return 'Action Required';
+      case 'reports': return 'Reports';
+      case 'payments': return 'Payments';
+      case 'register': return 'Register New';
+      case 'profile': return 'My Profile';
+      default: return 'Dashboard';
+    }
   }
 
   // --- Helper Methods ---

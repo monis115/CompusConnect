@@ -799,6 +799,144 @@
   background: linear-gradient(135deg, var(--danger), #DC2626);
 }
 
+/* === New Dashboard Grid === */
+.dashboard-grid-new {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* === Chart Styles === */
+.chart-body {
+  padding: 24px;
+  min-height: 300px;
+}
+
+.simple-bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chart-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.chart-label {
+  width: 140px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-align: right;
+}
+
+.chart-bar-container {
+  flex: 1;
+  height: 12px;
+  background: rgba(226, 232, 240, 0.5);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.chart-bar {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1s ease-out;
+}
+
+.chart-value {
+  width: 40px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* === Activities Styles === */
+.activities-body {
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activities-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-item:hover {
+  background: rgba(99, 102, 241, 0.02);
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8);
+}
+
+.activity-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.activity-student {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.activity-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.activity-status {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.activity-remarks {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-style: italic;
+}
+
 .rejected-info h4 {
   font-size: 16px;
   font-weight: 600;
@@ -2111,4 +2249,89 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* === Floating Refresh Button === */
+.floating-refresh-btn {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floating-refresh-btn:hover {
+  transform: scale(1.1) rotate(180deg);
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.4);
+}
+
+.floating-refresh-btn:active {
+  transform: scale(0.95);
+}
+
+.floating-refresh-btn.spinning svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* === Placeholder Container === */
+.placeholder-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 400px;
+  text-align: center;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  border: 2px dashed var(--border);
+  margin: 32px;
+  padding: 48px;
+}
+
+.placeholder-icon {
+  width: 96px;
+  height: 96px;
+  background: var(--bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.placeholder-container h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.placeholder-container p {
+  color: var(--text-muted);
+  font-size: 16px;
+  max-width: 400px;
 }

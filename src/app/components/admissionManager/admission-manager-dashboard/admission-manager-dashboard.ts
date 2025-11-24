@@ -60,6 +60,7 @@ interface Student {
   college: { id: number; collegeName: string } | null;
   // Docs
   confirmationPagePath: string | null;
+  conditionalOfferLetterPath: string | null;
   admissionLetterPathInternal: string | null;
   profileImagePath: string | null;
   // Workflow
@@ -72,11 +73,23 @@ interface Student {
   studentStatusHistory: StatusHistory[];
 }
 
+interface College {
+  id: number;
+  collegeName: string;
+  city: string;
+  country: string;
+  universityPerson: {
+    id: number;
+    userName: string;
+    students: Student[];
+  };
+}
+
 interface ManagerData {
   id: number;
   fullName: string;
   username: string;
-  students: Student[];
+  colleges: College[];
 }
 
 interface DashboardStats {
@@ -132,7 +145,8 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   availableVisaManagers: string[] = [];
 
   // Views & Lists
-  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' = 'dashboard';
+  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' = 'dashboard';
+  isSidebarCollapsed = false;
   actionRequiredStudents: Student[] = [];
   pendingUniversityStudents: Student[] = [];
   processingStudents: Student[] = [];
@@ -231,7 +245,12 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   }
 
   refreshData(): void {
-    this.loadInitialData(false);
+    this.isRefreshing = true;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.loadInitialData(false);
+    }, 1900);
   }
 
   loadInitialData(isInitial: boolean): void {
@@ -339,8 +358,17 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   }
 
   categorizeStudents(): void {
-    if (!this.managerData || !this.managerData.students) return;
-    this.allStudents = this.managerData.students;
+    if (!this.managerData || !this.managerData.colleges) {
+      return;
+    }
+
+    // Extract all students from all colleges -> universityPerson -> students
+    this.allStudents = [];
+    for (const college of this.managerData.colleges) {
+      if (college.universityPerson && college.universityPerson.students) {
+        this.allStudents.push(...college.universityPerson.students);
+      }
+    }
 
     this.actionRequiredStudents = this.allStudents.filter(s => s.actionOnUser === 'admission_manager');
     this.pendingUniversityStudents = this.allStudents.filter(s => s.actionOnUser === 'UniversityCoordinator');
@@ -360,6 +388,11 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     } else {
       this.filterStudents();
     }
+    this.cdr.detectChanges();
+  }
+
+  toggleSidebar(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
     this.cdr.detectChanges();
   }
 
@@ -430,7 +463,12 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     }
 
     if (actionObs) {
-      actionObs.subscribe({
+      actionObs.pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+        })
+      ).subscribe({
         next: () => {
           let msg = 'Action completed successfully.';
           if (this.actionType === 'forward') msg = 'Student Forwarded Successfully!';
@@ -446,7 +484,6 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   }
 
   finishAction(message: string): void {
-    this.isSubmitting = false;
     this.showActionModal = false;
     this.cdr.detectChanges();
 
@@ -463,7 +500,6 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   handleError(err: any): void {
     console.error(err);
-    this.isSubmitting = false;
     alert('Action failed. Please check console.');
     this.cdr.detectChanges();
   }

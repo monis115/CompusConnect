@@ -118,4 +118,40 @@ export class AgentService {
         formData.append('agentUsername', agentUsername);
         return this.http.post(`${this.baseUrl}/agents/initiate-telex/${studentId}`, formData);
     }
+
+    // --- Dashboard Endpoints ---
+
+    getDashboardStats(username: string): Observable<DashboardStats> {
+        return this.http.get<DashboardStats>(`${this.baseUrl}/agents/${username}/dashboard/stats`);
+    }
+
+    getStatusBreakdown(username: string): Observable<StatusBreakdown[]> {
+        return this.http.get<StatusBreakdown[]>(`${this.baseUrl}/agents/${username}/dashboard/status-breakdown`);
+    }
+
+    getRecentActivities(username: string): Observable<DashboardActivity[]> {
+        return this.http.get<DashboardActivity[]>(`${this.baseUrl}/agents/${username}/dashboard/activities`);
+    }
+}
+
+// --- Dashboard Interfaces ---
+
+export interface DashboardStats {
+    totalStudents: number;
+    activeStudents: number;
+    pendingApplications: number;
+    visaApproved: number;
+    rejected: number;
+}
+
+export interface StatusBreakdown {
+    status: string;
+    count: number;
+}
+
+export interface DashboardActivity {
+    studentName: string;
+    status: string;
+    updatedAt: string;
+    remarks: string | null;
 }
