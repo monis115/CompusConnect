@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* Font Awesome Icons */
+@import url('../node_modules/@fortawesome/fontawesome-free/css/all.min.css');
+
 /* Global Loading Spinner - Yellow Theme */
 
 
@@ -41,8 +44,13 @@
 }
 
 @keyframes globalSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Prevent skeleton loading animations */
@@ -53,8 +61,10 @@
 
 /* Disable skeleton animation globally */
 @keyframes skeleton {
-  0%, 100% { 
-    background-position: 0% 0% !important; 
+
+  0%,
+  100% {
+    background-position: 0% 0% !important;
     opacity: 0 !important;
   }
 }
@@ -86,5 +96,12 @@ body.loading * {
   animation: none !important;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

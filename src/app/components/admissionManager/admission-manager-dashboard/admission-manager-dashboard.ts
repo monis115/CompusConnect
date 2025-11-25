@@ -90,6 +90,7 @@ interface ManagerData {
   fullName: string;
   username: string;
   colleges: College[];
+  students: Student[];
 }
 
 interface DashboardStats {
@@ -362,13 +363,25 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       return;
     }
 
-    // Extract all students from all colleges -> universityPerson -> students
-    this.allStudents = [];
-    for (const college of this.managerData.colleges) {
-      if (college.universityPerson && college.universityPerson.students) {
-        this.allStudents.push(...college.universityPerson.students);
+    // Use a Map to ensure unique students by ID
+    const studentMap = new Map<number, Student>();
+
+    // 1. Add top-level students if available
+    if (this.managerData.students) {
+      this.managerData.students.forEach(s => studentMap.set(s.id, s));
+    }
+
+    // 2. Add nested students from colleges -> universityPerson -> students
+    if (this.managerData.colleges) {
+      for (const college of this.managerData.colleges) {
+        if (college.universityPerson && college.universityPerson.students) {
+          college.universityPerson.students.forEach(s => studentMap.set(s.id, s));
+        }
       }
     }
+
+    this.allStudents = Array.from(studentMap.values());
+    console.log('Total aggregated students:', this.allStudents.length);
 
     this.actionRequiredStudents = this.allStudents.filter(s => s.actionOnUser === 'admission_manager');
     this.pendingUniversityStudents = this.allStudents.filter(s => s.actionOnUser === 'UniversityCoordinator');

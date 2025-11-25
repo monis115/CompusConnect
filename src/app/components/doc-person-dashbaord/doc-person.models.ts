@@ -6,6 +6,8 @@
  * Main Student interface - unified from both component and models
  */
 export interface Student {
+    age: any;
+    address: any;
     // Core Identity
     id: number;
     studentId?: string;
@@ -42,6 +44,7 @@ export interface Student {
     applicationStatus?: string;
     action: string;
     actionOnUser: string;
+    setActionOnUser?: string;
     isTelexDocApproved?: boolean | null;
     docPersonComment?: string | null;
 
@@ -70,11 +73,10 @@ export interface Student {
 export interface DocPersonProfile {
     id?: number;
     username: string;
-    firstName: string;
-    lastName: string;
-    fullName?: string;
+    fullName: string;
     email: string;
     role?: string;
+    contactNumber?: string;
     students?: Student[];
 }
 
