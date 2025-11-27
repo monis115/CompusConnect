@@ -21,25 +21,25 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a (click)="activeTab = 'dashboard'" [class.active]="activeTab === 'dashboard'">
+            <a (click)="setActiveTab('dashboard')" [class.active]="activeTab === 'dashboard'">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
-            <a (click)="activeTab = 'approval'" [class.active]="activeTab === 'approval'" class="nav-item-badge">
+            <a (click)="setActiveTab('approval')" [class.active]="activeTab === 'approval'" class="nav-item-badge">
                 <span><i class="fas fa-check-circle"></i> Approval Required</span>
                 <span *ngIf="approvalList.length > 0" class="badge">{{ approvalList.length }}</span>
             </a>
-            <a (click)="activeTab = 'pipeline'" [class.active]="activeTab === 'pipeline'" class="nav-item-badge">
+            <a (click)="setActiveTab('pipeline')" [class.active]="activeTab === 'pipeline'" class="nav-item-badge">
                 <span><i class="fas fa-clock"></i> In Pipeline</span>
                 <span *ngIf="pipelineList.length > 0" class="badge">{{ pipelineList.length }}</span>
             </a>
-            <a (click)="activeTab = 'students'" [class.active]="activeTab === 'students'" class="nav-item-badge">
-                <span><i class="fas fa-users"></i> All Students</span>
-                <span *ngIf="students.length > 0" class="badge">{{ students.length }}</span>
+            <a (click)="setActiveTab('stamped')" [class.active]="activeTab === 'stamped'" class="nav-item-badge">
+                <span><i class="fas fa-stamp"></i> Stamped</span>
+                <span *ngIf="stampedList.length > 0" class="badge">{{ stampedList.length }}</span>
             </a>
-            <a (click)="activeTab = 'reports'" [class.active]="activeTab === 'reports'">
+            <a (click)="setActiveTab('reports')" [class.active]="activeTab === 'reports'">
                 <i class="fas fa-chart-line"></i> Reports
             </a>
-            <a (click)="activeTab = 'profile'" [class.active]="activeTab === 'profile'">
+            <a (click)="setActiveTab('profile')" [class.active]="activeTab === 'profile'">
                 <i class="fas fa-user"></i> Profile
             </a>
         </nav>
@@ -73,12 +73,12 @@
                     <span class="shortcut-hint">⌘K</span>
                 </button>
 
-                <button *ngIf="activeTab === 'students'" class="export-btn" (click)="exportToCSV()"
+                <button *ngIf="activeTab === 'stamped'" class="export-btn" (click)="exportToCSV()"
                     title="Export to CSV">
                     <i class="fas fa-download"></i> Export
                 </button>
 
-                <div class="user-profile-pill" (click)="activeTab = 'profile'">
+                <div class="user-profile-pill" (click)="setActiveTab('profile')">
                     <span>{{ docPerson?.fullName || docPerson?.username }}</span>
                     <div class="avatar-sm">{{ getInitials(docPerson?.fullName) }}</div>
                 </div>
@@ -110,7 +110,7 @@
                 class="dashboard-view animate-fade-in">
                 <div class="stats-grid">
                     <!-- Featured Card (Green) -->
-                    <div class="stat-card blue hover-lift" (click)="activeTab = 'students'">
+                    <div class="stat-card blue hover-lift" (click)="setActiveTab('stamped')">
                         <div class="stat-content">
                             <div class="stat-header">
                                 <h3>Total Students</h3>
@@ -127,7 +127,7 @@
                     </div>
 
                     <!-- Secondary Cards -->
-                    <div class="stat-card red hover-lift" (click)="activeTab = 'approval'">
+                    <div class="stat-card red hover-lift" (click)="setActiveTab('approval')">
                         <div class="stat-content">
                             <div class="stat-header">
                                 <h3>Pending Approval</h3>
@@ -143,7 +143,7 @@
                         </div>
                     </div>
 
-                    <div class="stat-card green hover-lift" (click)="activeTab = 'students'">
+                    <div class="stat-card green hover-lift" (click)="setActiveTab('stamped')">
                         <div class="stat-content">
                             <div class="stat-header">
                                 <h3>Approved</h3>
@@ -159,7 +159,7 @@
                         </div>
                     </div>
 
-                    <div class="stat-card purple hover-lift" (click)="activeTab = 'pipeline'">
+                    <div class="stat-card purple hover-lift" (click)="setActiveTab('pipeline')">
                         <div class="stat-content">
                             <div class="stat-header">
                                 <h3>In Pipeline</h3>
@@ -179,13 +179,13 @@
                 <div class="quick-actions">
                     <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
                     <div class="action-buttons">
-                        <button class="action-btn" (click)="activeTab = 'approval'">
+                        <button class="action-btn" (click)="setActiveTab('approval')">
                             <i class="fas fa-file-check"></i>
                             <span>Review Pending</span>
                         </button>
-                        <button class="action-btn" (click)="activeTab = 'students'">
-                            <i class="fas fa-list"></i>
-                            <span>View All</span>
+                        <button class="action-btn" (click)="setActiveTab('stamped')">
+                            <i class="fas fa-stamp"></i>
+                            <span>View Stamped</span>
                         </button>
                         <button class="action-btn" (click)="exportToCSV()">
                             <i class="fas fa-download"></i>
@@ -291,7 +291,7 @@
             </div>
 
             <!-- STUDENTS / PIPELINE VIEW -->
-            <div *ngIf="(activeTab === 'students' || activeTab === 'pipeline') && !isLoading && !errorState.hasError"
+            <div *ngIf="(activeTab === 'stamped' || activeTab === 'pipeline') && !isLoading && !errorState.hasError"
                 class="table-view animate-fade-in">
 
                 <!-- Search & Filter Bar -->
@@ -785,9 +785,9 @@
                         <i class="fas fa-check-circle"></i>
                         <span>Go to Approval Required</span>
                     </div>
-                    <div class="command-item" (click)="executeCommand('students')">
-                        <i class="fas fa-users"></i>
-                        <span>Go to All Students</span>
+                    <div class="command-item" (click)="executeCommand('stamped')">
+                        <i class="fas fa-stamp"></i>
+                        <span>Go to Stamped</span>
                     </div>
                 </div>
                 <div class="command-group">
@@ -806,11 +806,20 @@
     </div>
 
     <!-- FLOATING ACTION BUTTON -->
-    <div class="fab-container" *ngIf="activeTab === 'students' || activeTab === 'approval'">
+    <div class="fab-container" *ngIf="activeTab === 'pipeline' || activeTab === 'stamped' || activeTab === 'approval'">
         <button class="fab ripple-effect" [title]="activeTab === 'approval' ? 'Quick Approve' : 'Quick Actions'"
             (click)="activeTab === 'approval' ? bulkApprove() : selectAllVisible()">
             <i class="fas fa-bolt"></i>
         </button>
+    </div>
+
+    <!-- PREMIUM SPINNER OVERLAY -->
+    <div class="spinner-overlay" *ngIf="isSubmitting">
+        <div class="premium-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-core"></div>
+        </div>
+        <p class="spinner-text">Processing...</p>
     </div>
 
 </div>

@@ -1,0 +1,126 @@
+<div class="chat-container">
+    <!-- Sidebar -->
+    <div class="chat-sidebar">
+        <div class="sidebar-header">
+            <button class="btn-new-chat" (click)="openNewChatModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                New chat
+            </button>
+        </div>
+
+        <div class="chat-list">
+            <div class="chat-item" *ngFor="let student of activeChats"
+                [class.active]="selectedStudent?.id === student.id" (click)="selectChat(student)">
+                <div class="avatar">{{ student.name.charAt(0) }}</div>
+                <div class="chat-info">
+                    <span class="chat-name">{{ getStudentDisplayName(student) }}</span>
+                    <span class="chat-preview">Click to view messages</span>
+                </div>
+            </div>
+
+            <div class="empty-sidebar" *ngIf="activeChats.length === 0">
+                <p>No active conversations</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="chat-main">
+        <ng-container *ngIf="selectedStudent; else noChatSelected">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="avatar-sm">{{ selectedStudent.name.charAt(0) }}</div>
+                <div class="header-info">
+                    <h2>{{ getStudentDisplayName(selectedStudent) }}</h2>
+                    <span class="status-indicator">Active</span>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="messages-area" #scrollContainer>
+                <div class="message-group" *ngFor="let msg of messages" [class.sent]="msg.senderRole === 'AGENT'"
+                    [class.received]="msg.senderRole !== 'AGENT'">
+                    <div class="message-bubble">
+                        {{ msg.content }}
+                        <span class="message-time" *ngIf="msg.timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+                    </div>
+                </div>
+
+                <div class="loading-messages" *ngIf="isLoadingMessages">
+                    <div class="spinner-sm"></div>
+                </div>
+
+                <div class="empty-messages" *ngIf="!isLoadingMessages && messages.length === 0">
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <input type="text" placeholder="Type a message..." [(ngModel)]="newMessage"
+                        (keyup.enter)="sendMessage()">
+                    <button class="btn-send" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </ng-container>
+
+        <ng-template #noChatSelected>
+            <div class="no-chat-state">
+                <div class="no-chat-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <h3>Start a conversation</h3>
+                <p>Select a student from the sidebar or start a new chat.</p>
+                <button class="btn-primary" (click)="openNewChatModal()">Start New Chat</button>
+            </div>
+        </ng-template>
+    </div>
+</div>
+
+<!-- New Chat Modal -->
+<div class="modal-overlay" *ngIf="isNewChatModalOpen" (click)="closeNewChatModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>New Chat</h3>
+            <button class="btn-close" (click)="closeNewChatModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="search-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery"
+                    (ngModelChange)="onSearchChange()">
+            </div>
+            <div class="student-list">
+                <div class="student-item" *ngFor="let student of filteredStudents" (click)="startChat(student)">
+                    <div class="avatar-sm">{{ student.name.charAt(0) }}</div>
+                    <div class="student-info">
+                        <span class="student-name">{{ getStudentDisplayName(student) }}</span>
+                        <span class="student-id">ID: {{ student.id }}</span>
+                    </div>
+                </div>
+                <div class="empty-search" *ngIf="filteredStudents.length === 0">
+                    No students found
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -50,4 +50,18 @@ export class AdmissionManagerService {
     assignVisaManager(studentId: number, payload: any): Observable<any> {
         return this.http.post(`${this.apiBaseUrl}/api/visa/assign/${studentId}`, payload);
     }
+
+    // --- Messaging ---
+
+    getManagerMessages(managerId: number): Observable<any> {
+        return this.http.get(`${this.apiBaseUrl}/api/messages/manager/${managerId}`);
+    }
+
+    getStudentMessages(studentId: number): Observable<any> {
+        return this.http.get(`${this.apiBaseUrl}/api/messages/student/${studentId}`);
+    }
+
+    sendMessage(payload: any): Observable<any> {
+        return this.http.post(`${this.apiBaseUrl}/api/messages/send`, payload);
+    }
 }

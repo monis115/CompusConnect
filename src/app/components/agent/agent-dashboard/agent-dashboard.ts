@@ -60,7 +60,7 @@ export class AgentDashboard implements OnInit {
   public readonly StudentStatus = StudentStatus;
 
   // --- View State ---
-  currentView: 'dashboard' | 'students' | 'register' | 'profile' | 'student-detail' | 'action' | 'in-process' | 'visa-stamped' | 'reports' | 'payments' = 'dashboard';
+  currentView: 'dashboard' | 'students' | 'register' | 'profile' | 'student-detail' | 'action' | 'in-process' | 'visa-stamped' | 'reports' | 'payments' | 'messages' = 'dashboard';
   isLoading = true;
   isRefreshing = false;
   isReloadingData = false; // For floating button
@@ -285,8 +285,8 @@ export class AgentDashboard implements OnInit {
       );
     } else if (this.currentView === 'in-process') {
       // "put all student in m process section" - User Request
-      // We will show all students here as requested
-      filtered = this.students;
+      // We will show all students here as requested, but EXCLUDE VISA_STAMPED
+      filtered = this.students.filter(s => s.applicationStatus !== 'VISA_STAMPED');
     }
 
     // 2. Search Filtering
@@ -313,6 +313,7 @@ export class AgentDashboard implements OnInit {
       case 'payments': return 'Payments';
       case 'register': return 'Register New';
       case 'profile': return 'My Profile';
+      case 'messages': return 'Messages';
       default: return 'Dashboard';
     }
   }
@@ -343,6 +344,22 @@ export class AgentDashboard implements OnInit {
   }
 
   // --- Additional Stats Methods ---
+  getAllStudentsCount(): number {
+    return this.students ? this.students.length : 0;
+  }
+
+  getActionRequiredCount(): number {
+    return this.dashboardTasks ? this.dashboardTasks.length : 0;
+  }
+
+  getMessagesCount(): number {
+    return 0; // Placeholder
+  }
+
+  getInProcessCount(): number {
+    return this.students ? this.students.filter(s => s.applicationStatus !== 'VISA_STAMPED').length : 0;
+  }
+
   getVisaStampedCount(): number {
     return this.students.filter(s => s.applicationStatus === 'VISA_STAMPED').length;
   }

@@ -89,6 +89,14 @@
           <span *ngIf="!isSidebarCollapsed">Reports</span>
         </a>
 
+        <a class="nav-link" [class.active]="activeView === 'messages'" (click)="switchView('messages')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span *ngIf="!isSidebarCollapsed">Messages</span>
+          <span class="nav-badge" *ngIf="getMessagesCount() > 0">{{ getMessagesCount() }}</span>
+        </a>
+
         <a class="nav-link" [class.active]="activeView === 'payment'" (click)="switchView('payment')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
@@ -139,6 +147,7 @@
         <h1 *ngIf="activeView === 'reports'">Reports</h1>
         <h1 *ngIf="activeView === 'payment'">Payments</h1>
         <h1 *ngIf="activeView === 'profile'">My Profile</h1>
+        <h1 *ngIf="activeView === 'messages'">Messages</h1>
         <p>Manage your student pipeline & workflow</p>
       </div>
 
@@ -275,7 +284,7 @@
           </div>
         </div>
       </div>
-      <div class="list-view-container" *ngIf="!isLoading && activeView !== 'dashboard'">
+      <div class="list-view-container" *ngIf="!isLoading && activeView !== 'dashboard' && activeView !== 'messages'">
 
         <div class="empty-state" *ngIf="filteredList.length === 0">
           <div class="empty-icon">
@@ -410,6 +419,11 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Messages View -->
+      <div class="message-view-container" *ngIf="!isLoading && activeView === 'messages'">
+        <app-message-dashboard-admission-manager></app-message-dashboard-admission-manager>
       </div>
 
       <!-- Placeholder Views for Reports & Payment -->

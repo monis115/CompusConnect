@@ -86,6 +86,8 @@ import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-
 import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
 import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
 import { ReplaceUnderscorePipe } from './pipes/replace-underscore.pipe';
+import { MessageDashboardAdmissionManager } from './components/admissionManager/message-dashboard-admission-manager/message-dashboard-admission-manager';
+
 
 @NgModule({
   declarations: [

@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import {
   Student,
   DocPersonProfile,
-  DocPersonResponse,
   VerificationPayload,
   PaginationConfig,
   FilterConfig,
@@ -39,10 +38,17 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // STATE MANAGEMENT
   // ============================================
-  activeTab: 'dashboard' | 'approval' | 'pipeline' | 'students' | 'reports' | 'profile' = 'dashboard';
+  activeTab: 'dashboard' | 'approval' | 'pipeline' | 'stamped' | 'reports' | 'profile' = 'dashboard';
   isLoading: boolean = false;
   isLoggingOut: boolean = false;
   isDarkMode: boolean = false;
+
+  setActiveTab(tab: 'dashboard' | 'approval' | 'pipeline' | 'stamped' | 'reports' | 'profile'): void {
+    this.activeTab = tab;
+    this.pagination.currentPage = 1; // Reset pagination
+    this.applyFilters(); // Re-apply filters based on the new tab
+    this.cdr.detectChanges();
+  }
 
   // Interactive Features
   bulkSelectedIds: Set<number> = new Set();
@@ -63,6 +69,7 @@ export class DocPersonDashbaord implements OnInit {
   approvalList: Student[] = [];
   filteredApprovalList: Student[] = []; // For approval tab search
   pipelineList: Student[] = [];
+  stampedList: Student[] = [];
   filteredStudents: Student[] = [];
 
   // Search for Approval Tab specifically
@@ -206,10 +213,10 @@ export class DocPersonDashbaord implements OnInit {
 
     const username = sessionStorage.getItem('username') || 'DOC_001';
 
-    this.http.get<DocPersonResponse>(`${this.API_ENDPOINT}/username/${username}`)
+    this.http.get<DocPersonProfile>(`${this.API_ENDPOINT}/username/${username}`)
       .subscribe({
         next: (data) => {
-          this.docPerson = data.docPerson;
+          this.docPerson = data;
           this.students = this.normalizeStudentData(data.students || []);
           this.processStudents();
           this.calculateStats();
@@ -274,8 +281,7 @@ export class DocPersonDashbaord implements OnInit {
   }
 
   processStudents(): void {
-    // Filter logic: action 'CONFIRM_DOCS' and setActionOnUser 'doc_manager'
-    // Using setActionOnUser as per user requirement, falling back to actionOnUser if needed
+    // 1. Approval List: action 'CONFIRM_DOCS' and setActionOnUser 'doc_manager'
     this.approvalList = this.students.filter(s =>
       s.action === 'CONFIRM_DOCS' && (s.setActionOnUser === 'doc_manager' || s.actionOnUser === 'doc_manager')
     );
@@ -283,10 +289,15 @@ export class DocPersonDashbaord implements OnInit {
     // Initialize filtered list for approval tab
     this.filteredApprovalList = [...this.approvalList];
 
-    // Pipeline: All students MINUS those in approvalList AND MINUS those with VISA_STAMPED
+    // 2. Stamped List: applicationStatus is 'VISA_STAMPED'
+    this.stampedList = this.students.filter(s =>
+      s.applicationStatus === 'VISA_STAMPED'
+    );
+
+    // 3. Pipeline List: All remaining students (NOT in approvalList AND NOT in stampedList)
     this.pipelineList = this.students.filter(s =>
       !this.approvalList.includes(s) &&
-      s.applicationStatus !== 'VISA_STAMPED'
+      !this.stampedList.includes(s)
     );
 
     // Initialize main table
@@ -298,7 +309,7 @@ export class DocPersonDashbaord implements OnInit {
       totalStudents: this.students.length,
       pendingApproval: this.approvalList.length,
       inPipeline: this.pipelineList.length,
-      approved: this.students.filter(s => s.isTelexDocApproved === true).length,
+      approved: this.stampedList.length, // Using Stamped count for "Approved" stat
       rejected: this.students.filter(s => s.isTelexDocApproved === false).length
     };
   }
@@ -307,9 +318,21 @@ export class DocPersonDashbaord implements OnInit {
   // SEARCH & FILTER
   // ============================================
 
-  // 1. Main Student List Filter
+  // 1. Main Student List Filter (Handles both Stamped and Pipeline tabs)
   applyFilters(): void {
-    let results = [...this.students];
+    let sourceList: Student[] = [];
+
+    // Determine source list based on active tab
+    if (this.activeTab === 'stamped') {
+      sourceList = [...this.stampedList];
+    } else if (this.activeTab === 'pipeline') {
+      sourceList = [...this.pipelineList];
+    } else {
+      // Fallback or for other tabs if needed
+      sourceList = [...this.students];
+    }
+
+    let results = sourceList;
 
     // Search filter
     if (this.filters.searchQuery.trim()) {
@@ -413,6 +436,8 @@ export class DocPersonDashbaord implements OnInit {
     this.approvalComment = '';
   }
 
+  isSubmitting: boolean = false;
+
   submitVerification(isApproved: boolean): void {
     if (!this.selectedStudent) return;
 
@@ -425,19 +450,24 @@ export class DocPersonDashbaord implements OnInit {
       action: isApproved ? 'APPROVE_TELEX_DOCS' : 'REJECT_TELEX_DOCS'
     };
 
-    this.isLoading = true;
+    this.isSubmitting = true; // Use specific submitting state for spinner
 
     // Using the same endpoint, backend handles true/false
     this.http.post(`${this.API_ENDPOINT}/verify-telex-docs/${this.selectedStudent.id}`, payload)
       .subscribe({
         next: () => {
-          this.isLoading = false;
+          this.isSubmitting = false;
           this.successType = isApproved ? 'approval' : 'rejection';
           this.successMessage = isApproved
             ? `Documents successfully verified for ${this.selectedStudent?.fullName}.`
             : `Documents rejected for ${this.selectedStudent?.fullName}. Sent back for review.`;
 
+          // Close approval modal FIRST
+          this.closeApprovalModal();
+
+          // Then show success modal
           this.showSuccessModal = true;
+
           this.showToast(isApproved ? 'success' : 'warning', this.successMessage);
 
           // Trigger confetti celebration on approval
@@ -445,13 +475,13 @@ export class DocPersonDashbaord implements OnInit {
             this.triggerConfetti();
           }
 
-          this.closeApprovalModal();
           this.fetchDashboardData(); // Refresh to remove from list
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Error submitting verification', err);
           this.handleError(err);
-          this.isLoading = false;
+          this.isSubmitting = false;
           this.cdr.detectChanges();
         }
       });
@@ -487,7 +517,7 @@ export class DocPersonDashbaord implements OnInit {
       'dashboard': 'fas fa-th-large',
       'approval': 'fas fa-check-circle',
       'pipeline': 'fas fa-clock',
-      'students': 'fas fa-users',
+      'stamped': 'fas fa-stamp',
       'reports': 'fas fa-chart-line',
       'profile': 'fas fa-user'
     };
@@ -588,8 +618,8 @@ export class DocPersonDashbaord implements OnInit {
       case 'approval':
         this.activeTab = 'approval';
         break;
-      case 'students':
-        this.activeTab = 'students';
+      case 'stamped':
+        this.activeTab = 'stamped';
         break;
       case 'dark-mode':
         this.toggleDarkMode();

@@ -7,11 +7,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; 
 import { AgentRoutingModule } from './agent-routing.module';
 import { AgentDashboard } from './agent-dashboard';
 import { AgentStudentResgistration } from '../agent-student-resgistration/agent-student-resgistration';
+import { MessageDashboard } from '../message-dashboard/message-dashboard';
 
 @NgModule({
   declarations: [
     AgentDashboard,
-    AgentStudentResgistration
+    AgentStudentResgistration,
+    MessageDashboard
   ],
   imports: [
     CommonModule,       // <-- ADDED

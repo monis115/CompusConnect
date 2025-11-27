@@ -760,7 +760,7 @@
 /* --- Floating Refresh --- */
 .floating-refresh-btn {
   position: absolute;
-  bottom: 40px;
+  bottom: 120px;
   right: 40px;
   width: 60px;
   height: 60px;
@@ -1360,4 +1360,17 @@
   animation: spin 1s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
   margin-bottom: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Message View Container --- */
+.message-view-container {
+  position: absolute;
+  top: 80px;
+  /* Height of top-bar */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  z-index: 10;
+  overflow: hidden;
 }

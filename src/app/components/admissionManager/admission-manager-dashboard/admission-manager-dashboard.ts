@@ -146,7 +146,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   availableVisaManagers: string[] = [];
 
   // Views & Lists
-  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' = 'dashboard';
+  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' = 'dashboard';
   isSidebarCollapsed = false;
   actionRequiredStudents: Student[] = [];
   pendingUniversityStudents: Student[] = [];
@@ -159,6 +159,10 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   isRefreshing = false;
   isSubmitting = false;
   searchTerm = '';
+
+  getMessagesCount(): number {
+    return 0; // Placeholder for now
+  }
 
   // Modals
   showStudentDetail = false;

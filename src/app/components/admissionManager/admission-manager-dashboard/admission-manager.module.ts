@@ -8,6 +8,7 @@ import { AdmissionManagerRoutingModule } from './admission-manager-routing.modul
 
 // Components
 import { AdmissionManagerDashboard } from './admission-manager-dashboard';
+import { MessageDashboardAdmissionManager } from '../message-dashboard-admission-manager/message-dashboard-admission-manager';
 
 // Charts (Required for the Graphs)
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
@@ -17,9 +18,11 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatIcon } from "@angular/material/icon";
 import { MatFormFieldModule } from "@angular/material/form-field";
 
+
 @NgModule({
   declarations: [
-    AdmissionManagerDashboard
+    AdmissionManagerDashboard,
+    MessageDashboardAdmissionManager
   ],
   imports: [
     CommonModule,

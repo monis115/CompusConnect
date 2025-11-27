@@ -179,6 +179,22 @@
   transform: scaleY(1);
 }
 
+.sidebar-badge {
+  margin-left: auto;
+  padding: 2px 8px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.nav-item.active .sidebar-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--primary-light);
+}
+
 .sidebar-footer {
   padding: 20px 16px;
   border-top: 1px solid var(--border);
@@ -2254,7 +2270,7 @@
 /* === Floating Refresh Button === */
 .floating-refresh-btn {
   position: fixed;
-  bottom: 32px;
+  bottom: 100px;
   right: 32px;
   width: 56px;
   height: 56px;
