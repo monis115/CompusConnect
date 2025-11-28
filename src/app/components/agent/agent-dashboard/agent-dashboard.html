@@ -98,7 +98,7 @@
       </button>
     </nav>
     <div class="sidebar-footer">
-      <button class="nav-item logout-btn" (click)="logout()">
+      <button class="nav-item logout-btn" (click)="openLogoutModal()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
           <polyline points="16 17 21 12 16 7" />
@@ -1098,10 +1098,59 @@
   </div>
 </div>
 
+<!-- Premium Logout Confirmation Modal -->
+<div class="logout-modal-overlay" *ngIf="isLogoutModalOpen" (click)="cancelLogout()">
+  <div class="logout-modal-content" (click)="$event.stopPropagation()">
+    <div class="logout-modal-header">
+      <div class="logout-icon-container">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="12" r="1" fill="currentColor"></circle>
+          <circle cx="8" cy="12" r="1" fill="currentColor"></circle>
+          <circle cx="16" cy="12" r="1" fill="currentColor"></circle>
+        </svg>
+      </div>
+      <h2>Message Box Check</h2>
+      <p class="logout-modal-subtitle">Before logging out, please confirm</p>
+    </div>
+
+    <div class="logout-modal-body">
+      <div class="logout-warning-card">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <div class="warning-text">
+          <h3>Have you checked your message box?</h3>
+          <p>Make sure you've reviewed all your messages before logging out. Missing important messages may delay
+            student processing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="logout-modal-footer">
+      <button class="btn-logout-cancel" (click)="cancelLogout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        No, Let Me Check
+      </button>
+      <button class="btn-logout-confirm" (click)="confirmLogout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Yes, Logout
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Logout Spinner Overlay -->
 <div class="logout-overlay" *ngIf="isLoggingOut">
   <div class="logout-spinner"></div>
-  <p>Logging out...</p>
+  <p>{{ currentLogoutMessage }}</p>
 </div>
 
 <!-- Success Modal -->

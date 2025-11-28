@@ -97,6 +97,33 @@ export class AgentDashboard implements OnInit {
   isSuccessModalOpen = false;
   studentForTelex: Student | null = null;
 
+  // --- Logout Confirmation Modal ---
+  isLogoutModalOpen = false;
+
+  // --- Logout Messages ---
+  logoutMessages = [
+    'Great work today! See you soon!',
+    'You made a difference today! Rest well!',
+    'Your dedication inspires us! Come back refreshed!',
+    'Another day of excellence! Take care!',
+    'Thank you for your amazing efforts! Until next time!',
+    'You are a star! See you tomorrow!',
+    'Mission accomplished! Time to recharge!',
+    'Your hard work matters! Stay blessed!',
+    'Take a moment to celebrate your wins! Bye for now!',
+    'Goals achieved! You deserve a break!',
+    'Your positive energy brightens our day! See you!',
+    'Creativity and dedication - you have both! Rest up!',
+    'Strong work ethic! Time to relax!',
+    'Keep blooming! We appreciate you!',
+    'You bring harmony to the team! Until next time!',
+    'Champion mindset! Take a well-deserved break!',
+    'Stars shine brighter because of people like you! Goodnight!',
+    'Your transformation of students\' lives is beautiful! See you!',
+    'You are precious to this team! Stay safe!'
+  ];
+  currentLogoutMessage = '';
+
   telexForm: TelexFormData = {
     passportValidationDate: '',
     telexPaymentAmount: null,
@@ -488,12 +515,33 @@ export class AgentDashboard implements OnInit {
 
   isLoggingOut = false;
 
-  logout(): void {
+  openLogoutModal(): void {
+    this.isLogoutModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelLogout(): void {
+    this.isLogoutModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmLogout(): void {
+    this.isLogoutModalOpen = false;
+    this.currentLogoutMessage = this.getRandomLogoutMessage();
     this.isLoggingOut = true;
     this.cdr.detectChanges();
     setTimeout(() => {
       this.authService.logout();
       this.router.navigate(['/AdminLogin']);
-    }, 1900);
+    }, 2900);
+  }
+
+  logout(): void {
+    this.openLogoutModal();
+  }
+
+  getRandomLogoutMessage(): string {
+    const randomIndex = Math.floor(Math.random() * this.logoutMessages.length);
+    return this.logoutMessages[randomIndex];
   }
 }

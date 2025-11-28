@@ -159,6 +159,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   isRefreshing = false;
   isSubmitting = false;
   searchTerm = '';
+  isLoadingMessages = false;
 
   getMessagesCount(): number {
     return 0; // Placeholder for now
@@ -169,6 +170,31 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   showActionModal = false;
   showSuccessModal = false;
   successModalMessage = '';
+
+  // --- Logout Confirmation Modal & Messages ---
+  isLogoutModalOpen = false;
+  logoutMessages = [
+    'Great work today! See you soon!',
+    'You made a difference today! Rest well!',
+    'Your dedication inspires us! Come back refreshed!',
+    'Another day of excellence! Take care!',
+    'Thank you for your amazing efforts! Until next time!',
+    'You are a star! See you tomorrow!',
+    'Mission accomplished! Time to recharge!',
+    'Your hard work matters! Stay blessed!',
+    'Take a moment to celebrate your wins! Bye for now!',
+    'Goals achieved! You deserve a break!',
+    'Your positive energy brightens our day! See you!',
+    'Creativity and dedication - you have both! Rest up!',
+    'Strong work ethic! Time to relax!',
+    'Keep blooming! We appreciate you!',
+    'You bring harmony to the team! Until next time!',
+    'Champion mindset! Take a well-deserved break!',
+    'Stars shine brighter because of people like you! Goodnight!',
+    'Your transformation of students\' lives is beautiful! See you!',
+    'You are precious to this team! Stay safe!'
+  ];
+  currentLogoutMessage = '';
 
   // Action Logic
   studentForAction: Student | null = null;
@@ -399,7 +425,16 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   switchView(view: typeof this.activeView): void {
     this.activeView = view;
     this.searchTerm = '';
-    if (view === 'dashboard') {
+
+    if (view === 'messages') {
+      this.isLoadingMessages = true;
+      this.cdr.detectChanges();
+      // Simulate loading delay for smooth transition
+      setTimeout(() => {
+        this.isLoadingMessages = false;
+        this.cdr.detectChanges();
+      }, 800);
+    } else if (view === 'dashboard') {
       const username = sessionStorage.getItem('userId');
       if (username) this.loadDashboardStats(username);
     } else {
@@ -559,14 +594,34 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   isLoggingOut = false;
 
-  logout(): void {
+  openLogoutModal(): void {
+    this.isLogoutModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelLogout(): void {
+    this.isLogoutModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmLogout(): void {
+    this.isLogoutModalOpen = false;
+    this.currentLogoutMessage = this.getRandomLogoutMessage();
     this.isLoggingOut = true;
     this.cdr.detectChanges();
-
     setTimeout(() => {
       sessionStorage.clear();
       this.router.navigate(['/AdminLogin']);
-    }, 1900);
+    }, 2900);
+  }
+
+  logout(): void {
+    this.openLogoutModal();
+  }
+
+  getRandomLogoutMessage(): string {
+    const randomIndex = Math.floor(Math.random() * this.logoutMessages.length);
+    return this.logoutMessages[randomIndex];
   }
 
   getDocUrl(path: string | null): string {

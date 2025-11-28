@@ -59,7 +59,7 @@ export class AdminLogin {
     this.isLoading.set(true);
     this.errorMessage.set('');
     this.spinnerPhase.set('validating');
-    this.spinnerText.set('Validating Credentials...');
+    this.spinnerText.set('Validating...');
     this.spinnerIcon.set('shield');
 
     const payload = { userId: this.userId(), password: this.password() };
@@ -79,46 +79,46 @@ export class AdminLogin {
           // Success message based on role
           switch (normalizedRole) {
             case 'admin':
-              this.spinnerText.set('Admin Login Successful');
+              this.spinnerText.set('Admin');
               this.spinnerIcon.set('admin');
               break;
             case 'agent':
-              this.spinnerText.set('Agent Login Successful');
+              this.spinnerText.set('Agent');
               this.spinnerIcon.set('agent');
               break;
             case 'visa_manager':
-            case 'visa-manager': // Handle both potential formats
-              this.spinnerText.set('Visa Manager Login Successful');
+            case 'visa-manager':
+              this.spinnerText.set('Visa Manager');
               this.spinnerIcon.set('visa');
               break;
             case 'admissionmanager':
             case 'admission_manager':
-              this.spinnerText.set('Admission Manager Login Successful');
+              this.spinnerText.set('Admission Manager');
               this.spinnerIcon.set('admission');
               break;
             case 'telex_manager':
-              this.spinnerText.set('Telex Manager Login Successful');
-              this.spinnerIcon.set('telex'); // Ensure icon exists or use default
+              this.spinnerText.set('Telex Manager');
+              this.spinnerIcon.set('telex');
               break;
             case 'accountant':
-              this.spinnerText.set('Accountant Login Successful');
+              this.spinnerText.set('Accountant');
               this.spinnerIcon.set('accountant');
               break;
             case 'doc_manager':
-              this.spinnerText.set('Doc Manager Login Successful');
+              this.spinnerText.set('Doc Manager');
               this.spinnerIcon.set('doc');
               break;
             case 'universitycoordinator':
-              this.spinnerText.set('University Coordinator Login Successful');
+              this.spinnerText.set('University Coordinator');
               this.spinnerIcon.set('university');
               break;
             case 'student':
-              this.spinnerText.set('Student Login Successful');
+              this.spinnerText.set('Student');
               this.spinnerIcon.set('student');
               break;
             default:
               console.warn(`⚠️ Unhandled role for spinner: ${normalizedRole}`);
-              this.spinnerText.set('Login Successful');
+              this.spinnerText.set('Success');
           }
 
           // Navigate after success animation
@@ -169,7 +169,7 @@ export class AdminLogin {
       error: (err: HttpErrorResponse) => {
         setTimeout(() => {
           this.spinnerPhase.set('error');
-          this.spinnerText.set('Login Failed');
+          this.spinnerText.set('Failed');
           this.spinnerIcon.set('error');
 
           setTimeout(() => {

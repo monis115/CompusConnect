@@ -34,7 +34,7 @@
                 <div class="avatar-sm">{{ selectedStudent.name.charAt(0) }}</div>
                 <div class="header-info">
                     <h2>{{ getStudentDisplayName(selectedStudent) }}</h2>
-                    <span class="status-indicator">Active</span>
+                    <span class="status-indicator">Admission Manager</span>
                 </div>
             </div>
 
@@ -49,7 +49,10 @@
                 </div>
 
                 <div class="loading-messages" *ngIf="isLoadingMessages">
-                    <div class="spinner-sm"></div>
+                    <div class="spinner-container">
+                        <div class="spinner"></div>
+                        <p class="loading-text">Loading messages...</p>
+                    </div>
                 </div>
 
                 <div class="empty-messages" *ngIf="!isLoadingMessages && messages.length === 0">
