@@ -19,7 +19,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { provideCharts, withDefaultRegisterables, BaseChartDirective } from 'ng2-charts';
 
 // Lucide Icons
 import {
@@ -86,7 +86,7 @@ import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-
 import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
 import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
 import { ReplaceUnderscorePipe } from './pipes/replace-underscore.pipe';
-import { MessageDashboardAdmissionManager } from './components/admissionManager/message-dashboard-admission-manager/message-dashboard-admission-manager';
+import { TelexManagerDashboard } from './components/telex-manager-dashboard/telex-manager-dashboard';
 
 
 @NgModule({
@@ -107,7 +107,8 @@ import { MessageDashboardAdmissionManager } from './components/admissionManager/
     StudentAgentDetails,
     AllAgentDetails,
     UniversityPersonDashboard,
-    DocPersonDashbaord
+    DocPersonDashbaord,
+    TelexManagerDashboard
   ],
   imports: [
     BrowserModule,
@@ -127,6 +128,7 @@ import { MessageDashboardAdmissionManager } from './components/admissionManager/
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    ReplaceUnderscorePipe,
     LucideAngularModule.pick({
       LayoutDashboard,
       GraduationCap,
@@ -169,8 +171,7 @@ import { MessageDashboardAdmissionManager } from './components/admissionManager/
       Info,
       Edit3,
       Database
-    }),
-    ReplaceUnderscorePipe
+    })
   ],
   providers: [
     provideCharts(withDefaultRegisterables()),

@@ -5,17 +5,55 @@
     <div class="gradient-sphere sphere-2"></div>
     <div class="gradient-sphere sphere-3"></div>
     <div class="grid-overlay"></div>
+
+    <!-- Interactive Particles -->
+    <div class="particles-container">
+      <div *ngFor="let p of particles()" class="particle" [style.left.%]="p.x" [style.top.%]="p.y"
+        [style.width.px]="p.size" [style.height.px]="p.size" [style.animation-duration.s]="p.duration"
+        [style.animation-delay.s]="p.delay">
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Decorative Elements Around Login Card -->
+  <div class="decorative-elements">
+    <!-- Floating Orbs -->
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
+    <div class="floating-orb orb-4"></div>
+
+    <!-- Geometric Shapes -->
+    <div class="geometric-shape shape-circle-1"></div>
+    <div class="geometric-shape shape-circle-2"></div>
+    <div class="geometric-shape shape-square-1"></div>
+    <div class="geometric-shape shape-triangle-1"></div>
+
+    <!-- Animated Lines -->
+    <div class="animated-line line-1"></div>
+    <div class="animated-line line-2"></div>
+    <div class="animated-line line-3"></div>
+
+    <!-- Glowing Dots -->
+    <div class="glowing-dot dot-1"></div>
+    <div class="glowing-dot dot-2"></div>
+    <div class="glowing-dot dot-3"></div>
+    <div class="glowing-dot dot-4"></div>
+    <div class="glowing-dot dot-5"></div>
+    <div class="glowing-dot dot-6"></div>
   </div>
 
   <!-- Main login card -->
-  <div class="login-card">
+  <div class="login-card" #loginCard>
     <!-- Logo/Brand section -->
     <div class="brand-section">
       <div class="logo-container">
         <div class="logo-pulse"></div>
-        <svg class="logo" viewBox="0 0 50 50">
-          <path d="M25 5 L45 15 L45 35 L25 45 L5 35 L5 15 Z" fill="none" stroke="currentColor" stroke-width="2" />
-          <circle cx="25" cy="25" r="8" fill="currentColor" />
+        <!-- Stack of Layers Icon -->
+        <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
         </svg>
       </div>
       <h1 class="brand-title">Login Portal</h1>
@@ -30,7 +68,7 @@
           <input id="userId" type="text" class="form-input" [ngModel]="userId()" name="userId" required
             (input)="onUserIdInput($event)" autocomplete="username">
           <label for="userId" class="form-label">
-            <svg class="label-icon" viewBox="0 0 24 24">
+            <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
             </svg>
             <span>User ID</span>
@@ -45,8 +83,8 @@
           <input id="password" [type]="passwordFieldType()" class="form-input" [ngModel]="password()" name="password"
             required (input)="onPasswordInput($event)" autocomplete="current-password">
           <label for="password" class="form-label">
-            <svg class="label-icon" viewBox="0 0 24 24">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="none" />
+            <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
             <span>Password</span>
@@ -55,11 +93,11 @@
 
           <button type="button" class="toggle-password" (click)="togglePasswordVisibility()"
             [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
-            <svg *ngIf="!showPassword()" viewBox="0 0 24 24">
+            <svg *ngIf="!showPassword()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
-            <svg *ngIf="showPassword()" viewBox="0 0 24 24">
+            <svg *ngIf="showPassword()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path
                 d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
               <line x1="1" y1="1" x2="23" y2="23" />
@@ -69,9 +107,9 @@
       </div>
 
       <!-- Error message -->
-      <div class="error-message" *ngIf="errorMessage()" [@slideIn]>
-        <svg viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" fill="none" stroke-width="2" />
+      <div class="error-message" *ngIf="errorMessage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="8" x2="12" y2="12" />
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
@@ -81,7 +119,7 @@
       <!-- Submit button -->
       <button type="submit" class="submit-button" [disabled]="isLoading()">
         <span class="button-text">Sign In</span>
-        <svg class="button-icon" viewBox="0 0 24 24">
+        <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M5 12h14m-7-7l7 7-7 7" />
         </svg>
       </button>
@@ -90,7 +128,7 @@
     <!-- Footer links -->
     <div class="card-footer">
       <a routerLink="/" class="footer-link">
-        <svg viewBox="0 0 24 24">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5m7-7l-7 7 7 7" />
         </svg>
         Back to Home
@@ -100,7 +138,7 @@
 </div>
 
 <!-- Premium loading spinner -->
-<div class="spinner-overlay" *ngIf="isLoading()" [@fadeIn]>
+<div class="spinner-overlay" *ngIf="isLoading()">
   <div class="spinner-container">
     <!-- Animated rings -->
     <div class="spinner-rings">
@@ -113,62 +151,39 @@
 
       <!-- Center content inside rings -->
       <div class="spinner-center">
-        <!-- Icon -->
-        <div class="spinner-icon" [class.success]="spinnerPhase() === 'success'"
-          [class.error]="spinnerPhase() === 'error'">
-          <!-- Shield icon for validating -->
-          <svg *ngIf="spinnerIcon() === 'shield'" viewBox="0 0 24 24">
+        <!-- Shield icon (Always visible inside ring) -->
+        <div class="spinner-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2l8 4v6c0 5.5-3.5 10.5-8 12-4.5-1.5-8-6.5-8-12V6l8-4z" />
           </svg>
-
-          <!-- Admin icon -->
-          <svg *ngIf="spinnerIcon() === 'admin'" viewBox="0 0 24 24">
-            <path d="M12 2l8 4v6c0 5.5-3.5 10.5-8 12-4.5-1.5-8-6.5-8-12V6l8-4z" />
-            <path d="M12 9a3 3 0 100 6 3 3 0 000-6z" fill="white" />
-            <path d="M12 8V6m0 12v-2" stroke="white" stroke-width="2" />
-          </svg>
-
-          <!-- Agent icon -->
-          <svg *ngIf="spinnerIcon() === 'agent'" viewBox="0 0 24 24">
-            <circle cx="12" cy="8" r="3" />
-            <path d="M16 14h-8c-2 0-4 1.5-4 3.5V20h16v-2.5c0-2-2-3.5-4-3.5z" />
-          </svg>
-
-          <!-- Student icon -->
-          <svg *ngIf="spinnerIcon() === 'student'" viewBox="0 0 24 24">
-            <path d="M12 3L1 9l11 6 9-4.9V17h2V9M5 13.2v4.3c0 1.4 4.1 2.5 7 2.5s7-1.1 7-2.5v-4.3l-7 3.8z" />
-          </svg>
-
-          <!-- Visa manager icon -->
-          <svg *ngIf="spinnerIcon() === 'visa'" viewBox="0 0 24 24">
-            <rect x="3" y="5" width="18" height="14" rx="2" />
-            <path d="M3 10h18M7 15h2m4 0h4" stroke="white" stroke-width="1.5" />
-          </svg>
-
-          <!-- Admission manager icon -->
-          <svg *ngIf="spinnerIcon() === 'admission'" viewBox="0 0 24 24">
-            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z" />
-            <path d="M14 2v6h6M16 13H8m8 4H8" stroke="white" stroke-width="1.5" />
-          </svg>
-
-          <!-- Error icon -->
-          <svg *ngIf="spinnerIcon() === 'error'" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" fill="none" stroke-width="2" />
-            <line x1="15" y1="9" x2="9" y2="15" />
-            <line x1="9" y1="9" x2="15" y2="15" />
-          </svg>
-
-          <!-- Success checkmark (shown after role icon) -->
-          <svg *ngIf="spinnerPhase() === 'success'" class="checkmark" viewBox="0 0 24 24">
-            <path d="M20 6L9 17l-5-5" />
-          </svg>
         </div>
+      </div>
+    </div>
 
-        <!-- Text inside rings -->
-        <div class="spinner-text" [class.success]="spinnerPhase() === 'success'"
-          [class.error]="spinnerPhase() === 'error'">
-          {{ spinnerText() }}
-        </div>
+    <!-- Status Section (Below Ring) -->
+    <div class="spinner-status">
+      <!-- Success/Error Icons -->
+      <!-- Success/Error Icons -->
+      <div class="status-icon-container" *ngIf="spinnerPhase() !== 'validating'">
+        <!-- Success checkmark -->
+        <svg *ngIf="spinnerPhase() === 'success'" class="status-icon success" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor">
+          <path d="M20 6L9 17l-5-5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+
+        <!-- Error cross -->
+        <svg *ngIf="spinnerPhase() === 'error'" class="status-icon error" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor">
+          <circle cx="12" cy="12" r="10" stroke-width="3" />
+          <line x1="15" y1="9" x2="9" y2="15" stroke-width="3" stroke-linecap="round" />
+          <line x1="9" y1="9" x2="15" y2="15" stroke-width="3" stroke-linecap="round" />
+        </svg>
+      </div>
+
+      <!-- Text -->
+      <div class="spinner-text" *ngIf="spinnerText()" [class.success]="spinnerPhase() === 'success'"
+        [class.error]="spinnerPhase() === 'error'">
+        {{ spinnerText() }}
       </div>
     </div>
 
@@ -179,4 +194,3 @@
       <span class="dot"></span>
     </div>
   </div>
-</div>

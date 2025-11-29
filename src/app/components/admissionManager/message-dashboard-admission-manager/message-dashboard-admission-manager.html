@@ -127,14 +127,14 @@
             <header class="chat-header">
                 <div class="student-info">
                     <div class="student-avatar">
-                        {{ selectedConversation.studentName.charAt(0) }}
+                        {{ selectedConversation!.studentName.charAt(0) }}
                     </div>
                     <div class="student-details">
-                        <h3>{{ selectedConversation.studentName }}</h3>
-                        <p class="app-id" *ngIf="selectedConversation.studentApplicationId">
-                            {{ selectedConversation.studentApplicationId }}
+                        <h3>{{ selectedConversation!.studentName }}</h3>
+                        <p class="app-id" *ngIf="selectedConversation!.studentApplicationId">
+                            {{ selectedConversation!.studentApplicationId }}
                         </p>
-                        <p class="agent-info">Agent: {{ selectedConversation.agentName }}</p>
+                        <p class="agent-info">Agent: {{ selectedConversation!.agentName }}</p>
                     </div>
                 </div>
 

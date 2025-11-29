@@ -55,7 +55,6 @@ export interface Student {
     paymentAmount?: number;
     confirmationPagePath?: string;
     admissionLetterPath?: string;
-    admissionLetterPathInternal?: string;
     profileImagePath?: string;
     telexDocumentsPath?: string;
     telexNumber?: string;

@@ -729,8 +729,7 @@
                   </button>
                 </div>
 
-                <div class="doc-card"
-                  *ngIf="selectedStudent.admissionLetterPathInternal || selectedStudent.admissionLetterPath">
+                <div class="doc-card" *ngIf="selectedStudent.admissionLetterPath">
                   <div class="doc-icon admission">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
@@ -738,8 +737,7 @@
                     </svg>
                   </div>
                   <span class="doc-name">Admission Letter</span>
-                  <button class="btn-doc-download"
-                    (click)="downloadFile(selectedStudent.admissionLetterPathInternal || selectedStudent.admissionLetterPath)">
+                  <button class="btn-doc-download" (click)="downloadFile(selectedStudent.admissionLetterPath)">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                       <polyline points="7 10 12 15 17 10" />

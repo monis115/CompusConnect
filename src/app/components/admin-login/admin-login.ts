@@ -1,18 +1,23 @@
-// src/app/components/admin-login/admin-login.component.ts
+// ==========================================
+// admin-login.component.ts
+// ==========================================
 
-import { Component, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AdminAuthService, LoginResponse } from '../../services/admin-auth-service'; // <-- IMPORTED
+import { AdminAuthService, LoginResponse } from '../../services/admin-auth-service';
 
 @Component({
   selector: 'app-admin-login',
   standalone: false,
   templateUrl: './admin-login.html',
-  styleUrls: ['./admin-login.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./admin-login.css']
 })
 export class AdminLogin {
+  @ViewChild('loginCard') loginCard!: ElementRef<HTMLElement>;
+  @ViewChild('loginContainer') loginContainer!: ElementRef<HTMLElement>;
+
+  // Form fields
   userId = signal('');
   password = signal('');
   passwordFieldType = signal<'password' | 'text'>('password');
@@ -20,16 +25,84 @@ export class AdminLogin {
   isLoading = signal(false);
   errorMessage = signal('');
 
-  // Spinner states
-  spinnerText = signal('Validating Credentials...');
+  // Spinner states - WITH DEFAULT VALUES
+  spinnerText = signal('Validating...');
   spinnerIcon = signal('shield');
   spinnerPhase = signal<'validating' | 'success' | 'error'>('validating');
   userRole = signal('');
 
+  // Particles for background
+  particles = signal<{ x: number; y: number; size: number; duration: number; delay: number }[]>([]);
+
   constructor(
     private router: Router,
     private authService: AdminAuthService
-  ) { }
+  ) {
+    console.log('✅ AdminLogin component initialized');
+    this.generateParticles();
+  }
+
+  generateParticles() {
+    const particleCount = 20;
+    const newParticles = [];
+    for (let i = 0; i < particleCount; i++) {
+      newParticles.push({
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3 + 1,
+        duration: Math.random() * 10 + 10,
+        delay: Math.random() * -20
+      });
+    }
+    this.particles.set(newParticles);
+  }
+
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (!this.loginCard || this.isLoading()) return;
+
+    const card = this.loginCard.nativeElement;
+    const container = this.loginContainer?.nativeElement; // Use optional chaining just in case
+    const rect = card.getBoundingClientRect();
+
+    // Calculate mouse position relative to card center
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * -5; // Max rotation 5deg
+    const rotateY = ((x - centerX) / centerX) * 5;
+
+    // Update CSS variables for tilt and spotlight
+    card.style.setProperty('--rotate-x', `${rotateX}deg`);
+    card.style.setProperty('--rotate-y', `${rotateY}deg`);
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+
+    // Parallax for background
+    if (container) {
+      const winX = window.innerWidth / 2;
+      const winY = window.innerHeight / 2;
+      const mouseX = (event.clientX - winX) / winX;
+      const mouseY = (event.clientY - winY) / winY;
+
+      container.style.setProperty('--bg-x', `${mouseX * 20}px`);
+      container.style.setProperty('--bg-y', `${mouseY * 20}px`);
+    }
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave() {
+    if (!this.loginCard) return;
+
+    const card = this.loginCard.nativeElement;
+    card.style.setProperty('--rotate-x', '0deg');
+    card.style.setProperty('--rotate-y', '0deg');
+    // Keep mouse position where it was or reset? Resetting spotlight might be abrupt.
+    // Let's just reset rotation.
+  }
 
   onUserIdInput(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -49,85 +122,104 @@ export class AdminLogin {
     this.passwordFieldType.update(t => t === 'password' ? 'text' : 'password');
   }
 
+  createRipple(event: MouseEvent) {
+    const button = event.currentTarget as HTMLElement;
+    const circle = document.createElement('span');
+    const diameter = Math.max(button.clientWidth, button.clientHeight);
+    const radius = diameter / 2;
+
+    circle.style.width = circle.style.height = `${diameter}px`;
+    circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius}px`;
+    circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius}px`;
+    circle.classList.add('ripple');
+
+    const ripple = button.getElementsByClassName('ripple')[0];
+
+    if (ripple) {
+      ripple.remove();
+    }
+
+    button.appendChild(circle);
+  }
+
   onLogin() {
+    console.log('🚀 Login clicked');
+
     if (!this.userId() || !this.password()) {
       this.errorMessage.set('Please enter both User ID and Password');
       return;
     }
 
-    // Reset UI
+    // Reset UI and show spinner
     this.isLoading.set(true);
     this.errorMessage.set('');
     this.spinnerPhase.set('validating');
     this.spinnerText.set('Validating...');
     this.spinnerIcon.set('shield');
 
+    console.log('🔄 Spinner state:', {
+      isLoading: this.isLoading(),
+      text: this.spinnerText(),
+      icon: this.spinnerIcon(),
+      phase: this.spinnerPhase()
+    });
+
     const payload = { userId: this.userId(), password: this.password() };
 
-    // The 'res: LoginResponse' now correctly uses the imported interface
     this.authService.login(payload).subscribe({
       next: (res: LoginResponse) => {
+        console.log('✅ Login successful:', res);
+
         setTimeout(() => {
           this.spinnerPhase.set('success');
           this.userRole.set(res.role);
 
-          // Success message based on role
-          // Normalize role to handle case sensitivity (e.g. AGENT vs agent)
           const normalizedRole = res.role.toLowerCase();
-          console.log(`🔐 Role normalized: ${res.role} -> ${normalizedRole}`);
+          console.log(`🔐 Role: ${res.role} -> ${normalizedRole}`);
 
-          // Success message based on role
+          // Set success message and icon based on role
+          // Note: Text is cleared to hide it as per user request
+          this.spinnerText.set('');
+
           switch (normalizedRole) {
             case 'admin':
-              this.spinnerText.set('Admin');
               this.spinnerIcon.set('admin');
               break;
             case 'agent':
-              this.spinnerText.set('Agent');
               this.spinnerIcon.set('agent');
               break;
             case 'visa_manager':
             case 'visa-manager':
-              this.spinnerText.set('Visa Manager');
               this.spinnerIcon.set('visa');
               break;
             case 'admissionmanager':
             case 'admission_manager':
-              this.spinnerText.set('Admission Manager');
               this.spinnerIcon.set('admission');
               break;
             case 'telex_manager':
-              this.spinnerText.set('Telex Manager');
-              this.spinnerIcon.set('telex');
+              this.spinnerIcon.set('shield');
               break;
             case 'accountant':
-              this.spinnerText.set('Accountant');
-              this.spinnerIcon.set('accountant');
+              this.spinnerIcon.set('shield');
               break;
             case 'doc_manager':
-              this.spinnerText.set('Doc Manager');
-              this.spinnerIcon.set('doc');
+              this.spinnerIcon.set('admission');
               break;
             case 'universitycoordinator':
-              this.spinnerText.set('University Coordinator');
-              this.spinnerIcon.set('university');
+              this.spinnerIcon.set('shield');
               break;
             case 'student':
-              this.spinnerText.set('Student');
               this.spinnerIcon.set('student');
               break;
             default:
-              console.warn(`⚠️ Unhandled role for spinner: ${normalizedRole}`);
-              this.spinnerText.set('Success');
+              console.warn(`⚠️ Unhandled role: ${normalizedRole}`);
           }
 
           // Navigate after success animation
           setTimeout(() => {
             this.isLoading.set(false);
+            console.log(`🎯 Navigating for role: ${normalizedRole}`);
 
-            console.log(`🚀 Navigating for role: ${normalizedRole}`);
-
-            // Navigate to correct dashboard
             switch (normalizedRole) {
               case 'admin':
                 this.router.navigate(['/admin-dashboard']);
@@ -144,13 +236,13 @@ export class AdminLogin {
                 this.router.navigate(['/admission-manager-dashboard']);
                 break;
               case 'telex_manager':
-                this.router.navigate(['/telex-manager-dashboard']); // Assuming route exists
+                this.router.navigate(['/telex-manager-dashboard']);
                 break;
               case 'accountant':
-                this.router.navigate(['/accountant-dashboard']); // Assuming route exists
+                this.router.navigate(['/accountant-dashboard']);
                 break;
               case 'doc_manager':
-                this.router.navigate(['/doc-manager-dashboard']); // Assuming route exists
+                this.router.navigate(['/doc-manager-dashboard']);
                 break;
               case 'universitycoordinator':
                 this.router.navigate(['/university-dashboard']);
@@ -159,7 +251,7 @@ export class AdminLogin {
                 this.router.navigate(['/student-dashboard']);
                 break;
               default:
-                console.error(`❌ Unknown role encountered during navigation: ${normalizedRole}`);
+                console.error(`❌ Unknown role: ${normalizedRole}`);
                 this.errorMessage.set(`Unknown role: ${res.role}. Contact support.`);
             }
           }, 1500);
@@ -167,6 +259,8 @@ export class AdminLogin {
       },
 
       error: (err: HttpErrorResponse) => {
+        console.error('❌ Login error:', err);
+
         setTimeout(() => {
           this.spinnerPhase.set('error');
           this.spinnerText.set('Failed');

@@ -16,6 +16,7 @@ import { StudentAgentDetails } from './components/admin/student-agent-details/st
 import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-details';
 import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
 import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
+import { TelexManagerDashboard } from './components/telex-manager-dashboard/telex-manager-dashboard';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -68,6 +69,10 @@ const routes: Routes = [
   {
     path: 'doc-manager-dashboard',
     component: DocPersonDashbaord
+  },
+  {
+    path: 'telex-manager-dashboard',
+    component: TelexManagerDashboard
   },
 
   // Wildcard route
