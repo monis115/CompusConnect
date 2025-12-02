@@ -1,1 +1,188 @@
-<p>telex-manager-dashboard works!</p>
+<div class="dashboard-container">
+
+    <aside class="sidebar">
+        <div class="brand">Telex<span style="color:var(--text-secondary)">Manager</span></div>
+
+        <ul class="nav-links">
+            <li class="nav-item" [class.active]="activeTab === 'dashboard'" (click)="activeTab = 'dashboard'">
+                <i class="icon">📊</i> Dashboard
+            </li>
+
+            <li class="nav-item" [class.active]="activeTab === 'actions'" (click)="activeTab = 'actions'">
+                <i class="icon">⚡</i> Action Required
+                <span class="badge" *ngIf="actionRequiredStudents.length > 0">{{ actionRequiredStudents.length }}</span>
+            </li>
+
+            <li class="nav-item" [class.active]="activeTab === 'pipeline'" (click)="activeTab = 'pipeline'">
+                <i class="icon">⏳</i> In Pipeline
+            </li>
+
+            <li class="nav-item" [class.active]="activeTab === 'visa'" (click)="activeTab = 'visa'">
+                <i class="icon">🛂</i> Visa Stamped
+            </li>
+
+            <li class="nav-item" [class.active]="activeTab === 'records'" (click)="activeTab = 'records'">
+                <i class="icon">📁</i> All Records
+            </li>
+
+            <li class="nav-item" style="margin-top:auto" [class.active]="activeTab === 'profile'"
+                (click)="activeTab = 'profile'">
+                <i class="icon">👤</i> Profile
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+
+        <header>
+            <h1>
+                <span *ngIf="activeTab === 'dashboard'">Overview</span>
+                <span *ngIf="activeTab === 'actions'">Pending Actions</span>
+                <span *ngIf="activeTab === 'pipeline'">Processing Pipeline</span>
+                <span *ngIf="activeTab === 'visa'">Visa Completed</span>
+                <span *ngIf="activeTab === 'records'">Student Records</span>
+                <span *ngIf="activeTab === 'profile'">Manager Profile</span>
+            </h1>
+            <p style="color:var(--text-secondary)">Welcome back, {{ currentUsername }}</p>
+        </header>
+
+        <div *ngIf="loading" class="loader" style="padding: 2rem; font-size: 1.2rem;">
+            Loading data...
+        </div>
+
+        <div *ngIf="activeTab === 'dashboard' && !loading" class="fade-in">
+            <div class="card-grid">
+                <div class="student-card" style="text-align:center; padding: 2rem;">
+                    <h1 style="margin-bottom:0">{{ actionRequiredStudents.length }}</h1>
+                    <p>Actions Pending</p>
+                </div>
+                <div class="student-card" style="text-align:center; padding: 2rem;">
+                    <h1 style="margin-bottom:0">{{ pipelineStudents.length }}</h1>
+                    <p>In Pipeline</p>
+                </div>
+                <div class="student-card" style="text-align:center; padding: 2rem;">
+                    <h1 style="margin-bottom:0">{{ students.length }}</h1>
+                    <p>Total Records</p>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="activeTab === 'actions' && !loading" class="fade-in">
+
+            <div *ngIf="actionRequiredStudents.length === 0" style="color:var(--text-secondary)">
+                No pending actions. Great job!
+            </div>
+
+            <div class="card-grid">
+                <div class="student-card" *ngFor="let s of actionRequiredStudents">
+                    <div class="card-header">
+                        <div>
+                            <div class="student-name">{{ s.fullName }}</div>
+                            <div class="app-id">ID: {{ s.applicationId }}</div>
+                        </div>
+                        <div class="status-badge" style="border-color: #ff9800; color: #ff9800;">{{ s.action }}</div>
+                    </div>
+
+                    <div class="card-body">
+                        <p>Passport: <span class="value">{{ s.passportNo }}</span></p>
+                        <p>Applied For: <span class="value">{{ s.appliedFor }}</span></p>
+                    </div>
+
+                    <div class="action-area">
+
+                        <div *ngIf="s.action === 'UPLOAD_TELEX_DOCS'">
+                            <span class="action-title">Step: Upload Internal Documents</span>
+                            <input type="file" multiple (change)="onFileSelected($event, s.id)"
+                                [disabled]="processingId === s.id">
+                            <button class="btn-primary" (click)="handleUploadDocs(s)"
+                                [disabled]="processingId === s.id">
+                                <span *ngIf="processingId !== s.id">Upload & Submit to Uni</span>
+                                <span *ngIf="processingId === s.id">Processing...</span>
+                            </button>
+                        </div>
+
+                        <div *ngIf="s.action === 'SUBMIT_TELEX_TO_UNIVERSITY'">
+                            <span class="action-title">Step: Forward to University</span>
+                            <button class="btn-primary" (click)="handleSubmitToUniversity(s)"
+                                [disabled]="processingId === s.id">
+                                <span *ngIf="processingId !== s.id">Confirm Submission</span>
+                                <span *ngIf="processingId === s.id">Sending...</span>
+                            </button>
+                        </div>
+
+                        <div *ngIf="s.action === 'SUBMIT_TELEX_TO_MEA'">
+                            <span class="action-title">Step: Submit to MEA</span>
+                            <button class="btn-primary" (click)="handleSubmitToMEA(s)"
+                                [disabled]="processingId === s.id">
+                                <span *ngIf="processingId !== s.id">Submit to MEA</span>
+                                <span *ngIf="processingId === s.id">Sending...</span>
+                            </button>
+                        </div>
+
+                        <div *ngIf="s.action === 'NEED_TO_ISSUE_TELEX'">
+                            <span class="action-title">Step: Issue Telex Number</span>
+                            <input type="text" placeholder="Enter Telex Number (e.g., TX-999)"
+                                [(ngModel)]="telexInputs[s.id]" [disabled]="processingId === s.id">
+                            <button class="btn-primary" (click)="handleIssueTelex(s)"
+                                [disabled]="processingId === s.id">
+                                <span *ngIf="processingId !== s.id">Issue Number</span>
+                                <span *ngIf="processingId === s.id">Processing...</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="(activeTab === 'pipeline' || activeTab === 'records' || activeTab === 'visa') && !loading"
+            class="fade-in">
+            <div class="card-grid">
+                <ng-container
+                    *ngFor="let s of (activeTab === 'pipeline' ? pipelineStudents : (activeTab === 'visa' ? visaStampedStudents : students))">
+                    <div class="student-card">
+                        <div class="card-header">
+                            <div class="student-name">{{ s.fullName }}</div>
+                            <div class="status-badge">{{ s.applicationStatus }}</div>
+                        </div>
+                        <div class="card-body">
+                            <p>Email: <span class="value">{{ s.email }}</span></p>
+                            <p>Contact: <span class="value">{{ s.contactNo }}</span></p>
+                            <p>Passport: <span class="value">{{ s.passportNo }}</span></p>
+                            <p *ngIf="s.telexNumber">Telex #: <span class="value">{{ s.telexNumber }}</span></p>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+
+        <div *ngIf="activeTab === 'profile' && !loading" class="fade-in">
+            <div class="profile-view" *ngIf="profileData; else noProfile">
+                <div class="profile-row">
+                    <div class="profile-label">Full Name</div>
+                    <div class="profile-value">{{ profileData.fullName }}</div>
+                </div>
+                <div class="profile-row">
+                    <div class="profile-label">Username</div>
+                    <div class="profile-value">{{ profileData.username }}</div>
+                </div>
+                <div class="profile-row">
+                    <div class="profile-label">Email</div>
+                    <div class="profile-value">{{ profileData.email }}</div>
+                </div>
+                <div class="profile-row">
+                    <div class="profile-label">Role</div>
+                    <div class="profile-value">{{ profileData.role }}</div>
+                </div>
+                <div class="profile-row">
+                    <div class="profile-label">Status</div>
+                    <div class="profile-value" style="color: var(--success)">{{ profileData.status }}</div>
+                </div>
+            </div>
+            <ng-template #noProfile>
+                <p>Profile data not available.</p>
+            </ng-template>
+        </div>
+
+    </main>
+</div>

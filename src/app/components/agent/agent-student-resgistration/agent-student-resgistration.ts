@@ -6,6 +6,7 @@ import { CollegeAccess, College, Location } from '../../../services/agent.servic
 
 interface StudentRegistrationResponse {
   id: number;
+  applicationId: string;
   confirmationPagePath?: string;
 }
 
@@ -100,13 +101,17 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
   documents = {
     adhaar: null as File | null,
     class12thMarksheet: null as File | null,
-    photograph: null as File | null
+    photograph: null as File | null,
+    neetMarksheet: null as File | null,
+    passport: null as File | null
   };
 
   documentPreviews = {
     adhaar: null as string | null,
     class12thMarksheet: null as string | null,
-    photograph: null as string | null
+    photograph: null as string | null,
+    neetMarksheet: null as string | null,
+    passport: null as string | null
   };
 
   boardOptions = ['CBSE', 'ICSE', 'State Board', 'IB', 'Other'];
@@ -349,7 +354,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
       !this.student.mothersName || !this.student.fathersName ||
       !this.student.emergencyContactNo || !this.student.emergencyRelation ||
       !this.student.passportNo || !this.student.passportValidTill ||
-      !this.student.adhaarCardNo || !this.student.class12thPassingYear ||
+      !this.student.class12thPassingYear ||
       !this.student.baords || !this.student.class12thMarks || !this.student.maxMarks) {
       this.errorMessage = 'Please fill all required fields marked with *';
       return false;
@@ -361,7 +366,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
       return false;
     }
 
-    if (this.student.adhaarCardNo.length !== 12 || !/^\d+$/.test(this.student.adhaarCardNo)) {
+    if (this.student.adhaarCardNo && (this.student.adhaarCardNo.length !== 12 || !/^\d+$/.test(this.student.adhaarCardNo))) {
       this.errorMessage = 'Aadhaar card number must be exactly 12 digits';
       return false;
     }
@@ -389,13 +394,15 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
   onFileSelect(event: any, documentType: keyof typeof this.documents): void {
     const file = event.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        this.errorMessage = `File ${file.name} is too large. Maximum size is 5MB`;
+      if (file.size > 1 * 1024 * 1024) {
+        this.errorMessage = `File ${file.name} is too large. Maximum size is 1MB`;
+        event.target.value = ''; // Reset input
         return;
       }
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
       if (!allowedTypes.includes(file.type)) {
         this.errorMessage = `File ${file.name} has invalid format. Only JPG, PNG, and PDF allowed`;
+        event.target.value = ''; // Reset input
         return;
       }
 
@@ -424,16 +431,26 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
   }
 
   validateStep3(): boolean {
-    if (!this.documents.adhaar) {
-      this.errorMessage = 'Please upload Aadhaar card document';
+    // Adhaar is now optional
+    // if (!this.documents.adhaar) {
+    //   this.errorMessage = 'Please upload Aadhaar card document';
+    //   return false;
+    // }
+    if (!this.documents.passport) {
+      this.errorMessage = 'Please upload Passport document';
       return false;
     }
     if (!this.documents.class12thMarksheet) {
       this.errorMessage = 'Please upload 12th marksheet';
       return false;
     }
-    if (!this.documents.photograph) {
-      this.errorMessage = 'Please upload photograph';
+    // Photograph is now optional
+    // if (!this.documents.photograph) {
+    //   this.errorMessage = 'Please upload photograph';
+    //   return false;
+    // }
+    if (this.student.hasGivenNEET && !this.documents.neetMarksheet) {
+      this.errorMessage = 'Please upload NEET marksheet';
       return false;
     }
     this.errorMessage = null;
@@ -457,7 +474,8 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
       age: this.student.age,
       email: this.student.email,
       contactNo: this.student.contactNo,
-      address: this.student.address,
+      // Append State and District to address
+      address: `${this.student.address}, ${this.student.selectedState}, ${this.getDistrictName(this.student.districtId)}`,
       districtId: this.student.districtId,
 
       mothersName: this.student.mothersName,
@@ -490,12 +508,22 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     if (this.documents.adhaar) formData.append('adhaarFile', this.documents.adhaar);
     if (this.documents.class12thMarksheet) formData.append('marksheetFile', this.documents.class12thMarksheet);
     if (this.documents.photograph) formData.append('profileImage', this.documents.photograph);
+    if (this.documents.neetMarksheet) formData.append('neetMarksheetFile', this.documents.neetMarksheet);
+    if (this.documents.passport) formData.append('passportFile', this.documents.passport);
+
+    const startTime = Date.now();
 
     this.http.post<StudentRegistrationResponse>(this.registrationApiUrl, formData)
       .pipe(
         finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
+          const elapsedTime = Date.now() - startTime;
+          const minDuration = 1900; // 1.9 seconds
+          const delay = Math.max(0, minDuration - elapsedTime);
+
+          setTimeout(() => {
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          }, delay);
         })
       )
       .subscribe({
@@ -575,13 +603,17 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     this.documents = {
       adhaar: null,
       class12thMarksheet: null,
-      photograph: null
+      photograph: null,
+      neetMarksheet: null,
+      passport: null
     };
 
     this.documentPreviews = {
       adhaar: null,
       class12thMarksheet: null,
-      photograph: null
+      photograph: null,
+      neetMarksheet: null,
+      passport: null
     };
 
     this.errorMessage = null;
@@ -589,5 +621,11 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
 
   cancel(): void {
     this.onCancel.emit();
+  }
+
+  private getDistrictName(districtId: number | null): string {
+    if (!districtId) return '';
+    const district = this.filteredDistricts.find(d => d.id === districtId);
+    return district ? district.district : '';
   }
 }

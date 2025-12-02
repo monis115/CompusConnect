@@ -260,6 +260,12 @@ export class AgentDashboard implements OnInit {
         s.applicationStatus === StudentStatus.ADMISSION_LETTER_APPROVED ||
         (s['action'] === 'INITIATE_TELEX' && s['actionOnUser'] === 'agent')
       )
+      .sort((a, b) => {
+        // Sort by registration date (latest first)
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA;
+      })
       .slice(0, 10); // Show top 10 action items
   }
 
@@ -325,6 +331,13 @@ export class AgentDashboard implements OnInit {
         (s.college?.collegeName || '').toLowerCase().includes(query)
       );
     }
+
+    // 3. Sort by registration date (createdAt) - Latest first
+    filtered = filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA; // Descending order (latest first)
+    });
 
     return filtered;
   }
