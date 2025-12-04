@@ -488,35 +488,43 @@ export class AgentDashboard implements OnInit {
       passportIssueDate: ['', Validators.required],
       passportExpirationDate: ['', Validators.required],
       passportIssuedBy: ['', Validators.required],
-      addressInUzbekistan: ['', Validators.required],
-      previousVisitsToUzbekistan: [''],
-      accompaniedPersons: ['', Validators.required],
-      occupation: ['', Validators.required],
-      placeOfWorkStudyPosition: ['', Validators.required],
-      workStudyAddressTelephone: ['', Validators.required],
-      homeAddress: ['', Validators.required]
     });
-
     this.setupConditionalValidation();
   }
 
   setupConditionalValidation(): void {
     // Document Tracking Logic
+    // Document Tracking Logic
     this.telexForm.get('originalDocsSent')?.valueChanges.subscribe(sent => {
       const methodControl = this.telexForm.get('docDeliveryMethod');
       const dateControl = this.telexForm.get('docTentativeReachDate');
+      const partnerControl = this.telexForm.get('courierPartner');
+      const trackingNumControl = this.telexForm.get('courierTrackingNumber');
+      const contactControl = this.telexForm.get('selfPersonContact');
 
       if (sent === true || sent === 'true') {
         methodControl?.setValidators(Validators.required);
         dateControl?.setValidators(Validators.required);
       } else {
         methodControl?.clearValidators();
-        dateControl?.clearValidators();
         methodControl?.setValue(null);
-        dateControl?.setValue(null);
+
+        // Also clear children of method
+        partnerControl?.clearValidators();
+        trackingNumControl?.clearValidators();
+        contactControl?.clearValidators();
+        partnerControl?.setValue('');
+        trackingNumControl?.setValue('');
+        contactControl?.setValue('');
+
+        dateControl?.clearValidators(); // Changed from setValidators(Validators.required)
+        dateControl?.setValue(null); // Added
       }
       methodControl?.updateValueAndValidity();
       dateControl?.updateValueAndValidity();
+      partnerControl?.updateValueAndValidity();
+      trackingNumControl?.updateValueAndValidity();
+      contactControl?.updateValueAndValidity();
     });
 
     this.telexForm.get('docDeliveryMethod')?.valueChanges.subscribe(method => {
@@ -539,6 +547,9 @@ export class AgentDashboard implements OnInit {
         partnerControl?.clearValidators();
         trackingNumControl?.clearValidators();
         contactControl?.clearValidators();
+        partnerControl?.setValue('');
+        trackingNumControl?.setValue('');
+        contactControl?.setValue('');
       }
       partnerControl?.updateValueAndValidity();
       trackingNumControl?.updateValueAndValidity();
@@ -555,18 +566,19 @@ export class AgentDashboard implements OnInit {
       if (paid === true || paid === 'true') {
         amountControl?.setValidators(Validators.required);
         paidToControl?.setValidators(Validators.required);
-        typeControl?.setValidators(Validators.required);
+        typeControl?.clearValidators();
         dueDateControl?.clearValidators();
+
+        typeControl?.setValue(null);
         dueDateControl?.setValue(null);
       } else {
         amountControl?.clearValidators();
         paidToControl?.clearValidators();
-        typeControl?.clearValidators();
-        dueDateControl?.setValidators(Validators.required);
-
         amountControl?.setValue(null);
         paidToControl?.setValue(null);
-        typeControl?.setValue(null);
+
+        typeControl?.setValidators(Validators.required);
+        dueDateControl?.setValidators(Validators.required);
       }
       amountControl?.updateValueAndValidity();
       paidToControl?.updateValueAndValidity();
@@ -642,10 +654,9 @@ export class AgentDashboard implements OnInit {
   // --- Navigation ---
   nextStep(): void {
     if (this.currentStep < this.totalSteps) {
-      // Optional: Validate current step before proceeding
-      // if (this.validateCurrentStep()) {
-      this.currentStep++;
-      // }
+      if (this.validateCurrentStep()) {
+        this.currentStep++;
+      }
     }
   }
 
@@ -653,6 +664,70 @@ export class AgentDashboard implements OnInit {
     if (this.currentStep > 1) {
       this.currentStep--;
     }
+  }
+
+  validateCurrentStep(): boolean {
+    const controls = this.telexForm.controls;
+    let isValid = true;
+    let fieldsToValidate: string[] = [];
+
+    if (this.currentStep === 1) {
+      fieldsToValidate = ['originalDocsSent'];
+      if (controls['originalDocsSent'].value === true) {
+        fieldsToValidate.push('docDeliveryMethod', 'docTentativeReachDate');
+        if (controls['docDeliveryMethod'].value === 'COURIER') {
+          fieldsToValidate.push('courierPartner', 'courierTrackingNumber');
+        } else if (controls['docDeliveryMethod'].value === 'SELF_PERSON') {
+          fieldsToValidate.push('selfPersonContact');
+        }
+      } else {
+        fieldsToValidate.push('docTentativeReachDate');
+      }
+    } else if (this.currentStep === 2) {
+      fieldsToValidate = [
+        'hasPaid', 'surname', 'firstName', 'sex', 'countryOfBirth',
+        'dateOfBirth', 'placeOfBirth', 'maritalStatus', 'citizenship',
+        'passportType', 'passportNumber', 'passportIssueDate',
+        'passportExpirationDate', 'passportIssuedBy'
+      ];
+
+      if (controls['hasPaid'].value === true) {
+        fieldsToValidate.push('paidAmount', 'paidTo');
+      } else {
+        fieldsToValidate.push('paymentType', 'paymentDueDate');
+      }
+    }
+
+    for (const field of fieldsToValidate) {
+      const control = controls[field];
+      if (control && control.invalid) {
+        control.markAsTouched();
+        isValid = false;
+      }
+    }
+
+    // File validation for Step 2
+    if (this.currentStep === 2) {
+      if (!this.visaPhotoFile) {
+        this.validationMessage = 'Visa Photo is required.';
+        this.isValidationModalOpen = true;
+        isValid = false;
+      } else if (!this.visaPassportCopyFile) {
+        this.validationMessage = 'Passport Copy is required.';
+        this.isValidationModalOpen = true;
+        isValid = false;
+      } else if (controls['hasPaid'].value === true && controls['paidTo'].value === 'UNIVERSITY' && !this.ttCopyFile) {
+        this.validationMessage = 'TT Copy is required.';
+        this.isValidationModalOpen = true;
+        isValid = false;
+      } else if (controls['hasPaid'].value === true && controls['paidTo'].value === 'COMPANY' && !this.paymentConfirmationFile) {
+        this.validationMessage = 'Payment Confirmation is required.';
+        this.isValidationModalOpen = true;
+        isValid = false;
+      }
+    }
+
+    return isValid;
   }
 
   goToStep(step: number): void {
@@ -737,8 +812,26 @@ export class AgentDashboard implements OnInit {
   submitTelexApplication(): void {
     if (!this.studentForTelex || !this.agentData) return;
 
-    // Note: Validation is relaxed, so we proceed even if some fields are empty.
-    // However, if you want to enforce at least ONE field or some basic check, do it here.
+    // Final Validation Check
+    // Final Validation Check
+    if (this.telexForm.invalid) {
+      this.telexForm.markAllAsTouched();
+
+      // Identify invalid fields for better feedback
+      const invalidFields: string[] = [];
+      const controls = this.telexForm.controls;
+      for (const name in controls) {
+        if (controls[name].invalid) {
+          // Convert camelCase to Title Case for display
+          const display = name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          invalidFields.push(display);
+        }
+      }
+
+      this.validationMessage = `Please fill the following required fields: ${invalidFields.join(', ')}`;
+      this.isValidationModalOpen = true;
+      return;
+    }
 
     this.isSubmittingTelex = true;
     this.cdr.detectChanges();

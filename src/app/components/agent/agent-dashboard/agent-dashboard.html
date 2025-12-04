@@ -1221,73 +1221,61 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Passport Type *</label>
-          <select formControlName="passportType">
-            <option value="ORDINARY">Ordinary</option>
-            <option value="DIPLOMATIC">Diplomatic</option>
-            <option value="OFFICIAL">Official</option>
-            <option value="SERVICE">Service</option>
-          </select>
-        </div>
+        <!-- Passport Details -->
+        <div class="form-section">
+          <h4>Passport Details</h4>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Passport Type <span class="required">*</span></label>
+              <select formControlName="passportType">
+                <option value="ORDINARY">Ordinary</option>
+                <option value="DIPLOMATIC">Diplomatic</option>
+                <option value="OFFICIAL">Official</option>
+                <option value="SERVICE">Service</option>
+              </select>
+              <div class="error-msg"
+                *ngIf="telexForm.get('passportType')?.invalid && telexForm.get('passportType')?.touched">
+                Passport Type is required
+              </div>
+            </div>
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label>Date of Issue *</label>
-            <input type="date" formControlName="passportIssueDate">
+            <div class="form-group">
+              <label>Passport Number <span class="required">*</span></label>
+              <input type="text" formControlName="passportNumber" placeholder="e.g. A1234567">
+              <div class="error-msg"
+                *ngIf="telexForm.get('passportNumber')?.invalid && telexForm.get('passportNumber')?.touched">
+                Passport Number is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Issue Date <span class="required">*</span></label>
+              <input type="date" formControlName="passportIssueDate">
+              <div class="error-msg"
+                *ngIf="telexForm.get('passportIssueDate')?.invalid && telexForm.get('passportIssueDate')?.touched">
+                Issue Date is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Expiration Date <span class="required">*</span></label>
+              <input type="date" formControlName="passportExpirationDate">
+              <div class="error-msg"
+                *ngIf="telexForm.get('passportExpirationDate')?.invalid && telexForm.get('passportExpirationDate')?.touched">
+                Expiration Date is required
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Issued By <span class="required">*</span></label>
+              <input type="text" formControlName="passportIssuedBy" placeholder="Authority">
+              <div class="error-msg"
+                *ngIf="telexForm.get('passportIssuedBy')?.invalid && telexForm.get('passportIssuedBy')?.touched">
+                Issuing Authority is required
+              </div>
+            </div>
           </div>
-          <div class="form-group half">
-            <label>Date of Expiry *</label>
-            <input type="date" formControlName="passportExpirationDate">
-          </div>
         </div>
-
-        <div class="form-row">
-          <div class="form-group half">
-            <label>Issued By *</label>
-            <input type="text" formControlName="passportIssuedBy">
-          </div>
-          <div class="form-group half">
-            <label>Passport Number *</label>
-            <input type="text" formControlName="passportNumber">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Address in Uzbekistan *</label>
-          <textarea formControlName="addressInUzbekistan" rows="2"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Previous Visits to Uzbekistan</label>
-          <textarea formControlName="previousVisitsToUzbekistan" rows="2"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Accompanied Persons *</label>
-          <input type="text" formControlName="accompaniedPersons">
-        </div>
-
-        <div class="form-group">
-          <label>Occupation *</label>
-          <input type="text" formControlName="occupation">
-        </div>
-
-        <div class="form-group">
-          <label>Place of Work/Study & Position *</label>
-          <input type="text" formControlName="placeOfWorkStudyPosition">
-        </div>
-
-        <div class="form-group">
-          <label>Work/Study Address & Telephone *</label>
-          <input type="text" formControlName="workStudyAddressTelephone">
-        </div>
-
-        <div class="form-group">
-          <label>Home Address *</label>
-          <textarea formControlName="homeAddress" rows="2"></textarea>
-        </div>
-
         <div class="file-upload-group">
           <label>Photo (JPEG, max 128KB) *</label>
           <div class="file-drop-zone">
