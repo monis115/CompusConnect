@@ -5,6 +5,9 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AdminAuthService } from '../../../services/admin-auth-service';
 import { AgentService, AgentData, Student, College, Location as AgentLocation, DashboardStats, StatusBreakdown, DashboardActivity } from '../../../services/agent.service';
 import { HttpClient } from '@angular/common/http';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TelexApplicationService } from '../../../services/telex-application.service';
+import { TelexApplicationDTO } from '../../../models/telex-application.model';
 
 // --- Updated Enum based on your provided list ---
 export enum StudentStatus {
@@ -93,7 +96,7 @@ export class AgentDashboard implements OnInit {
 
   // --- Telex Modal State ---
   isTelexModalOpen = false;
-  isSubmittingTelex = false;
+
   isSuccessModalOpen = false;
   studentForTelex: Student | null = null;
 
@@ -124,17 +127,21 @@ export class AgentDashboard implements OnInit {
   ];
   currentLogoutMessage = '';
 
-  telexForm: TelexFormData = {
-    passportValidationDate: '',
-    telexPaymentAmount: null,
-    telexPaymentTxId: '',
-    passportNumber: ''
-  };
+  // --- Telex Form State ---
+  telexForm!: FormGroup;
+  currentStep = 1;
+  totalSteps = 3;
+  isSubmittingTelex = false;
 
-  telexFiles: { passport: File | null, screenshot: File | null } = {
-    passport: null,
-    screenshot: null
-  };
+  // File storage
+  visaPhotoFile: File | null = null;
+  visaPassportCopyFile: File | null = null;
+  ttCopyFile: File | null = null;
+  paymentConfirmationFile: File | null = null;
+
+  // --- Validation Modal State ---
+  isValidationModalOpen = false;
+  validationMessage = '';
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -142,7 +149,9 @@ export class AgentDashboard implements OnInit {
     private authService: AdminAuthService,
     private agentService: AgentService,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private fb: FormBuilder,
+    private telexService: TelexApplicationService
   ) { }
 
   ngOnInit(): void {
@@ -431,80 +440,152 @@ export class AgentDashboard implements OnInit {
     return false;
   }
 
+
+
+
+
+  // --- History & Docs ---
   openTelexModal(student: Student): void {
     this.studentForTelex = student;
-    this.telexForm = {
-      passportValidationDate: '',
-      telexPaymentAmount: null,
-      telexPaymentTxId: '',
-      passportNumber: student.passportNo || ''
-    };
-    this.telexFiles = { passport: null, screenshot: null };
+    this.currentStep = 1;
+    this.initTelexForm();
+    this.prefillData(student);
     this.isTelexModalOpen = true;
     this.cdr.detectChanges();
   }
 
-  onFileSelected(event: any, type: 'passport' | 'screenshot'): void {
-    if (event.target.files && event.target.files.length > 0) {
-      this.telexFiles[type] = event.target.files[0];
-    }
+  initTelexForm(): void {
+    this.telexForm = this.fb.group({
+      // Step 1: Document Dispatch Confirmation
+      originalDocsSent: [null, Validators.required],
+      docDeliveryMethod: [null],
+      courierPartner: [''], // New field
+      courierTrackingNumber: [''], // New field
+      courierTrackingId: [''], // Combined field for backend
+      selfPersonContact: [''],
+      docTentativeReachDate: [null],
+
+      // Step 2: Payment Status
+      hasPaid: [null, Validators.required],
+      paidAmount: [null],
+      paidTo: [null],
+      paymentType: [null],
+      paymentDueDate: [null],
+
+      // Step 2: Personal Details (Mandatory)
+      surname: ['', Validators.required],
+      firstName: ['', Validators.required],
+      middleName: [''],
+      sex: ['', Validators.required],
+      countryOfBirth: ['India', Validators.required],
+      dateOfBirth: ['', Validators.required],
+      placeOfBirth: ['', Validators.required],
+      maritalStatus: ['SINGLE', Validators.required],
+      citizenship: ['Indian', Validators.required],
+      previousCitizenship: [''],
+      passportType: ['ORDINARY', Validators.required],
+      passportNumber: ['', Validators.required],
+      passportIssueDate: ['', Validators.required],
+      passportExpirationDate: ['', Validators.required],
+      passportIssuedBy: ['', Validators.required],
+      addressInUzbekistan: ['', Validators.required],
+      previousVisitsToUzbekistan: [''],
+      accompaniedPersons: ['', Validators.required],
+      occupation: ['', Validators.required],
+      placeOfWorkStudyPosition: ['', Validators.required],
+      workStudyAddressTelephone: ['', Validators.required],
+      homeAddress: ['', Validators.required]
+    });
+
+    this.setupConditionalValidation();
   }
 
-  submitTelexApplication(): void {
-    if (!this.studentForTelex || !this.agentData) return;
+  setupConditionalValidation(): void {
+    // Document Tracking Logic
+    this.telexForm.get('originalDocsSent')?.valueChanges.subscribe(sent => {
+      const methodControl = this.telexForm.get('docDeliveryMethod');
+      const dateControl = this.telexForm.get('docTentativeReachDate');
 
-    // Validate
-    if (!this.telexForm.passportValidationDate || !this.telexForm.telexPaymentAmount ||
-      !this.telexForm.telexPaymentTxId || !this.telexForm.passportNumber ||
-      !this.telexFiles.passport || !this.telexFiles.screenshot) {
-      alert('Please complete all fields and upload both documents.');
-      return;
-    }
-
-    this.isSubmittingTelex = true;
-    this.cdr.detectChanges();
-
-    // 1. Create JSON Details Object
-    const detailsObj = {
-      passportValidationDate: this.telexForm.passportValidationDate,
-      telexPaymentAmount: this.telexForm.telexPaymentAmount,
-      telexPaymentTxId: this.telexForm.telexPaymentTxId,
-      passportNumber: this.telexForm.passportNumber,
-      agentUsername: this.agentData.userId
-    };
-
-    // 2. Create FormData
-    const formData = new FormData();
-    formData.append('details', JSON.stringify(detailsObj));
-    formData.append('passport', this.telexFiles.passport);
-    formData.append('screenshot', this.telexFiles.screenshot);
-
-    // 3. Send Request
-    const url = `http://localhost:8080/api/agents/apply-for-telex/${this.studentForTelex.id}`;
-
-    this.http.post(url, formData).subscribe({
-      next: (res) => {
-        this.isSubmittingTelex = false;
-        this.isTelexModalOpen = false;
-        this.isSuccessModalOpen = true;
-        this.refreshDashboard();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Telex Application Error', err);
-        alert('Failed to submit application.');
-        this.isSubmittingTelex = false;
-        this.cdr.detectChanges();
+      if (sent === true || sent === 'true') {
+        methodControl?.setValidators(Validators.required);
+        dateControl?.setValidators(Validators.required);
+      } else {
+        methodControl?.clearValidators();
+        dateControl?.clearValidators();
+        methodControl?.setValue(null);
+        dateControl?.setValue(null);
       }
+      methodControl?.updateValueAndValidity();
+      dateControl?.updateValueAndValidity();
+    });
+
+    this.telexForm.get('docDeliveryMethod')?.valueChanges.subscribe(method => {
+      const partnerControl = this.telexForm.get('courierPartner');
+      const trackingNumControl = this.telexForm.get('courierTrackingNumber');
+      const contactControl = this.telexForm.get('selfPersonContact');
+
+      if (method === 'COURIER') {
+        partnerControl?.setValidators(Validators.required);
+        trackingNumControl?.setValidators(Validators.required);
+        contactControl?.clearValidators();
+        contactControl?.setValue('');
+      } else if (method === 'SELF_PERSON') {
+        contactControl?.setValidators(Validators.required);
+        partnerControl?.clearValidators();
+        trackingNumControl?.clearValidators();
+        partnerControl?.setValue('');
+        trackingNumControl?.setValue('');
+      } else {
+        partnerControl?.clearValidators();
+        trackingNumControl?.clearValidators();
+        contactControl?.clearValidators();
+      }
+      partnerControl?.updateValueAndValidity();
+      trackingNumControl?.updateValueAndValidity();
+      contactControl?.updateValueAndValidity();
+    });
+
+    // Payment Logic
+    this.telexForm.get('hasPaid')?.valueChanges.subscribe(paid => {
+      const amountControl = this.telexForm.get('paidAmount');
+      const paidToControl = this.telexForm.get('paidTo');
+      const typeControl = this.telexForm.get('paymentType');
+      const dueDateControl = this.telexForm.get('paymentDueDate');
+
+      if (paid === true || paid === 'true') {
+        amountControl?.setValidators(Validators.required);
+        paidToControl?.setValidators(Validators.required);
+        typeControl?.setValidators(Validators.required);
+        dueDateControl?.clearValidators();
+        dueDateControl?.setValue(null);
+      } else {
+        amountControl?.clearValidators();
+        paidToControl?.clearValidators();
+        typeControl?.clearValidators();
+        dueDateControl?.setValidators(Validators.required);
+
+        amountControl?.setValue(null);
+        paidToControl?.setValue(null);
+        typeControl?.setValue(null);
+      }
+      amountControl?.updateValueAndValidity();
+      paidToControl?.updateValueAndValidity();
+      typeControl?.updateValueAndValidity();
+      dueDateControl?.updateValueAndValidity();
     });
   }
 
-  closeTelexModal(): void {
-    this.isTelexModalOpen = false;
-    this.studentForTelex = null;
+  prefillData(student: Student): void {
+    if (!student) return;
+
+    this.telexForm.patchValue({
+      firstName: student.fullName.split(' ')[0] || '',
+      surname: student.fullName.split(' ').slice(1).join(' ') || '',
+      passportNumber: student.passportNo || '',
+      // Add other mappings as needed
+    });
   }
 
-  // --- History & Docs ---
   openHistoryModal(student: any): void {
     this.selectedStudentForHistory = student;
     this.isHistoryModalOpen = true;
@@ -556,5 +637,150 @@ export class AgentDashboard implements OnInit {
   getRandomLogoutMessage(): string {
     const randomIndex = Math.floor(Math.random() * this.logoutMessages.length);
     return this.logoutMessages[randomIndex];
+  }
+
+  // --- Navigation ---
+  nextStep(): void {
+    if (this.currentStep < this.totalSteps) {
+      // Optional: Validate current step before proceeding
+      // if (this.validateCurrentStep()) {
+      this.currentStep++;
+      // }
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  goToStep(step: number): void {
+    // Allow going back or to next immediate step
+    if (step <= this.currentStep + 1) {
+      this.currentStep = step;
+    }
+  }
+
+  // --- File Handling ---
+  onFileSelected(event: any, type: string): void {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      const fileSizeKB = file.size / 1024;
+      const fileSizeMB = fileSizeKB / 1024;
+
+      let isValid = true;
+      let errorMessage = '';
+
+      switch (type) {
+        case 'visaPhoto':
+          if (fileSizeKB > 128) {
+            isValid = false;
+            errorMessage = 'Photo must be less than 128KB.';
+          } else {
+            this.visaPhotoFile = file;
+          }
+          break;
+        case 'visaPassportCopy':
+          if (fileSizeKB > 256) {
+            isValid = false;
+            errorMessage = 'Passport copy must be less than 256KB.';
+          } else {
+            this.visaPassportCopyFile = file;
+          }
+          break;
+        case 'ttCopy':
+          if (fileSizeMB > 5) {
+            isValid = false;
+            errorMessage = 'File must be less than 5MB.';
+          } else {
+            this.ttCopyFile = file;
+          }
+          break;
+        case 'paymentConfirmation':
+          if (fileSizeMB > 5) {
+            isValid = false;
+            errorMessage = 'File must be less than 5MB.';
+          } else {
+            this.paymentConfirmationFile = file;
+          }
+          break;
+      }
+
+      if (!isValid) {
+        this.validationMessage = errorMessage;
+        this.isValidationModalOpen = true;
+        this.cdr.detectChanges();
+        event.target.value = ''; // Clear the input
+      }
+    }
+  }
+
+  closeValidationModal(): void {
+    this.isValidationModalOpen = false;
+    this.validationMessage = '';
+    this.cdr.detectChanges();
+  }
+
+  closeTelexModal(): void {
+    this.isTelexModalOpen = false;
+    this.studentForTelex = null;
+    this.currentStep = 1;
+    this.telexForm.reset();
+    this.visaPhotoFile = null;
+    this.visaPassportCopyFile = null;
+    this.ttCopyFile = null;
+    this.paymentConfirmationFile = null;
+  }
+
+  // --- Submission ---
+  submitTelexApplication(): void {
+    if (!this.studentForTelex || !this.agentData) return;
+
+    // Note: Validation is relaxed, so we proceed even if some fields are empty.
+    // However, if you want to enforce at least ONE field or some basic check, do it here.
+
+    this.isSubmittingTelex = true;
+    this.cdr.detectChanges();
+
+    const formValues = this.telexForm.value;
+
+    // Construct DTO
+    const telexData: TelexApplicationDTO = {
+      ...formValues,
+      // Map form control 'courierTrackingNumber' to DTO 'courierTrackingId'
+      courierTrackingId: formValues.courierTrackingNumber,
+      agentUsername: this.agentData.userId
+    };
+
+    this.telexService.submitTelexApplication(
+      this.studentForTelex.id,
+      telexData,
+      {
+        visaPhoto: this.visaPhotoFile || undefined,
+        visaPassportCopy: this.visaPassportCopyFile || undefined,
+        ttCopy: this.ttCopyFile || undefined,
+        paymentConfirmation: this.paymentConfirmationFile || undefined
+      }
+    ).subscribe({
+      next: (res) => {
+        this.isSubmittingTelex = false;
+        this.onTelexSuccess();
+      },
+      error: (err) => {
+        console.error('Submission Error', err);
+        this.isSubmittingTelex = false;
+        alert('Failed to submit application. Please try again.');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onTelexSuccess(): void {
+    this.isTelexModalOpen = false;
+    this.studentForTelex = null;
+    this.isSuccessModalOpen = true;
+    this.refreshDashboard();
+    this.cdr.detectChanges();
   }
 }

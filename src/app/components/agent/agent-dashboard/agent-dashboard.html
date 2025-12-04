@@ -998,101 +998,495 @@
   </svg>
 </button>
 
-<!-- Telex Modal -->
+<!-- Telex Wizard Modal -->
 <div class="modal-backdrop-modern" [class.show]="isTelexModalOpen" (click)="closeTelexModal()">
-  <div class="modal-container-modern" (click)="$event.stopPropagation()">
-    <div class="modal-header-modern">
-      <div class="modal-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
+  <div class="telex-wizard-container" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="wizard-header">
+      <div class="header-content">
+        <div>
+          <h2>Telex Application</h2>
+          <p>For {{ studentForTelex?.fullName }}</p>
+        </div>
+        <button class="btn-close-wizard" (click)="closeTelexModal()">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-      <h2>Initiate Telex Process</h2>
-      <button class="btn-close-modern" (click)="closeTelexModal()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
+      <div class="progress-bar-container">
+        <div class="progress-bar" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="wizard-content" [formGroup]="telexForm" *ngIf="telexForm">
+
+      <!-- Step 1: Document Dispatch Confirmation -->
+      <div class="step-section" *ngIf="currentStep === 1">
+        <h3><i class="fas fa-file-alt"></i> Document Dispatch Confirmation</h3>
+
+        <div class="form-group">
+          <label>Have you sent the original documents? *</label>
+          <div class="radio-group">
+            <label class="radio-card">
+              <input type="radio" formControlName="originalDocsSent" [value]="true">
+              <span>Yes</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" formControlName="originalDocsSent" [value]="false">
+              <span>No</span>
+            </label>
+          </div>
+        </div>
+
+        <ng-container *ngIf="telexForm.get('originalDocsSent')?.value === true">
+          <div class="form-group">
+            <label>Mode of dispatch *</label>
+            <div class="radio-group">
+              <label class="radio-card">
+                <input type="radio" formControlName="docDeliveryMethod" value="COURIER">
+                <span>Courier</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" formControlName="docDeliveryMethod" value="SELF_PERSON">
+                <span>Self / Person</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row" *ngIf="telexForm.get('docDeliveryMethod')?.value === 'COURIER'">
+            <div class="form-group half">
+              <label>Courier Partner *</label>
+              <input type="text" formControlName="courierPartner" placeholder="e.g. DHL, FedEx">
+            </div>
+            <div class="form-group half">
+              <label>Tracking ID *</label>
+              <input type="text" formControlName="courierTrackingNumber" placeholder="Tracking Number">
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="telexForm.get('docDeliveryMethod')?.value === 'SELF_PERSON'">
+            <label>Name & Contact Number of the Person *</label>
+            <input type="text" formControlName="selfPersonContact" placeholder="Name & Phone Number">
+          </div>
+
+          <div class="form-group">
+            <label>Tentative Delivery Date *</label>
+            <input type="date" formControlName="docTentativeReachDate">
+          </div>
+        </ng-container>
+
+        <div class="form-group" *ngIf="telexForm.get('originalDocsSent')?.value === false">
+          <label>Expected dispatch date</label>
+          <input type="date" formControlName="docTentativeReachDate">
+        </div>
+      </div>
+
+      <!-- Step 2: Payment Status & Personal Details -->
+      <div class="step-section" *ngIf="currentStep === 2">
+        <h3><i class="fas fa-credit-card"></i> Payment Status</h3>
+
+        <div class="form-group">
+          <label>Have you completed the payment? *</label>
+          <div class="radio-group">
+            <label class="radio-card">
+              <input type="radio" formControlName="hasPaid" [value]="true">
+              <span>Yes</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" formControlName="hasPaid" [value]="false">
+              <span>No</span>
+            </label>
+          </div>
+        </div>
+
+        <ng-container *ngIf="telexForm.get('hasPaid')?.value === true">
+          <div class="form-row">
+            <div class="form-group half">
+              <label>Amount Paid (USD) *</label>
+              <input type="number" formControlName="paidAmount" placeholder="0.00">
+            </div>
+            <div class="form-group half">
+              <label>Paid To *</label>
+              <select formControlName="paidTo">
+                <option [ngValue]="null" disabled>Select Recipient</option>
+                <option value="UNIVERSITY">University</option>
+                <option value="COMPANY">Company</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="file-upload-group" *ngIf="telexForm.get('paidTo')?.value === 'UNIVERSITY'">
+            <label>Upload TT Copy (PDF, max 5MB)</label>
+            <div class="file-drop-zone">
+              <input type="file" (change)="onFileSelected($event, 'ttCopy')" accept=".pdf">
+              <p *ngIf="!ttCopyFile">Drag & Drop or Click to Upload</p>
+              <p *ngIf="ttCopyFile" class="file-selected">{{ ttCopyFile.name }}</p>
+            </div>
+          </div>
+
+          <div class="file-upload-group" *ngIf="telexForm.get('paidTo')?.value === 'COMPANY'">
+            <label>Upload Payment Confirmation Page (PDF/Image, max 5MB)</label>
+            <div class="file-drop-zone">
+              <input type="file" (change)="onFileSelected($event, 'paymentConfirmation')" accept=".pdf,.jpg,.jpeg,.png">
+              <p *ngIf="!paymentConfirmationFile">Drag & Drop or Click to Upload</p>
+              <p *ngIf="paymentConfirmationFile" class="file-selected">{{ paymentConfirmationFile.name }}</p>
+            </div>
+          </div>
+        </ng-container>
+
+        <div class="form-row" *ngIf="telexForm.get('hasPaid')?.value === false">
+          <div class="form-group half">
+            <label>Expected Payment Date *</label>
+            <input type="date" formControlName="paymentDueDate">
+          </div>
+          <div class="form-group half">
+            <label>Payment Mode</label>
+            <div class="radio-group">
+              <label class="radio-card">
+                <input type="radio" formControlName="paymentType" value="FULL">
+                <span>Full</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" formControlName="paymentType" value="SEMESTER_WISE">
+                <span>Semester</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="mt-4"><i class="fas fa-user"></i> Student Personal Details</h3>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Surname *</label>
+            <input type="text" formControlName="surname">
+          </div>
+          <div class="form-group half">
+            <label>Name *</label>
+            <input type="text" formControlName="firstName">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Middle Name</label>
+            <input type="text" formControlName="middleName">
+          </div>
+          <div class="form-group half">
+            <label>Sex *</label>
+            <select formControlName="sex">
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Country of Birth *</label>
+            <input type="text" formControlName="countryOfBirth">
+          </div>
+          <div class="form-group half">
+            <label>Date of Birth *</label>
+            <input type="date" formControlName="dateOfBirth">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Place of Birth *</label>
+            <input type="text" formControlName="placeOfBirth">
+          </div>
+          <div class="form-group half">
+            <label>Marital Status *</label>
+            <select formControlName="maritalStatus">
+              <option value="SINGLE">Single</option>
+              <option value="MARRIED">Married</option>
+              <option value="DIVORCED">Divorced</option>
+              <option value="WIDOWED">Widowed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Citizenship *</label>
+            <input type="text" formControlName="citizenship">
+          </div>
+          <div class="form-group half">
+            <label>Previous Citizenship</label>
+            <input type="text" formControlName="previousCitizenship">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Passport Type *</label>
+          <select formControlName="passportType">
+            <option value="ORDINARY">Ordinary</option>
+            <option value="DIPLOMATIC">Diplomatic</option>
+            <option value="OFFICIAL">Official</option>
+            <option value="SERVICE">Service</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Date of Issue *</label>
+            <input type="date" formControlName="passportIssueDate">
+          </div>
+          <div class="form-group half">
+            <label>Date of Expiry *</label>
+            <input type="date" formControlName="passportExpirationDate">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Issued By *</label>
+            <input type="text" formControlName="passportIssuedBy">
+          </div>
+          <div class="form-group half">
+            <label>Passport Number *</label>
+            <input type="text" formControlName="passportNumber">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Address in Uzbekistan *</label>
+          <textarea formControlName="addressInUzbekistan" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Previous Visits to Uzbekistan</label>
+          <textarea formControlName="previousVisitsToUzbekistan" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Accompanied Persons *</label>
+          <input type="text" formControlName="accompaniedPersons">
+        </div>
+
+        <div class="form-group">
+          <label>Occupation *</label>
+          <input type="text" formControlName="occupation">
+        </div>
+
+        <div class="form-group">
+          <label>Place of Work/Study & Position *</label>
+          <input type="text" formControlName="placeOfWorkStudyPosition">
+        </div>
+
+        <div class="form-group">
+          <label>Work/Study Address & Telephone *</label>
+          <input type="text" formControlName="workStudyAddressTelephone">
+        </div>
+
+        <div class="form-group">
+          <label>Home Address *</label>
+          <textarea formControlName="homeAddress" rows="2"></textarea>
+        </div>
+
+        <div class="file-upload-group">
+          <label>Photo (JPEG, max 128KB) *</label>
+          <div class="file-drop-zone">
+            <input type="file" (change)="onFileSelected($event, 'visaPhoto')" accept=".jpg,.jpeg">
+            <p *ngIf="!visaPhotoFile">Drag & Drop or Click to Upload</p>
+            <p *ngIf="visaPhotoFile" class="file-selected">{{ visaPhotoFile.name }}</p>
+          </div>
+        </div>
+
+        <div class="file-upload-group">
+          <label>Passport Copy (max 256KB) *</label>
+          <div class="file-drop-zone">
+            <input type="file" (change)="onFileSelected($event, 'visaPassportCopy')" accept=".pdf,.jpg,.jpeg,.png">
+            <p *ngIf="!visaPassportCopyFile">Drag & Drop or Click to Upload</p>
+            <p *ngIf="visaPassportCopyFile" class="file-selected">{{ visaPassportCopyFile.name }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Review -->
+      <div class="step-section" *ngIf="currentStep === 3">
+        <h3><i class="fas fa-check-circle"></i> Review Application</h3>
+
+        <div class="review-section">
+          <h4>Document Dispatch</h4>
+          <div class="review-grid">
+            <div class="review-item">
+              <span class="label">Docs Sent:</span>
+              <span class="value">{{ telexForm.get('originalDocsSent')?.value ? 'Yes' : 'No' }}</span>
+            </div>
+            <ng-container *ngIf="telexForm.get('originalDocsSent')?.value">
+              <div class="review-item">
+                <span class="label">Method:</span>
+                <span class="value">{{ telexForm.get('docDeliveryMethod')?.value }}</span>
+              </div>
+              <div class="review-item" *ngIf="telexForm.get('docDeliveryMethod')?.value === 'COURIER'">
+                <span class="label">Partner:</span>
+                <span class="value">{{ telexForm.get('courierPartner')?.value }}</span>
+              </div>
+              <div class="review-item" *ngIf="telexForm.get('docDeliveryMethod')?.value === 'COURIER'">
+                <span class="label">Tracking ID:</span>
+                <span class="value">{{ telexForm.get('courierTrackingNumber')?.value }}</span>
+              </div>
+              <div class="review-item" *ngIf="telexForm.get('docDeliveryMethod')?.value === 'SELF_PERSON'">
+                <span class="label">Contact:</span>
+                <span class="value">{{ telexForm.get('selfPersonContact')?.value }}</span>
+              </div>
+              <div class="review-item">
+                <span class="label">Tentative Date:</span>
+                <span class="value">{{ telexForm.get('docTentativeReachDate')?.value | date }}</span>
+              </div>
+            </ng-container>
+            <div class="review-item" *ngIf="!telexForm.get('originalDocsSent')?.value">
+              <span class="label">Expected Dispatch:</span>
+              <span class="value">{{ telexForm.get('docTentativeReachDate')?.value | date }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-section">
+          <h4>Payment Details</h4>
+          <div class="review-grid">
+            <div class="review-item">
+              <span class="label">Status:</span>
+              <span class="value">{{ telexForm.get('hasPaid')?.value ? 'Completed' : 'Pending' }}</span>
+            </div>
+            <ng-container *ngIf="telexForm.get('hasPaid')?.value">
+              <div class="review-item">
+                <span class="label">Amount:</span>
+                <span class="value">${{ telexForm.get('paidAmount')?.value }}</span>
+              </div>
+              <div class="review-item">
+                <span class="label">Paid To:</span>
+                <span class="value">{{ telexForm.get('paidTo')?.value }}</span>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="!telexForm.get('hasPaid')?.value">
+              <div class="review-item">
+                <span class="label">Due Date:</span>
+                <span class="value">{{ telexForm.get('paymentDueDate')?.value | date }}</span>
+              </div>
+              <div class="review-item">
+                <span class="label">Mode:</span>
+                <span class="value">{{ telexForm.get('paymentType')?.value }}</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="review-section">
+          <h4>Personal Information</h4>
+          <div class="review-grid">
+            <div class="review-item">
+              <span class="label">Full Name:</span>
+              <span class="value">{{ telexForm.get('firstName')?.value }} {{ telexForm.get('middleName')?.value }} {{
+                telexForm.get('surname')?.value }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Sex:</span>
+              <span class="value">{{ telexForm.get('sex')?.value }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">DOB:</span>
+              <span class="value">{{ telexForm.get('dateOfBirth')?.value | date }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Citizenship:</span>
+              <span class="value">{{ telexForm.get('citizenship')?.value }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Marital Status:</span>
+              <span class="value">{{ telexForm.get('maritalStatus')?.value }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-section">
+          <h4>Passport Details</h4>
+          <div class="review-grid">
+            <div class="review-item">
+              <span class="label">Number:</span>
+              <span class="value">{{ telexForm.get('passportNumber')?.value }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Type:</span>
+              <span class="value">{{ telexForm.get('passportType')?.value }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Issued By:</span>
+              <span class="value">{{ telexForm.get('passportIssuedBy')?.value }}</span>
+            </div>
+            <div class="review-item">
+              <span class="label">Expiry:</span>
+              <span class="value">{{ telexForm.get('passportExpirationDate')?.value | date }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-section">
+          <h4>Uploaded Documents</h4>
+          <div class="review-grid">
+            <div class="review-item">
+              <span class="label">Visa Photo:</span>
+              <span class="value" [class.text-success]="visaPhotoFile" [class.text-danger]="!visaPhotoFile">
+                {{ visaPhotoFile ? visaPhotoFile.name : 'Missing' }}
+              </span>
+            </div>
+            <div class="review-item">
+              <span class="label">Passport Copy:</span>
+              <span class="value" [class.text-success]="visaPassportCopyFile"
+                [class.text-danger]="!visaPassportCopyFile">
+                {{ visaPassportCopyFile ? visaPassportCopyFile.name : 'Missing' }}
+              </span>
+            </div>
+            <div class="review-item" *ngIf="telexForm.get('paidTo')?.value === 'UNIVERSITY'">
+              <span class="label">TT Copy:</span>
+              <span class="value" [class.text-success]="ttCopyFile" [class.text-danger]="!ttCopyFile">
+                {{ ttCopyFile ? ttCopyFile.name : 'Missing' }}
+              </span>
+            </div>
+            <div class="review-item" *ngIf="telexForm.get('paidTo')?.value === 'COMPANY'">
+              <span class="label">Payment Proof:</span>
+              <span class="value" [class.text-success]="paymentConfirmationFile"
+                [class.text-danger]="!paymentConfirmationFile">
+                {{ paymentConfirmationFile ? paymentConfirmationFile.name : 'Missing' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert-info mt-4">
+          <p>Please verify all details before submitting. Ensure all required documents are uploaded.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="wizard-footer">
+      <button class="btn-secondary" (click)="prevStep()" [disabled]="currentStep === 1">Previous</button>
+      <button class="btn-primary" (click)="nextStep()" *ngIf="currentStep < totalSteps">Next</button>
+      <button class="btn-success" (click)="submitTelexApplication()" *ngIf="currentStep === totalSteps"
+        [disabled]="isSubmittingTelex">
+        <span *ngIf="!isSubmittingTelex">Submit Application</span>
+        <span *ngIf="isSubmittingTelex">Submitting...</span>
       </button>
     </div>
+  </div>
+</div>
 
-    <div class="modal-body-modern" *ngIf="studentForTelex">
-      <div class="modal-student-info">
-        <div class="avatar-circle">{{ studentForTelex.fullName.charAt(0) }}</div>
-        <div>
-          <h3>{{ studentForTelex.fullName }}</h3>
-          <p>{{ studentForTelex.email }}</p>
-        </div>
-      </div>
-
-      <form (ngSubmit)="submitTelexApplication()">
-        <div class="form-grid">
-          <div class="form-group-modern">
-            <label>Passport Number</label>
-            <input type="text" [(ngModel)]="telexForm.passportNumber" name="passportNumber" required
-              class="input-modern">
-          </div>
-
-          <div class="form-group-modern">
-            <label>Passport Valid Till</label>
-            <input type="date" [(ngModel)]="telexForm.passportValidationDate" name="validTill" required
-              class="input-modern">
-          </div>
-
-          <div class="form-group-modern">
-            <label>Amount (USD)</label>
-            <input type="number" [(ngModel)]="telexForm.telexPaymentAmount" name="amount" required class="input-modern">
-          </div>
-
-          <div class="form-group-modern">
-            <label>Transaction ID</label>
-            <input type="text" [(ngModel)]="telexForm.telexPaymentTxId" name="txId" required class="input-modern">
-          </div>
-        </div>
-
-        <div class="file-upload-section">
-          <div class="file-group-modern">
-            <label>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-              </svg>
-              Passport PDF
-            </label>
-            <input type="file" (change)="onFileSelected($event, 'passport')" accept=".pdf" required
-              class="file-input-modern">
-          </div>
-
-          <div class="file-group-modern">
-            <label>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-              Payment Screenshot
-            </label>
-            <input type="file" (change)="onFileSelected($event, 'screenshot')" accept="image/*" required
-              class="file-input-modern">
-          </div>
-        </div>
-
-        <div class="modal-footer-modern">
-          <button type="button" class="btn-secondary-modern" (click)="closeTelexModal()">Cancel</button>
-          <button type="submit" class="btn-primary-modern" [disabled]="isSubmittingTelex">
-            <span *ngIf="!isSubmittingTelex">Submit Application</span>
-            <span *ngIf="isSubmittingTelex">
-              <svg class="spinner-small" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-              </svg>
-              Uploading...
-            </span>
-          </button>
-        </div>
-      </form>
+<!-- Validation Modal -->
+<div class="validation-modal-overlay" *ngIf="isValidationModalOpen">
+  <div class="validation-modal">
+    <div class="validation-icon">
+      <i class="fas fa-exclamation-triangle"></i>
     </div>
+    <h3>Validation Error</h3>
+    <p>{{ validationMessage }}</p>
+    <button class="btn-close-validation" (click)="closeValidationModal()">OK</button>
   </div>
 </div>
 

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common'; // <-- REQUIRED for *ngIf, *ngFor, pipes
-import { FormsModule } from '@angular/forms'; // <-- REQUIRED for [(ngModel)]
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // <-- REQUIRED for [(ngModel)] and ReactiveForms
 import { HttpClientModule } from '@angular/common/http'; // <-- REQUIRED for this component's API calls
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; // <-- REQUIRED for this component's animations
 
@@ -16,10 +16,10 @@ import { MessageDashboard } from '../message-dashboard/message-dashboard';
     MessageDashboard
   ],
   imports: [
-    CommonModule,       // <-- ADDED
-    FormsModule,        // <-- ADDED
-    HttpClientModule,   // <-- ADDED (This is the main fix)
-    // BrowserAnimationsModule, // <-- ADDED - This might be needed here OR in app.module.ts. Add here if app.module.ts doesn't fix it.
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule, // <-- ADDED
+    HttpClientModule,
     AgentRoutingModule
   ]
 })
