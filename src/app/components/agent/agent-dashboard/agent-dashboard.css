@@ -3443,3 +3443,17 @@ router-outlet+* {
     border-radius: 0;
   }
 }
+
+/* Validation Styles for Telex Form */
+.form-group input.ng-touched.ng-valid,
+.form-group select.ng-touched.ng-valid,
+.form-group textarea.ng-touched.ng-valid {
+  border-color: #10b981 !important;
+}
+
+.form-group input.ng-touched.ng-invalid,
+.form-group select.ng-touched.ng-invalid,
+.form-group textarea.ng-touched.ng-invalid {
+  border-color: #ef4444 !important;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2) !important;
+}

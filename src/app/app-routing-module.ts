@@ -17,16 +17,20 @@ import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-
 import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
 import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
 import { TelexManagerDashboard } from './components/telex-manager-dashboard/telex-manager-dashboard';
+import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   { path: '', component: Home },
   { path: 'StudentLogin', component: StudentLogin },
   { path: 'AdminLogin', component: AdminLogin },
+  { path: 'admin-login', component: AdminLogin },
 
-  // Admin Dashboard Routes
+  // Admin Dashboard Routes - Protected
   {
     path: 'admin-dashboard',
     component: AdminDashboars,
+    canActivate: [AuthGuard],
+    data: { role: 'admin' },
     children: [
       { path: '', component: AdminDashboardOverview, data: { section: 'overview' } },
       { path: 'overview', component: AdminDashboardOverview, data: { section: 'overview' } },
@@ -51,28 +55,45 @@ const routes: Routes = [
     ]
   },
 
-  // Agent Dashboard Routes (Lazy Loaded Module) - NO AUTH GUARD
+  // Agent Dashboard Routes - Protected
   {
     path: 'agent-dashboard',
+    canActivate: [AuthGuard],
+    data: { role: 'agent' },
     loadChildren: () => import('../app/components/agent/agent-dashboard/agent.module').then(m => m.AgentModule)
   },
-  // Add this route inside your routes array (after agent-dashboard or before wildcard)
+
+  // Admission Manager Dashboard - Protected
   {
     path: 'admission-manager-dashboard',
+    canActivate: [AuthGuard],
+    data: { role: 'admission_manager' },
     loadChildren: () => import('../app/components/admissionManager/admission-manager-dashboard/admission-manager.module')
       .then(m => m.AdmissionManagerModule)
   },
+
+  // University Dashboard - Protected
   {
     path: 'university-dashboard',
-    component: UniversityPersonDashboard
+    component: UniversityPersonDashboard,
+    canActivate: [AuthGuard],
+    data: { role: 'UniversityCoordinator' }
   },
+
+  // Doc Manager Dashboard - Protected
   {
     path: 'doc-manager-dashboard',
-    component: DocPersonDashbaord
+    component: DocPersonDashbaord,
+    canActivate: [AuthGuard],
+    data: { role: 'doc_manager' }
   },
+
+  // Telex Manager Dashboard - Protected
   {
     path: 'telex-manager-dashboard',
-    component: TelexManagerDashboard
+    component: TelexManagerDashboard,
+    canActivate: [AuthGuard],
+    data: { role: 'telex_manager' }
   },
 
   // Wildcard route

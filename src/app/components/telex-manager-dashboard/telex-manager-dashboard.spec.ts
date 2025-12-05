@@ -10,7 +10,7 @@ describe('TelexManagerDashboard', () => {
     await TestBed.configureTestingModule({
       declarations: [TelexManagerDashboard]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(TelexManagerDashboard);
     component = fixture.componentInstance;

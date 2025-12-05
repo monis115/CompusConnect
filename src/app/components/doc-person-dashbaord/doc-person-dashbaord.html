@@ -24,9 +24,17 @@
             <a (click)="setActiveTab('dashboard')" [class.active]="activeTab === 'dashboard'">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
-            <a (click)="setActiveTab('approval')" [class.active]="activeTab === 'approval'" class="nav-item-badge">
-                <span><i class="fas fa-check-circle"></i> Approval Required</span>
-                <span *ngIf="approvalList.length > 0" class="badge">{{ approvalList.length }}</span>
+            <a (click)="setActiveTab('receive')" [class.active]="activeTab === 'receive'" class="nav-item-badge">
+                <span><i class="fas fa-inbox"></i> Receive Docs</span>
+                <span *ngIf="receiveList.length > 0" class="badge">{{ receiveList.length }}</span>
+            </a>
+            <a (click)="setActiveTab('verify')" [class.active]="activeTab === 'verify'" class="nav-item-badge">
+                <span><i class="fas fa-file-contract"></i> Verify Docs</span>
+                <span *ngIf="verifyList.length > 0" class="badge">{{ verifyList.length }}</span>
+            </a>
+            <a (click)="setActiveTab('return')" [class.active]="activeTab === 'return'" class="nav-item-badge">
+                <span><i class="fas fa-reply"></i> Returns</span>
+                <span *ngIf="returnList.length > 0" class="badge">{{ returnList.length }}</span>
             </a>
             <a (click)="setActiveTab('pipeline')" [class.active]="activeTab === 'pipeline'" class="nav-item-badge">
                 <span><i class="fas fa-clock"></i> In Pipeline</span>
@@ -127,15 +135,48 @@
                     </div>
 
                     <!-- Secondary Cards -->
-                    <div class="stat-card red hover-lift" (click)="setActiveTab('approval')">
+                    <!-- Secondary Cards -->
+                    <div class="stat-card red hover-lift" (click)="setActiveTab('receive')">
                         <div class="stat-content">
                             <div class="stat-header">
-                                <h3>Pending Approval</h3>
-                                <span class="priority-badge high" *ngIf="stats.pendingApproval > 0">!</span>
+                                <h3>To Receive</h3>
+                                <span class="priority-badge high" *ngIf="receiveCount > 0">!</span>
                             </div>
-                            <p class="count count-up">{{ stats.pendingApproval }}</p>
+                            <p class="count count-up">{{ receiveCount }}</p>
                             <div class="trend-indicator">
-                                <i class="fas fa-arrow-up"></i> <span>Needs attention</span>
+                                <i class="fas fa-inbox"></i> <span>Physical Docs</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card orange hover-lift" (click)="setActiveTab('verify')">
+                        <div class="stat-content">
+                            <div class="stat-header">
+                                <h3>To Verify</h3>
+                                <span class="priority-badge medium" *ngIf="verifyCount > 0">!</span>
+                            </div>
+                            <p class="count count-up">{{ verifyCount }}</p>
+                            <div class="trend-indicator">
+                                <i class="fas fa-file-contract"></i> <span>Verification</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card purple hover-lift" (click)="setActiveTab('return')">
+                        <div class="stat-content">
+                            <div class="stat-header">
+                                <h3>To Return</h3>
+                                <span class="priority-badge low" *ngIf="returnCount > 0">!</span>
+                            </div>
+                            <p class="count count-up">{{ returnCount }}</p>
+                            <div class="trend-indicator">
+                                <i class="fas fa-reply"></i> <span>Dispatch</span>
                             </div>
                         </div>
                         <div class="stat-icon">
@@ -179,13 +220,17 @@
                 <div class="quick-actions">
                     <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
                     <div class="action-buttons">
-                        <button class="action-btn" (click)="setActiveTab('approval')">
-                            <i class="fas fa-file-check"></i>
-                            <span>Review Pending</span>
+                        <button class="action-btn" (click)="setActiveTab('receive')">
+                            <i class="fas fa-inbox"></i>
+                            <span>Receive Docs</span>
                         </button>
-                        <button class="action-btn" (click)="setActiveTab('stamped')">
-                            <i class="fas fa-stamp"></i>
-                            <span>View Stamped</span>
+                        <button class="action-btn" (click)="setActiveTab('verify')">
+                            <i class="fas fa-file-check"></i>
+                            <span>Verify Docs</span>
+                        </button>
+                        <button class="action-btn" (click)="setActiveTab('return')">
+                            <i class="fas fa-reply"></i>
+                            <span>Return Docs</span>
                         </button>
                         <button class="action-btn" (click)="exportToCSV()">
                             <i class="fas fa-download"></i>
@@ -212,80 +257,155 @@
                 </div>
             </div>
 
-            <!-- APPROVAL VIEW (ACTION SECTION) -->
-            <div *ngIf="activeTab === 'approval' && !isLoading && !errorState.hasError"
+            <!-- RECEIVE VIEW -->
+            <div *ngIf="activeTab === 'receive' && !isLoading && !errorState.hasError"
                 class="approval-view animate-fade-in">
-
-                <!-- Action Section Header with Search -->
                 <div class="action-section-header">
                     <div class="action-title">
-                        <h3><i class="fas fa-tasks"></i> Pending Verifications</h3>
-                        <span class="badge-pill">{{ approvalList.length }} Students</span>
+                        <h3><i class="fas fa-inbox"></i> Receive Documents</h3>
+                        <span class="badge-pill">{{ receiveList.length }} Students</span>
                     </div>
                     <div class="action-search">
                         <i class="fas fa-search"></i>
-                        <input type="text" [(ngModel)]="approvalSearchQuery" (ngModelChange)="filterApprovalList()"
+                        <input type="text" [(ngModel)]="receiveSearchQuery" (ngModelChange)="filterReceiveList()"
                             placeholder="Search by Application ID...">
                     </div>
                 </div>
 
-                <div *ngIf="filteredApprovalList.length === 0" class="empty-state">
-                    <i class="fas fa-clipboard-check empty-icon"></i>
-                    <h3>All Caught Up!</h3>
-                    <p>No documents pending approval matching your search.</p>
+                <div *ngIf="filteredReceiveList.length === 0" class="empty-state">
+                    <i class="fas fa-check-circle empty-icon"></i>
+                    <h3>All Received!</h3>
+                    <p>No pending documents to receive.</p>
                 </div>
 
-                <div *ngFor="let student of filteredApprovalList" class="student-card-enhanced">
+                <div *ngFor="let student of filteredReceiveList" class="student-card-enhanced">
                     <div class="card-header">
                         <div class="student-info-detailed">
-                            <div class="avatar-lg-initials">
-                                {{ getInitials(student.fullName) }}
-                            </div>
+                            <div class="avatar-lg-initials">{{ getInitials(student.fullName) }}</div>
                             <div class="student-details">
-                                <h3>{{ student.fullName }}</h3>
-                                <div class="student-meta-inline">
-                                    <span class="meta-badge highlight-badge">
-                                        <i class="fas fa-id-badge"></i> {{ student.applicationId || student.id }}
-                                    </span>
-                                    <span class="meta-badge"><i class="fas fa-envelope"></i> {{ student.email }}</span>
-                                    <span class="meta-badge" *ngIf="student.contactNo"><i class="fas fa-phone"></i> {{
-                                        student.contactNo }}</span>
+                                <div class="name-row">
+                                    <h3>{{ student.fullName }}</h3>
+                                    <button class="btn-icon-small ripple-effect" (click)="openDetailsModal(student)"
+                                        title="View Full Profile">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
                                 </div>
-                                <div class="student-extra-info">
-                                    <div *ngIf="student.passportNo" class="info-item">
-                                        <i class="fas fa-passport"></i>
-                                        <span><strong>Passport:</strong> {{ student.passportNo }}</span>
-                                    </div>
-                                    <div *ngIf="student.college" class="info-item">
-                                        <i class="fas fa-university"></i>
-                                        <span><strong>College:</strong> {{ student.college.collegeName }}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <i class="fas fa-info-circle"></i>
-                                        <span class="status-pill" [ngClass]="getStatusClass(student.status)">
-                                            {{ student.applicationStatus || student.status }}
-                                        </span>
-                                    </div>
+                                <div class="student-meta-inline">
+                                    <span class="meta-badge highlight-badge"><i class="fas fa-id-badge"></i> {{
+                                        student.applicationId || student.id }}</span>
+                                    <span class="meta-badge"><i class="fas fa-envelope"></i> {{ student.email }}</span>
                                 </div>
                             </div>
                         </div>
-                        <button class="btn-primary btn-verify ripple-effect" (click)="openApprovalModal(student)">
+                        <button class="btn-primary btn-verify ripple-effect" (click)="openReceiveModal(student)">
+                            <i class="fas fa-box-open"></i>
+                            <span>Mark Received</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VERIFY VIEW -->
+            <div *ngIf="activeTab === 'verify' && !isLoading && !errorState.hasError"
+                class="approval-view animate-fade-in">
+                <div class="action-section-header">
+                    <div class="action-title">
+                        <h3><i class="fas fa-file-contract"></i> Verify Documents</h3>
+                        <span class="badge-pill">{{ verifyList.length }} Students</span>
+                    </div>
+                    <div class="action-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" [(ngModel)]="verifySearchQuery" (ngModelChange)="filterVerifyList()"
+                            placeholder="Search by Application ID...">
+                    </div>
+                </div>
+
+                <div *ngIf="filteredVerifyList.length === 0" class="empty-state">
+                    <i class="fas fa-clipboard-check empty-icon"></i>
+                    <h3>All Verified!</h3>
+                    <p>No documents pending verification.</p>
+                </div>
+
+                <div *ngFor="let student of filteredVerifyList" class="student-card-enhanced">
+                    <div class="card-header">
+                        <div class="student-info-detailed">
+                            <div class="avatar-lg-initials">{{ getInitials(student.fullName) }}</div>
+                            <div class="student-details">
+                                <div class="name-row">
+                                    <h3>{{ student.fullName }}</h3>
+                                    <button class="btn-icon-small ripple-effect" (click)="openDetailsModal(student)"
+                                        title="View Full Profile">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="student-meta-inline">
+                                    <span class="meta-badge highlight-badge"><i class="fas fa-id-badge"></i> {{
+                                        student.applicationId || student.id }}</span>
+                                    <span class="meta-badge"><i class="fas fa-envelope"></i> {{ student.email }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-primary btn-verify ripple-effect" (click)="openVerifyModal(student)">
                             <i class="fas fa-file-check"></i>
                             <span>Verify Docs</span>
                         </button>
                     </div>
-
-                    <!-- Mini Document Preview Grid for Quick Access -->
+                    <!-- Mini Document Preview Grid -->
                     <div class="docs-mini-grid">
                         <div class="mini-doc-item" *ngIf="student.passport || student.passportPath">
                             <i class="fas fa-passport"></i> Passport
                         </div>
-                        <div class="mini-doc-item" *ngIf="student.adhaarCard || student.adhaarPath">
-                            <i class="fas fa-id-card"></i> Adhaar
+                        <div class="mini-doc-item" *ngIf="student.telexDocumentsPath">
+                            <i class="fas fa-file-medical"></i> Telex Docs
                         </div>
-                        <div class="mini-doc-item" *ngIf="student.marksheet || student.markseetPath">
-                            <i class="fas fa-file-alt"></i> Marksheet
+                    </div>
+                </div>
+            </div>
+
+            <!-- RETURN VIEW -->
+            <div *ngIf="activeTab === 'return' && !isLoading && !errorState.hasError"
+                class="approval-view animate-fade-in">
+                <div class="action-section-header">
+                    <div class="action-title">
+                        <h3><i class="fas fa-reply"></i> Return Documents</h3>
+                        <span class="badge-pill">{{ returnList.length }} Students</span>
+                    </div>
+                    <div class="action-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" [(ngModel)]="returnSearchQuery" (ngModelChange)="filterReturnList()"
+                            placeholder="Search by Application ID...">
+                    </div>
+                </div>
+
+                <div *ngIf="filteredReturnList.length === 0" class="empty-state">
+                    <i class="fas fa-shipping-fast empty-icon"></i>
+                    <h3>All Returned!</h3>
+                    <p>No documents pending return.</p>
+                </div>
+
+                <div *ngFor="let student of filteredReturnList" class="student-card-enhanced">
+                    <div class="card-header">
+                        <div class="student-info-detailed">
+                            <div class="avatar-lg-initials">{{ getInitials(student.fullName) }}</div>
+                            <div class="student-details">
+                                <div class="name-row">
+                                    <h3>{{ student.fullName }}</h3>
+                                    <button class="btn-icon-small ripple-effect" (click)="openDetailsModal(student)"
+                                        title="View Full Profile">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="student-meta-inline">
+                                    <span class="meta-badge highlight-badge"><i class="fas fa-id-badge"></i> {{
+                                        student.applicationId || student.id }}</span>
+                                    <span class="meta-badge"><i class="fas fa-envelope"></i> {{ student.email }}</span>
+                                </div>
+                            </div>
                         </div>
+                        <button class="btn-primary btn-verify ripple-effect" (click)="openReturnModal(student)">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Return Docs</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -352,7 +472,7 @@
                         </thead>
                         <tbody>
                             <tr *ngFor="let student of getPaginatedStudents()" class="clickable-row"
-                                (click)="openApprovalModal(student)" title="Click to view details">
+                                (click)="openVerifyModal(student)" title="Click to view details">
                                 <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
                                 <td>
                                     <div class="name-cell">
@@ -450,11 +570,12 @@
     </main>
 
     <!-- ENHANCED VERIFICATION MODAL -->
-    <div class="modal-backdrop" *ngIf="selectedStudent" (click)="closeApprovalModal()">
+    <div class="modal-backdrop" *ngIf="selectedStudent && !showReceiveModal && !showReturnModal"
+        (click)="closeVerifyModal()">
         <div class="modal-content modal-large" (click)="$event.stopPropagation()">
             <div class="modal-header">
                 <h3><i class="fas fa-file-check"></i> Verify Documents</h3>
-                <button class="close-btn" (click)="closeApprovalModal()">
+                <button class="close-btn" (click)="closeVerifyModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -549,7 +670,25 @@
                     <p class="section-intro">Click to view and verify each document.</p>
                     <div class="documents-showcase">
 
-                        <!-- Passport -->
+                        <!-- 1. Profile Image -->
+                        <div class="doc-showcase-item highlighted-doc"
+                            *ngIf="selectedStudent.profileImage || selectedStudent.profileImagePath">
+                            <div class="doc-showcase-header">
+                                <div class="doc-icon-large profile">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div>
+                                    <h5>Profile Image</h5>
+                                    <p class="doc-meta">Student Photo</p>
+                                </div>
+                            </div>
+                            <a [href]="getDocumentUrl(selectedStudent.profileImage || selectedStudent.profileImagePath)"
+                                target="_blank" class="btn-preview-highlighted">
+                                <i class="fas fa-eye"></i> View Document
+                            </a>
+                        </div>
+
+                        <!-- 2. Passport -->
                         <div class="doc-showcase-item highlighted-doc"
                             *ngIf="selectedStudent.passport || selectedStudent.passportPath">
                             <div class="doc-showcase-header">
@@ -567,7 +706,7 @@
                             </a>
                         </div>
 
-                        <!-- Adhaar -->
+                        <!-- 3. Adhaar Card -->
                         <div class="doc-showcase-item highlighted-doc"
                             *ngIf="selectedStudent.adhaarCard || selectedStudent.adhaarPath">
                             <div class="doc-showcase-header">
@@ -585,7 +724,7 @@
                             </a>
                         </div>
 
-                        <!-- Marksheet -->
+                        <!-- 4. 12th Marksheet -->
                         <div class="doc-showcase-item highlighted-doc"
                             *ngIf="selectedStudent.marksheet || selectedStudent.markseetPath">
                             <div class="doc-showcase-header">
@@ -593,8 +732,8 @@
                                     <i class="fas fa-file-alt"></i>
                                 </div>
                                 <div>
-                                    <h5>Marksheet</h5>
-                                    <p class="doc-meta">12th Grade / High School</p>
+                                    <h5>12th Marksheet</h5>
+                                    <p class="doc-meta">High School Results</p>
                                 </div>
                             </div>
                             <a [href]="getDocumentUrl(selectedStudent.marksheet || selectedStudent.markseetPath)"
@@ -603,50 +742,68 @@
                             </a>
                         </div>
 
-                        <!-- Admission Letter -->
+                        <!-- 5. NEET Marksheet -->
+                        <div class="doc-showcase-item highlighted-doc" *ngIf="selectedStudent.neetMarksheetPath">
+                            <div class="doc-showcase-header">
+                                <div class="doc-icon-large neet">
+                                    <i class="fas fa-file-medical-alt"></i>
+                                </div>
+                                <div>
+                                    <h5>NEET Marksheet</h5>
+                                    <p class="doc-meta">Entrance Exam Score</p>
+                                </div>
+                            </div>
+                            <a [href]="getDocumentUrl(selectedStudent.neetMarksheetPath)" target="_blank"
+                                class="btn-preview-highlighted">
+                                <i class="fas fa-eye"></i> View Document
+                            </a>
+                        </div>
+
+                        <!-- 6. Admission Letter -->
                         <div class="doc-showcase-item highlighted-doc"
-                            *ngIf="selectedStudent.admissionLetter || selectedStudent.admissionLetterPathInternal">
+                            *ngIf="selectedStudent.admissionLetter || selectedStudent.admissionLetterPathInternal || selectedStudent.admissionLetterPath">
                             <div class="doc-showcase-header">
                                 <div class="doc-icon-large admission">
-                                    <i class="fas fa-file-contract"></i>
+                                    <i class="fas fa-university"></i>
                                 </div>
                                 <div>
                                     <h5>Admission Letter</h5>
                                     <p class="doc-meta">Official University Letter</p>
                                 </div>
                             </div>
-                            <a [href]="getDocumentUrl(selectedStudent.admissionLetter || selectedStudent.admissionLetterPathInternal)"
+                            <a [href]="getDocumentUrl(selectedStudent.admissionLetter || selectedStudent.admissionLetterPathInternal || selectedStudent.admissionLetterPath)"
                                 target="_blank" class="btn-preview-highlighted">
                                 <i class="fas fa-eye"></i> View Document
                             </a>
                         </div>
 
-                        <!-- Conditional Letter -->
-                        <div class="doc-showcase-item highlighted-doc" *ngIf="selectedStudent.conditionalLetter">
+                        <!-- 7. Conditional Offer Letter -->
+                        <div class="doc-showcase-item highlighted-doc"
+                            *ngIf="selectedStudent.conditionalLetter || selectedStudent.conditionalOfferLetterPath">
                             <div class="doc-showcase-header">
                                 <div class="doc-icon-large letter">
-                                    <i class="fas fa-file-pdf"></i>
+                                    <i class="fas fa-envelope-open-text"></i>
                                 </div>
                                 <div>
                                     <h5>Conditional Letter</h5>
                                     <p class="doc-meta">Offer Letter</p>
                                 </div>
                             </div>
-                            <a [href]="getDocumentUrl(selectedStudent.conditionalLetter)" target="_blank"
-                                class="btn-preview-highlighted">
+                            <a [href]="getDocumentUrl(selectedStudent.conditionalLetter || selectedStudent.conditionalOfferLetterPath)"
+                                target="_blank" class="btn-preview-highlighted">
                                 <i class="fas fa-eye"></i> View Document
                             </a>
                         </div>
 
-                        <!-- Telex -->
+                        <!-- 8. Telex Documents -->
                         <div class="doc-showcase-item highlighted-doc" *ngIf="selectedStudent.telexDocumentsPath">
                             <div class="doc-showcase-header">
                                 <div class="doc-icon-large telex">
-                                    <i class="fas fa-file-medical"></i>
+                                    <i class="fas fa-file-contract"></i>
                                 </div>
                                 <div>
-                                    <h5>Telex Docs</h5>
-                                    <p class="doc-meta">Visa Support</p>
+                                    <h5>Telex Documents</h5>
+                                    <p class="doc-meta">Visa Support Docs</p>
                                 </div>
                             </div>
                             <a [href]="getDocumentUrl(selectedStudent.telexDocumentsPath)" target="_blank"
@@ -654,6 +811,59 @@
                                 <i class="fas fa-eye"></i> View Document
                             </a>
                         </div>
+
+                        <!-- 9. Telex Payment Screenshot -->
+                        <div class="doc-showcase-item highlighted-doc"
+                            *ngIf="selectedStudent.telexPaymentScreenshotPath">
+                            <div class="doc-showcase-header">
+                                <div class="doc-icon-large payment">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                                <div>
+                                    <h5>Telex Payment</h5>
+                                    <p class="doc-meta">Payment Proof</p>
+                                </div>
+                            </div>
+                            <a [href]="getDocumentUrl(selectedStudent.telexPaymentScreenshotPath)" target="_blank"
+                                class="btn-preview-highlighted">
+                                <i class="fas fa-eye"></i> View Document
+                            </a>
+                        </div>
+
+                        <!-- 10. TT Copy -->
+                        <div class="doc-showcase-item highlighted-doc" *ngIf="selectedStudent.ttCopyPath">
+                            <div class="doc-showcase-header">
+                                <div class="doc-icon-large payment">
+                                    <i class="fas fa-money-check-alt"></i>
+                                </div>
+                                <div>
+                                    <h5>TT Copy</h5>
+                                    <p class="doc-meta">Telegraphic Transfer</p>
+                                </div>
+                            </div>
+                            <a [href]="getDocumentUrl(selectedStudent.ttCopyPath)" target="_blank"
+                                class="btn-preview-highlighted">
+                                <i class="fas fa-eye"></i> View Document
+                            </a>
+                        </div>
+
+                        <!-- 11. Payment Confirmation -->
+                        <div class="doc-showcase-item highlighted-doc" *ngIf="selectedStudent.paymentConfirmationPath">
+                            <div class="doc-showcase-header">
+                                <div class="doc-icon-large payment">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div>
+                                    <h5>Payment Confirmation</h5>
+                                    <p class="doc-meta">Final Confirmation</p>
+                                </div>
+                            </div>
+                            <a [href]="getDocumentUrl(selectedStudent.paymentConfirmationPath)" target="_blank"
+                                class="btn-preview-highlighted">
+                                <i class="fas fa-eye"></i> View Document
+                            </a>
+                        </div>
+
                     </div>
                 </div>
 
@@ -698,9 +908,218 @@
                     </div>
                 </div>
 
+                <!-- STUDENT DETAILS MODAL -->
+                <div class="modal-backdrop" *ngIf="showDetailsModal" (click)="closeDetailsModal()">
+                    <div class="modal-content modal-xl" (click)="$event.stopPropagation()">
+                        <div class="modal-header">
+                            <div class="header-content">
+                                <h3><i class="fas fa-folder-open"></i> Student File</h3>
+                                <p class="subtitle">Comprehensive profile and document repository</p>
+                            </div>
+                            <button class="close-btn" (click)="closeDetailsModal()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body details-body">
+                            <!-- Header Section -->
+                            <div class="details-header-card">
+                                <div class="avatar-xl-initials">{{ getInitials(selectedStudent?.fullName) }}</div>
+                                <div class="details-main-info">
+                                    <h2>{{ selectedStudent?.fullName }}</h2>
+                                    <div class="badges-row">
+                                        <span class="badge-pill highlight">{{ selectedStudent?.applicationId ||
+                                            selectedStudent?.id }}</span>
+                                        <span class="status-pill" [ngClass]="getStatusClass(selectedStudent?.status)">
+                                            {{ selectedStudent?.applicationStatus || selectedStudent?.status }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="details-grid-layout">
+                                <!-- Left Column: Info -->
+                                <div class="details-column">
+                                    <!-- Personal Info -->
+                                    <div class="detail-section">
+                                        <h4><i class="fas fa-address-card"></i> Personal Information</h4>
+                                        <div class="info-list">
+                                            <div class="info-row">
+                                                <span class="label">Email</span>
+                                                <span class="value">{{ selectedStudent?.email }}</span>
+                                            </div>
+                                            <div class="info-row">
+                                                <span class="label">Contact</span>
+                                                <span class="value">{{ selectedStudent?.contactNo || 'N/A' }}</span>
+                                            </div>
+                                            <div class="info-row">
+                                                <span class="label">DOB</span>
+                                                <span class="value">{{ selectedStudent?.dob | date:'mediumDate'
+                                                    }}</span>
+                                            </div>
+                                            <div class="info-row">
+                                                <span class="label">Address</span>
+                                                <span class="value">{{ selectedStudent?.address || 'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Academic Info -->
+                                    <div class="detail-section">
+                                        <h4><i class="fas fa-graduation-cap"></i> Academic Details</h4>
+                                        <div class="info-list">
+                                            <div class="info-row">
+                                                <span class="label">College</span>
+                                                <span class="value">{{ selectedStudent?.college?.collegeName || 'N/A'
+                                                    }}</span>
+                                            </div>
+                                            <div class="info-row">
+                                                <span class="label">Course</span>
+                                                <span class="value">{{ selectedStudent?.course || 'N/A' }}</span>
+                                            </div>
+                                            <div class="info-row">
+                                                <span class="label">NEET Score</span>
+                                                <span class="value">{{ selectedStudent?.neetScore || 'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Passport Info -->
+                                    <div class="detail-section">
+                                        <h4><i class="fas fa-passport"></i> Passport Details</h4>
+                                        <div class="info-list">
+                                            <div class="info-row">
+                                                <span class="label">Passport No</span>
+                                                <span class="value">{{ selectedStudent?.passportNo || 'N/A' }}</span>
+                                            </div>
+                                            <div class="info-row">
+                                                <span class="label">Valid Till</span>
+                                                <span class="value">{{ selectedStudent?.passportValidTill |
+                                                    date:'mediumDate' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Documents -->
+                                <div class="details-column">
+                                    <div class="detail-section full-height">
+                                        <h4><i class="fas fa-file-alt"></i> Document Repository</h4>
+                                        <div class="docs-repository-grid">
+                                            <!-- Passport -->
+                                            <div class="doc-repo-item" *ngIf="selectedStudent?.passportPath">
+                                                <div class="doc-icon"><i class="fas fa-passport"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">Passport</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.passportPath)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- Adhaar -->
+                                            <div class="doc-repo-item" *ngIf="selectedStudent?.adhaarPath">
+                                                <div class="doc-icon"><i class="fas fa-id-card"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">Adhaar Card</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.adhaarPath)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- 12th Marksheet -->
+                                            <div class="doc-repo-item" *ngIf="selectedStudent?.markseetPath">
+                                                <div class="doc-icon"><i class="fas fa-file-certificate"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">12th Marksheet</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.markseetPath)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- NEET Marksheet -->
+                                            <div class="doc-repo-item" *ngIf="selectedStudent?.neetMarksheetPath">
+                                                <div class="doc-icon"><i class="fas fa-file-medical-alt"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">NEET Marksheet</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.neetMarksheetPath)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- Profile Image -->
+                                            <div class="doc-repo-item" *ngIf="selectedStudent?.profileImagePath">
+                                                <div class="doc-icon"><i class="fas fa-user-circle"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">Profile Photo</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.profileImagePath)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- Admission Letter -->
+                                            <div class="doc-repo-item"
+                                                *ngIf="selectedStudent?.admissionLetterPath || selectedStudent?.admissionLetterPathInternal">
+                                                <div class="doc-icon"><i class="fas fa-envelope-open-text"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">Admission Letter</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.admissionLetterPath || selectedStudent?.admissionLetterPathInternal)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- Conditional Offer Letter -->
+                                            <div class="doc-repo-item"
+                                                *ngIf="selectedStudent?.conditionalOfferLetterPath || selectedStudent?.conditionalLetter">
+                                                <div class="doc-icon"><i class="fas fa-file-contract"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">Conditional Offer</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.conditionalOfferLetterPath || selectedStudent?.conditionalLetter)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- Telex Documents -->
+                                            <div class="doc-repo-item" *ngIf="selectedStudent?.telexDocumentsPath">
+                                                <div class="doc-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">Telex Documents</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.telexDocumentsPath)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- Telex Payment Screenshot -->
+                                            <div class="doc-repo-item"
+                                                *ngIf="selectedStudent?.telexPaymentScreenshotPath">
+                                                <div class="doc-icon"><i class="fas fa-receipt"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">Telex Payment</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.telexPaymentScreenshotPath)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- TT Copy -->
+                                            <div class="doc-repo-item" *ngIf="selectedStudent?.ttCopyPath">
+                                                <div class="doc-icon"><i class="fas fa-money-check-alt"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">TT Copy</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.ttCopyPath)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                            <!-- Payment Confirmation -->
+                                            <div class="doc-repo-item" *ngIf="selectedStudent?.paymentConfirmationPath">
+                                                <div class="doc-icon"><i class="fas fa-check-circle"></i></div>
+                                                <div class="doc-info">
+                                                    <span class="doc-name">Payment Confirmation</span>
+                                                    <a [href]="getDocumentUrl(selectedStudent?.paymentConfirmationPath)"
+                                                        target="_blank" class="view-link">View Document</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-secondary" (click)="closeDetailsModal()">Close</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Comments Section -->
-                <div class="form-section"
-                    *ngIf="selectedStudent?.action === 'CONFIRM_DOCS' && (selectedStudent?.setActionOnUser === 'doc_manager' || selectedStudent?.actionOnUser === 'doc_manager')">
+                <div class="form-section" *ngIf="selectedStudent?.action === 'VERIFY_DOCS'">
                     <h4><i class="fas fa-comment-alt"></i> Verification Comments</h4>
                     <div class="form-group">
                         <textarea [(ngModel)]="approvalComment" rows="3" class="form-control"
@@ -712,12 +1131,11 @@
             <!-- MODAL ACTIONS: REJECT & APPROVE -->
             <div class="modal-footer">
                 <div class="footer-left">
-                    <button class="btn-secondary" (click)="closeApprovalModal()">
+                    <button class="btn-secondary" (click)="closeVerifyModal()">
                         Cancel
                     </button>
                 </div>
-                <div class="footer-right"
-                    *ngIf="selectedStudent?.action === 'CONFIRM_DOCS' && (selectedStudent?.setActionOnUser === 'doc_manager' || selectedStudent?.actionOnUser === 'doc_manager')">
+                <div class="footer-right" *ngIf="selectedStudent?.action === 'VERIFY_DOCS'">
                     <button class="btn-danger btn-lg" (click)="submitVerification(false)"
                         [disabled]="!approvalComment.trim()">
                         <i class="fas fa-times-circle"></i> Reject Docs
@@ -727,6 +1145,74 @@
                         <i class="fas fa-check-circle"></i> Approve & Verified
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECEIVE MODAL -->
+    <div class="modal-backdrop" *ngIf="showReceiveModal" (click)="closeReceiveModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fas fa-box-open"></i> Confirm Receipt</h3>
+                <button class="close-btn" (click)="closeReceiveModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Confirm that you have received the physical documents for <strong>{{ selectedStudent?.fullName
+                        }}</strong>.</p>
+                <div class="form-group">
+                    <label>Received Date</label>
+                    <input type="date" [(ngModel)]="receiveDate" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" (click)="closeReceiveModal()">Cancel</button>
+                <button class="btn-primary" (click)="submitReceive()" [disabled]="isSubmitting">
+                    <i class="fas" [class.fa-spinner]="isSubmitting" [class.fa-spin]="isSubmitting"
+                        [class.fa-check]="!isSubmitting"></i>
+                    Confirm Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RETURN MODAL -->
+    <div class="modal-backdrop" *ngIf="showReturnModal" (click)="closeReturnModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fas fa-shipping-fast"></i> Return Documents</h3>
+                <button class="close-btn" (click)="closeReturnModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Enter return details for <strong>{{ selectedStudent?.fullName }}</strong>.</p>
+                <div class="form-group">
+                    <label>Return Method</label>
+                    <select [(ngModel)]="returnDetails.method" class="form-control">
+                        <option value="COURIER">Courier</option>
+                        <option value="SELF_PERSON">Self / In Person</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tracking ID / Contact Info</label>
+                    <input type="text" [(ngModel)]="returnDetails.trackingId" class="form-control"
+                        placeholder="e.g. AWB123456789">
+                </div>
+                <div class="form-group">
+                    <label>Returned Date</label>
+                    <input type="date" [(ngModel)]="returnDetails.returnedDate" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" (click)="closeReturnModal()">Cancel</button>
+                <button class="btn-primary" (click)="submitReturn()"
+                    [disabled]="isSubmitting || !returnDetails.trackingId">
+                    <i class="fas" [class.fa-spinner]="isSubmitting" [class.fa-spin]="isSubmitting"
+                        [class.fa-paper-plane]="!isSubmitting"></i>
+                    Process Return
+                </button>
             </div>
         </div>
     </div>
@@ -781,9 +1267,17 @@
                         <span>Go to Dashboard</span>
                         <kbd>D</kbd>
                     </div>
-                    <div class="command-item" (click)="executeCommand('approval')">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Go to Approval Required</span>
+                    <div class="command-item" (click)="executeCommand('receive')">
+                        <i class="fas fa-inbox"></i>
+                        <span>Go to Receive</span>
+                    </div>
+                    <div class="command-item" (click)="executeCommand('verify')">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Go to Verify</span>
+                    </div>
+                    <div class="command-item" (click)="executeCommand('return')">
+                        <i class="fas fa-reply"></i>
+                        <span>Go to Returns</span>
                     </div>
                     <div class="command-item" (click)="executeCommand('stamped')">
                         <i class="fas fa-stamp"></i>
@@ -806,9 +1300,9 @@
     </div>
 
     <!-- FLOATING ACTION BUTTON -->
-    <div class="fab-container" *ngIf="activeTab === 'pipeline' || activeTab === 'stamped' || activeTab === 'approval'">
-        <button class="fab ripple-effect" [title]="activeTab === 'approval' ? 'Quick Approve' : 'Quick Actions'"
-            (click)="activeTab === 'approval' ? bulkApprove() : selectAllVisible()">
+    <div class="fab-container" *ngIf="activeTab === 'pipeline' || activeTab === 'stamped' || activeTab === 'verify'">
+        <button class="fab ripple-effect" [title]="activeTab === 'verify' ? 'Quick Verify' : 'Quick Actions'"
+            (click)="activeTab === 'verify' ? bulkApprove() : selectAllVisible()">
             <i class="fas fa-bolt"></i>
         </button>
     </div>

@@ -38,12 +38,12 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // STATE MANAGEMENT
   // ============================================
-  activeTab: 'dashboard' | 'approval' | 'pipeline' | 'stamped' | 'reports' | 'profile' = 'dashboard';
+  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' = 'dashboard';
   isLoading: boolean = false;
   isLoggingOut: boolean = false;
   isDarkMode: boolean = false;
 
-  setActiveTab(tab: 'dashboard' | 'approval' | 'pipeline' | 'stamped' | 'reports' | 'profile'): void {
+  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile'): void {
     this.activeTab = tab;
     this.pagination.currentPage = 1; // Reset pagination
     this.applyFilters(); // Re-apply filters based on the new tab
@@ -66,25 +66,41 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   docPerson: DocPersonProfile | null = null;
   students: Student[] = [];
-  approvalList: Student[] = [];
-  filteredApprovalList: Student[] = []; // For approval tab search
+
+  // New Workflow Lists
+  receiveList: Student[] = [];
+  verifyList: Student[] = [];
+  returnList: Student[] = [];
+
+  // Filtered lists for search within tabs
+  filteredReceiveList: Student[] = [];
+  filteredVerifyList: Student[] = [];
+  filteredReturnList: Student[] = [];
+
   pipelineList: Student[] = [];
   stampedList: Student[] = [];
   filteredStudents: Student[] = [];
 
-  // Search for Approval Tab specifically
-  approvalSearchQuery: string = '';
+  // Search queries for specific tabs
+  receiveSearchQuery: string = '';
+  verifySearchQuery: string = '';
+  returnSearchQuery: string = '';
 
   // ============================================
   // DASHBOARD STATISTICS
   // ============================================
   stats: DashboardStats = {
     totalStudents: 0,
-    pendingApproval: 0,
+    pendingApproval: 0, // We can map this to Verify or Receive count, or sum
     inPipeline: 0,
     approved: 0,
     rejected: 0
   };
+
+  // New Stats helpers
+  get receiveCount(): number { return this.receiveList.length; }
+  get verifyCount(): number { return this.verifyList.length; }
+  get returnCount(): number { return this.returnList.length; }
 
   // ============================================
   // PAGINATION
@@ -117,6 +133,19 @@ export class DocPersonDashbaord implements OnInit {
   selectedStudent: Student | null = null;
   approvalComment: string = '';
   modalActiveTab: 'details' | 'documents' | 'timeline' = 'details';
+
+  // Receive Modal State
+  showReceiveModal: boolean = false;
+  receiveDate: string = new Date().toISOString().split('T')[0];
+
+  // Return Modal State
+  showReturnModal: boolean = false;
+  returnDetails = {
+    method: 'COURIER',
+    trackingId: '',
+    returnedDate: new Date().toISOString().split('T')[0]
+  };
+  showDetailsModal: boolean = false; // New state for details modal
 
   // ============================================
   // DOCUMENT PREVIEW
@@ -281,24 +310,41 @@ export class DocPersonDashbaord implements OnInit {
   }
 
   processStudents(): void {
-    // 1. Approval List: action 'CONFIRM_DOCS' and setActionOnUser 'doc_manager'
-    this.approvalList = this.students.filter(s =>
+    // 1. Receive List: action 'CONFIRM_DOCS'
+    this.receiveList = this.students.filter(s =>
       s.action === 'CONFIRM_DOCS' && (s.setActionOnUser === 'doc_manager' || s.actionOnUser === 'doc_manager')
     );
+    this.filteredReceiveList = [...this.receiveList];
 
-    // Initialize filtered list for approval tab
-    this.filteredApprovalList = [...this.approvalList];
+    // 2. Verify List: action 'VERIFY_DOCS'
+    this.verifyList = this.students.filter(s =>
+      s.action === 'VERIFY_DOCS'
+    );
+    this.filteredVerifyList = [...this.verifyList];
 
-    // 2. Stamped List: applicationStatus is 'VISA_STAMPED'
+    // 3. Return List: readyForDocReturn === true
+    this.returnList = this.students.filter(s =>
+      s.readyForDocReturn === true
+    );
+    this.filteredReturnList = [...this.returnList];
+
+    // 4. Stamped List
     this.stampedList = this.students.filter(s =>
       s.applicationStatus === 'VISA_STAMPED'
     );
 
-    // 3. Pipeline List: All remaining students (NOT in approvalList AND NOT in stampedList)
-    this.pipelineList = this.students.filter(s =>
-      !this.approvalList.includes(s) &&
-      !this.stampedList.includes(s)
-    );
+    // 5. Pipeline List: Remaining students
+    // Exclude those in receive, verify, return, or stamped lists to avoid duplication if needed, 
+    // or just general pipeline. Usually pipeline implies active but not finished.
+    // For now, we'll exclude the specific action items to keep lists distinct.
+    const activeIds = new Set([
+      ...this.receiveList.map(s => s.id),
+      ...this.verifyList.map(s => s.id),
+      ...this.returnList.map(s => s.id),
+      ...this.stampedList.map(s => s.id)
+    ]);
+
+    this.pipelineList = this.students.filter(s => !activeIds.has(s.id));
 
     // Initialize main table
     this.applyFilters();
@@ -307,9 +353,9 @@ export class DocPersonDashbaord implements OnInit {
   calculateStats(): void {
     this.stats = {
       totalStudents: this.students.length,
-      pendingApproval: this.approvalList.length,
+      pendingApproval: this.verifyList.length, // Mapping "Pending Approval" to Verify List
       inPipeline: this.pipelineList.length,
-      approved: this.stampedList.length, // Using Stamped count for "Approved" stat
+      approved: this.stampedList.length,
       rejected: this.students.filter(s => s.isTelexDocApproved === false).length
     };
   }
@@ -358,19 +404,27 @@ export class DocPersonDashbaord implements OnInit {
     this.updatePagination();
   }
 
-  // 2. Specific Approval Tab Search (By Application ID)
-  filterApprovalList(): void {
-    if (!this.approvalSearchQuery.trim()) {
-      this.filteredApprovalList = [...this.approvalList];
-    } else {
-      const query = this.approvalSearchQuery.toLowerCase();
-      this.filteredApprovalList = this.approvalList.filter(s =>
-        (s.applicationId && s.applicationId.toString().toLowerCase().includes(query)) ||
-        (s.id && s.id.toString().toLowerCase().includes(query)) ||
-        (s.fullName && s.fullName.toLowerCase().includes(query))
-      );
-    }
-    this.cdr.detectChanges();
+  // 2. Specific Tab Search Helpers
+  filterReceiveList(): void {
+    this.filteredReceiveList = this.filterList(this.receiveList, this.receiveSearchQuery);
+  }
+
+  filterVerifyList(): void {
+    this.filteredVerifyList = this.filterList(this.verifyList, this.verifySearchQuery);
+  }
+
+  filterReturnList(): void {
+    this.filteredReturnList = this.filterList(this.returnList, this.returnSearchQuery);
+  }
+
+  private filterList(list: Student[], query: string): Student[] {
+    if (!query.trim()) return [...list];
+    const q = query.toLowerCase();
+    return list.filter(s =>
+      (s.applicationId && s.applicationId.toString().toLowerCase().includes(q)) ||
+      (s.id && s.id.toString().toLowerCase().includes(q)) ||
+      (s.fullName && s.fullName.toLowerCase().includes(q))
+    );
   }
 
   onSearchChange(): void {
@@ -424,16 +478,134 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // APPROVAL & VERIFICATION LOGIC
   // ============================================
-  openApprovalModal(student: Student): void {
+  // ============================================
+  // ACTION WORKFLOWS
+  // ============================================
+
+  // --- RECEIVE ACTION ---
+  openReceiveModal(student: Student): void {
+    this.selectedStudent = student;
+    this.receiveDate = new Date().toISOString().split('T')[0];
+    this.showReceiveModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeReceiveModal(): void {
+    this.showReceiveModal = false;
+    this.selectedStudent = null;
+  }
+
+  submitReceive(): void {
+    if (!this.selectedStudent) return;
+
+    this.isSubmitting = true;
+    const payload = {
+      receivedDate: this.receiveDate,
+      docPersonUsername: this.docPerson?.username || 'doc_person_user'
+    };
+
+    this.http.post(`${this.API_ENDPOINT}/receive-docs/${this.selectedStudent.id}`, payload)
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+
+          // Show Success Modal
+          this.successType = 'approval';
+          this.successMessage = `Documents for ${this.selectedStudent?.fullName} have been marked as Received.`;
+          this.showSuccessModal = true;
+
+          this.closeReceiveModal();
+          this.fetchDashboardData();
+          this.cdr.detectChanges(); // Ensure UI updates immediately
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.handleError(err);
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  // --- VERIFY ACTION ---
+  openVerifyModal(student: Student): void {
     this.selectedStudent = student;
     this.approvalComment = '';
     this.modalActiveTab = 'details';
     this.cdr.detectChanges();
   }
 
-  closeApprovalModal(): void {
+  closeVerifyModal(): void {
     this.selectedStudent = null;
     this.approvalComment = '';
+  }
+
+  // --- RETURN ACTION ---
+  openReturnModal(student: Student): void {
+    this.selectedStudent = student;
+    this.returnDetails = {
+      method: 'COURIER',
+      trackingId: '',
+      returnedDate: new Date().toISOString().split('T')[0]
+    };
+    this.showReturnModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeReturnModal(): void {
+    this.showReturnModal = false;
+    this.selectedStudent = null;
+  }
+
+  submitReturn(): void {
+    if (!this.selectedStudent) return;
+
+    this.isSubmitting = true;
+    const payload = {
+      method: this.returnDetails.method,
+      trackingId: this.returnDetails.trackingId,
+      returnedDate: this.returnDetails.returnedDate,
+      docPersonUsername: this.docPerson?.username || 'doc_person_user'
+    };
+
+    this.http.post(`${this.API_ENDPOINT}/return-docs/${this.selectedStudent.id}`, payload)
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+
+          // Show Success Modal
+          this.successType = 'approval';
+          this.successMessage = `Documents for ${this.selectedStudent?.fullName} have been processed for return.`;
+          this.showSuccessModal = true;
+
+          this.closeReturnModal();
+          this.fetchDashboardData();
+          this.cdr.detectChanges(); // Ensure UI updates immediately
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          this.handleError(err);
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  // DETAILS MODAL
+  openDetailsModal(student: Student) {
+    this.selectedStudent = student;
+    this.showDetailsModal = true;
+  }
+
+  closeDetailsModal() {
+    this.showDetailsModal = false;
+    this.selectedStudent = null;
+  }
+
+  getDocumentUrl(path: string | undefined): string {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    // Remove leading slash if present to avoid double slashes
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return `http://localhost:8080/${cleanPath}`;
   }
 
   isSubmitting: boolean = false;
@@ -463,7 +635,7 @@ export class DocPersonDashbaord implements OnInit {
             : `Documents rejected for ${this.selectedStudent?.fullName}. Sent back for review.`;
 
           // Close approval modal FIRST
-          this.closeApprovalModal();
+          this.closeVerifyModal();
 
           // Then show success modal
           this.showSuccessModal = true;
@@ -515,7 +687,9 @@ export class DocPersonDashbaord implements OnInit {
   getTabIcon(): string {
     const iconMap: any = {
       'dashboard': 'fas fa-th-large',
-      'approval': 'fas fa-check-circle',
+      'receive': 'fas fa-inbox',
+      'verify': 'fas fa-file-contract',
+      'return': 'fas fa-reply',
       'pipeline': 'fas fa-clock',
       'stamped': 'fas fa-stamp',
       'reports': 'fas fa-chart-line',
@@ -554,15 +728,7 @@ export class DocPersonDashbaord implements OnInit {
     return this.formatDate(dateString as string);
   }
 
-  getDocumentUrl(path?: string): string {
-    if (!path) return '';
-    // If path already includes http, return as is
-    if (path.startsWith('http://') || path.startsWith('https://')) {
-      return path;
-    }
-    // Otherwise prepend base URL
-    return `${this.doc_url}/${path.startsWith('/') ? path.substring(1) : path}`;
-  }
+
 
   // Toast helpers
   showToast(type: any, message: string) {
@@ -615,8 +781,14 @@ export class DocPersonDashbaord implements OnInit {
       case 'dashboard':
         this.activeTab = 'dashboard';
         break;
-      case 'approval':
-        this.activeTab = 'approval';
+      case 'receive':
+        this.activeTab = 'receive';
+        break;
+      case 'verify':
+        this.activeTab = 'verify';
+        break;
+      case 'return':
+        this.activeTab = 'return';
         break;
       case 'stamped':
         this.activeTab = 'stamped';

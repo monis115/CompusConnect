@@ -34,10 +34,15 @@ export interface Student {
     marksheet?: string;
     confirmationPagePath?: string;
     admissionLetterPathInternal?: string;
+    admissionLetterPath?: string;
     admissionLetter?: string;
     conditionalLetter?: string;
     telexDocumentsPath?: string;
     telexPaymentScreenshotPath?: string;
+    neetMarksheetPath?: string;
+    conditionalOfferLetterPath?: string;
+    ttCopyPath?: string;
+    paymentConfirmationPath?: string;
 
     // Status & Workflow
     status: string;
@@ -45,6 +50,7 @@ export interface Student {
     action: string;
     actionOnUser: string;
     setActionOnUser?: string;
+    readyForDocReturn?: boolean;
     isTelexDocApproved?: boolean | null;
     docPersonComment?: string | null;
 
