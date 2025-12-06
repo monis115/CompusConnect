@@ -801,6 +801,68 @@
   }
 }
 
+/* --- Floating Fullscreen Button --- */
+.floating-fullscreen-btn {
+  position: absolute;
+  bottom: 200px;
+  right: 40px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-main) 0%, var(--primary-dark) 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(30, 41, 59, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 50;
+}
+
+.floating-fullscreen-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(30, 41, 59, 0.5);
+}
+
+.floating-fullscreen-btn svg {
+  width: 26px;
+  height: 26px;
+  transition: transform 0.3s ease;
+}
+
+.floating-fullscreen-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Active (Fullscreen mode) state with glow effect */
+.floating-fullscreen-btn.active {
+  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4),
+    0 0 20px rgba(16, 185, 129, 0.3);
+  animation: fullscreenPulse 2s ease-in-out infinite;
+}
+
+.floating-fullscreen-btn.active:hover {
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5),
+    0 0 30px rgba(16, 185, 129, 0.4);
+}
+
+@keyframes fullscreenPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4),
+      0 0 20px rgba(16, 185, 129, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.6),
+      0 0 30px rgba(16, 185, 129, 0.5);
+  }
+}
+
 /* --- Modals --- */
 .modal-backdrop {
   position: fixed;
@@ -1340,7 +1402,250 @@
   line-height: 1.5;
 }
 
-/* --- Loading State --- */
+/* --- Premium Loading Overlay --- */
+.premium-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInOverlay 0.3s ease-out;
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.loading-backdrop {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+      rgba(15, 23, 42, 0.95) 0%,
+      rgba(30, 41, 59, 0.92) 50%,
+      rgba(15, 23, 42, 0.95) 100%);
+  backdrop-filter: blur(8px);
+}
+
+.loading-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  animation: scaleInContent 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleInContent {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Multi-Ring Loader */
+.multi-ring-loader {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid transparent;
+}
+
+.ring-outer {
+  inset: 0;
+  border-top-color: var(--accent-main);
+  border-right-color: var(--accent-light);
+  animation: spinRing 1.5s linear infinite;
+}
+
+.ring-middle {
+  inset: 12px;
+  border-bottom-color: var(--info);
+  border-left-color: #60A5FA;
+  animation: spinRing 1.2s linear infinite reverse;
+}
+
+.ring-inner {
+  inset: 24px;
+  border-top-color: var(--success);
+  border-right-color: #34D399;
+  animation: spinRing 0.9s linear infinite;
+}
+
+@keyframes spinRing {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loader-core {
+  position: absolute;
+  inset: 36px;
+  background: linear-gradient(135deg, var(--primary-main) 0%, var(--primary-dark) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow:
+    0 4px 20px rgba(217, 119, 6, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  animation: pulseCoreGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseCoreGlow {
+
+  0%,
+  100% {
+    box-shadow:
+      0 4px 20px rgba(217, 119, 6, 0.3),
+      inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  }
+
+  50% {
+    box-shadow:
+      0 4px 30px rgba(217, 119, 6, 0.5),
+      0 0 40px rgba(217, 119, 6, 0.2),
+      inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Loading Text */
+.loading-text {
+  text-align: center;
+}
+
+.loading-text h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.5px;
+}
+
+.loading-text p {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+/* Progress Bar */
+.loading-progress {
+  width: 200px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      var(--accent-main) 0%,
+      var(--accent-light) 50%,
+      var(--accent-main) 100%);
+  background-size: 200% 100%;
+  animation: shimmerProgress 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmerProgress {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Floating Particles */
+.floating-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.floating-particles span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: floatParticle 4s ease-in-out infinite;
+}
+
+.floating-particles span:nth-child(1) {
+  left: 10%;
+  top: 20%;
+  animation-delay: 0s;
+}
+
+.floating-particles span:nth-child(2) {
+  left: 80%;
+  top: 30%;
+  animation-delay: 0.5s;
+}
+
+.floating-particles span:nth-child(3) {
+  left: 20%;
+  top: 70%;
+  animation-delay: 1s;
+}
+
+.floating-particles span:nth-child(4) {
+  left: 70%;
+  top: 80%;
+  animation-delay: 1.5s;
+}
+
+.floating-particles span:nth-child(5) {
+  left: 50%;
+  top: 15%;
+  animation-delay: 2s;
+}
+
+@keyframes floatParticle {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(-20px) scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Keep old spinner class for compatibility with other parts */
 .loading-state {
   display: flex;
   flex-direction: column;

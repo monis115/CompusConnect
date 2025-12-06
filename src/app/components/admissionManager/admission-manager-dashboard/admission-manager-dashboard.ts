@@ -159,6 +159,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   isRefreshing = false;
   isSubmitting = false;
   searchTerm = '';
+  isFullscreen = false;
   isLoadingMessages = false;
 
   getMessagesCount(): number {
@@ -279,35 +280,47 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     this.isRefreshing = true;
     this.cdr.detectChanges();
 
+    // Small delay for visual feedback, then load data
     setTimeout(() => {
       this.loadInitialData(false);
-    }, 1900);
+    }, 300);
   }
 
   loadInitialData(isInitial: boolean): void {
     const username = sessionStorage.getItem('userId');
     if (!username) {
+      this.isLoading = false;
+      this.isRefreshing = false;
       this.router.navigate(['/login']);
       return;
     }
 
     if (isInitial) {
       this.isLoading = true;
-      this.cdr.detectChanges();
-    } else {
-      this.isRefreshing = true;
-      this.cdr.detectChanges();
     }
+    // Note: isRefreshing is already set by refreshData() for refresh cases
+    this.cdr.detectChanges();
 
     // Parallel loading logic
     if (this.activeView === 'dashboard') {
       this.loadDashboardStats(username);
     }
 
+    // Safety timeout - reset loading states after 15 seconds max
+    const safetyTimeout = setTimeout(() => {
+      if (this.isLoading || this.isRefreshing) {
+        console.warn('Loading timeout - resetting loading states');
+        this.isLoading = false;
+        this.isRefreshing = false;
+        this.cdr.detectChanges();
+      }
+    }, 15000);
+
     this.admissionService.getManagerDetails(username)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
+          clearTimeout(safetyTimeout);
           this.isLoading = false;
           this.isRefreshing = false;
           this.cdr.detectChanges();
@@ -323,7 +336,13 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
           }
           this.cdr.detectChanges();
         },
-        error: (error) => console.error('Error loading data:', error)
+        error: (error) => {
+          console.error('Error loading data:', error);
+          // Ensure loading states are reset on error
+          this.isLoading = false;
+          this.isRefreshing = false;
+          this.cdr.detectChanges();
+        }
       });
   }
 
@@ -593,6 +612,33 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   }
 
   isLoggingOut = false;
+
+  toggleFullscreen(): void {
+    const elem = document.documentElement;
+
+    if (!this.isFullscreen) {
+      // Enter fullscreen
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if ((elem as any).webkitRequestFullscreen) {
+        (elem as any).webkitRequestFullscreen();
+      } else if ((elem as any).msRequestFullscreen) {
+        (elem as any).msRequestFullscreen();
+      }
+      this.isFullscreen = true;
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      }
+      this.isFullscreen = false;
+    }
+    this.cdr.detectChanges();
+  }
 
   openLogoutModal(): void {
     this.isLogoutModalOpen = true;

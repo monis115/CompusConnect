@@ -17,6 +17,7 @@ import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-
 import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
 import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
 import { TelexManagerDashboard } from './components/telex-manager-dashboard/telex-manager-dashboard';
+import { AccountantDashboard } from './components/accountant-dashboard/accountant-dashboard';
 import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
@@ -94,6 +95,14 @@ const routes: Routes = [
     component: TelexManagerDashboard,
     canActivate: [AuthGuard],
     data: { role: 'telex_manager' }
+  },
+
+  // Accountant Dashboard - Protected
+  {
+    path: 'accountant-dashboard',
+    component: AccountantDashboard,
+    canActivate: [AuthGuard],
+    data: { role: 'accountant' }
   },
 
   // Wildcard route

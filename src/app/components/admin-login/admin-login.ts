@@ -31,6 +31,9 @@ export class AdminLogin {
   spinnerPhase = signal<'validating' | 'success' | 'error'>('validating');
   userRole = signal('');
 
+  // Fullscreen mode
+  isFullscreen = signal(false);
+
   // Particles for background
   particles = signal<{ x: number; y: number; size: number; duration: number; delay: number }[]>([]);
 
@@ -55,6 +58,32 @@ export class AdminLogin {
       });
     }
     this.particles.set(newParticles);
+  }
+
+  toggleFullscreen(): void {
+    const elem = document.documentElement;
+
+    if (!this.isFullscreen()) {
+      // Enter fullscreen
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if ((elem as any).webkitRequestFullscreen) {
+        (elem as any).webkitRequestFullscreen();
+      } else if ((elem as any).msRequestFullscreen) {
+        (elem as any).msRequestFullscreen();
+      }
+      this.isFullscreen.set(true);
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      }
+      this.isFullscreen.set(false);
+    }
   }
 
   @HostListener('mousemove', ['$event'])

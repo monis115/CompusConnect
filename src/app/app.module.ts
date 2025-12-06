@@ -87,6 +87,7 @@ import { UniversityPersonDashboard } from './components/university-person-dashba
 import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
 import { ReplaceUnderscorePipe } from './pipes/replace-underscore.pipe';
 import { TelexManagerDashboard } from './components/telex-manager-dashboard/telex-manager-dashboard';
+import { AccountantDashboard } from './components/accountant-dashboard/accountant-dashboard';
 
 
 @NgModule({
@@ -108,7 +109,8 @@ import { TelexManagerDashboard } from './components/telex-manager-dashboard/tele
     AllAgentDetails,
     UniversityPersonDashboard,
     DocPersonDashbaord,
-    TelexManagerDashboard
+    TelexManagerDashboard,
+    AccountantDashboard
   ],
   imports: [
     BrowserModule,
