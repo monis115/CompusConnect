@@ -2090,221 +2090,118 @@
   }
 }
 
-/* === Ultra-Premium Logout Spinner === */
-/* Logout Overlay */
+/* === Premium Minimal Logout Spinner === */
 .logout-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg,
-      rgba(15, 23, 42, 0.78) 0%,
-      rgba(30, 41, 59, 0.82) 50%,
-      rgba(15, 23, 42, 0.78) 100%);
-  backdrop-filter: blur(22px) saturate(190%);
-  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayFadeIn 0.4s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.logout-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 36px;
-  animation: spinnerOverlayFadeIn 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 28px;
+  animation: contentSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes spinnerOverlayFadeIn {
+@keyframes contentSlideUp {
   from {
     opacity: 0;
-    backdrop-filter: blur(0px);
+    transform: translateY(20px) scale(0.95);
   }
 
   to {
     opacity: 1;
-    backdrop-filter: blur(22px) saturate(190%);
+    transform: translateY(0) scale(1);
   }
 }
 
-.logout-spinner {
-  width: 130px;
-  height: 130px;
+/* Spinner Container */
+.logout-spinner-container {
   position: relative;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-      rgba(217, 119, 6, 0.08) 0%,
-      transparent 75%);
-  animation: spinnerScaleAppear 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+  width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-@keyframes spinnerScaleAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.5) rotate(-200deg);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-/* Outer Ring - Primary Shield */
-.logout-spinner::before {
-  content: '';
+/* Spinner Rings */
+.logout-spinner-ring {
   position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 5px solid transparent;
-  border-top-color: rgba(217, 119, 6, 0.85);
-  border-right-color: rgba(245, 158, 11, 0.7);
-  border-bottom-color: rgba(180, 83, 9, 0.5);
-  animation: primaryRotate 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  box-shadow:
-    0 0 24px rgba(217, 119, 6, 0.5),
-    inset 0 0 24px rgba(217, 119, 6, 0.25);
-  filter: drop-shadow(0 5px 15px rgba(217, 119, 6, 0.45));
+  border: 2px solid transparent;
+  border-top-color: rgba(255, 255, 255, 0.9);
+  border-right-color: rgba(255, 255, 255, 0.3);
+  animation: spinRing 1.2s linear infinite;
 }
 
-/* Inner Ring - Secondary Layer */
-.logout-spinner::after {
-  content: '';
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  width: calc(100% - 28px);
-  height: calc(100% - 28px);
-  border-radius: 50%;
-  border: 4px solid transparent;
-  border-top-color: rgba(245, 158, 11, 0.75);
-  border-left-color: rgba(217, 119, 6, 0.55);
-  border-bottom-color: rgba(251, 191, 36, 0.4);
-  animation: secondaryRotateReverse 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  box-shadow:
-    0 0 18px rgba(245, 158, 11, 0.4),
-    inset 0 0 18px rgba(245, 158, 11, 0.25);
+.logout-spinner-ring.ring-2 {
+  width: 54px;
+  height: 54px;
+  border-width: 2px;
+  border-top-color: rgba(255, 255, 255, 0.5);
+  border-left-color: rgba(255, 255, 255, 0.2);
+  animation: spinRingReverse 1s linear infinite;
 }
 
-@keyframes primaryRotate {
+@keyframes spinRing {
   0% {
     transform: rotate(0deg);
-    border-width: 5px;
-  }
-
-  50% {
-    border-width: 7px;
   }
 
   100% {
     transform: rotate(360deg);
-    border-width: 5px;
   }
 }
 
-@keyframes secondaryRotateReverse {
+@keyframes spinRingReverse {
   0% {
     transform: rotate(360deg);
-    border-width: 4px;
-  }
-
-  50% {
-    border-width: 6px;
   }
 
   100% {
     transform: rotate(0deg);
-    border-width: 4px;
   }
 }
 
-/* Spinner Glow Effect */
-.logout-spinner {
-  box-shadow:
-    0 0 45px rgba(217, 119, 6, 0.35),
-    0 0 90px rgba(245, 158, 11, 0.25),
-    0 0 130px rgba(217, 119, 6, 0.15);
-  animation:
-    spinnerScaleAppear 0.9s cubic-bezier(0.34, 1.56, 0.64, 1),
-    spinnerGlowPulse 3.2s ease-in-out infinite;
+/* Center Icon */
+.logout-icon-center {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  animation: iconPulseLogout 2s ease-in-out infinite;
 }
 
-@keyframes spinnerGlowPulse {
-
-  0%,
-  100% {
-    box-shadow:
-      0 0 45px rgba(217, 119, 6, 0.35),
-      0 0 90px rgba(245, 158, 11, 0.25),
-      0 0 130px rgba(217, 119, 6, 0.15);
-  }
-
-  50% {
-    box-shadow:
-      0 0 65px rgba(217, 119, 6, 0.5),
-      0 0 110px rgba(245, 158, 11, 0.35),
-      0 0 160px rgba(217, 119, 6, 0.25);
-  }
-}
-
-.logout-overlay p {
-  font-size: 19px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 1.2px;
-  text-shadow:
-    0 3px 10px rgba(0, 0, 0, 0.55),
-    0 5px 20px rgba(217, 119, 6, 0.45);
-  animation:
-    textFadeSlideUp 0.9s cubic-bezier(0.34, 1.56, 0.64, 1),
-    textGentlePulse 2.4s ease-in-out infinite;
-  position: relative;
-  padding: 18px 44px;
-  background: linear-gradient(135deg,
-      rgba(217, 119, 6, 0.28) 0%,
-      rgba(245, 158, 11, 0.22) 100%);
-  border-radius: 18px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.25),
-    inset 0 1px 1px rgba(255, 255, 255, 0.45),
-    0 0 45px rgba(217, 119, 6, 0.25);
-}
-
-.logout-overlay p::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg,
-      transparent,
-      rgba(255, 255, 255, 0.25),
-      transparent);
-  animation: textShimmerSweep 2.8s infinite;
-  border-radius: 18px;
-}
-
-@keyframes textFadeSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes textGentlePulse {
+@keyframes iconPulseLogout {
 
   0%,
   100% {
@@ -2313,19 +2210,69 @@
   }
 
   50% {
-    opacity: 0.88;
-    transform: scale(1.03);
+    opacity: 0.7;
+    transform: scale(0.95);
   }
 }
 
-@keyframes textShimmerSweep {
-  0% {
-    left: -100%;
+/* Text Container */
+.logout-text-container {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Main Message */
+.logout-message {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.3px;
+  line-height: 1.5;
+  max-width: 280px;
+  margin: 0;
+  animation: messageFade 0.6s ease-out 0.2s backwards;
+}
+
+@keyframes messageFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
 
-  100% {
-    left: 200%;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+/* Subtext */
+.logout-subtext {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.5px;
+  animation: subtextFade 0.6s ease-out 0.4s backwards;
+}
+
+@keyframes subtextFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Legacy spinner support - hidden */
+.logout-spinner {
+  display: none;
+}
+
+.logout-overlay>p {
+  display: none;
 }
 
 /* === Premium Messages Loading Spinner === */

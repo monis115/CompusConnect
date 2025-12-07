@@ -54,15 +54,25 @@ interface Student {
   hasGivenNEET: boolean;
   neetScore: number | null;
   neetYear: string | null;
+  neetMarksheetPath: string | null;
   // Application
   intake: string;
   appliedFor: string;
   college: { id: number; collegeName: string } | null;
-  // Docs
+  // Docs - Basic
   confirmationPagePath: string | null;
   conditionalOfferLetterPath: string | null;
   admissionLetterPathInternal: string | null;
   profileImagePath: string | null;
+  // Docs - Telex
+  telexDocumentsPath: string | null;
+  telexPaymentScreenshotPath: string | null;
+  // Docs - Visa
+  visaPhotoPath: string | null;
+  visaPassportCopyPath: string | null;
+  // Docs - Payment
+  ttCopyPath: string | null;
+  paymentConfirmationPath: string | null;
   // Workflow
   telexMan: User | null;
   visaMan: User | null;

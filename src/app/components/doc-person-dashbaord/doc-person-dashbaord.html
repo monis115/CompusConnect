@@ -257,50 +257,151 @@
                 </div>
             </div>
 
-            <!-- RECEIVE VIEW -->
+            <!-- RECEIVE VIEW - PREMIUM PROFESSIONAL DESIGN -->
             <div *ngIf="activeTab === 'receive' && !isLoading && !errorState.hasError"
-                class="approval-view animate-fade-in">
-                <div class="action-section-header">
-                    <div class="action-title">
-                        <h3><i class="fas fa-inbox"></i> Receive Documents</h3>
-                        <span class="badge-pill">{{ receiveList.length }} Students</span>
+                class="receive-view-premium animate-fade-in">
+
+                <!-- Section Header -->
+                <div class="receive-header">
+                    <div class="header-left">
+                        <div class="header-icon-wrap">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <div class="header-text">
+                            <h2>Receive Documents</h2>
+                            <p>Pending document deliveries awaiting confirmation</p>
+                        </div>
                     </div>
-                    <div class="action-search">
-                        <i class="fas fa-search"></i>
-                        <input type="text" [(ngModel)]="receiveSearchQuery" (ngModelChange)="filterReceiveList()"
-                            placeholder="Search by Application ID...">
+                    <div class="header-right">
+                        <div class="search-box-premium">
+                            <i class="fas fa-search"></i>
+                            <input type="text" [(ngModel)]="receiveSearchQuery" (ngModelChange)="filterReceiveList()"
+                                placeholder="Search by ID or name...">
+                            <button *ngIf="receiveSearchQuery" class="clear-search"
+                                (click)="receiveSearchQuery = ''; filterReceiveList()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="count-badge">
+                            <span class="count-number">{{ filteredReceiveList.length }}</span>
+                            <span class="count-label">Pending</span>
+                        </div>
                     </div>
                 </div>
 
-                <div *ngIf="filteredReceiveList.length === 0" class="empty-state">
-                    <i class="fas fa-check-circle empty-icon"></i>
-                    <h3>All Received!</h3>
-                    <p>No pending documents to receive.</p>
+                <!-- Empty State -->
+                <div *ngIf="filteredReceiveList.length === 0" class="empty-state-premium">
+                    <div class="empty-icon-container">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="success-ring"></div>
+                    </div>
+                    <h3>All Documents Received!</h3>
+                    <p>No pending deliveries at the moment. Great job staying on top of things!</p>
                 </div>
 
-                <div *ngFor="let student of filteredReceiveList" class="student-card-enhanced">
-                    <div class="card-header">
-                        <div class="student-info-detailed">
-                            <div class="avatar-lg-initials">{{ getInitials(student.fullName) }}</div>
-                            <div class="student-details">
-                                <div class="name-row">
-                                    <h3>{{ student.fullName }}</h3>
-                                    <button class="btn-icon-small ripple-effect" (click)="openDetailsModal(student)"
-                                        title="View Full Profile">
-                                        <i class="fas fa-external-link-alt"></i>
+                <!-- Student Cards Grid -->
+                <div class="receive-cards-container" *ngIf="filteredReceiveList.length > 0">
+                    <div *ngFor="let student of filteredReceiveList; let i = index" class="receive-card"
+                        [style.animation-delay]="(i * 0.08) + 's'">
+
+                        <!-- Card Main Content -->
+                        <div class="card-main">
+                            <!-- Left: Avatar & Info -->
+                            <div class="student-section">
+                                <div class="avatar-premium">
+                                    <span>{{ getInitials(student.fullName) }}</span>
+                                    <div class="avatar-status online"></div>
+                                </div>
+                                <div class="student-info">
+                                    <div class="name-line">
+                                        <h4>{{ student.fullName }}</h4>
+                                        <button class="btn-view-profile" (click)="openDetailsModal(student)"
+                                            title="View Profile">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </button>
+                                    </div>
+                                    <div class="meta-chips">
+                                        <span class="chip chip-id">
+                                            <i class="fas fa-hashtag"></i>
+                                            {{ student.applicationId || student.id }}
+                                        </span>
+                                        <span class="chip chip-email" *ngIf="student.email">
+                                            <i class="fas fa-envelope"></i>
+                                            {{ student.email }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Action Button -->
+                            <button class="btn-receive" (click)="openReceiveModal(student)">
+                                <span class="btn-icon">
+                                    <i class="fas fa-box-open"></i>
+                                </span>
+                                <span class="btn-text">Mark Received</span>
+                                <span class="btn-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Delivery Info Strip -->
+                        <div class="delivery-strip" *ngIf="student.docDeliveryMethod">
+                            <div class="strip-left">
+                                <!-- Delivery Type -->
+                                <div class="delivery-badge"
+                                    [ngClass]="{'badge-courier': student.docDeliveryMethod === 'COURIER', 'badge-person': student.docDeliveryMethod === 'SELF_PERSON'}">
+                                    <i
+                                        [class]="student.docDeliveryMethod === 'COURIER' ? 'fas fa-truck' : 'fas fa-user'"></i>
+                                    <span>{{ student.docDeliveryMethod === 'COURIER' ? 'Courier' : 'Hand Delivery'
+                                        }}</span>
+                                </div>
+
+                                <!-- Partner Badge -->
+                                <div class="partner-badge"
+                                    *ngIf="student.docDeliveryMethod === 'COURIER' && student.courierPartner"
+                                    [style.--brand]="getCourierBrandColor(student.courierPartner)">
+                                    <i [class]="getCourierIcon(student.courierPartner)"></i>
+                                    <span>{{ student.courierPartner }}</span>
+                                </div>
+
+                                <!-- Track Link -->
+                                <a *ngIf="getCourierTrackingUrl(student.courierPartner, student.courierTrackingId)"
+                                    [href]="getCourierTrackingUrl(student.courierPartner, student.courierTrackingId)"
+                                    target="_blank" rel="noopener noreferrer" class="track-btn"
+                                    [style.--brand]="getCourierBrandColor(student.courierPartner)">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    Track
+                                </a>
+                            </div>
+
+                            <div class="strip-right">
+                                <!-- AWB with Copy -->
+                                <div class="info-pill"
+                                    *ngIf="student.courierTrackingId && student.docDeliveryMethod === 'COURIER'">
+                                    <span class="pill-label">AWB</span>
+                                    <code class="pill-value">{{ student.courierTrackingId }}</code>
+                                    <button class="copy-mini"
+                                        (click)="copyTrackingId(student.courierTrackingId); $event.stopPropagation()"
+                                        title="Copy">
+                                        <i class="fas fa-copy"></i>
                                     </button>
                                 </div>
-                                <div class="student-meta-inline">
-                                    <span class="meta-badge highlight-badge"><i class="fas fa-id-badge"></i> {{
-                                        student.applicationId || student.id }}</span>
-                                    <span class="meta-badge"><i class="fas fa-envelope"></i> {{ student.email }}</span>
+
+                                <!-- Self Person Contact -->
+                                <div class="info-pill"
+                                    *ngIf="student.selfPersonContact && student.docDeliveryMethod === 'SELF_PERSON'">
+                                    <span class="pill-label">Contact</span>
+                                    <span class="pill-value">{{ student.selfPersonContact }}</span>
+                                </div>
+
+                                <!-- ETA -->
+                                <div class="info-pill pill-eta" *ngIf="student.docTentativeReachDate">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span class="pill-value">{{ formatDate(student.docTentativeReachDate) }}</span>
                                 </div>
                             </div>
                         </div>
-                        <button class="btn-primary btn-verify ripple-effect" (click)="openReceiveModal(student)">
-                            <i class="fas fa-box-open"></i>
-                            <span>Mark Received</span>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1150,28 +1251,108 @@
     </div>
 
     <!-- RECEIVE MODAL -->
-    <div class="modal-backdrop" *ngIf="showReceiveModal" (click)="closeReceiveModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h3><i class="fas fa-box-open"></i> Confirm Receipt</h3>
+    <!-- RECEIVE DOCUMENTS MODAL -->
+    <div class="modal-backdrop receive-modal-backdrop" *ngIf="showReceiveModal" (click)="closeReceiveModal()">
+        <div class="modal-content receive-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header receive-header">
+                <div class="header-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="header-text">
+                    <h3>Confirm Document Receipt</h3>
+                    <p>Select the documents you have received</p>
+                </div>
                 <button class="close-btn" (click)="closeReceiveModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+
             <div class="modal-body">
-                <p>Confirm that you have received the physical documents for <strong>{{ selectedStudent?.fullName
-                        }}</strong>.</p>
-                <div class="form-group">
-                    <label>Received Date</label>
-                    <input type="date" [(ngModel)]="receiveDate" class="form-control">
+                <!-- Student Info -->
+                <div class="student-info-bar">
+                    <div class="student-avatar-mini">
+                        {{ selectedStudent?.fullName | slice:0:1 }}
+                    </div>
+                    <div class="student-details-mini">
+                        <strong>{{ selectedStudent?.fullName }}</strong>
+                        <span>ID: {{ selectedStudent?.applicationId || selectedStudent?.id }}</span>
+                    </div>
+                </div>
+
+                <!-- Document Checkboxes -->
+                <div class="docs-checklist">
+                    <label class="doc-check-item" [class.checked]="receivedDocs.received12thMarksheet">
+                        <input type="checkbox" [(ngModel)]="receivedDocs.received12thMarksheet">
+                        <div class="check-box">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="doc-info">
+                            <span class="doc-name">12th Marksheet</span>
+                            <span class="doc-desc">Class 12 / Higher Secondary Certificate</span>
+                        </div>
+                    </label>
+
+                    <label class="doc-check-item" [class.checked]="receivedDocs.received10thMarksheet">
+                        <input type="checkbox" [(ngModel)]="receivedDocs.received10thMarksheet">
+                        <div class="check-box">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="doc-info">
+                            <span class="doc-name">10th Marksheet</span>
+                            <span class="doc-desc">Class 10 / Secondary School Certificate</span>
+                        </div>
+                    </label>
+
+                    <label class="doc-check-item" [class.checked]="receivedDocs.receivedNeetScorecard">
+                        <input type="checkbox" [(ngModel)]="receivedDocs.receivedNeetScorecard">
+                        <div class="check-box">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="doc-info">
+                            <span class="doc-name">NEET Scorecard</span>
+                            <span class="doc-desc">National Eligibility cum Entrance Test</span>
+                        </div>
+                    </label>
+
+                    <label class="doc-check-item" [class.checked]="receivedDocs.receivedPassport">
+                        <input type="checkbox" [(ngModel)]="receivedDocs.receivedPassport">
+                        <div class="check-box">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="doc-info">
+                            <span class="doc-name">Passport</span>
+                            <span class="doc-desc">Valid International Passport</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Date Picker -->
+                <div class="form-group date-group">
+                    <label><i class="fas fa-calendar-alt"></i> Received Date</label>
+                    <input type="date" [(ngModel)]="receiveDate" class="form-control date-input">
+                </div>
+
+                <!-- Selected Count -->
+                <div class="selection-summary" *ngIf="hasSelectedDocuments()">
+                    <i class="fas fa-info-circle"></i>
+                    <span>
+                        {{ (receivedDocs.received12thMarksheet ? 1 : 0) +
+                        (receivedDocs.received10thMarksheet ? 1 : 0) +
+                        (receivedDocs.receivedNeetScorecard ? 1 : 0) +
+                        (receivedDocs.receivedPassport ? 1 : 0) }} document(s) selected
+                    </span>
                 </div>
             </div>
+
             <div class="modal-footer">
-                <button class="btn-secondary" (click)="closeReceiveModal()">Cancel</button>
-                <button class="btn-primary" (click)="submitReceive()" [disabled]="isSubmitting">
+                <button class="btn-cancel" (click)="closeReceiveModal()">
+                    Cancel
+                </button>
+                <button class="btn-confirm" (click)="submitReceive()"
+                    [disabled]="isSubmitting || !hasSelectedDocuments()">
                     <i class="fas" [class.fa-spinner]="isSubmitting" [class.fa-spin]="isSubmitting"
-                        [class.fa-check]="!isSubmitting"></i>
-                    Confirm Receipt
+                        [class.fa-check-circle]="!isSubmitting"></i>
+                    {{ isSubmitting ? 'Processing...' : 'Confirm Receipt' }}
                 </button>
             </div>
         </div>

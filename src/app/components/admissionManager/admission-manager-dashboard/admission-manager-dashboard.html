@@ -635,25 +635,32 @@
               <h3>Documents</h3>
             </div>
             <div class="document-grid">
+              <!-- Basic Documents -->
               <a *ngIf="selectedStudent.passportPath" [href]="getDocUrl(selectedStudent.passportPath)" target="_blank"
                 class="doc-tile">
                 <div class="doc-name">Passport</div>
               </a>
               <a *ngIf="selectedStudent.markseetPath" [href]="getDocUrl(selectedStudent.markseetPath)" target="_blank"
                 class="doc-tile">
-                <div class="doc-name">Marksheet</div>
+                <div class="doc-name">12th Marksheet</div>
               </a>
               <a *ngIf="selectedStudent.adhaarPath" [href]="getDocUrl(selectedStudent.adhaarPath)" target="_blank"
                 class="doc-tile">
-                <div class="doc-name">Adhaar</div>
+                <div class="doc-name">Aadhaar</div>
               </a>
               <a *ngIf="selectedStudent.profileImagePath" [href]="getDocUrl(selectedStudent.profileImagePath)"
                 target="_blank" class="doc-tile">
-                <div class="doc-name">Photo</div>
+                <div class="doc-name">Profile Photo</div>
               </a>
+              <a *ngIf="selectedStudent.neetMarksheetPath" [href]="getDocUrl(selectedStudent.neetMarksheetPath)"
+                target="_blank" class="doc-tile">
+                <div class="doc-name">NEET Scorecard</div>
+              </a>
+
+              <!-- Application Documents -->
               <a *ngIf="selectedStudent.confirmationPagePath" [href]="getDocUrl(selectedStudent.confirmationPagePath)"
                 target="_blank" class="doc-tile">
-                <div class="doc-name">Confirmation</div>
+                <div class="doc-name">Confirmation Page</div>
               </a>
               <a *ngIf="selectedStudent.admissionLetterPathInternal"
                 [href]="getDocUrl(selectedStudent.admissionLetterPathInternal)" target="_blank" class="doc-tile">
@@ -663,7 +670,39 @@
                 [href]="getDocUrl(selectedStudent.conditionalOfferLetterPath)" target="_blank" class="doc-tile">
                 <div class="doc-name">Conditional Offer</div>
               </a>
-              <div *ngIf="!selectedStudent.passportPath && !selectedStudent.markseetPath"
+
+              <!-- Telex Documents -->
+              <a *ngIf="selectedStudent.telexDocumentsPath" [href]="getDocUrl(selectedStudent.telexDocumentsPath)"
+                target="_blank" class="doc-tile">
+                <div class="doc-name">Telex Documents</div>
+              </a>
+              <a *ngIf="selectedStudent.telexPaymentScreenshotPath"
+                [href]="getDocUrl(selectedStudent.telexPaymentScreenshotPath)" target="_blank" class="doc-tile">
+                <div class="doc-name">Telex Payment Screenshot</div>
+              </a>
+
+              <!-- Visa Documents -->
+              <a *ngIf="selectedStudent.visaPhotoPath" [href]="getDocUrl(selectedStudent.visaPhotoPath)" target="_blank"
+                class="doc-tile">
+                <div class="doc-name">Visa Photo</div>
+              </a>
+              <a *ngIf="selectedStudent.visaPassportCopyPath" [href]="getDocUrl(selectedStudent.visaPassportCopyPath)"
+                target="_blank" class="doc-tile">
+                <div class="doc-name">Visa Passport Copy</div>
+              </a>
+
+              <!-- Payment Documents -->
+              <a *ngIf="selectedStudent.ttCopyPath" [href]="getDocUrl(selectedStudent.ttCopyPath)" target="_blank"
+                class="doc-tile">
+                <div class="doc-name">TT Copy</div>
+              </a>
+              <a *ngIf="selectedStudent.paymentConfirmationPath"
+                [href]="getDocUrl(selectedStudent.paymentConfirmationPath)" target="_blank" class="doc-tile">
+                <div class="doc-name">Payment Confirmation</div>
+              </a>
+
+              <div
+                *ngIf="!selectedStudent.passportPath && !selectedStudent.markseetPath && !selectedStudent.adhaarPath && !selectedStudent.profileImagePath"
                 style="color: #94a3b8; font-style: italic;">No documents available.</div>
             </div>
           </div>
@@ -804,10 +843,25 @@
     </div>
   </div>
 
-  <!-- Ultra-Premium Logout Spinner Overlay -->
+  <!-- Premium Minimal Logout Spinner Overlay -->
   <div class="logout-overlay" *ngIf="isLoggingOut" [@fadeIn]>
-    <div class="logout-spinner"></div>
-    <p>{{ currentLogoutMessage }}</p>
+    <div class="logout-content">
+      <div class="logout-spinner-container">
+        <div class="logout-spinner-ring"></div>
+        <div class="logout-spinner-ring ring-2"></div>
+        <div class="logout-icon-center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </div>
+      </div>
+      <div class="logout-text-container">
+        <p class="logout-message">{{ currentLogoutMessage }}</p>
+        <span class="logout-subtext">Signing out securely...</span>
+      </div>
+    </div>
   </div>
 
 </div>

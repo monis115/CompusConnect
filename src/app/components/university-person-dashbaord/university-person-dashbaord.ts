@@ -30,6 +30,7 @@ interface Student {
   createdAt: string;
   passportPath?: string;
   adhaarPath?: string;
+  adhaarCardNo?: string;
   markseetPath?: string;
   confirmationPagePath?: string;
   admissionLetterPath?: string;

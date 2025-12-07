@@ -138,6 +138,14 @@ export class DocPersonDashbaord implements OnInit {
   showReceiveModal: boolean = false;
   receiveDate: string = new Date().toISOString().split('T')[0];
 
+  // Document received checkboxes
+  receivedDocs = {
+    received12thMarksheet: false,
+    received10thMarksheet: false,
+    receivedNeetScorecard: false,
+    receivedPassport: false
+  };
+
   // Return Modal State
   showReturnModal: boolean = false;
   returnDetails = {
@@ -486,6 +494,13 @@ export class DocPersonDashbaord implements OnInit {
   openReceiveModal(student: Student): void {
     this.selectedStudent = student;
     this.receiveDate = new Date().toISOString().split('T')[0];
+    // Reset document checkboxes
+    this.receivedDocs = {
+      received12thMarksheet: false,
+      received10thMarksheet: false,
+      receivedNeetScorecard: false,
+      receivedPassport: false
+    };
     this.showReceiveModal = true;
     this.cdr.detectChanges();
   }
@@ -493,15 +508,40 @@ export class DocPersonDashbaord implements OnInit {
   closeReceiveModal(): void {
     this.showReceiveModal = false;
     this.selectedStudent = null;
+    // Reset document checkboxes
+    this.receivedDocs = {
+      received12thMarksheet: false,
+      received10thMarksheet: false,
+      receivedNeetScorecard: false,
+      receivedPassport: false
+    };
+  }
+
+  // Check if at least one document is selected
+  hasSelectedDocuments(): boolean {
+    return this.receivedDocs.received12thMarksheet ||
+      this.receivedDocs.received10thMarksheet ||
+      this.receivedDocs.receivedNeetScorecard ||
+      this.receivedDocs.receivedPassport;
   }
 
   submitReceive(): void {
     if (!this.selectedStudent) return;
 
+    // Validate at least one document is selected
+    if (!this.hasSelectedDocuments()) {
+      this.showToast('error', 'Please select at least one document that was received.');
+      return;
+    }
+
     this.isSubmitting = true;
     const payload = {
       receivedDate: this.receiveDate,
-      docPersonUsername: this.docPerson?.username || 'doc_person_user'
+      docPersonUsername: this.docPerson?.username || 'doc_person_user',
+      received12thMarksheet: this.receivedDocs.received12thMarksheet,
+      received10thMarksheet: this.receivedDocs.received10thMarksheet,
+      receivedNeetScorecard: this.receivedDocs.receivedNeetScorecard,
+      receivedPassport: this.receivedDocs.receivedPassport
     };
 
     this.http.post(`${this.API_ENDPOINT}/receive-docs/${this.selectedStudent.id}`, payload)
@@ -726,6 +766,138 @@ export class DocPersonDashbaord implements OnInit {
 
   formatDateTime(dateString: string | Date): string {
     return this.formatDate(dateString as string);
+  }
+
+  // ============================================
+  // COURIER TRACKING URL HELPER
+  // ============================================
+  getCourierTrackingUrl(courierPartner: string | undefined, trackingId: string | undefined): string | null {
+    if (!courierPartner) return null;
+
+    const partner = courierPartner.toUpperCase().trim();
+
+    // Direct tracking page URLs (user copies ID and pastes on the page)
+    const trackingUrls: { [key: string]: string } = {
+      // International Couriers (5)
+      'DHL EXPRESS': 'https://www.dhl.com/in-en/home/tracking.html',
+      'DHL': 'https://www.dhl.com/in-en/home/tracking.html',
+      'FEDEX': 'https://www.fedex.com/en-in/tracking.html',
+      'UPS': 'https://www.ups.com/track',
+      'ARAMEX': 'https://www.aramex.com/track/shipments',
+      'USPS': 'https://tools.usps.com/go/TrackConfirmAction',
+
+      // Indian Domestic Couriers (8)
+      'BLUE DART': 'https://www.bluedart.com/track-trace',
+      'BLUEDART': 'https://www.bluedart.com/track-trace',
+      'DELHIVERY': 'https://www.delhivery.com',
+      'DTDC': 'https://www.dtdc.in/tracking/shipment-tracking.html',
+      'GATI': 'https://www.gatikwe.com',
+      'XPRESSBEES': 'https://www.xpressbees.com/shipment/tracking',
+      'ECOM EXPRESS': 'https://ecomexpress.in/tracking',
+      'SHADOWFAX': 'https://tracker.shadowfax.in',
+      'INDIA POST': 'https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx',
+      'INDIAPOST': 'https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx',
+
+      // Aggregators (4)
+      'SHIPROCKET': 'https://www.shiprocket.in/shipment-tracking',
+      'NIMBUSPOST': 'https://nimbuspost.com/tracking',
+      'PICKRR': 'https://www.pickrr.com/tracking',
+      'CLICKPOST': 'https://www.clickpost.in/track'
+    };
+
+    // Search for matching partner
+    for (const [key, url] of Object.entries(trackingUrls)) {
+      if (partner.includes(key) || key.includes(partner)) {
+        return url;
+      }
+    }
+
+    // Default fallback - return null if no match
+    return null;
+  }
+
+  // Get courier-specific icon
+  getCourierIcon(courierPartner: string | undefined): string {
+    if (!courierPartner) return 'fas fa-shipping-fast';
+    const partner = courierPartner.toUpperCase().trim();
+
+    const iconMap: { [key: string]: string } = {
+      'DHL': 'fas fa-truck',
+      'FEDEX': 'fas fa-box',
+      'UPS': 'fas fa-dolly',
+      'ARAMEX': 'fas fa-globe',
+      'USPS': 'fas fa-flag-usa',
+      'BLUE DART': 'fas fa-plane',
+      'BLUEDART': 'fas fa-plane',
+      'DELHIVERY': 'fas fa-motorcycle',
+      'DTDC': 'fas fa-truck-moving',
+      'GATI': 'fas fa-truck-loading',
+      'XPRESSBEES': 'fas fa-shipping-fast',
+      'ECOM EXPRESS': 'fas fa-boxes',
+      'SHADOWFAX': 'fas fa-bolt',
+      'INDIA POST': 'fas fa-mail-bulk',
+      'INDIAPOST': 'fas fa-mail-bulk',
+      'SHIPROCKET': 'fas fa-rocket',
+      'NIMBUSPOST': 'fas fa-cloud',
+      'CLICKPOST': 'fas fa-mouse-pointer',
+      'PICKRR': 'fas fa-map-marker-alt'
+    };
+
+    for (const [key, icon] of Object.entries(iconMap)) {
+      if (partner.includes(key)) return icon;
+    }
+    return 'fas fa-shipping-fast';
+  }
+
+  // Get courier brand color for premium UI
+  getCourierBrandColor(courierPartner: string | undefined): string {
+    if (!courierPartner) return '#059669';
+    const partner = courierPartner.toUpperCase().trim();
+
+    const colorMap: { [key: string]: string } = {
+      'DHL': '#FFCC00',      // DHL Yellow
+      'FEDEX': '#4D148C',    // FedEx Purple
+      'UPS': '#351C15',      // UPS Brown
+      'ARAMEX': '#E31837',   // Aramex Red
+      'USPS': '#004B87',     // USPS Blue
+      'BLUE DART': '#003399', // Blue Dart Blue
+      'BLUEDART': '#003399',
+      'DELHIVERY': '#E53935', // Delhivery Red
+      'DTDC': '#FF6600',     // DTDC Orange
+      'GATI': '#1E88E5',     // Gati Blue
+      'XPRESSBEES': '#FFB300', // Xpressbees Yellow
+      'ECOM EXPRESS': '#43A047', // Ecom Green
+      'SHADOWFAX': '#7B1FA2', // Shadowfax Purple
+      'INDIA POST': '#D32F2F', // India Post Red
+      'INDIAPOST': '#D32F2F',
+      'SHIPROCKET': '#5C6BC0', // Shiprocket Indigo
+      'NIMBUSPOST': '#00ACC1', // NimbusPost Cyan
+      'CLICKPOST': '#FF5722', // ClickPost Orange
+      'PICKRR': '#8BC34A'    // Pickrr Green
+    };
+
+    for (const [key, color] of Object.entries(colorMap)) {
+      if (partner.includes(key)) return color;
+    }
+    return '#059669';
+  }
+
+  // Copy tracking ID to clipboard
+  copyTrackingId(trackingId: string | undefined): void {
+    if (!trackingId) return;
+
+    navigator.clipboard.writeText(trackingId).then(() => {
+      this.showToast('success', `Tracking ID copied: ${trackingId}`);
+    }).catch(() => {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = trackingId;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      this.showToast('success', `Tracking ID copied: ${trackingId}`);
+    });
   }
 
 

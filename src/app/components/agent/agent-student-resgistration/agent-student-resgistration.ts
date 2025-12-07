@@ -116,6 +116,8 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
 
   boardOptions = ['CBSE', 'ICSE', 'State Board', 'IB', 'Other'];
 
+  hasPassport: boolean = true;
+
   isLoading = false;
   isSuccess = false;
   errorMessage: string | null = null;
@@ -353,11 +355,24 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
       !this.student.contactNo || !this.student.address || !this.student.selectedState || !this.student.districtId ||
       !this.student.mothersName || !this.student.fathersName ||
       !this.student.emergencyContactNo || !this.student.emergencyRelation ||
-      !this.student.passportNo || !this.student.passportValidTill ||
       !this.student.class12thPassingYear ||
       !this.student.baords || !this.student.class12thMarks || !this.student.maxMarks) {
       this.errorMessage = 'Please fill all required fields marked with *';
       return false;
+    }
+
+    if (this.hasPassport) {
+      if (!this.student.passportNo || !this.student.passportValidTill) {
+        this.errorMessage = 'Please enter valid Passport Number and Expiry Date';
+        return false;
+      }
+
+      const passportExpiry = new Date(this.student.passportValidTill);
+      const today = new Date();
+      if (passportExpiry <= today) {
+        this.errorMessage = 'Passport must be valid (not expired)';
+        return false;
+      }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -372,11 +387,11 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     }
 
     const passportExpiry = new Date(this.student.passportValidTill);
-    const today = new Date();
-    if (passportExpiry <= today) {
-      this.errorMessage = 'Passport must be valid (not expired)';
-      return false;
-    }
+    // const today = new Date(); // Moved up
+    // if (passportExpiry <= today) {
+    //   this.errorMessage = 'Passport must be valid (not expired)';
+    //   return false;
+    // }
 
     if (this.student.hasGivenNEET) {
       if (!this.student.neetYear || !this.student.neetScore) {
@@ -436,7 +451,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     //   this.errorMessage = 'Please upload Aadhaar card document';
     //   return false;
     // }
-    if (!this.documents.passport) {
+    if (this.hasPassport && !this.documents.passport) {
       this.errorMessage = 'Please upload Passport document';
       return false;
     }
@@ -483,8 +498,8 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
       emergencyContactNo: this.student.emergencyContactNo,
       emergencyRelation: this.student.emergencyRelation,
 
-      passportNo: this.student.passportNo,
-      passportValidTill: this.student.passportValidTill,
+      passportNo: this.hasPassport ? this.student.passportNo : '',
+      passportValidTill: this.hasPassport ? this.student.passportValidTill : '',
       adhaarCardNo: this.student.adhaarCardNo,
 
       class12thPassingYear: this.student.class12thPassingYear,
@@ -509,7 +524,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     if (this.documents.class12thMarksheet) formData.append('marksheetFile', this.documents.class12thMarksheet);
     if (this.documents.photograph) formData.append('profileImage', this.documents.photograph);
     if (this.documents.neetMarksheet) formData.append('neetMarksheetFile', this.documents.neetMarksheet);
-    if (this.documents.passport) formData.append('passportFile', this.documents.passport);
+    if (this.hasPassport && this.documents.passport) formData.append('passportFile', this.documents.passport);
 
     const startTime = Date.now();
 
@@ -572,7 +587,9 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     this.selectedCollegeId = null;
     this.availableStates = [];
     this.filteredDistricts = [];
+    this.filteredDistricts = [];
     this.currentLocationMap.clear();
+    this.hasPassport = true;
 
     this.student = {
       fullName: '',

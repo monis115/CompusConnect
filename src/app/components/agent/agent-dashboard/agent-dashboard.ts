@@ -143,6 +143,96 @@ export class AgentDashboard implements OnInit {
   isValidationModalOpen = false;
   validationMessage = '';
 
+  // Standardized List of Visa Issuance Places
+  visaIssuancePlaces: string[] = [
+    'Vienna', 'Baku', 'Kabul', 'Brussels', 'London', 'Berlin', 'Cairo', 'Tel Aviv',
+    'New-Delhi', 'Jakarta', 'Tehran', 'Madrid', 'Rome', 'Almaty', 'Beijing', 'Riyadh',
+    'Kuwait', 'Bishkek', 'Riga', 'Kuala Lumpur', 'Abu Dhabi', 'Islamabad', 'Warsaw',
+    'Moscow', 'Singapore', 'Washington', 'Dushanbe', 'Ashkhabad', 'Ankara', 'Kiev',
+    'Paris', 'Seoul', 'Tokyo', 'Athens', 'Bangkok', 'Jeddah', 'Dubai', 'Novosibirsk',
+    'New-York', 'Istanbul', 'Shanghai', 'Frankfurt am Main', 'Mazare-Sharif',
+    'Tashkent (Airport)', 'Tashkent (MFA)', 'Termez', 'Samarkand', 'Bukhara',
+    'Urgench', 'Nukus', 'Saint-Petersburg', 'Minsk', 'Astana', 'Vladivostok',
+    'Ekaterinburg', 'Kazan', 'Muscat', 'Rostov on Don', 'Aktau', 'Guangzhou',
+    'Stockholm', 'Budapest', 'Qatar', 'Fergana (Airport)', 'Osh'
+  ].sort();
+
+  // Countries by Continent
+  countriesByContinent = [
+    {
+      continent: 'Africa',
+      countries: [
+        'Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi', 'Cabo Verde (Cape Verde)', 'Cameroon',
+        'Central African Republic', 'Chad', 'Comoros', 'Congo, Democratic Republic of the', 'Congo, Republic of the',
+        "Côte d'Ivoire (Ivory Coast)", 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini (formerly Swaziland)',
+        'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Kenya', 'Lesotho', 'Liberia', 'Libya',
+        'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria',
+        'Rwanda', 'São Tomé and Príncipe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan',
+        'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe'
+      ]
+    },
+    {
+      continent: 'Asia',
+      countries: [
+        'Afghanistan', 'Armenia', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Bhutan', 'Brunei', 'Cambodia', 'China', 'Cyprus',
+        'Georgia', 'India', 'Indonesia', 'Iran', 'Iraq', 'Israel', 'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan',
+        'Laos', 'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Myanmar (Burma)', 'Nepal', 'North Korea', 'Oman', 'Pakistan',
+        'Palestine', 'Philippines', 'Qatar', 'Saudi Arabia', 'Singapore', 'South Korea', 'Sri Lanka', 'Syria', 'Tajikistan',
+        'Thailand', 'Timor-Leste (East Timor)', 'Turkey (Türkiye)', 'Turkmenistan', 'United Arab Emirates (UAE)', 'Uzbekistan',
+        'Vietnam', 'Yemen'
+      ]
+    },
+    {
+      continent: 'Europe',
+      countries: [
+        'Albania', 'Andorra', 'Austria', 'Belarus', 'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia',
+        'Czechia (Czech Republic)', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Holy See (Vatican City)',
+        'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova',
+        'Monaco', 'Montenegro', 'Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania', 'Russia',
+        'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom'
+      ]
+    },
+    {
+      continent: 'North America',
+      countries: [
+        'Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Canada', 'Costa Rica', 'Cuba', 'Dominica',
+        'Dominican Republic', 'El Salvador', 'Grenada', 'Guatemala', 'Haiti', 'Honduras', 'Jamaica', 'Mexico', 'Nicaragua',
+        'Panama', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Trinidad and Tobago',
+        'United States of America'
+      ]
+    },
+    {
+      continent: 'Oceania',
+      countries: [
+        'Australia', 'Fiji', 'Kiribati', 'Marshall Islands', 'Micronesia', 'Nauru', 'New Zealand', 'Palau',
+        'Papua New Guinea', 'Samoa', 'Solomon Islands', 'Tonga', 'Tuvalu', 'Vanuatu'
+      ]
+    },
+    {
+      continent: 'South America',
+      countries: [
+        'Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay', 'Peru', 'Suriname',
+        'Uruguay', 'Venezuela'
+      ]
+    }
+  ];
+
+  // Courier Partners List
+  courierPartners = [
+    {
+      category: 'International',
+      partners: ['DHL Express', 'FedEx', 'UPS', 'Aramex', 'USPS']
+    },
+    {
+      category: 'Indian Domestic',
+      partners: ['Blue Dart', 'Delhivery', 'DTDC', 'Gati', 'Xpressbees', 'Ecom Express', 'Shadowfax', 'India Post']
+    },
+    {
+      category: 'Aggregators (All-in-One)',
+      partners: ['Shiprocket', 'NimbusPost', 'ClickPost', 'Pickrr']
+    }
+  ];
+
   constructor(
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
@@ -459,9 +549,10 @@ export class AgentDashboard implements OnInit {
       // Step 1: Document Dispatch Confirmation
       originalDocsSent: [null, Validators.required],
       docDeliveryMethod: [null],
-      courierPartner: [''], // New field
-      courierTrackingNumber: [''], // New field
-      courierTrackingId: [''], // Combined field for backend
+      courierPartner: [null], // Changed to null for dropdown
+      otherCourierDetails: [''], // New field for 'Other'
+      courierTrackingNumber: [''],
+      courierTrackingId: [''],
       selfPersonContact: [''],
       docTentativeReachDate: [null],
 
@@ -481,13 +572,16 @@ export class AgentDashboard implements OnInit {
       dateOfBirth: ['', Validators.required],
       placeOfBirth: ['', Validators.required],
       maritalStatus: ['SINGLE', Validators.required],
-      citizenship: ['Indian', Validators.required],
-      previousCitizenship: [''],
+      citizenship: ['India', Validators.required],
+      previousCitizenship: [null],
       passportType: ['ORDINARY', Validators.required],
       passportNumber: ['', Validators.required],
       passportIssueDate: ['', Validators.required],
       passportExpirationDate: ['', Validators.required],
-      passportIssuedBy: ['', Validators.required],
+
+      // New Fields & Removed IssuedBy
+      durationOfVisaProcedure: [null, Validators.required],
+      placeOfVisaIssuance: [null, Validators.required],
     });
     this.setupConditionalValidation();
   }
@@ -529,6 +623,7 @@ export class AgentDashboard implements OnInit {
 
     this.telexForm.get('docDeliveryMethod')?.valueChanges.subscribe(method => {
       const partnerControl = this.telexForm.get('courierPartner');
+      const otherPartnerControl = this.telexForm.get('otherCourierDetails'); // New
       const trackingNumControl = this.telexForm.get('courierTrackingNumber');
       const contactControl = this.telexForm.get('selfPersonContact');
 
@@ -540,20 +635,37 @@ export class AgentDashboard implements OnInit {
       } else if (method === 'SELF_PERSON') {
         contactControl?.setValidators(Validators.required);
         partnerControl?.clearValidators();
+        otherPartnerControl?.clearValidators(); // Clear other
         trackingNumControl?.clearValidators();
-        partnerControl?.setValue('');
+        partnerControl?.setValue(null); // Reset select
+        otherPartnerControl?.setValue('');
         trackingNumControl?.setValue('');
       } else {
         partnerControl?.clearValidators();
+        otherPartnerControl?.clearValidators();
         trackingNumControl?.clearValidators();
         contactControl?.clearValidators();
-        partnerControl?.setValue('');
+        partnerControl?.setValue(null);
+        otherPartnerControl?.setValue('');
         trackingNumControl?.setValue('');
         contactControl?.setValue('');
       }
       partnerControl?.updateValueAndValidity();
+      otherPartnerControl?.updateValueAndValidity();
       trackingNumControl?.updateValueAndValidity();
       contactControl?.updateValueAndValidity();
+    });
+
+    // Watch for "OTHER" selection in Courier Partner
+    this.telexForm.get('courierPartner')?.valueChanges.subscribe(value => {
+      const otherControl = this.telexForm.get('otherCourierDetails');
+      if (value === 'OTHER') {
+        otherControl?.setValidators(Validators.required);
+      } else {
+        otherControl?.clearValidators();
+        otherControl?.setValue('');
+      }
+      otherControl?.updateValueAndValidity();
     });
 
     // Payment Logic
@@ -688,7 +800,7 @@ export class AgentDashboard implements OnInit {
         'hasPaid', 'surname', 'firstName', 'sex', 'countryOfBirth',
         'dateOfBirth', 'placeOfBirth', 'maritalStatus', 'citizenship',
         'passportType', 'passportNumber', 'passportIssueDate',
-        'passportExpirationDate', 'passportIssuedBy'
+        'passportExpirationDate', 'durationOfVisaProcedure', 'placeOfVisaIssuance'
       ];
 
       if (controls['hasPaid'].value === true) {
@@ -838,9 +950,16 @@ export class AgentDashboard implements OnInit {
 
     const formValues = this.telexForm.value;
 
+    // Handle Courier Partner mapping
+    let finalCourierPartner = formValues.courierPartner;
+    if (finalCourierPartner === 'OTHER') {
+      finalCourierPartner = formValues.otherCourierDetails;
+    }
+
     // Construct DTO
     const telexData: TelexApplicationDTO = {
       ...formValues,
+      courierPartner: finalCourierPartner, // Use mapped value
       // Map form control 'courierTrackingNumber' to DTO 'courierTrackingId'
       courierTrackingId: formValues.courierTrackingNumber,
       agentUsername: this.agentData.userId
@@ -872,8 +991,18 @@ export class AgentDashboard implements OnInit {
   onTelexSuccess(): void {
     this.isTelexModalOpen = false;
     this.studentForTelex = null;
-    this.isSuccessModalOpen = true;
-    this.refreshDashboard();
-    this.cdr.detectChanges();
+    this.isSuccessModalOpen = true; // Ensure this is set to true
+    this.cdr.detectChanges(); // Trigger change detection to show modal
+
+    // Delay refresh to allow user to see/close modal, OR just refresh data in background
+    // We'll refresh data but keep modal open.
+    // this.refreshDashboard(); // This might have been causing conflicts if it resets 'isSuccessModalOpen' or re-renders too hard.
+
+    // Instead of full refresh that might glitch UI, just re-fetch data silently or wait.
+    // Let's rely on the user closing the modal to refresh, OR refresh now but ensure modal stays.
+    if (this.agentData) {
+      this.fetchDashboardData(this.agentData.userId); // Background refresh
+      this.loadDataInternal(this.agentData.userId); // Reload list
+    }
   }
 }

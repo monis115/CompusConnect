@@ -54,6 +54,13 @@ export interface Student {
     isTelexDocApproved?: boolean | null;
     docPersonComment?: string | null;
 
+    // Document Delivery Tracking
+    docDeliveryMethod?: 'COURIER' | 'SELF_PERSON' | string;
+    courierPartner?: string;
+    courierTrackingId?: string;
+    selfPersonContact?: string;
+    docTentativeReachDate?: string;
+
     // Timestamps
     createdAt?: string;
     applicationDate?: string;
