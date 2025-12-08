@@ -63,7 +63,21 @@ import {
   ChevronDown,
   Info,
   Edit3,
-  Database
+  Database,
+  Map, // <--- Imported here
+  // New icons for User Role Cards
+  Briefcase,
+  UserCheck,
+  Building2,
+  FileCheck,
+  Calculator,
+  Send,
+  Settings,
+  Crown,
+  // Additional icons for Agent Registration
+  Globe,
+  RefreshCw,
+  ChevronUp
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -74,7 +88,7 @@ import { AdminDashboardOverview } from './components/admin/admin-dashboard-overv
 import { ActiveAgents } from './components/admin/active-agents/active-agents';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from "@angular/material/input"; // <-- CORRECTED IMPORT
+import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { PendingAgents } from './components/admin/pending-agents/pending-agents';
 import { AddmissionManagerRegistration } from './components/admin/addmission-manager-registration/addmission-manager-registration';
@@ -88,6 +102,7 @@ import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person
 import { ReplaceUnderscorePipe } from './pipes/replace-underscore.pipe';
 import { TelexManagerDashboard } from './components/telex-manager-dashboard/telex-manager-dashboard';
 import { AccountantDashboard } from './components/accountant-dashboard/accountant-dashboard';
+import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashboard';
 
 
 @NgModule({
@@ -110,7 +125,8 @@ import { AccountantDashboard } from './components/accountant-dashboard/accountan
     UniversityPersonDashboard,
     DocPersonDashbaord,
     TelexManagerDashboard,
-    AccountantDashboard
+    AccountantDashboard,
+    VisaManDashboard
   ],
   imports: [
     BrowserModule,
@@ -172,7 +188,21 @@ import { AccountantDashboard } from './components/accountant-dashboard/accountan
       ChevronDown,
       Info,
       Edit3,
-      Database
+      Database,
+      ChevronUp,
+      Map, // <--- ADDED HERE
+      // User Role Card icons
+      Briefcase,
+      UserCheck,
+      Building2,
+      FileCheck,
+      Calculator,
+      Send,
+      Settings,
+      Crown,
+      // Agent Registration icons
+      Globe,
+      RefreshCw
     })
   ],
   providers: [

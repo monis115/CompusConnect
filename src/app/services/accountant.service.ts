@@ -6,6 +6,7 @@ import { Observable, forkJoin } from 'rxjs';
 
 export interface Student {
     id: number;
+    studentId?: number; // Alias for id, used in some contexts
     applicationId: string;
     fullName: string;
     email: string;
@@ -41,6 +42,15 @@ export interface Student {
         id: number;
         collegeName: string;
     } | null;
+
+    // Action / Workflow Fields
+    action?: string;
+    actionOnUser?: string;
+
+    // Visa Payment Fields
+    visaPaymentRequestedAmount?: number | null;
+    visaPaymentRequestedCurrency?: string | null;
+    visaPaymentTxId?: string | null;
 }
 
 export interface Accountant {
@@ -103,6 +113,15 @@ export interface AssignedStudent {
     paidTo: string | null;
     ttCopyPath: string | null;
     paymentConfirmationPath: string | null;
+
+    // Action / Workflow Fields
+    action?: string;
+    actionOnUser?: string;
+
+    // Visa Payment Fields
+    visaPaymentRequestedAmount?: number | null;
+    visaPaymentRequestedCurrency?: string | null;
+    visaPaymentTxId?: string | null;
 }
 
 export interface DashboardData {

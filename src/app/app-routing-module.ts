@@ -18,6 +18,7 @@ import { UniversityPersonDashboard } from './components/university-person-dashba
 import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
 import { TelexManagerDashboard } from './components/telex-manager-dashboard/telex-manager-dashboard';
 import { AccountantDashboard } from './components/accountant-dashboard/accountant-dashboard';
+import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashboard';
 import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
@@ -103,6 +104,14 @@ const routes: Routes = [
     component: AccountantDashboard,
     canActivate: [AuthGuard],
     data: { role: 'accountant' }
+  },
+
+  // Visa Manager Dashboard - Protected
+  {
+    path: 'visa-man-dashboard',
+    component: VisaManDashboard,
+    canActivate: [AuthGuard],
+    data: { role: 'visa_manager' }
   },
 
   // Wildcard route

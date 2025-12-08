@@ -38,9 +38,14 @@ export class AdmissionManagerService {
             .pipe(map(response => [response.username])); // Return as array with single username
     }
 
+    // Interface for Visa Manager response
+    getVisaManagers(): Observable<{ id: number; username: string; fullName: string; status: string }[]> {
+        return this.http.get<{ id: number; username: string; fullName: string; status: string }[]>(`${this.apiBaseUrl}/api/visa-man`);
+    }
+
+    // Keep old method for backward compatibility (returns just usernames)
     getVisaManagerUsernames(): Observable<string[]> {
-        return this.http.get<{ username: string }>(`${this.apiBaseUrl}/api/visa-man/username-only`)
-            .pipe(map(response => [response.username])); // Return as array with single username
+        return this.getVisaManagers().pipe(map(managers => managers.map(m => m.username)));
     }
 
     assignTelexManager(studentId: number, payload: any): Observable<any> {

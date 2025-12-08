@@ -110,7 +110,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private elRef: ElementRef
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.admin = this.authService.getUserData();
@@ -130,18 +130,18 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
       // Logic to find the current active section from URL
       const urlSegments = this.router.url.split('/');
       const lastSegment = urlSegments[urlSegments.length - 1];
-      
+
       // Check if the last segment is a valid menu item id
       if (this.menuItems.some(item => item.id === lastSegment)) {
         this.handleSectionChange(lastSegment);
       } else {
-         // Fallback or check parent route
-         const parentSegment = urlSegments[urlSegments.length - 2];
-         if (parentSegment === 'admin-dashboard' && urlSegments.length > 2) {
-            this.handleSectionChange(lastSegment);
-         } else if (parentSegment === 'admin-dashboard') {
-             this.handleSectionChange('overview');
-         }
+        // Fallback or check parent route
+        const parentSegment = urlSegments[urlSegments.length - 2];
+        if (parentSegment === 'admin-dashboard' && urlSegments.length > 2) {
+          this.handleSectionChange(lastSegment);
+        } else if (parentSegment === 'admin-dashboard') {
+          this.handleSectionChange('overview');
+        }
       }
     });
 
@@ -149,7 +149,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     const currentUrl = this.router.url;
     const urlSegments = currentUrl.split('/');
     const lastSegment = urlSegments[urlSegments.length - 1];
-    
+
     if (this.menuItems.some(item => item.id === lastSegment)) {
       this.handleSectionChange(lastSegment);
     } else {
@@ -168,7 +168,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
 
     setTimeout(() => this.finaliseSection(section), 120);
   }
-  
+
   private finaliseSection(section: string) {
     this.activeSection = section;
     this.isContentLoading = false;

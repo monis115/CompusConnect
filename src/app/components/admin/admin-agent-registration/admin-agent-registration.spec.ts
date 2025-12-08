@@ -10,7 +10,7 @@ describe('AdminAgentRegistration', () => {
     await TestBed.configureTestingModule({
       declarations: [AdminAgentRegistration]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AdminAgentRegistration);
     component = fixture.componentInstance;

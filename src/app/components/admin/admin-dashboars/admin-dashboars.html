@@ -9,10 +9,7 @@
     </div>
 
     <nav class="sidebar-nav">
-      <button 
-        *ngFor="let item of menuItems" 
-        class="nav-item"
-        [class.active]="activeSection === item.id"
+      <button *ngFor="let item of menuItems" class="nav-item" [class.active]="activeSection === item.id"
         (click)="navigateTo(item.id)">
         <i-lucide [name]="item.icon" size="20"></i-lucide>
         <span *ngIf="!sidebarCollapsed">{{ item.label }}</span>
@@ -34,9 +31,9 @@
           <span class="badge">5</span>
         </button>
         <div class="user-profile">
-  <div class="avatar">AD</div>
-  <span class="user-name">{{ admin?.username || 'Admin User' }}</span>
-</div>
+          <div class="avatar">AD</div>
+          <span class="user-name">{{ admin?.username || 'Admin User' }}</span>
+        </div>
       </div>
     </header>
 

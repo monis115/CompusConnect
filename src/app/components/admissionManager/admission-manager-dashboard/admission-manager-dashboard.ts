@@ -103,6 +103,13 @@ interface ManagerData {
   students: Student[];
 }
 
+interface VisaManager {
+  id: number;
+  username: string;
+  fullName: string;
+  status: string;
+}
+
 interface DashboardStats {
   totalStudents: number;
   newApplications: number;
@@ -153,7 +160,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   // Dropdown Data
   availableTelexManagers: string[] = [];
-  availableVisaManagers: string[] = [];
+  availableVisaManagers: VisaManager[] = [];
 
   // Views & Lists
   activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' = 'dashboard';
@@ -414,7 +421,11 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   loadStaffLists(): void {
     this.admissionService.getTelexManagerUsernames().subscribe(u => this.availableTelexManagers = u);
-    this.admissionService.getVisaManagerUsernames().subscribe(u => this.availableVisaManagers = u);
+    this.admissionService.getVisaManagers().subscribe(managers => {
+      // Filter to only show Active visa managers
+      this.availableVisaManagers = managers.filter(m => m.status === 'Active');
+      this.cdr.detectChanges();
+    });
   }
 
   categorizeStudents(): void {
@@ -540,7 +551,14 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     } else if (this.actionType === 'assign-telex') {
       actionObs = this.admissionService.assignTelexManager(studentId, { managerUsername: this.selectedManagerUsername });
     } else if (this.actionType === 'assign-visa') {
-      actionObs = this.admissionService.assignVisaManager(studentId, { visaManUsername: this.selectedManagerUsername });
+      // New payload structure: admissionManagerUsername (current logged in) + visaPersonUsername (selected)
+      const payload = {
+        admissionManagerUsername: managerUsername,
+        visaPersonUsername: this.selectedManagerUsername
+      };
+      console.log('Assigning Visa Manager - StudentId:', studentId, 'Payload:', payload);
+      this.cdr.detectChanges();
+      actionObs = this.admissionService.assignVisaManager(studentId, payload);
     }
 
     if (actionObs) {
@@ -555,6 +573,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
           if (this.actionType === 'forward') msg = 'Student Forwarded Successfully!';
           if (this.actionType === 'approve') msg = 'Admission Letter Approved!';
           if (this.actionType === 'assign-telex') msg = 'Telex Manager Assigned!';
+          if (this.actionType === 'assign-visa') msg = 'Visa Manager Assigned Successfully!';
 
           // Fix: Ensure this runs inside Angular's zone and updates the view
           this.finishAction(msg);

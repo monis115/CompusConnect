@@ -764,7 +764,8 @@
           <label>Select Visa Manager</label>
           <select class="form-select" [(ngModel)]="selectedManagerUsername">
             <option value="" disabled selected>Select Manager...</option>
-            <option *ngFor="let man of availableVisaManagers" [value]="man">{{man}}</option>
+            <option *ngFor="let man of availableVisaManagers" [value]="man.username">{{man.fullName}} ({{man.username}})
+            </option>
           </select>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -21,11 +21,21 @@ interface AgentResponse {
   password: string;
 }
 
+// New interface for college-wise location access
+interface CollegeAccessEntry {
+  collegeId: number;
+  collegeName: string;
+  city: string;
+  accessAllLocations: boolean;
+  locationIds: number[];
+}
+
 @Component({
   selector: 'app-admin-agent-registration',
   templateUrl: './admin-agent-registration.html',
   standalone: false,
   styleUrls: ['./admin-agent-registration.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class AdminAgentRegistration implements OnInit {
   form!: FormGroup;
@@ -34,19 +44,16 @@ export class AdminAgentRegistration implements OnInit {
   states: string[] = [];
   districtsByState: { [state: string]: Location[] } = {};
 
-  // Selection
-  selectedColleges: number[] = [];
-  selectAllColleges = false;
-  selectedDistricts: number[] = [];
-  selectAllDistrictsByState: { [state: string]: boolean } = {};
-  selectAllStates = false;
-  expandedStates: { [state: string]: boolean } = {}; // Tracks which states are open
+  // New college access list structure
+  collegeAccessList: CollegeAccessEntry[] = [];
+  selectedCollegeToAdd: string = '';
+  expandedStates: { [key: string]: boolean } = {};
 
   loading = false;
   error = '';
   success = false;
   agentCredentials: { userId: string; password: string } | null = null;
-  dataLoaded = false; // Controls form visibility
+  dataLoaded = false;
 
   private apiUrl = 'http://localhost:8080/api/admins/agents/register';
   private collegesUrl = 'http://localhost:8080/api/colleges';
@@ -57,7 +64,7 @@ export class AdminAgentRegistration implements OnInit {
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.initForm();
@@ -74,6 +81,8 @@ export class AdminAgentRegistration implements OnInit {
     const colleges$ = this.http.get<College[]>(this.collegesUrl);
     const locations$ = this.http.get<Location[]>(this.locationsUrl);
 
+    console.log('Fetching colleges and locations...');
+
     Promise.all([
       colleges$.toPromise(),
       locations$.toPromise(),
@@ -81,12 +90,18 @@ export class AdminAgentRegistration implements OnInit {
       .then(([colleges, locations]) => {
         this.colleges = colleges || [];
         this.locations = locations || [];
+
+        console.log('Colleges loaded:', this.colleges.length);
+        console.log('Locations loaded:', this.locations.length);
+
         this.buildStateDistrictMap();
+
         this.dataLoaded = true;
         this.loading = false;
         this.cdr.detectChanges();
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('Error loading data:', err);
         this.error = 'Failed to load required data. Please try again.';
         this.loading = false;
         this.cdr.detectChanges();
@@ -98,6 +113,7 @@ export class AdminAgentRegistration implements OnInit {
     const set = new Set<string>();
 
     this.locations.forEach(l => {
+      if (!l.state || !l.district) return; // Skip invalid entries
       set.add(l.state);
       if (!map[l.state]) map[l.state] = [];
       map[l.state].push(l);
@@ -105,6 +121,11 @@ export class AdminAgentRegistration implements OnInit {
 
     this.states = Array.from(set).sort();
     this.districtsByState = map;
+
+    // DEBUG: Log the states
+    console.log('States loaded:', this.states);
+    console.log('Districts by state keys:', Object.keys(this.districtsByState));
+    console.log('Total valid locations processed:', Object.values(this.districtsByState).reduce((acc, val) => acc + val.length, 0));
   }
 
   /* --------------------------------------------------------------------- */
@@ -137,7 +158,7 @@ export class AdminAgentRegistration implements OnInit {
       dob: ['', Validators.required],
       age: [{ value: '', disabled: true }],
       email: ['', [Validators.required, Validators.email]],
-      contactNo: ['', [Validators.required, Validators.pattern(/^\d{10,12}$/)]], // <-- FIX 1
+      contactNo: ['', [Validators.required, Validators.pattern(/^\d{10,12}$/)]],
 
       // Personal Address
       street: ['', Validators.required],
@@ -158,7 +179,6 @@ export class AdminAgentRegistration implements OnInit {
       else this.form.get('age')?.setValue('');
     });
 
-    // FIX 2: Clear the main server error message as soon as the user starts correcting the form
     this.form.valueChanges.subscribe(() => {
       if (this.error) {
         this.error = '';
@@ -176,142 +196,278 @@ export class AdminAgentRegistration implements OnInit {
   }
 
   /* --------------------------------------------------------------------- */
-  /* --------------------------- COLLEGES -------------------------------- */
+  /* -------------------- COLLEGE ACCESS MANAGEMENT ---------------------- */
   /* --------------------------------------------------------------------- */
-  toggleSelectAllColleges() {
-    this.selectAllColleges = !this.selectAllColleges;
-    this.selectedColleges = this.selectAllColleges ? this.colleges.map(c => c.id) : [];
+
+  // Get colleges that haven't been added yet
+  getAvailableColleges(): College[] {
+    const addedIds = this.collegeAccessList.map(e => e.collegeId);
+    return this.colleges.filter(c => !addedIds.includes(c.id));
   }
 
-  toggleCollege(id: number) {
-    const i = this.selectedColleges.indexOf(id);
-    i === -1 ? this.selectedColleges.push(id) : this.selectedColleges.splice(i, 1);
-    this.selectAllColleges = this.selectedColleges.length === this.colleges.length;
-  }
+  // Add a college to the access list
+  addCollegeAccess() {
+    const collegeId = parseInt(this.selectedCollegeToAdd, 10);
+    if (!collegeId) return;
 
-  isCollegeSelected(id: number) {
-    return this.selectedColleges.includes(id);
-  }
+    const college = this.colleges.find(c => c.id === collegeId);
+    if (!college) return;
 
-  /* --------------------------------------------------------------------- */
-  /* -------------------------- LOCATIONS -------------------------------- */
-  /* --------------------------------------------------------------------- */
-  
-  // FIX 3: Add function to toggle state expansion
-  toggleStateExpansion(state: string) {
-    this.expandedStates[state] = !this.expandedStates[state];
-  }
+    // Check if already added
+    if (this.collegeAccessList.some(e => e.collegeId === collegeId)) return;
 
-  toggleSelectAllStates() {
-    this.selectAllStates = !this.selectAllStates;
-    this.selectedDistricts = this.selectAllStates ? this.locations.map(l => l.id) : [];
-    this.states.forEach(s => (this.selectAllDistrictsByState[s] = this.selectAllStates));
-  }
-
-  toggleSelectAllDistricts(state: string) {
-    const current = this.selectAllDistrictsByState[state] ?? false;
-    const newVal = !current;
-    this.selectAllDistrictsByState[state] = newVal;
-
-    this.districtsByState[state].forEach(d => {
-      const i = this.selectedDistricts.indexOf(d.id);
-      if (newVal && i === -1) this.selectedDistricts.push(d.id);
-      else if (!newVal && i !== -1) this.selectedDistricts.splice(i, 1);
+    this.collegeAccessList.push({
+      collegeId: college.id,
+      collegeName: college.collegeName,
+      city: college.city,
+      accessAllLocations: false,
+      locationIds: []
     });
-    this.updateGlobalSelectAllState();
+
+    console.log(`Added college access: ${college.collegeName}`);
+
+    this.selectedCollegeToAdd = '';
+    this.cdr.detectChanges();
   }
 
-  toggleDistrict(id: number) {
-    const i = this.selectedDistricts.indexOf(id);
-    i === -1 ? this.selectedDistricts.push(id) : this.selectedDistricts.splice(i, 1);
-
-    const loc = this.locations.find(l => l.id === id)!;
-    const all = this.districtsByState[loc.state].every(d => this.selectedDistricts.includes(d.id));
-    this.selectAllDistrictsByState[loc.state] = all;
-    this.updateGlobalSelectAllState();
+  // Remove a college from the access list
+  removeCollegeAccess(collegeId: number) {
+    this.collegeAccessList = this.collegeAccessList.filter(e => e.collegeId !== collegeId);
+    // Clean up expanded states for this college
+    Object.keys(this.expandedStates).forEach(key => {
+      if (key.endsWith('_' + collegeId)) {
+        delete this.expandedStates[key];
+      }
+    });
+    this.cdr.detectChanges();
   }
 
-  isDistrictSelected(id: number) {
-    return this.selectedDistricts.includes(id);
+  // Toggle "Access All Locations" for a college
+  toggleAccessAllLocations(collegeId: number) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+
+    entry.accessAllLocations = !entry.accessAllLocations;
+
+    if (entry.accessAllLocations) {
+      // Select all location IDs
+      entry.locationIds = this.locations.map(l => l.id);
+    } else {
+      // Clear all selections
+      entry.locationIds = [];
+    }
+
+    console.log(`Access all locations for college ${collegeId}: ${entry.accessAllLocations}`);
+    this.cdr.detectChanges();
   }
 
-  private updateGlobalSelectAllState() {
-    this.selectAllStates = this.locations.length > 0 && this.selectedDistricts.length === this.locations.length;
+  // Toggle state expansion (per college)
+  toggleStateExpansion(key: string) {
+    this.expandedStates[key] = !this.expandedStates[key];
+    console.log(`Toggling expansion for ${key}: ${this.expandedStates[key]}`);
+  }
+
+  // Check if location is selected for a specific college
+  isLocationSelectedForCollege(collegeId: number, locationId: number): boolean {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    return entry ? entry.locationIds.includes(locationId) : false;
+  }
+
+  // Toggle a specific location for a college
+  toggleLocationForCollege(collegeId: number, locationId: number) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+
+    const idx = entry.locationIds.indexOf(locationId);
+    if (idx === -1) {
+      entry.locationIds.push(locationId);
+    } else {
+      entry.locationIds.splice(idx, 1);
+    }
+
+    // Update accessAllLocations flag
+    entry.accessAllLocations = entry.locationIds.length === this.locations.length;
+    this.cdr.detectChanges();
+  }
+
+  // Check if all districts of a state are selected for a college
+  isAllDistrictsSelectedForCollege(collegeId: number, state: string): boolean {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return false;
+
+    const stateLocations = this.districtsByState[state] || [];
+    return stateLocations.length > 0 && stateLocations.every(loc => entry.locationIds.includes(loc.id));
+  }
+
+  // Toggle all districts of a state for a college
+  toggleAllDistrictsForCollege(collegeId: number, state: string) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+
+    const stateLocations = this.districtsByState[state] || [];
+    const allSelected = this.isAllDistrictsSelectedForCollege(collegeId, state);
+
+    if (allSelected) {
+      // Deselect all districts of this state
+      stateLocations.forEach(loc => {
+        const idx = entry.locationIds.indexOf(loc.id);
+        if (idx !== -1) {
+          entry.locationIds.splice(idx, 1);
+        }
+      });
+    } else {
+      // Select all districts of this state
+      stateLocations.forEach(loc => {
+        if (!entry.locationIds.includes(loc.id)) {
+          entry.locationIds.push(loc.id);
+        }
+      });
+    }
+
+    // Update accessAllLocations flag
+    entry.accessAllLocations = entry.locationIds.length === this.locations.length;
+    this.cdr.detectChanges();
+  }
+
+  // Get count of selected locations for display
+  getSelectedLocationCount(collegeId: number): number {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    return entry ? entry.locationIds.length : 0;
+  }
+
+  // Get district count for a state
+  getDistrictCountForState(state: string): number {
+    return this.districtsByState[state]?.length || 0;
+  }
+
+  // Check if any district of a state is selected for a college
+  hasAnyDistrictSelectedForCollege(collegeId: number, state: string): boolean {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return false;
+
+    const stateLocations = this.districtsByState[state] || [];
+    return stateLocations.some(loc => entry.locationIds.includes(loc.id));
+  }
+
+  // Get count of selected districts for a college in a specific state
+  getSelectedDistrictCountForCollege(collegeId: number, state: string): number {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return 0;
+
+    const stateLocations = this.districtsByState[state] || [];
+    return stateLocations.filter(loc => entry.locationIds.includes(loc.id)).length;
+  }
+
+  // Validation: Check if at least one college with locations exists
+  hasValidCollegeAccess(): boolean {
+    return this.collegeAccessList.length > 0 &&
+      this.collegeAccessList.every(e => e.locationIds.length > 0);
   }
 
   /* --------------------------------------------------------------------- */
   /* ------------------------------ SUBMIT -------------------------------- */
   /* --------------------------------------------------------------------- */
- onSubmit() {
-  this.form.markAllAsTouched(); // Critical!
+  onSubmit() {
+    this.form.markAllAsTouched();
 
-  // Debug invalid fields
-  const invalidFields: string[] = [];
-  Object.keys(this.form.controls).forEach(key => {
-    const control = this.form.get(key);
-    if (control && control.invalid && control.touched) {
-      invalidFields.push(key);
-    }
-  });
+    // Debug invalid fields
+    const invalidFields: string[] = [];
+    Object.keys(this.form.controls).forEach(key => {
+      const control = this.form.get(key);
+      if (control && control.invalid && control.touched) {
+        invalidFields.push(key);
+      }
+    });
 
-  if (this.form.invalid || !this.selectedColleges.length || !this.selectedDistricts.length) {
-    let msg = 'Please complete all required fields';
     if (invalidFields.length > 0) {
-      msg += `: ${invalidFields.join(', ')}`;
+      console.warn('Form validation failed:', invalidFields);
     }
-    if (!this.selectedColleges.length) msg += ', select at least one college';
-    if (!this.selectedDistricts.length) msg += ', select at least one district';
-    this.error = msg + '.';
-    return;
+
+    // Validate college access list
+    if (this.collegeAccessList.length === 0) {
+      this.error = 'Please add at least one college with location access.';
+      return;
+    }
+
+    const collegeWithNoLocations = this.collegeAccessList.find(e => e.locationIds.length === 0);
+    if (collegeWithNoLocations) {
+      this.error = `Please select at least one location for ${collegeWithNoLocations.collegeName}.`;
+      return;
+    }
+
+    if (this.form.invalid) {
+      let msg = 'Please complete all required fields';
+      if (invalidFields.length > 0) {
+        msg += `: ${invalidFields.join(', ')}`;
+      }
+      this.error = msg + '.';
+      return;
+    }
+
+    // Build addresses
+    const personalAddr = [this.form.value.street, this.form.value.landmark, this.form.value.city, this.form.value.state, this.form.value.pin]
+      .filter(Boolean).join(', ');
+    const regAddr = [this.form.value.regStreet, this.form.value.regLandmark, this.form.value.regCity, this.form.value.regState, this.form.value.regPin]
+      .filter(Boolean).join(', ');
+
+    // Build collegeAccessList for the new structure
+    const collegeAccessListPayload = this.collegeAccessList.map(entry => ({
+      collegeId: entry.collegeId,
+      accessAllLocations: entry.accessAllLocations,
+      locationIds: entry.locationIds
+    }));
+
+    // Also build flat arrays for backward compatibility
+    const allCollegeIds = this.collegeAccessList.map(e => e.collegeId);
+    const allLocationIds = [...new Set(this.collegeAccessList.flatMap(e => e.locationIds))];
+
+    const payload: any = {
+      ...this.form.getRawValue(),
+      fullName: this.form.value.fullName.trim(),
+      email: this.form.value.email.trim(),
+      companyEmail: this.form.value.companyEmail.trim(),
+      address: personalAddr,
+      registeredOfficeAddress: regAddr,
+      // New structure
+      collegeAccessList: collegeAccessListPayload,
+      // Backward compatible flat arrays
+      collegeIds: allCollegeIds,
+      locationIds: allLocationIds,
+    };
+
+    // Remove split fields
+    ['street', 'city', 'landmark', 'state', 'pin', 'regStreet', 'regCity', 'regLandmark', 'regState', 'regPin'].forEach(f => delete payload[f]);
+
+    this.loading = true;
+    this.error = '';
+    this.success = false;
+    this.cdr.detectChanges(); // Force UI update to show spinner immediately
+
+    console.log('Submitting payload:', payload);
+
+    this.http.post<AgentResponse>(this.apiUrl, payload).subscribe({
+      next: (res) => {
+        this.agentCredentials = { userId: res.userId, password: res.password };
+        this.success = true;
+        this.loading = false;
+        console.log('Registration successful:', res);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Registration failed:', err);
+        this.error = err.error?.message || 'Registration failed.';
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
-
-  // Proceed with submission...
-  const personalAddr = [this.form.value.street, this.form.value.landmark, this.form.value.city, this.form.value.state, this.form.value.pin]
-    .filter(Boolean).join(', ');
-  const regAddr = [this.form.value.regStreet, this.form.value.regLandmark, this.form.value.regCity, this.form.value.regState, this.form.value.regPin]
-    .filter(Boolean).join(', ');
-
-  const payload: any = {
-    ...this.form.getRawValue(),
-    fullName: this.form.value.fullName.trim(),
-    email: this.form.value.email.trim(),
-    companyEmail: this.form.value.companyEmail.trim(),
-    address: personalAddr,
-    registeredOfficeAddress: regAddr,
-    collegeIds: this.selectedColleges,
-    locationIds: this.selectedDistricts,
-  };
-
-  // Remove split fields
-  ['street','city','landmark','state','pin','regStreet','regCity','regLandmark','regState','regPin'].forEach(f => delete payload[f]);
-
-  this.loading = true;
-  this.error = '';
-  this.success = false;
-
-  this.http.post<AgentResponse>(this.apiUrl, payload).subscribe({
-    next: (res) => {
-      this.agentCredentials = { userId: res.userId, password: res.password };
-      this.success = true;
-      this.loading = false;
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      this.error = err.error?.message || 'Registration failed.';
-      this.loading = false;
-      this.cdr.detectChanges();
-    },
-  });
-}
 
   resetForm() {
     this.form.reset({ status: 'Active' });
     this.form.get('age')?.setValue('');
-    this.selectedColleges = [];
-    this.selectAllColleges = false;
-    this.selectedDistricts = [];
-    this.selectAllDistrictsByState = {};
-    this.selectAllStates = false;
+    this.collegeAccessList = [];
+    this.selectedCollegeToAdd = '';
+    this.expandedStates = {};
     this.success = false;
     this.agentCredentials = null;
     this.error = '';

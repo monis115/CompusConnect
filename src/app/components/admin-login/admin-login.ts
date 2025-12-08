@@ -258,7 +258,7 @@ export class AdminLogin {
                 break;
               case 'visa_manager':
               case 'visa-manager':
-                this.router.navigate(['/visa-manager-dashboard']);
+                this.router.navigate(['/visa-man-dashboard']);
                 break;
               case 'admissionmanager':
               case 'admission_manager':

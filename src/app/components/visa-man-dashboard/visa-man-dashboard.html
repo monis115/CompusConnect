@@ -1,0 +1,604 @@
+<!-- ============================================
+     VISA MANAGER DASHBOARD - EMBASSY & DIPLOMATIC THEME
+     Premium Angular Dashboard with Glassmorphism
+     ============================================ -->
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" *ngIf="isLoading">
+    <div class="passport-loader"></div>
+    <div class="stamp-loader">Processing Visa Documents...</div>
+</div>
+
+<!-- MAIN DASHBOARD CONTAINER -->
+<div class="dashboard-container" *ngIf="!isLoading">
+
+    <!-- ============================================
+       SIDEBAR
+       ============================================ -->
+    <aside class="sidebar" [class.open]="sidebarOpen">
+
+        <!-- Logo / Brand -->
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">🛂</div>
+                <span class="logo-text">Visa <span>Manager</span></span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main Menu</div>
+
+            <div class="nav-item" [class.active]="activeSection === 'dashboard'"
+                (click)="setActiveSection('dashboard')">
+                <i>📊</i>
+                <span>Dashboard</span>
+            </div>
+
+            <div class="nav-item" [class.active]="activeSection === 'actions'" (click)="setActiveSection('actions')">
+                <i>⚡</i>
+                <span>Actions Needed</span>
+                <span class="nav-badge" *ngIf="actionRequiredStudents.length > 0">
+                    {{ actionRequiredStudents.length }}
+                </span>
+            </div>
+
+            <div class="nav-item" [class.active]="activeSection === 'pipeline'" (click)="setActiveSection('pipeline')">
+                <i>🔄</i>
+                <span>Pipeline</span>
+            </div>
+
+            <div class="nav-item" [class.active]="activeSection === 'students'" (click)="setActiveSection('students')">
+                <i>👥</i>
+                <span>All Students</span>
+                <span class="nav-badge" *ngIf="students.length > 0">
+                    {{ students.length }}
+                </span>
+            </div>
+        </nav>
+
+        <!-- Footer / Profile -->
+        <div class="sidebar-footer">
+            <div class="user-profile" *ngIf="visaManProfile">
+                <div class="user-avatar">
+                    {{ getInitials(visaManProfile.fullName) }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ visaManProfile.fullName }}</div>
+                    <div class="user-role">Visa Manager</div>
+                </div>
+            </div>
+
+            <button class="logout-btn" (click)="openLogoutModal()">
+                <i>🚪</i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
+    <main class="main-content">
+
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1>
+                    <i>🛂</i>
+                    <span *ngIf="activeSection === 'dashboard'">Visa Dashboard</span>
+                    <span *ngIf="activeSection === 'actions'">Actions Required</span>
+                    <span *ngIf="activeSection === 'pipeline'">Visa Pipeline</span>
+                    <span *ngIf="activeSection === 'students'">All Students</span>
+                </h1>
+                <p>{{ getCurrentDate() }}</p>
+            </div>
+
+            <div class="header-right">
+                <div class="search-box">
+                    <i>🔍</i>
+                    <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery">
+                </div>
+
+                <button class="icon-btn" (click)="refreshData()" [disabled]="isRefreshing">
+                    <span *ngIf="!isRefreshing">🔄</span>
+                    <span class="spinner" *ngIf="isRefreshing"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Body -->
+        <div class="content-body">
+
+            <!-- ============================================
+           DASHBOARD SECTION
+           ============================================ -->
+            <ng-container *ngIf="activeSection === 'dashboard'">
+
+                <!-- Stat Cards -->
+                <div class="stats-row">
+                    <div class="stat-card pending fade-in-up stagger-1" (click)="setActiveSection('actions')">
+                        <div class="stat-icon" [class.pulse]="displayStats.pendingApplications > 0">🎫</div>
+                        <h3>Pending Applications</h3>
+                        <div class="count">{{ displayStats.pendingApplications }}</div>
+                    </div>
+
+                    <div class="stat-card processing fade-in-up stagger-2" (click)="setActiveSection('actions')">
+                        <div class="stat-icon" [class.pulse]="displayStats.awaitingPassport > 0">📤</div>
+                        <h3>Awaiting Passport</h3>
+                        <div class="count">{{ displayStats.awaitingPassport }}</div>
+                    </div>
+
+                    <div class="stat-card gold fade-in-up stagger-3" (click)="setActiveSection('pipeline')">
+                        <div class="stat-icon" [class.pulse]="displayStats.atEmbassy > 0">⏳</div>
+                        <h3>At Embassy</h3>
+                        <div class="count">{{ displayStats.atEmbassy }}</div>
+                    </div>
+
+                    <div class="stat-card success fade-in-up stagger-4">
+                        <div class="stat-icon">✅</div>
+                        <h3>Visas Issued</h3>
+                        <div class="count">{{ displayStats.visasIssued }}</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section-header fade-in-up stagger-5">
+                    <div class="section-title">
+                        <h2><i>⚡</i> Urgent Actions</h2>
+                        <span class="count-badge" *ngIf="actionRequiredStudents.length > 0">
+                            {{ actionRequiredStudents.length }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <ng-container *ngFor="let student of actionRequiredStudents.slice(0, 3); let i = index">
+                        <div class="student-card fade-in-up" [class.processing]="processingId === student.id"
+                            [style.animation-delay]="(i * 100 + 600) + 'ms'">
+
+                            <div class="card-header">
+                                <div class="profile-placeholder">
+                                    {{ getInitials(student.fullName) }}
+                                </div>
+                                <div class="student-info">
+                                    <h3 class="student-name">{{ student.fullName }}</h3>
+                                    <div class="student-id">{{ student.applicationId }}</div>
+                                    <div class="telex-number" *ngIf="student.telexNumber">
+                                        Telex: {{ student.telexNumber }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Passport</span>
+                                    <span class="detail-value">{{ student.passportNo || 'N/A' }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Valid Till</span>
+                                    <span class="detail-value">{{ formatDate(student.passportValidTill) }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Status</span>
+                                    <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
+                                        {{ formatStatus(student.applicationStatus) }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="card-actions">
+                                <ng-container *ngIf="getActionButton(student) as btn">
+                                    <button class="action-btn primary" (click)="btn.action()"
+                                        [disabled]="processingId === student.id">
+                                        <span *ngIf="processingId !== student.id">{{ btn.icon }} {{ btn.label }}</span>
+                                        <span class="spinner" *ngIf="processingId === student.id"></span>
+                                    </button>
+                                </ng-container>
+                                <button class="btn-view" (click)="openDetailModal(student)">
+                                    👁️ View Details
+                                </button>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <div class="empty-state" *ngIf="actionRequiredStudents.length === 0">
+                        <div class="empty-icon">✨</div>
+                        <h3>All Caught Up!</h3>
+                        <p>No pending actions at the moment.</p>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- ============================================
+           ACTIONS SECTION
+           ============================================ -->
+            <ng-container *ngIf="activeSection === 'actions'">
+                <div class="section-header">
+                    <div class="section-title">
+                        <h2><i>⚡</i> Actions Required</h2>
+                        <span class="count-badge">{{ actionRequiredStudents.length }}</span>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <ng-container *ngFor="let student of actionRequiredStudents; let i = index">
+                        <div class="student-card fade-in-up" [class.processing]="processingId === student.id"
+                            [style.animation-delay]="(i * 100) + 'ms'">
+
+                            <div class="card-header">
+                                <img *ngIf="student.profileImagePath" [src]="getImageUrl(student.profileImagePath)"
+                                    class="profile-image" (error)="student.profileImagePath = ''">
+                                <div class="profile-placeholder" *ngIf="!student.profileImagePath">
+                                    {{ getInitials(student.fullName) }}
+                                </div>
+                                <div class="student-info">
+                                    <h3 class="student-name">{{ student.fullName }}</h3>
+                                    <div class="student-id">{{ student.applicationId }}</div>
+                                    <div class="telex-number" *ngIf="student.telexNumber">
+                                        Telex: {{ student.telexNumber }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Passport</span>
+                                    <span class="detail-value">{{ student.passportNo || 'N/A' }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Status</span>
+                                    <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
+                                        {{ formatStatus(student.applicationStatus) }}
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Action</span>
+                                    <span class="detail-value">{{ formatAction(student.action) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="card-actions">
+                                <ng-container *ngIf="getActionButton(student) as btn">
+                                    <button class="action-btn primary" (click)="btn.action()"
+                                        [disabled]="processingId === student.id">
+                                        <span *ngIf="processingId !== student.id">{{ btn.icon }} {{ btn.label }}</span>
+                                        <span class="spinner" *ngIf="processingId === student.id"></span>
+                                    </button>
+                                </ng-container>
+                                <button class="btn-view" (click)="openDetailModal(student)">
+                                    👁️ View Details
+                                </button>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <div class="empty-state" *ngIf="actionRequiredStudents.length === 0">
+                        <div class="empty-icon">✨</div>
+                        <h3>All Caught Up!</h3>
+                        <p>No pending actions at the moment.</p>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- ============================================
+           PIPELINE SECTION
+           ============================================ -->
+            <ng-container *ngIf="activeSection === 'pipeline'">
+                <div class="section-header">
+                    <div class="section-title">
+                        <h2><i>🔄</i> Visa Processing Pipeline</h2>
+                    </div>
+                </div>
+
+                <div class="pipeline-container">
+                    <!-- Fee Pending -->
+                    <div class="pipeline-column pending">
+                        <div class="pipeline-header">
+                            <span class="pipeline-title">💳 Fee Pending</span>
+                            <span class="pipeline-count">{{ feePendingStudents.length }}</span>
+                        </div>
+                        <div class="pipeline-cards">
+                            <div class="pipeline-card" *ngFor="let student of feePendingStudents"
+                                (click)="openDetailModal(student)">
+                                <div class="pipeline-card-name">{{ student.fullName }}</div>
+                                <div class="pipeline-card-id">{{ student.applicationId }}</div>
+                            </div>
+                            <div class="empty-state" *ngIf="feePendingStudents.length === 0">
+                                <p>No students</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visa Applied -->
+                    <div class="pipeline-column processing">
+                        <div class="pipeline-header">
+                            <span class="pipeline-title">🎫 Visa Applied</span>
+                            <span class="pipeline-count">{{ visaAppliedStudents.length }}</span>
+                        </div>
+                        <div class="pipeline-cards">
+                            <div class="pipeline-card" *ngFor="let student of visaAppliedStudents"
+                                (click)="openDetailModal(student)">
+                                <div class="pipeline-card-name">{{ student.fullName }}</div>
+                                <div class="pipeline-card-id">{{ student.applicationId }}</div>
+                            </div>
+                            <div class="empty-state" *ngIf="visaAppliedStudents.length === 0">
+                                <p>No students</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- At Embassy -->
+                    <div class="pipeline-column gold">
+                        <div class="pipeline-header">
+                            <span class="pipeline-title">🏛️ At Embassy</span>
+                            <span class="pipeline-count">{{ atEmbassyStudents.length }}</span>
+                        </div>
+                        <div class="pipeline-cards">
+                            <div class="pipeline-card" *ngFor="let student of atEmbassyStudents"
+                                (click)="openDetailModal(student)">
+                                <div class="pipeline-card-name">{{ student.fullName }}</div>
+                                <div class="pipeline-card-id">{{ student.applicationId }}</div>
+                            </div>
+                            <div class="empty-state" *ngIf="atEmbassyStudents.length === 0">
+                                <p>No students</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visa Issued -->
+                    <div class="pipeline-column success">
+                        <div class="pipeline-header">
+                            <span class="pipeline-title">✅ Visa Issued</span>
+                            <span class="pipeline-count">{{ visaIssuedStudents.length }}</span>
+                        </div>
+                        <div class="pipeline-cards">
+                            <div class="pipeline-card" *ngFor="let student of visaIssuedStudents"
+                                (click)="openDetailModal(student)">
+                                <div class="pipeline-card-name">{{ student.fullName }}</div>
+                                <div class="pipeline-card-id">{{ student.applicationId }}</div>
+                            </div>
+                            <div class="empty-state" *ngIf="visaIssuedStudents.length === 0">
+                                <p>No students</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- ============================================
+           ALL STUDENTS SECTION
+           ============================================ -->
+            <ng-container *ngIf="activeSection === 'students'">
+                <div class="section-header">
+                    <div class="section-title">
+                        <h2><i>👥</i> All Students</h2>
+                        <span class="count-badge">{{ allFilteredStudents.length }}</span>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Application ID</th>
+                                <th>Passport</th>
+                                <th>Telex Number</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let student of allFilteredStudents">
+                                <td>{{ student.fullName }}</td>
+                                <td>{{ student.applicationId }}</td>
+                                <td>
+                                    <div class="passport-cell">
+                                        <span>{{ student.passportNo || 'N/A' }}</span>
+                                        <button *ngIf="student.passportPath" class="passport-link"
+                                            (click)="openPassportDocument(student.passportPath)"
+                                            title="View Passport Document">
+                                            📄
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>{{ student.telexNumber || 'Not Issued' }}</td>
+                                <td>
+                                    <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
+                                        {{ formatStatus(student.applicationStatus) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="table-btn" (click)="openDetailModal(student)">
+                                            View
+                                        </button>
+                                        <ng-container *ngIf="getActionButton(student) as btn">
+                                            <button class="action-btn primary"
+                                                style="padding: 8px 12px; font-size: 0.8rem;" (click)="btn.action()"
+                                                [disabled]="processingId === student.id">
+                                                <span *ngIf="processingId !== student.id">{{ btn.label }}</span>
+                                                <span class="spinner" *ngIf="processingId === student.id"></span>
+                                            </button>
+                                        </ng-container>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="empty-state" *ngIf="allFilteredStudents.length === 0">
+                        <div class="empty-icon">📭</div>
+                        <h3>No Students Found</h3>
+                        <p>No students match your search criteria.</p>
+                    </div>
+                </div>
+            </ng-container>
+
+        </div>
+    </main>
+</div>
+
+<!-- ============================================
+     MODALS
+     ============================================ -->
+
+<!-- Student Detail Modal -->
+<div class="modal-overlay detail-modal" *ngIf="showDetailModal && selectedStudent" (click)="closeDetailModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Student Details</h2>
+            <button class="modal-close" (click)="closeDetailModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="modal-section">
+                <h4>Personal Information</h4>
+                <div class="modal-grid">
+                    <div class="modal-field">
+                        <label>Full Name</label>
+                        <span>{{ selectedStudent.fullName }}</span>
+                    </div>
+                    <div class="modal-field">
+                        <label>Email</label>
+                        <span>{{ selectedStudent.email }}</span>
+                    </div>
+                    <div class="modal-field">
+                        <label>Contact</label>
+                        <span>{{ selectedStudent.contactNo || 'N/A' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h4>Passport Information</h4>
+                <div class="modal-grid">
+                    <div class="modal-field">
+                        <label>Passport Number</label>
+                        <span>{{ selectedStudent.passportNo || 'N/A' }}</span>
+                    </div>
+                    <div class="modal-field">
+                        <label>Valid Till</label>
+                        <span>{{ formatDate(selectedStudent.passportValidTill) }}</span>
+                    </div>
+                    <div class="modal-field full-width" *ngIf="selectedStudent.passportPath">
+                        <label>Passport Document</label>
+                        <button class="btn-view passport-doc-btn"
+                            (click)="openPassportDocument(selectedStudent.passportPath)">
+                            📄 View Passport Document
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h4>Application Details</h4>
+                <div class="modal-grid">
+                    <div class="modal-field">
+                        <label>Application ID</label>
+                        <span>{{ selectedStudent.applicationId }}</span>
+                    </div>
+                    <div class="modal-field">
+                        <label>Telex Number</label>
+                        <span>{{ selectedStudent.telexNumber || 'Not Issued' }}</span>
+                    </div>
+                    <div class="modal-field full-width">
+                        <label>Current Status</label>
+                        <span class="status-badge" [class]="getStatusClass(selectedStudent.applicationStatus)">
+                            {{ formatStatus(selectedStudent.applicationStatus) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-actions" style="justify-content: center; padding-top: 16px;">
+                <ng-container *ngIf="getActionButton(selectedStudent) as btn">
+                    <button class="action-btn primary" (click)="btn.action(); closeDetailModal()"
+                        [disabled]="processingId === selectedStudent.id">
+                        {{ btn.icon }} {{ btn.label }}
+                    </button>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Request Modal -->
+<div class="modal-overlay payment-modal" *ngIf="showPaymentModal && paymentStudent" (click)="closePaymentModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>💳 Request Visa Payment</h2>
+            <button class="modal-close" (click)="closePaymentModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Student Info -->
+            <div class="payment-student-info">
+                <div class="profile-placeholder" style="width: 50px; height: 50px; font-size: 1rem;">
+                    {{ getInitials(paymentStudent.fullName) }}
+                </div>
+                <div>
+                    <div class="student-name">{{ paymentStudent.fullName }}</div>
+                    <div class="student-id">{{ paymentStudent.applicationId }}</div>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <div class="payment-form">
+                <div class="form-group">
+                    <label>Amount <span class="required">*</span></label>
+                    <input type="number" [(ngModel)]="paymentAmount" placeholder="Enter amount" class="form-input"
+                        min="1">
+                </div>
+
+                <div class="form-group">
+                    <label>Currency <span class="required">*</span></label>
+                    <select [(ngModel)]="paymentCurrency" class="form-select">
+                        <option *ngFor="let currency of currencies" [value]="currency.code">
+                            {{ currency.symbol }} {{ currency.code }} - {{ currency.name }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Error Message -->
+                <div class="payment-error" *ngIf="paymentError">
+                    ⚠️ {{ paymentError }}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="modal-buttons">
+                <button class="btn-cancel" (click)="closePaymentModal()">Cancel</button>
+                <button class="action-btn primary" (click)="submitPaymentRequest()"
+                    [disabled]="processingId === paymentStudent.id">
+                    <span *ngIf="processingId !== paymentStudent.id">💳 Submit Request</span>
+                    <span class="spinner" *ngIf="processingId === paymentStudent.id"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" *ngIf="showSuccessModal" (click)="closeSuccessModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="success-stamp">✓</div>
+        <h2>Success!</h2>
+        <p>{{ successMessage }}</p>
+        <button class="btn-gold" (click)="closeSuccessModal()">Continue</button>
+    </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal-overlay logout-modal" *ngIf="showLogoutModal" (click)="closeLogoutModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon">🚪</div>
+        <h2>Confirm Logout</h2>
+        <p>Are you sure you want to logout from the Visa Manager Dashboard?</p>
+        <div class="modal-buttons">
+            <button class="btn-cancel" (click)="closeLogoutModal()">Cancel</button>
+            <button class="btn-danger" (click)="confirmLogout()">Logout</button>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil, finalize, interval } from 'rxjs';
 import { trigger, transition, style, animate, stagger, query } from '@angular/animations';
 import {
@@ -100,6 +101,22 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     receivedDate: ''
   };
 
+  // Visa Payment Modal States
+  showSendBankDetailsModal = false;
+  showConfirmPaymentModal = false;
+  processingId: number | null = null;
+
+  // Visa Payment Form Data
+  bankDetailsAmount: number = 0;
+  bankDetailsCurrency: string = 'USD';
+  bankName: string = '';
+  accountNumber: string = '';
+  swiftCode: string = '';
+  beneficiaryName: string = '';
+  branchAddress: string = '';
+  receivedAmount: number = 0;
+  receivedDate: string = '';
+
   // Logout
   isLogoutModalOpen = false;
   isLoggingOut = false;
@@ -115,7 +132,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   constructor(
     private accountantService: AccountantService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -181,12 +199,38 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         }
       });
 
-    // Also get accountant profile
+    // Also get accountant profile with full student data
     this.accountantService.getAccountantDetails(this.username)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.accountantData = data;
+
+          // Use the full student data from accountant profile (includes action, actionOnUser, visa fields)
+          if (data.students && data.students.length > 0) {
+            this.students = data.students.map((s: any) => ({
+              studentId: s.id,
+              applicationId: s.applicationId || '',
+              fullName: s.fullName,
+              email: s.email,
+              contactNo: s.contactNo,
+              applicationStatus: s.applicationStatus,
+              paymentStatus: s.paymentStatus || 'Pending',
+              hasPaid: s.hasPaid,
+              paidAmount: s.paidAmount,
+              paidTo: s.paidTo,
+              ttCopyPath: s.ttCopyPath,
+              paymentConfirmationPath: s.paymentConfirmationPath,
+              // Visa payment workflow fields from full student data
+              action: s.action,
+              actionOnUser: s.actionOnUser,
+              visaPaymentRequestedAmount: s.visaPaymentRequestedAmount,
+              visaPaymentRequestedCurrency: s.visaPaymentRequestedCurrency,
+              visaPaymentTxId: s.visaPaymentTxId
+            }));
+            this.filteredStudents = [...this.students];
+          }
+
           this.cdr.detectChanges();
         },
         error: (err) => console.error('Error loading accountant profile:', err)
@@ -236,7 +280,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
             paidAmount: s.paidAmount,
             paidTo: s.paidTo,
             ttCopyPath: s.ttCopyPath,
-            paymentConfirmationPath: s.paymentConfirmationPath
+            paymentConfirmationPath: s.paymentConfirmationPath,
+            // Visa payment workflow fields
+            action: (s as any).action,
+            actionOnUser: (s as any).actionOnUser,
+            visaPaymentRequestedAmount: (s as any).visaPaymentRequestedAmount,
+            visaPaymentRequestedCurrency: (s as any).visaPaymentRequestedCurrency,
+            visaPaymentTxId: (s as any).visaPaymentTxId
           }));
           this.filteredStudents = [...this.students];
 
@@ -644,6 +694,27 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     return this.stats?.totalStudentsAssigned || 0;
   }
 
+  // --- Actions Needed Section Helpers ---
+
+  /**
+   * Check if there are pending telex fee verifications
+   */
+  get hasPendingTelexFees(): boolean {
+    return this.students.some(s =>
+      s.hasPaid && !this.isActionDisabled(s) && s.actionOnUser !== 'accountant'
+    );
+  }
+
+  /**
+   * Check if there are pending visa payment actions
+   */
+  get hasPendingVisaActions(): boolean {
+    return this.students.some(s =>
+      s.actionOnUser === 'accountant' &&
+      (s.action === 'SEND_BANK_DETAILS_TO_AGENT' || s.action === 'CONFIRM_VISA_PAYMENT')
+    );
+  }
+
   // --- Fullscreen ---
 
   toggleFullscreen(): void {
@@ -664,6 +735,189 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       this.isFullscreen = false;
     }
     this.cdr.detectChanges();
+  }
+
+  // ======================= VISA PAYMENT WORKFLOW =======================
+
+  /**
+   * Get action button config for visa payment workflow
+   */
+  getVisaActionButton(student: any): { label: string, action: string, icon: string } | null {
+    if (student.actionOnUser !== 'accountant') return null;
+
+    switch (student.action) {
+      case 'SEND_BANK_DETAILS_TO_AGENT':
+        return { label: 'Send Bank Details', action: 'sendBankDetails', icon: 'credit-card' };
+      case 'CONFIRM_VISA_PAYMENT':
+        return { label: 'Confirm Payment', action: 'confirmPayment', icon: 'check-circle' };
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Open modal to send bank details to agent
+   */
+  openSendBankDetailsModal(student: any): void {
+    this.selectedStudent = student;
+    this.bankDetailsAmount = student.visaPaymentRequestedAmount || 0;
+    this.bankDetailsCurrency = student.visaPaymentRequestedCurrency || 'USD';
+    // Reset bank details form
+    this.bankName = '';
+    this.accountNumber = '';
+    this.swiftCode = '';
+    this.beneficiaryName = '';
+    this.branchAddress = '';
+    this.showSendBankDetailsModal = true;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Close send bank details modal
+   */
+  closeSendBankDetailsModal(): void {
+    this.showSendBankDetailsModal = false;
+    this.selectedStudent = null;
+    // Reset form fields
+    this.bankName = '';
+    this.accountNumber = '';
+    this.swiftCode = '';
+    this.beneficiaryName = '';
+    this.branchAddress = '';
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Open modal to confirm visa payment received
+   */
+  openConfirmPaymentModal(student: any): void {
+    this.selectedStudent = student;
+    this.receivedAmount = student.visaPaymentRequestedAmount || 0;
+    this.receivedDate = new Date().toISOString().split('T')[0]; // Today's date in YYYY-MM-DD format
+    this.showConfirmPaymentModal = true;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Close confirm payment modal
+   */
+  closeConfirmPaymentModal(): void {
+    this.showConfirmPaymentModal = false;
+    this.selectedStudent = null;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Send bank details to Agent for visa payment
+   * Called when student.action === 'SEND_BANK_DETAILS_TO_AGENT'
+   */
+  sendBankDetailsToAgent(studentId: number): void {
+    if (!this.bankDetailsAmount || this.bankDetailsAmount <= 0) {
+      this.showErrorToast('Please enter a valid amount');
+      return;
+    }
+    if (!this.bankName || this.bankName.trim() === '') {
+      this.showErrorToast('Bank Name is required');
+      return;
+    }
+    if (!this.accountNumber || this.accountNumber.trim() === '') {
+      this.showErrorToast('Account Number is required');
+      return;
+    }
+
+    this.processingId = studentId;
+    this.cdr.detectChanges();
+
+    const body = {
+      accountantUsername: this.username,
+      amount: this.bankDetailsAmount,
+      currency: this.bankDetailsCurrency,
+      bankName: this.bankName.trim(),
+      accountNumber: this.accountNumber.trim(),
+      swiftCode: this.swiftCode?.trim() || null,
+      beneficiaryName: this.beneficiaryName?.trim() || null,
+      branchAddress: this.branchAddress?.trim() || null
+    };
+
+    this.http.post(`http://localhost:8080/api/visa/send-bank-details/${studentId}`, body)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.processingId = null;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.showSuccess('Bank details sent to Agent successfully!');
+          this.refreshData();
+          this.closeSendBankDetailsModal();
+        },
+        error: (err) => {
+          console.error('Error sending bank details:', err);
+          this.showErrorToast('Failed to send bank details: ' + (err.error?.message || err.message || 'Unknown error'));
+        }
+      });
+  }
+
+  /**
+   * Confirm visa payment received from Agent
+   * Called when student.action === 'CONFIRM_VISA_PAYMENT'
+   */
+  confirmVisaPaymentReceived(studentId: number, receivedAmt: number, receivedDt: string): void {
+    if (!receivedAmt || receivedAmt <= 0) {
+      this.showErrorToast('Please enter a valid received amount');
+      return;
+    }
+    if (!receivedDt) {
+      this.showErrorToast('Please select a received date');
+      return;
+    }
+
+    this.processingId = studentId;
+    this.cdr.detectChanges();
+
+    const body = {
+      accountantUsername: this.username,
+      receivedAmount: receivedAmt,
+      receivedDate: receivedDt
+    };
+
+    this.http.post(`http://localhost:8080/api/visa/confirm-payment/${studentId}`, body)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.processingId = null;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.showSuccess('Visa payment confirmed! Student is ready for visa application.');
+          this.refreshData();
+          this.closeConfirmPaymentModal();
+        },
+        error: (err) => {
+          console.error('Error confirming payment:', err);
+          this.showErrorToast('Failed to confirm payment: ' + (err.error?.message || err.message || 'Unknown error'));
+        }
+      });
+  }
+
+  /**
+   * Show error toast message
+   */
+  showErrorToast(message: string): void {
+    // Show error as alert for now - can be replaced with a toast service
+    alert(message);
+  }
+
+  /**
+   * Check if student needs visa action from accountant
+   */
+  needsVisaAction(student: any): boolean {
+    return student.actionOnUser === 'accountant' &&
+      (student.action === 'SEND_BANK_DETAILS_TO_AGENT' || student.action === 'CONFIRM_VISA_PAYMENT');
   }
 
   // --- Logout ---
