@@ -22,7 +22,7 @@ import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashb
 import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', component: Home },
+  { path: '', component: AdminLogin },
   { path: 'StudentLogin', component: StudentLogin },
   { path: 'AdminLogin', component: AdminLogin },
   { path: 'admin-login', component: AdminLogin },

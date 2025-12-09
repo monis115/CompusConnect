@@ -143,6 +143,21 @@ export class AgentDashboard implements OnInit {
   isValidationModalOpen = false;
   validationMessage = '';
 
+  // --- Visa Payment Modal State ---
+  showPaymentConfirmationModal = false;
+  selectedPaymentStudent: any = null;
+  paymentAmount: number = 0;
+  paymentCurrency: string = 'USD';
+  transactionId: string = '';
+  confirmationFile: File | null = null;
+  isSubmittingPayment = false;
+  isPaymentSuccessModalOpen = false;
+
+  // --- Toast State ---
+  showToast = false;
+  toastMessage = '';
+  toastType: 'success' | 'error' = 'success';
+
   // Standardized List of Visa Issuance Places
   visaIssuancePlaces: string[] = [
     'Vienna', 'Baku', 'Kabul', 'Brussels', 'London', 'Berlin', 'Cairo', 'Tel Aviv',
@@ -357,7 +372,8 @@ export class AgentDashboard implements OnInit {
         s['actionOnUser'] === 'AGENT' ||
         s['actionOnUser'] === 'agent' ||
         s.applicationStatus === StudentStatus.ADMISSION_LETTER_APPROVED ||
-        (s['action'] === 'INITIATE_TELEX' && s['actionOnUser'] === 'agent')
+        (s['action'] === 'INITIATE_TELEX' && s['actionOnUser'] === 'agent') ||
+        (s['action'] === 'SEND_VISA_PAYMENT_TO_ACCOUNTANT' && (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT'))
       )
       .sort((a, b) => {
         // Sort by registration date (latest first)
@@ -1004,5 +1020,159 @@ export class AgentDashboard implements OnInit {
       this.fetchDashboardData(this.agentData.userId); // Background refresh
       this.loadDataInternal(this.agentData.userId); // Reload list
     }
+  }
+
+  // ======================= VISA PAYMENT FUNCTIONS =======================
+
+  /**
+   * Open payment confirmation modal
+   * Called when student.action === 'SEND_VISA_PAYMENT_TO_ACCOUNTANT'
+   */
+  openPaymentConfirmationModal(student: any): void {
+    this.selectedPaymentStudent = student;
+    this.paymentAmount = student.visaPaymentRequestedAmount || 0;
+    this.paymentCurrency = student.visaPaymentRequestedCurrency || 'USD';
+    this.transactionId = '';
+    this.confirmationFile = null;
+    this.showPaymentConfirmationModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closePaymentConfirmationModal(): void {
+    this.showPaymentConfirmationModal = false;
+    this.selectedPaymentStudent = null;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Handle file selection for payment confirmation screenshot
+   */
+  onConfirmationFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.confirmationFile = input.files[0];
+      this.cdr.detectChanges();
+    }
+  }
+
+  /**
+   * Submit payment confirmation to Accountant
+   */
+  async submitPaymentConfirmation(): Promise<void> {
+    if (!this.selectedPaymentStudent || !this.agentData) return;
+
+    this.isSubmittingPayment = true;
+    this.cdr.detectChanges();
+
+    try {
+      let confirmationPagePath = '';
+
+      // Upload confirmation file if provided
+      if (this.confirmationFile) {
+        const formData = new FormData();
+        formData.append('file', this.confirmationFile);
+        formData.append('studentId', this.selectedPaymentStudent.id.toString());
+        formData.append('type', 'visa-payment-confirmation');
+
+        const uploadResponse = await this.http.post<any>(
+          'http://localhost:8080/api/file/upload',
+          formData
+        ).toPromise();
+
+        confirmationPagePath = uploadResponse?.path || '';
+      }
+
+      // Submit payment confirmation
+      const body = {
+        agentUsername: this.agentData.userId,
+        amount: this.paymentAmount,
+        currency: this.paymentCurrency,
+        transactionId: this.transactionId || null,
+        confirmationPagePath: confirmationPagePath || null
+      };
+
+      await this.http.post(
+        `http://localhost:8080/api/visa/submit-payment-confirmation/${this.selectedPaymentStudent.id}`,
+        body
+      ).toPromise();
+
+      this.closePaymentConfirmationModal();
+      this.isPaymentSuccessModalOpen = true;
+      this.cdr.detectChanges();
+      this.refreshStudents();
+
+    } catch (error: any) {
+      this.showErrorToast('Failed to submit confirmation: ' + (error?.message || 'Unknown error'));
+    } finally {
+      this.isSubmittingPayment = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  /**
+   * Filter students needing visa payment action
+   */
+  getVisaPaymentStudents(): any[] {
+    return this.students.filter(s =>
+      (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT') &&
+      s['action'] === 'SEND_VISA_PAYMENT_TO_ACCOUNTANT'
+    );
+  }
+
+  /**
+   * Show visa payment button
+   */
+  showVisaPaymentButton(student: any): boolean {
+    return (student['actionOnUser'] === 'agent' || student['actionOnUser'] === 'AGENT') &&
+      student['action'] === 'SEND_VISA_PAYMENT_TO_ACCOUNTANT';
+  }
+
+  /**
+   * Refresh students list
+   */
+  refreshStudents(): void {
+    if (this.agentData) {
+      this.loadDataInternal(this.agentData.userId);
+    }
+  }
+
+  /**
+   * Copy text to clipboard
+   */
+  copyToClipboard(text: string): void {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.showSuccessToast('📋 Copied to clipboard!');
+    }).catch(() => {
+      this.showErrorToast('Failed to copy');
+    });
+  }
+
+  /**
+   * Show success toast message
+   */
+  showSuccessToast(message: string): void {
+    this.toastMessage = message;
+    this.toastType = 'success';
+    this.showToast = true;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.showToast = false;
+      this.cdr.detectChanges();
+    }, 3000);
+  }
+
+  /**
+   * Show error toast message
+   */
+  showErrorToast(message: string): void {
+    this.toastMessage = message;
+    this.toastType = 'error';
+    this.showToast = true;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.showToast = false;
+      this.cdr.detectChanges();
+    }, 4000);
   }
 }

@@ -10,7 +10,7 @@ describe('AccountantDashboard', () => {
     await TestBed.configureTestingModule({
       declarations: [AccountantDashboard]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AccountantDashboard);
     component = fixture.componentInstance;

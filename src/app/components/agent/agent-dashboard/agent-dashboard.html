@@ -463,8 +463,119 @@
                 <button class="btn-initiate-telex" *ngIf="showInitiateTelexButton(task)" (click)="openTelexModal(task)">
                   Initiate Telex
                 </button>
+
+                <button class="btn-visa-payment-action" *ngIf="showVisaPaymentButton(task)"
+                  (click)="openPaymentConfirmationModal(task)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                  View &amp; Pay
+                </button>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visa Payment Section -->
+      <div class="visa-payment-section" *ngIf="getVisaPaymentStudents().length > 0">
+        <div class="section-header">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+              <line x1="1" y1="10" x2="23" y2="10" />
+            </svg>
+            Visa Payment Required
+          </h2>
+          <span class="badge-count visa-payment">{{ getVisaPaymentStudents().length }}</span>
+        </div>
+
+        <div class="visa-payment-cards-grid">
+          <div class="visa-payment-card glass-card" *ngFor="let student of getVisaPaymentStudents()">
+
+            <div class="payment-card-header">
+              <span class="badge visa-payment-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                  <line x1="1" y1="10" x2="23" y2="10" />
+                </svg>
+                Visa Payment Required
+              </span>
+              <span class="student-app-id">{{ student.applicationId }}</span>
+            </div>
+
+            <div class="payment-student-info">
+              <div class="avatar-circle-payment">{{ student.fullName?.charAt(0) || '?' }}</div>
+              <div class="student-details-payment">
+                <h4>{{ student.fullName }}</h4>
+
+              </div>
+            </div>
+
+            <!-- Bank Details Display -->
+            <div class="bank-details-section">
+              <h5>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                Bank Details (Uzbekistan)
+              </h5>
+              <div class="details-grid">
+                <div class="detail-item" *ngIf="student.visaBankName">
+                  <span class="label">Bank Name</span>
+                  <span class="value">{{ student.visaBankName }}</span>
+                </div>
+                <div class="detail-item" *ngIf="student.visaBankAccountNumber">
+                  <span class="label">Account Number</span>
+                  <span class="value copyable" (click)="copyToClipboard(student.visaBankAccountNumber)">
+                    {{ student.visaBankAccountNumber }}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="detail-item" *ngIf="student.visaBankSwiftCode">
+                  <span class="label">SWIFT/BIC Code</span>
+                  <span class="value copyable" (click)="copyToClipboard(student.visaBankSwiftCode)">
+                    {{ student.visaBankSwiftCode }}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="detail-item" *ngIf="student.visaBankBeneficiaryName">
+                  <span class="label">Beneficiary</span>
+                  <span class="value">{{ student.visaBankBeneficiaryName }}</span>
+                </div>
+                <div class="detail-item full-width" *ngIf="student.visaBankBranchAddress">
+                  <span class="label">Branch Address</span>
+                  <span class="value">{{ student.visaBankBranchAddress }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Amount Display -->
+            <div class="amount-section">
+              <div class="amount-display">
+                <span class="currency-badge">{{ student.visaPaymentRequestedCurrency || 'USD' }}</span>
+                <span class="amount">{{ student.visaPaymentRequestedAmount | number:'1.2-2' }}</span>
+              </div>
+              <p class="sent-date" *ngIf="student.visaBankDetailsSentDate">
+                Requested on: {{ student.visaBankDetailsSentDate | date:'dd MMM yyyy' }}
+              </p>
+            </div>
+
+            <!-- Action Button -->
+            <button class="btn-payment-action" (click)="openPaymentConfirmationModal(student)"
+              [disabled]="isSubmittingPayment">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+              <span>I've Made the Payment</span>
+            </button>
           </div>
         </div>
       </div>
@@ -658,6 +769,13 @@
                         stroke-width="2">
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                    </button>
+                    <button class="btn-icon-modern visa-payment" *ngIf="showVisaPaymentButton(s)"
+                      (click)="openPaymentConfirmationModal(s)" title="View & Pay Visa Fee">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                       </svg>
                     </button>
                   </div>
@@ -1764,4 +1882,187 @@
     <p>Telex application has been submitted successfully.</p>
     <button class="btn-primary-modern" (click)="isSuccessModalOpen = false">Close</button>
   </div>
+</div>
+
+<!-- Payment Confirmation Modal -->
+<div class="payment-modal-overlay" *ngIf="showPaymentConfirmationModal" (click)="closePaymentConfirmationModal()">
+  <div class="payment-modal glass-card" (click)="$event.stopPropagation()">
+    <div class="payment-modal-header">
+      <h3>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+        Submit Payment Confirmation
+      </h3>
+      <button class="close-btn" (click)="closePaymentConfirmationModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="payment-modal-body">
+      <!-- Student Summary -->
+      <div class="student-summary-card">
+        <div class="summary-row">
+          <span class="summary-label">Student</span>
+          <span class="summary-value">{{ selectedPaymentStudent?.fullName }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Application</span>
+          <span class="summary-value">{{ selectedPaymentStudent?.applicationId }}</span>
+        </div>
+
+      </div>
+
+      <!-- Bank Details Section -->
+      <div class="modal-bank-details-section">
+        <h5>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          Bank Details (Uzbekistan)
+        </h5>
+        <div class="modal-details-grid">
+          <div class="modal-detail-item" *ngIf="selectedPaymentStudent?.visaBankName">
+            <span class="label">Bank Name</span>
+            <span class="value">{{ selectedPaymentStudent?.visaBankName }}</span>
+          </div>
+          <div class="modal-detail-item" *ngIf="selectedPaymentStudent?.visaBankAccountNumber">
+            <span class="label">Account Number</span>
+            <span class="value copyable" (click)="copyToClipboard(selectedPaymentStudent?.visaBankAccountNumber)">
+              {{ selectedPaymentStudent?.visaBankAccountNumber }}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+            </span>
+          </div>
+          <div class="modal-detail-item" *ngIf="selectedPaymentStudent?.visaBankSwiftCode">
+            <span class="label">SWIFT/BIC Code</span>
+            <span class="value copyable" (click)="copyToClipboard(selectedPaymentStudent?.visaBankSwiftCode)">
+              {{ selectedPaymentStudent?.visaBankSwiftCode }}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+            </span>
+          </div>
+          <div class="modal-detail-item" *ngIf="selectedPaymentStudent?.visaBankBeneficiaryName">
+            <span class="label">Beneficiary</span>
+            <span class="value">{{ selectedPaymentStudent?.visaBankBeneficiaryName }}</span>
+          </div>
+          <div class="modal-detail-item full-width" *ngIf="selectedPaymentStudent?.visaBankBranchAddress">
+            <span class="label">Branch Address</span>
+            <span class="value">{{ selectedPaymentStudent?.visaBankBranchAddress }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Summary -->
+      <div class="payment-summary-card">
+        <span class="summary-label">Amount to Pay</span>
+        <div class="payment-amount-large">
+          <span class="currency">{{ selectedPaymentStudent?.visaPaymentRequestedCurrency || 'USD' }}</span>
+          <span class="amount">{{ selectedPaymentStudent?.visaPaymentRequestedAmount | number:'1.2-2' }}</span>
+        </div>
+        <p class="requested-date" *ngIf="selectedPaymentStudent?.visaBankDetailsSentDate">
+          Requested on: {{ selectedPaymentStudent?.visaBankDetailsSentDate | date:'dd MMM yyyy' }}
+        </p>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="payment-form-section">
+        <div class="form-group">
+          <label>Amount Transferred *</label>
+          <div class="input-with-currency">
+            <input type="number" [(ngModel)]="paymentAmount" class="form-control" placeholder="Enter amount" />
+            <select [(ngModel)]="paymentCurrency" class="currency-select">
+              <option value="USD">USD</option>
+              <option value="UZS">UZS</option>
+              <option value="INR">INR</option>
+              <option value="EUR">EUR</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Transaction ID / Reference Number</label>
+          <input type="text" [(ngModel)]="transactionId" class="form-control" placeholder="e.g., TXN123456789" />
+        </div>
+
+        <div class="form-group">
+          <label>Payment Confirmation Screenshot</label>
+          <div class="file-upload-area" (click)="confirmationInput.click()" [class.has-file]="confirmationFile">
+            <input type="file" #confirmationInput (change)="onConfirmationFileSelected($event)" accept="image/*,.pdf"
+              hidden />
+            <div *ngIf="!confirmationFile" class="upload-placeholder">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+              <span>Click to upload screenshot</span>
+            </div>
+            <div *ngIf="confirmationFile" class="file-selected">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+              <span>{{ confirmationFile.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="payment-modal-footer">
+      <button class="btn-cancel" (click)="closePaymentConfirmationModal()">Cancel</button>
+      <button class="btn-confirm-payment" (click)="submitPaymentConfirmation()"
+        [disabled]="isSubmittingPayment || !paymentAmount">
+        <span *ngIf="!isSubmittingPayment">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Confirm Payment Sent
+        </span>
+        <span *ngIf="isSubmittingPayment" class="btn-spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Success Modal -->
+<div class="payment-success-modal-overlay" *ngIf="isPaymentSuccessModalOpen"
+  (click)="isPaymentSuccessModalOpen = false">
+  <div class="payment-success-modal" (click)="$event.stopPropagation()">
+    <div class="success-animation-container">
+      <div class="success-checkmark">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" class="circle-animation" />
+          <polyline points="20 6 9 17 4 12" class="check-animation" />
+        </svg>
+      </div>
+      <div class="success-particles">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <h3>Payment Sent Successfully! 🎉</h3>
+    <p>Your payment confirmation has been sent to the Accountant for verification.</p>
+    <button class="btn-success-close" (click)="isPaymentSuccessModalOpen = false">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      Got it!
+    </button>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-notification" [class.show]="showToast" [class.success]="toastType === 'success'"
+  [class.error]="toastType === 'error'">
+  <span class="toast-message">{{ toastMessage }}</span>
 </div>

@@ -87,6 +87,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   isSubmitting = false;
   searchTerm = '';
   isFullscreen = false;
+  activeVerificationTab: 'telex' | 'visa' = 'telex';
 
   // Modals
   showDetailModal = false;
@@ -226,7 +227,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
               actionOnUser: s.actionOnUser,
               visaPaymentRequestedAmount: s.visaPaymentRequestedAmount,
               visaPaymentRequestedCurrency: s.visaPaymentRequestedCurrency,
-              visaPaymentTxId: s.visaPaymentTxId
+              visaPaymentTxId: s.visaPaymentTxId,
+              visaPaymentConfirmationPath: s.visaPaymentConfirmationPath
             }));
             this.filteredStudents = [...this.students];
           }
@@ -286,7 +288,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
             actionOnUser: (s as any).actionOnUser,
             visaPaymentRequestedAmount: (s as any).visaPaymentRequestedAmount,
             visaPaymentRequestedCurrency: (s as any).visaPaymentRequestedCurrency,
-            visaPaymentTxId: (s as any).visaPaymentTxId
+            visaPaymentTxId: (s as any).visaPaymentTxId,
+            visaPaymentConfirmationPath: (s as any).visaPaymentConfirmationPath
           }));
           this.filteredStudents = [...this.students];
 
@@ -679,7 +682,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // --- Counts for Sidebar ---
 
   get pendingCount(): number {
-    return this.stats?.pendingPayments || 0;
+    // Use actual pending verification counts (telex + visa)
+    return this.telexPendingStudents.length + this.visaPendingStudents.length;
   }
 
   get approvedCount(): number {
@@ -710,6 +714,25 @@ export class AccountantDashboard implements OnInit, OnDestroy {
    */
   get hasPendingVisaActions(): boolean {
     return this.students.some(s =>
+      s.actionOnUser === 'accountant' &&
+      (s.action === 'SEND_BANK_DETAILS_TO_AGENT' || s.action === 'CONFIRM_VISA_PAYMENT')
+    );
+  }
+
+  /**
+   * Get students pending telex fee verification
+   */
+  get telexPendingStudents(): AssignedStudent[] {
+    return this.students.filter(s =>
+      s.hasPaid && !this.isActionDisabled(s) && s.actionOnUser !== 'accountant'
+    );
+  }
+
+  /**
+   * Get students pending visa payment actions
+   */
+  get visaPendingStudents(): AssignedStudent[] {
+    return this.students.filter(s =>
       s.actionOnUser === 'accountant' &&
       (s.action === 'SEND_BANK_DETAILS_TO_AGENT' || s.action === 'CONFIRM_VISA_PAYMENT')
     );

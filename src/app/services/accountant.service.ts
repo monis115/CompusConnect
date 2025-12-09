@@ -51,6 +51,7 @@ export interface Student {
     visaPaymentRequestedAmount?: number | null;
     visaPaymentRequestedCurrency?: string | null;
     visaPaymentTxId?: string | null;
+    visaPaymentConfirmationPath?: string | null;
 }
 
 export interface Accountant {
@@ -122,6 +123,7 @@ export interface AssignedStudent {
     visaPaymentRequestedAmount?: number | null;
     visaPaymentRequestedCurrency?: string | null;
     visaPaymentTxId?: string | null;
+    visaPaymentConfirmationPath?: string | null;
 }
 
 export interface DashboardData {

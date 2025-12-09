@@ -105,6 +105,16 @@
           <span *ngIf="!isSidebarCollapsed">Payment</span>
         </a>
 
+        <a class="nav-link" [class.active]="activeView === 'news'" (click)="switchView('news')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
+            <line x1="7" y1="7" x2="17" y2="7"></line>
+            <line x1="7" y1="11" x2="17" y2="11"></line>
+            <line x1="7" y1="15" x2="12" y2="15"></line>
+          </svg>
+          <span *ngIf="!isSidebarCollapsed">News Management</span>
+        </a>
+
         <a class="nav-link" [class.active]="activeView === 'profile'" (click)="switchView('profile')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -148,6 +158,7 @@
         <h1 *ngIf="activeView === 'payment'">Payments</h1>
         <h1 *ngIf="activeView === 'profile'">My Profile</h1>
         <h1 *ngIf="activeView === 'messages'">Messages</h1>
+        <h1 *ngIf="activeView === 'news'">News Management</h1>
         <p>Manage your student pipeline & workflow</p>
       </div>
 
@@ -308,7 +319,7 @@
         </div>
       </div>
       <div class="list-view-container"
-        *ngIf="!isLoading && activeView !== 'dashboard' && activeView !== 'messages' && activeView !== 'profile' && activeView !== 'reports' && activeView !== 'payment'">
+        *ngIf="!isLoading && activeView !== 'dashboard' && activeView !== 'messages' && activeView !== 'profile' && activeView !== 'reports' && activeView !== 'payment' && activeView !== 'news'">
 
         <div class="empty-state" *ngIf="filteredList.length === 0">
           <div class="empty-icon">
@@ -471,6 +482,164 @@
           </svg>
           <h3>Coming Soon</h3>
           <p>This module is currently under development.</p>
+        </div>
+      </div>
+
+      <!-- News Management View -->
+      <div class="news-management-container" *ngIf="!isLoading && activeView === 'news'" [@fadeIn]>
+
+        <!-- News Loading State -->
+        <div class="news-loading-overlay" *ngIf="isLoadingNews">
+          <div class="news-loading-spinner"></div>
+          <p>Loading news...</p>
+        </div>
+
+        <!-- News Header with Create Button -->
+        <div class="news-header-bar" *ngIf="!isLoadingNews">
+          <div class="news-stats-row">
+            <div class="news-stat-card">
+              <div class="news-stat-icon total">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
+                  <line x1="7" y1="7" x2="17" y2="7"></line>
+                  <line x1="7" y1="11" x2="17" y2="11"></line>
+                </svg>
+              </div>
+              <div class="news-stat-info">
+                <span class="news-stat-value">{{ getNewsStats().total }}</span>
+                <span class="news-stat-label">Total News</span>
+              </div>
+            </div>
+
+            <div class="news-stat-card">
+              <div class="news-stat-icon active">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div class="news-stat-info">
+                <span class="news-stat-value">{{ getNewsStats().active }}</span>
+                <span class="news-stat-label">Active Now</span>
+              </div>
+            </div>
+
+            <div class="news-stat-card">
+              <div class="news-stat-icon agents">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <line x1="20" y1="8" x2="20" y2="14"></line>
+                  <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+              </div>
+              <div class="news-stat-info">
+                <span class="news-stat-value">{{ getNewsStats().forAgents }}</span>
+                <span class="news-stat-label">For Agents</span>
+              </div>
+            </div>
+
+            <div class="news-stat-card">
+              <div class="news-stat-icon students">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+              </div>
+              <div class="news-stat-info">
+                <span class="news-stat-value">{{ getNewsStats().forStudents }}</span>
+                <span class="news-stat-label">For Students</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-create-news" (click)="openCreateNewsModal()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Create News
+          </button>
+        </div>
+
+        <!-- Empty State -->
+        <div class="news-empty-state" *ngIf="!isLoadingNews && newsList.length === 0">
+          <div class="news-empty-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
+              <line x1="7" y1="7" x2="17" y2="7"></line>
+              <line x1="7" y1="11" x2="17" y2="11"></line>
+              <line x1="7" y1="15" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <h3>No News Created Yet</h3>
+          <p>Start creating news to keep your agents and students informed.</p>
+          <button class="btn-primary" (click)="openCreateNewsModal()">Create Your First News</button>
+        </div>
+
+        <!-- News Table -->
+        <div class="news-table-card" *ngIf="!isLoadingNews && newsList.length > 0">
+          <table class="news-data-table">
+            <thead>
+              <tr>
+                <th>Heading</th>
+                <th>Audience</th>
+                <th>Date Range</th>
+                <th>Tag</th>
+                <th>Status</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let news of newsList">
+                <td>
+                  <div class="news-heading-cell">
+                    <span class="news-heading-text">{{ news.heading }}</span>
+                    <span class="news-content-preview">{{ news.content | slice:0:50 }}{{ (news.content &&
+                      news.content.length > 50) ? '...' : '' }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="audience-badge" [ngClass]="getForUserClass(news.forUser)">
+                    {{ getForUserLabel(news.forUser) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="news-date-range">
+                    <span class="date-from">{{ formatNewsDate(news.activeFrom) }}</span>
+                    <span class="date-separator">→</span>
+                    <span class="date-to">{{ formatNewsDate(news.tillDate) }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="news-tag-badge">{{ getTagLabel(news.tag) }}</span>
+                </td>
+                <td>
+                  <span class="news-status-badge" [ngClass]="isNewsActive(news) ? 'status-active' : 'status-inactive'">
+                    {{ isNewsActive(news) ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="text-right">
+                  <div class="news-action-group">
+                    <button class="btn-icon-edit" (click)="openEditNewsModal(news)" title="Edit">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    <button class="btn-icon-delete" (click)="openDeleteConfirmModal(news.id!)" title="Delete">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -794,6 +963,122 @@
       </div>
     </div>
   </div>
+
+  <!-- News Create/Edit Modal -->
+  <div class="modal-backdrop z-high" *ngIf="showNewsModal" (click)="closeNewsModal()">
+    <div class="news-modal-dialog" (click)="$event.stopPropagation()" [@scaleIn]>
+      <div class="news-modal-header">
+        <div class="news-modal-title">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
+            <line x1="7" y1="7" x2="17" y2="7"></line>
+            <line x1="7" y1="11" x2="17" y2="11"></line>
+          </svg>
+          <h3>{{ isEditingNews ? 'Edit News' : 'Create News' }}</h3>
+        </div>
+        <button class="close-btn" (click)="closeNewsModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="news-modal-body">
+        <div class="news-form-group">
+          <label>Heading <span class="required">*</span></label>
+          <input type="text" class="news-form-input" [(ngModel)]="newsForm.heading" placeholder="Enter news headline..."
+            maxlength="200">
+        </div>
+
+        <div class="news-form-group">
+          <label>Content <span class="required">*</span></label>
+          <textarea class="news-form-textarea" [(ngModel)]="newsForm.content"
+            placeholder="Write your news content here..." rows="4"></textarea>
+        </div>
+
+        <div class="news-form-row">
+          <div class="news-form-group">
+            <label>Target Audience <span class="required">*</span></label>
+            <select class="news-form-select" [(ngModel)]="newsForm.forUser">
+              <option value="" disabled selected>Select audience...</option>
+              <option *ngFor="let opt of userTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+
+          <div class="news-form-group">
+            <label>Tag</label>
+            <select class="news-form-select" [(ngModel)]="newsForm.tag">
+              <option value="" disabled selected>Select tag...</option>
+              <option *ngFor="let opt of tagOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="news-form-row">
+          <div class="news-form-group">
+            <label>Active From <span class="required">*</span></label>
+            <input type="date" class="news-form-input" [(ngModel)]="newsForm.activeFrom">
+          </div>
+
+          <div class="news-form-group">
+            <label>Till Date <span class="required">*</span></label>
+            <input type="date" class="news-form-input" [(ngModel)]="newsForm.tillDate">
+          </div>
+        </div>
+      </div>
+
+      <div class="news-modal-footer">
+        <button class="btn-text" (click)="closeNewsModal()" [disabled]="isSubmitting">Cancel</button>
+        <button class="btn-primary" (click)="saveNews()" [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting">{{ isEditingNews ? 'Update News' : 'Create News' }}</span>
+          <span *ngIf="isSubmitting" class="spinner-sm"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium News Success Modal -->
+  <div class="news-success-modal" *ngIf="showNewsSuccessModal" (click)="closeNewsSuccessModal()">
+    <div class="news-success-content" (click)="$event.stopPropagation()">
+      <!-- Confetti particles -->
+      <div class="confetti" style="left: 10%; background: #10B981; animation-delay: 0.1s;"></div>
+      <div class="confetti" style="left: 25%; background: #F59E0B; animation-delay: 0.2s;"></div>
+      <div class="confetti" style="left: 40%; background: #3B82F6; animation-delay: 0.15s;"></div>
+      <div class="confetti" style="left: 55%; background: #EC4899; animation-delay: 0.25s;"></div>
+      <div class="confetti" style="left: 70%; background: #8B5CF6; animation-delay: 0.1s;"></div>
+      <div class="confetti" style="left: 85%; background: #10B981; animation-delay: 0.3s;"></div>
+
+      <div class="news-success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+          stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h3>Awesome!</h3>
+      <p>{{ newsSuccessMessage }}</p>
+      <button class="btn-primary" (click)="closeNewsSuccessModal()">Continue</button>
+    </div>
+  </div>
+  <!-- Premium Delete Confirmation Modal -->
+  <div class="news-confirm-modal" *ngIf="showDeleteConfirmModal" (click)="cancelDeleteNews()">
+    <div class="news-confirm-content" (click)="$event.stopPropagation()">
+      <div class="news-confirm-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <h3>Delete News?</h3>
+      <p>Are you sure you want to delete this news item? This action cannot be undone.</p>
+      <div class="news-confirm-actions">
+        <button class="btn-text" (click)="cancelDeleteNews()">Cancel</button>
+        <button class="btn-danger" (click)="confirmDeleteNews()">Delete</button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Premium Logout Confirmation Modal -->
   <div class="logout-modal-overlay" *ngIf="isLogoutModalOpen" (click)="cancelLogout()">

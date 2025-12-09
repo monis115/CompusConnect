@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { AdmissionManagerService } from '../../../services/admission-manager.service';
@@ -110,6 +111,20 @@ interface VisaManager {
   status: string;
 }
 
+interface NewsDTO {
+  id?: number;
+  activeFrom: string;
+  tillDate: string;
+  heading: string;
+  content: string;
+  tag: string;
+  username: string;
+  forUser: string;  // STUDENT | AGENT | ALL
+  createdAt?: string;
+  updatedAt?: string;
+  active?: boolean;
+}
+
 interface DashboardStats {
   totalStudents: number;
   newApplications: number;
@@ -163,7 +178,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   availableVisaManagers: VisaManager[] = [];
 
   // Views & Lists
-  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' = 'dashboard';
+  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' = 'dashboard';
   isSidebarCollapsed = false;
   actionRequiredStudents: Student[] = [];
   pendingUniversityStudents: Student[] = [];
@@ -188,6 +203,44 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   showActionModal = false;
   showSuccessModal = false;
   successModalMessage = '';
+
+  // --- News Management ---
+  newsList: NewsDTO[] = [];
+  isLoadingNews = false;
+  showNewsModal = false;
+  showNewsSuccessModal = false;
+  newsSuccessMessage = '';
+  showDeleteConfirmModal = false;
+  deleteNewsId: number | null = null;
+  isEditingNews = false;
+  currentNewsId: number | null = null;
+  newsForm = {
+    heading: '',
+    content: '',
+    tag: '',
+    forUser: '',
+    activeFrom: '',
+    tillDate: ''
+  };
+  userTypeOptions = [
+    { value: 'STUDENT', label: 'Students' },
+    { value: 'AGENT', label: 'Agents' },
+    { value: 'ALL', label: 'All Users' }
+  ];
+  tagOptions = [
+    { value: 'admission', label: 'Admission' },
+    { value: 'partnership', label: 'Partnership' },
+    { value: 'fees_update', label: 'Fees Update' },
+    { value: 'scholarship', label: 'Scholarship' },
+    { value: 'deadline', label: 'Deadline' },
+    { value: 'holiday', label: 'Holiday' },
+    { value: 'visa', label: 'Visa Update' },
+    { value: 'documents', label: 'Documents' },
+    { value: 'university', label: 'University News' },
+    { value: 'intake', label: 'New Intake' },
+    { value: 'general', label: 'General' }
+  ];
+  private readonly NEWS_API_URL = 'http://localhost:8080/api/news';
 
   // --- Logout Confirmation Modal & Messages ---
   isLogoutModalOpen = false;
@@ -279,7 +332,8 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   constructor(
     private admissionService: AdmissionManagerService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -477,6 +531,8 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     } else if (view === 'dashboard') {
       const username = sessionStorage.getItem('userId');
       if (username) this.loadDashboardStats(username);
+    } else if (view === 'news') {
+      this.loadMyNews();
     } else {
       this.filterStudents();
     }
@@ -741,5 +797,212 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   getAvatarColor(name: string): string {
     if (!name) return this.avatarColors[0];
     return this.avatarColors[name.charCodeAt(0) % this.avatarColors.length];
+  }
+
+  // --- News Management Methods ---
+
+  loadMyNews(): void {
+    const username = sessionStorage.getItem('userId');
+    if (!username) return;
+
+    this.isLoadingNews = true;
+    this.cdr.detectChanges();
+
+    this.http.get<NewsDTO[]>(`${this.NEWS_API_URL}/by-user/${username}`)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoadingNews = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (news) => {
+          this.newsList = news.sort((a, b) => {
+            // Sort by createdAt descending (newest first)
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          });
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading news:', err);
+          this.newsList = [];
+        }
+      });
+  }
+
+  openCreateNewsModal(): void {
+    this.isEditingNews = false;
+    this.currentNewsId = null;
+    this.resetNewsForm();
+    this.showNewsModal = true;
+    this.cdr.detectChanges();
+  }
+
+  openEditNewsModal(news: NewsDTO): void {
+    this.isEditingNews = true;
+    this.currentNewsId = news.id || null;
+    this.newsForm = {
+      heading: news.heading,
+      content: news.content,
+      tag: news.tag,
+      forUser: news.forUser,
+      activeFrom: news.activeFrom,
+      tillDate: news.tillDate
+    };
+    this.showNewsModal = true;
+    this.cdr.detectChanges();
+  }
+
+  saveNews(): void {
+    const username = sessionStorage.getItem('userId');
+    if (!username) return;
+
+    // Validate form
+    if (!this.newsForm.heading || !this.newsForm.content || !this.newsForm.forUser ||
+      !this.newsForm.activeFrom || !this.newsForm.tillDate) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+
+    const payload: NewsDTO = {
+      heading: this.newsForm.heading,
+      content: this.newsForm.content,
+      tag: this.newsForm.tag || 'general',
+      forUser: this.newsForm.forUser,
+      activeFrom: this.newsForm.activeFrom,
+      tillDate: this.newsForm.tillDate,
+      username: username
+    };
+
+    let request$;
+    if (this.isEditingNews && this.currentNewsId) {
+      request$ = this.http.put<NewsDTO>(`${this.NEWS_API_URL}/${this.currentNewsId}`, payload);
+    } else {
+      request$ = this.http.post<NewsDTO>(this.NEWS_API_URL, payload);
+    }
+
+    request$.pipe(
+      finalize(() => {
+        this.isSubmitting = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: () => {
+        this.closeNewsModal();
+        this.loadMyNews();
+        this.newsSuccessMessage = this.isEditingNews ? 'Your news has been updated successfully!' : 'Your news has been published successfully!';
+        this.showNewsSuccessModal = true;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error saving news:', err);
+        alert('Failed to save news. Please try again.');
+      }
+    });
+  }
+
+  openDeleteConfirmModal(id: number): void {
+    this.deleteNewsId = id;
+    this.showDeleteConfirmModal = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelDeleteNews(): void {
+    this.showDeleteConfirmModal = false;
+    this.deleteNewsId = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmDeleteNews(): void {
+    if (!this.deleteNewsId) return;
+
+    this.showDeleteConfirmModal = false;
+
+    this.http.delete<any>(`${this.NEWS_API_URL}/${this.deleteNewsId}`)
+      .subscribe({
+        next: () => {
+          this.deleteNewsId = null;
+          this.loadMyNews();
+          this.newsSuccessMessage = 'News has been deleted successfully!';
+          this.showNewsSuccessModal = true;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error deleting news:', err);
+          this.deleteNewsId = null;
+          alert('Failed to delete news. Please try again.');
+        }
+      });
+  }
+
+  closeNewsModal(): void {
+    this.showNewsModal = false;
+    this.resetNewsForm();
+    this.cdr.detectChanges();
+  }
+
+  closeNewsSuccessModal(): void {
+    this.showNewsSuccessModal = false;
+    this.newsSuccessMessage = '';
+    this.cdr.detectChanges();
+  }
+
+  resetNewsForm(): void {
+    this.newsForm = {
+      heading: '',
+      content: '',
+      tag: '',
+      forUser: '',
+      activeFrom: '',
+      tillDate: ''
+    };
+  }
+
+  getForUserLabel(forUser: string): string {
+    const option = this.userTypeOptions.find(o => o.value === forUser);
+    return option ? option.label : forUser;
+  }
+
+  getForUserClass(forUser: string): string {
+    switch (forUser) {
+      case 'STUDENT': return 'audience-student';
+      case 'AGENT': return 'audience-agent';
+      case 'ALL': return 'audience-all';
+      default: return '';
+    }
+  }
+
+  getTagLabel(tagValue: string): string {
+    if (!tagValue) return 'General';
+    const option = this.tagOptions.find(o => o.value === tagValue);
+    return option ? option.label : tagValue;
+  }
+
+  isNewsActive(news: NewsDTO): boolean {
+    if (!news.active) return false;
+    const today = new Date();
+    const from = new Date(news.activeFrom);
+    const till = new Date(news.tillDate);
+    return today >= from && today <= till;
+  }
+
+  formatNewsDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  getNewsStats(): { total: number; active: number; forAgents: number; forStudents: number } {
+    const total = this.newsList.length;
+    const active = this.newsList.filter(n => this.isNewsActive(n)).length;
+    const forAgents = this.newsList.filter(n => n.forUser === 'AGENT').length;
+    const forStudents = this.newsList.filter(n => n.forUser === 'STUDENT').length;
+    return { total, active, forAgents, forStudents };
   }
 }

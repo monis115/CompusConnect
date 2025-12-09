@@ -119,7 +119,7 @@
                 <h1 *ngIf="activeView === 'rejected'">Rejected Payments</h1>
                 <h1 *ngIf="activeView === 'all-students'">All Students</h1>
                 <h1 *ngIf="activeView === 'profile'">My Profile</h1>
-                <p>Manage and verify student telex payments</p>
+                <p>Manage and verify student payments</p>
             </div>
 
             <div class="search-wrapper" *ngIf="activeView !== 'dashboard' && activeView !== 'profile'">
@@ -452,243 +452,290 @@
                     </div>
                 </div>
 
-                <!-- ======================= ACTIONS NEEDED SECTION ======================= -->
-                <div class="actions-needed-section">
-                    <div class="section-title-bar">
-                        <div class="section-title-left">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                <!-- ======================= QUICK ACTIONS SUMMARY ======================= -->
+                <div class="actions-quick-summary" *ngIf="hasPendingTelexFees || hasPendingVisaActions">
+                    <div class="quick-summary-header">
+                        <div class="quick-summary-icon pulse">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
                                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
                             </svg>
-                            <h2>Actions Needed</h2>
                         </div>
-                        <span class="section-subtitle">Students requiring your action</span>
+                        <div class="quick-summary-text">
+                            <h3>Pending Actions</h3>
+                            <p>{{telexPendingStudents.length + visaPendingStudents.length}} students require your
+                                attention</p>
+                        </div>
+                    </div>
+                    <div class="quick-summary-stats">
+                        <div class="summary-stat amber" *ngIf="telexPendingStudents.length > 0">
+                            <span class="stat-emoji">💰</span>
+                            <span class="stat-num">{{telexPendingStudents.length}}</span>
+                            <span class="stat-text">Telex Fees</span>
+                        </div>
+                        <div class="summary-stat blue" *ngIf="visaPendingStudents.length > 0">
+                            <span class="stat-emoji">🛂</span>
+                            <span class="stat-num">{{visaPendingStudents.length}}</span>
+                            <span class="stat-text">VISA Payments</span>
+                        </div>
+                    </div>
+                    <button class="quick-summary-btn" (click)="switchView('pending')">
+                        <span>View All Pending</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- ======================= PREMIUM PENDING VERIFICATION HUB ======================= -->
+            <div class="verification-hub" *ngIf="!isLoading && activeView === 'pending'" [@fadeIn]>
+                <!-- Premium Header -->
+                <div class="verification-hub-header">
+                    <div class="hub-title-row">
+                        <div class="hub-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div class="hub-title-text">
+                            <h2>Pending Verifications</h2>
+                            <p>Review and process payment verifications</p>
+                        </div>
+                    </div>
+                    <div class="hub-mini-stats">
+                        <div class="mini-stat-pill amber">
+                            <span class="pill-emoji">💰</span>
+                            <span class="pill-count">{{telexPendingStudents.length}}</span>
+                        </div>
+                        <div class="mini-stat-pill blue">
+                            <span class="pill-emoji">🛂</span>
+                            <span class="pill-count">{{visaPendingStudents.length}}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Premium Tab Navigation -->
+                <div class="verification-tabs-wrapper">
+                    <div class="verification-tabs">
+                        <button class="verification-tab" [class.active]="activeVerificationTab === 'telex'"
+                            (click)="activeVerificationTab = 'telex'">
+                            <div class="tab-icon-box amber">
+                                <span>💰</span>
+                            </div>
+                            <div class="tab-text">
+                                <span class="tab-title"> Fee Verification</span>
+                                <span class="tab-subtitle">Verify student payments</span>
+                            </div>
+                            <span class="tab-count amber">{{telexPendingStudents.length}}</span>
+                        </button>
+
+                        <button class="verification-tab" [class.active]="activeVerificationTab === 'visa'"
+                            (click)="activeVerificationTab = 'visa'">
+                            <div class="tab-icon-box blue">
+                                <span>🛂</span>
+                            </div>
+                            <div class="tab-text">
+                                <span class="tab-title">VISA Fee Payment</span>
+                                <span class="tab-subtitle">Bank details & payment confirmation</span>
+                            </div>
+                            <span class="tab-count blue">{{visaPendingStudents.length}}</span>
+                        </button>
+                    </div>
+                    <div class="tab-indicator" [class.at-visa]="activeVerificationTab === 'visa'"></div>
+                </div>
+
+                <!-- Tab Content Area -->
+                <div class="verification-content">
+                    <!-- TELEX FEE VERIFICATION TAB -->
+                    <div class="tab-content-panel" *ngIf="activeVerificationTab === 'telex'" [@fadeIn]>
+                        <div class="verification-cards-grid" *ngIf="telexPendingStudents.length > 0">
+                            <div class="premium-verification-card telex-card"
+                                *ngFor="let student of telexPendingStudents">
+                                <div class="card-glow"></div>
+                                <div class="pvc-header">
+                                    <div class="pvc-avatar" [style.background-color]="getAvatarColor(student.fullName)">
+                                        {{student.fullName?.charAt(0)}}
+                                    </div>
+                                    <div class="pvc-info">
+                                        <span class="pvc-name">{{student.fullName}}</span>
+                                        <span class="pvc-id">{{student.applicationId}}</span>
+                                    </div>
+                                </div>
+                                <div class="pvc-body">
+                                    <div class="pvc-amount-row">
+                                        <span class="pvc-label">Amount Paid</span>
+                                        <span class="pvc-amount telex">{{formatCurrency(student.paidAmount)}}</span>
+                                    </div>
+                                    <div class="pvc-paid-to" *ngIf="student.paidTo">
+                                        <span class="pvc-label">Paid To</span>
+                                        <span class="pvc-value">{{student.paidTo}}</span>
+                                    </div>
+                                </div>
+                                <div class="pvc-footer">
+                                    <button class="pvc-btn verify" (click)="openApproveModal(student)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Verify Payment
+                                    </button>
+                                    <button class="pvc-btn reject" (click)="openRejectModal(student)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                        Reject
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div class="verification-empty-state" *ngIf="telexPendingStudents.length === 0">
+                            <div class="empty-icon-wrapper amber">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                            <h3>All Caught Up!</h3>
+                            <p>No pending telex fee verifications at the moment.</p>
+                        </div>
                     </div>
 
-                    <div class="actions-split-container">
-                        <!-- LEFT: Telex Fees Verification Section -->
-                        <div class="action-panel fees-panel">
-                            <div class="panel-header amber">
-                                <div class="panel-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                                        <line x1="1" y1="10" x2="23" y2="10"></line>
-                                    </svg>
-                                </div>
-                                <div class="panel-title">
-                                    <h3>💰 Telex Fee Verification</h3>
-                                    <p>Verify student telex payments</p>
-                                </div>
-                            </div>
-                            <div class="panel-content">
-                                <div class="action-cards-list">
-                                    <ng-container *ngFor="let student of students">
-                                        <div class="action-card"
-                                            *ngIf="student.hasPaid && !isActionDisabled(student) && student.actionOnUser !== 'accountant'">
-                                            <div class="action-card-header">
-                                                <div class="student-mini-avatar"
-                                                    [style.background-color]="getAvatarColor(student.fullName)">
-                                                    {{student.fullName?.charAt(0)}}
-                                                </div>
-                                                <div class="student-mini-info">
-                                                    <span class="mini-name">{{student.fullName}}</span>
-                                                    <span class="mini-id">{{student.applicationId}}</span>
-                                                </div>
-                                            </div>
-                                            <div class="action-card-body">
-                                                <div class="amount-display">
-                                                    <span class="amount-label">Amount Paid</span>
-                                                    <span
-                                                        class="amount-value">{{formatCurrency(student.paidAmount)}}</span>
-                                                </div>
-                                            </div>
-                                            <div class="action-card-footer">
-                                                <button class="btn-action approve" (click)="openApproveModal(student)">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2">
-                                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                                    </svg>
-                                                    Verify
-                                                </button>
-                                                <button class="btn-action reject" (click)="openRejectModal(student)">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2">
-                                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                                    </svg>
-                                                    Reject
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </ng-container>
-
-                                    <!-- Empty State -->
-                                    <div class="empty-panel-state" *ngIf="!hasPendingTelexFees">
-                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    <!-- VISA FEE PAYMENT TAB -->
+                    <div class="tab-content-panel" *ngIf="activeVerificationTab === 'visa'" [@fadeIn]>
+                        <div class="verification-cards-grid" *ngIf="visaPendingStudents.length > 0">
+                            <ng-container *ngFor="let student of visaPendingStudents">
+                                <!-- Send Bank Details Card -->
+                                <div class="premium-verification-card visa-card send-bank"
+                                    *ngIf="student.action === 'SEND_BANK_DETAILS_TO_AGENT'">
+                                    <div class="card-glow blue"></div>
+                                    <div class="pvc-action-badge send">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                                         </svg>
-                                        <p>No pending fee verifications</p>
+                                        Send Bank Details
+                                    </div>
+                                    <div class="pvc-header">
+                                        <div class="pvc-avatar"
+                                            [style.background-color]="getAvatarColor(student.fullName)">
+                                            {{student.fullName?.charAt(0)}}
+                                        </div>
+                                        <div class="pvc-info">
+                                            <span class="pvc-name">{{student.fullName}}</span>
+                                            <span class="pvc-id">{{student.applicationId}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="pvc-body">
+                                        <div class="pvc-amount-row">
+                                            <span class="pvc-label">Requested Amount</span>
+                                            <span class="pvc-amount visa">{{student.visaPaymentRequestedAmount || 0}}
+                                                {{student.visaPaymentRequestedCurrency || 'USD'}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="pvc-footer single">
+                                        <button class="pvc-btn send-bank" (click)="openSendBankDetailsModal(student)"
+                                            [disabled]="processingId === student.studentId">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2"
+                                                *ngIf="processingId !== student.studentId">
+                                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                                            </svg>
+                                            <span *ngIf="processingId !== student.studentId">💳 Send Bank Details</span>
+                                            <span *ngIf="processingId === student.studentId" class="btn-spinner"></span>
+                                        </button>
                                     </div>
                                 </div>
-                            </div>
+
+                                <!-- Confirm Payment Card -->
+                                <div class="premium-verification-card visa-card confirm-pay"
+                                    *ngIf="student.action === 'CONFIRM_VISA_PAYMENT'">
+                                    <div class="card-glow green"></div>
+                                    <div class="pvc-action-badge confirm">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Confirm Payment
+                                    </div>
+                                    <div class="pvc-header">
+                                        <div class="pvc-avatar"
+                                            [style.background-color]="getAvatarColor(student.fullName)">
+                                            {{student.fullName?.charAt(0)}}
+                                        </div>
+                                        <div class="pvc-info">
+                                            <span class="pvc-name">{{student.fullName}}</span>
+                                            <span class="pvc-id">{{student.applicationId}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="pvc-body">
+                                        <div class="pvc-amount-row">
+                                            <span class="pvc-label">Expected Amount</span>
+                                            <span class="pvc-amount confirm">{{student.visaPaymentRequestedAmount || 0}}
+                                                {{student.visaPaymentRequestedCurrency || 'USD'}}</span>
+                                        </div>
+                                        <div class="pvc-tx-id" *ngIf="student.visaPaymentTxId">
+                                            <span class="pvc-label">TX ID</span>
+                                            <span class="pvc-value mono">{{student.visaPaymentTxId}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="pvc-footer single">
+                                        <button class="pvc-btn confirm-payment"
+                                            (click)="openConfirmPaymentModal(student)"
+                                            [disabled]="processingId === student.studentId">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2"
+                                                *ngIf="processingId !== student.studentId">
+                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                            </svg>
+                                            <span *ngIf="processingId !== student.studentId">✅ Confirm Payment</span>
+                                            <span *ngIf="processingId === student.studentId" class="btn-spinner"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </ng-container>
                         </div>
 
-                        <!-- RIGHT: VISA Fee Payment Section -->
-                        <div class="action-panel visa-panel">
-                            <div class="panel-header blue">
-                                <div class="panel-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path
-                                            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                                        </path>
-                                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                                    </svg>
-                                </div>
-                                <div class="panel-title">
-                                    <h3>🛂 VISA Fee Payment</h3>
-                                    <p>Send bank details & confirm visa payments</p>
-                                </div>
+                        <!-- Empty State -->
+                        <div class="verification-empty-state" *ngIf="visaPendingStudents.length === 0">
+                            <div class="empty-icon-wrapper blue">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path
+                                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                                    </path>
+                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                </svg>
                             </div>
-                            <div class="panel-content">
-                                <div class="action-cards-list">
-                                    <ng-container *ngFor="let student of students">
-                                        <!-- Send Bank Details Action -->
-                                        <div class="action-card visa-action"
-                                            *ngIf="student.actionOnUser === 'accountant' && student.action === 'SEND_BANK_DETAILS_TO_AGENT'">
-                                            <div class="visa-badge send-bank-details">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2">
-                                                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                                </svg>
-                                                Send Bank Details
-                                            </div>
-                                            <div class="action-card-header">
-                                                <div class="student-mini-avatar"
-                                                    [style.background-color]="getAvatarColor(student.fullName)">
-                                                    {{student.fullName?.charAt(0)}}
-                                                </div>
-                                                <div class="student-mini-info">
-                                                    <span class="mini-name">{{student.fullName}}</span>
-                                                    <span class="mini-id">{{student.applicationId}}</span>
-                                                </div>
-                                            </div>
-                                            <div class="action-card-body">
-                                                <div class="amount-display visa-amount">
-                                                    <span class="amount-label">Requested Amount</span>
-                                                    <span class="amount-value">{{student.visaPaymentRequestedAmount ||
-                                                        0}} {{student.visaPaymentRequestedCurrency || 'USD'}}</span>
-                                                </div>
-                                            </div>
-                                            <div class="action-card-footer">
-                                                <button class="btn-action send-bank"
-                                                    (click)="openSendBankDetailsModal(student)"
-                                                    [disabled]="processingId === student.studentId">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2"
-                                                        *ngIf="processingId !== student.studentId">
-                                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                                                        <line x1="1" y1="10" x2="23" y2="10"></line>
-                                                    </svg>
-                                                    <span *ngIf="processingId !== student.studentId">💳 Send Bank
-                                                        Details</span>
-                                                    <span *ngIf="processingId === student.studentId"
-                                                        class="visa-spinner"></span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Confirm Payment Action -->
-                                        <div class="action-card visa-action confirm-action"
-                                            *ngIf="student.actionOnUser === 'accountant' && student.action === 'CONFIRM_VISA_PAYMENT'">
-                                            <div class="visa-badge confirm-payment">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2">
-                                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                                </svg>
-                                                Confirm Payment
-                                            </div>
-                                            <div class="action-card-header">
-                                                <div class="student-mini-avatar"
-                                                    [style.background-color]="getAvatarColor(student.fullName)">
-                                                    {{student.fullName?.charAt(0)}}
-                                                </div>
-                                                <div class="student-mini-info">
-                                                    <span class="mini-name">{{student.fullName}}</span>
-                                                    <span class="mini-id">{{student.applicationId}}</span>
-                                                </div>
-                                            </div>
-                                            <div class="action-card-body">
-                                                <div class="amount-display visa-amount">
-                                                    <span class="amount-label">Expected Amount</span>
-                                                    <span
-                                                        class="amount-value highlight">{{student.visaPaymentRequestedAmount
-                                                        || 0}} {{student.visaPaymentRequestedCurrency || 'USD'}}</span>
-                                                </div>
-                                                <div class="tx-id" *ngIf="student.visaPaymentTxId">
-                                                    <span class="tx-label">TX ID:</span>
-                                                    <span class="tx-value">{{student.visaPaymentTxId}}</span>
-                                                </div>
-                                            </div>
-                                            <div class="action-card-footer">
-                                                <button class="btn-action confirm-pay"
-                                                    (click)="openConfirmPaymentModal(student)"
-                                                    [disabled]="processingId === student.studentId">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2"
-                                                        *ngIf="processingId !== student.studentId">
-                                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                                    </svg>
-                                                    <span *ngIf="processingId !== student.studentId">✅ Confirm
-                                                        Payment</span>
-                                                    <span *ngIf="processingId === student.studentId"
-                                                        class="visa-spinner"></span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </ng-container>
-
-                                    <!-- Empty State -->
-                                    <div class="empty-panel-state visa-empty" *ngIf="!hasPendingVisaActions">
-                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.5">
-                                            <path
-                                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                                            </path>
-                                        </svg>
-                                        <p>No visa payment actions pending</p>
-                                    </div>
-                                </div>
-                            </div>
+                            <h3>No VISA Actions Pending</h3>
+                            <p>All visa payment processing is up to date.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Student List View (Pending, Approved, Rejected, All) -->
+            <!-- Student List View (Approved, Rejected, All - NOT Pending anymore) -->
             <div class="list-view-container"
-                *ngIf="!isLoading && activeView !== 'dashboard' && activeView !== 'profile'" [@fadeIn]>
+                *ngIf="!isLoading && activeView !== 'dashboard' && activeView !== 'profile' && activeView !== 'pending'"
+                [@fadeIn]>
 
                 <!-- Section Header with Status Info -->
-                <div class="section-header" *ngIf="activeView === 'pending'">
-                    <div class="section-info warning">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        <span>These students have submitted payment and are awaiting your verification.</span>
-                    </div>
-                </div>
-
                 <div class="section-header" *ngIf="activeView === 'approved'">
                     <div class="section-info success">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1428,6 +1475,51 @@
                         <span class="detail-label">Transaction ID</span>
                         <span class="detail-value muted">Not provided</span>
                     </div>
+                </div>
+
+                <!-- Payment Confirmation Screenshot -->
+                <div class="payment-proof-section" *ngIf="selectedStudent?.visaPaymentConfirmationPath">
+                    <div class="proof-header">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        <span>Payment Confirmation from Agent</span>
+                    </div>
+                    <div class="proof-preview">
+                        <a [href]="getDocUrl(selectedStudent?.visaPaymentConfirmationPath || null)" target="_blank"
+                            class="proof-link">
+                            <div class="proof-thumbnail">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                            </div>
+                            <div class="proof-details">
+                                <span class="proof-title">View Payment Screenshot</span>
+                                <span class="proof-subtitle">Click to open in new tab</span>
+                            </div>
+                            <svg class="proof-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <line x1="7" y1="17" x2="17" y2="7"></line>
+                                <polyline points="7 7 17 7 17 17"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="no-proof-notice" *ngIf="!selectedStudent?.visaPaymentConfirmationPath">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>No payment confirmation screenshot uploaded by agent</span>
                 </div>
 
                 <!-- Form Fields -->
