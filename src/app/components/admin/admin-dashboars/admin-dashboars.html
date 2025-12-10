@@ -1,10 +1,38 @@
 <div class="admin-dashboard">
+  <!-- Premium Logout Overlay -->
+  <div class="logout-overlay" *ngIf="isLoggingOut">
+    <div class="logout-overlay-content">
+      <div class="logout-icon-wrapper">
+        <div class="logout-spinner-ring"></div>
+        <i-lucide name="shield-check" size="48"></i-lucide>
+      </div>
+      <h2 class="logout-title">Securing Your Session</h2>
+      <p class="logout-message">Please wait while we safely sign you out...</p>
+      <div class="logout-security-badges">
+        <span class="security-badge">
+          <i-lucide name="lock" size="14"></i-lucide>
+          Clearing Session
+        </span>
+        <span class="security-badge">
+          <i-lucide name="shield" size="14"></i-lucide>
+          Encrypting Data
+        </span>
+        <span class="security-badge">
+          <i-lucide name="check-circle" size="14"></i-lucide>
+          Secure Logout
+        </span>
+      </div>
+    </div>
+  </div>
+
   <!-- Sidebar -->
   <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
     <div class="sidebar-header">
       <div class="logo">
-        <div class="logo-icon">A</div>
-        <span class="logo-text" *ngIf="!sidebarCollapsed">Admin Panel</span>
+        <div class="logo-icon">
+          <i-lucide name="graduation-cap" size="28"></i-lucide>
+        </div>
+        <span class="logo-text" *ngIf="!sidebarCollapsed">CampusConnect</span>
       </div>
     </div>
 
@@ -34,6 +62,10 @@
           <div class="avatar">AD</div>
           <span class="user-name">{{ admin?.username || 'Admin User' }}</span>
         </div>
+        <button class="logout-btn" (click)="logout()" [disabled]="isLoggingOut">
+          <i-lucide name="log-out" size="18"></i-lucide>
+          <span>Logout</span>
+        </button>
       </div>
     </header>
 

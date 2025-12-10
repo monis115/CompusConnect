@@ -1,50 +1,56 @@
-<div class="admin-dashboard loading">
+<div class="admin-dashboard">
 
   <div class="content-area" [class.loading]="isContentLoading">
+
+    <!-- DASHBOARD OVERVIEW -->
     <div *ngIf="activeSection === 'overview'">
       <h2 class="section-title">
-        <i-lucide name="layout-dashboard" size="24"></i-lucide>
+        <i-lucide name="layout-dashboard" size="28"></i-lucide>
         Dashboard Overview
       </h2>
-      <p>Welcome back! Select a module from the sidebar.</p>
+      <p class="section-subtitle">Welcome back! Select a module to manage your campus operations.</p>
     </div>
 
+    <!-- STUDENTS SECTION -->
     <div *ngIf="activeSection === 'students'">
       <h2 class="section-title">
-        <i-lucide name="graduation-cap" size="24"></i-lucide> Student Management
+        <i-lucide name="graduation-cap" size="28"></i-lucide> Student Management
       </h2>
+      <p class="section-subtitle">Manage student lifecycle from registration to admission.</p>
+
       <div class="card-grid">
         <div class="info-card" (click)="navigateTo('new-students')">
-          <div class="icon"><i-lucide name="user-plus" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
           <h3>New Students</h3>
           <p>Onboard & register new applicants</p>
         </div>
         <div class="info-card" (click)="navigateTo('registration')">
-          <div class="icon"><i-lucide name="file-text" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="file-text" size="24"></i-lucide></div>
           <h3>Registration</h3>
           <p>Complete forms & documents</p>
         </div>
         <div class="info-card" (click)="navigateTo('app-status')">
-          <div class="icon"><i-lucide name="search" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="search" size="24"></i-lucide></div>
           <h3>Application Status</h3>
           <p>Track progress in real-time</p>
         </div>
         <div class="info-card" (click)="navigateTo('payment')">
-          <div class="icon"><i-lucide name="dollar-sign" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="dollar-sign" size="24"></i-lucide></div>
           <h3>Payment Status</h3>
           <p>Verify fees & receipts</p>
         </div>
         <div class="info-card" (click)="navigateTo('admission-letter')">
-          <div class="icon"><i-lucide name="mail" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="mail" size="24"></i-lucide></div>
           <h3>Admission Letter</h3>
           <p>Generate & send offers</p>
         </div>
         <div class="info-card" (click)="navigateTo('student-dashboard')">
-          <div class="icon"><i-lucide name="layout-dashboard" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="layout-dashboard" size="24"></i-lucide></div>
           <h3>Student Dashboard</h3>
           <p>Portal overview & analytics</p>
         </div>
       </div>
+
       <div class="summary-stats">
         <div class="summary-item">
           <h4>1,248</h4>
@@ -65,48 +71,47 @@
       </div>
     </div>
 
+    <!-- AGENTS SECTION -->
     <div *ngIf="activeSection === 'agents'">
       <h2 class="section-title">
-        <i-lucide name="users" size="24"></i-lucide> Agent Management
+        <i-lucide name="users" size="28"></i-lucide> Agent Management
       </h2>
+      <p class="section-subtitle">Oversee education agents and their performance.</p>
+
       <div class="card-grid">
         <div class="info-card" (click)="navigateTo('agent-registration')">
-          <div class="icon"><i-lucide name="user-plus" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
           <h3>Agent Registration</h3>
           <p>Onboard new education agents</p>
         </div>
         <div class="info-card" (click)="navigateTo('active-agents')">
-          <div class="icon"><i-lucide name="check-circle" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="check-circle" size="24"></i-lucide></div>
           <h3>Active Agents</h3>
-          <p> College and Location Access</p>
+          <p>College and Location Access</p>
         </div>
         <div class="info-card" (click)="navigateTo('student-agent-details')">
-          <div class="icon">
-            <i-lucide name="database" size="28"></i-lucide>
-          </div>
-          <h3>Active Agents</h3>
-          <p>Operational agents with all student details</p>
+          <div class="icon"><i-lucide name="database" size="24"></i-lucide></div>
+          <h3>Student Details</h3>
+          <p>View students assigned to agents</p>
         </div>
         <div class="info-card" (click)="navigateTo('pending-agents')">
-          <div class="icon"><i-lucide name="alert-circle" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="alert-circle" size="24"></i-lucide></div>
           <h3>Approval Pending</h3>
           <p>Awaiting admin review</p>
         </div>
         <div class="info-card" (click)="navigateTo('all-agent-details')">
-          <div class="icon"><i-lucide name="list" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="list" size="24"></i-lucide></div>
           <h3>All Agents</h3>
           <p>Complete directory</p>
         </div>
 
         <div class="info-card filler-card">
-          <div class="filler-content">
-            <i-lucide name="info" size="24"></i-lucide>
-            <h3>Quick Stats</h3>
-            <p>This panel provides real-time access to all agent-related modules and management tools.</p>
-          </div>
+          <div class="icon"><i-lucide name="info" size="24"></i-lucide></div>
+          <h3>Quick Stats</h3>
+          <p>Real-time access to all agent-related modules and management tools.</p>
         </div>
-
       </div>
+
       <div class="summary-stats">
         <div class="summary-item">
           <h4>156</h4>
@@ -123,46 +128,47 @@
       </div>
     </div>
 
+    <!-- VISA MANAGERS SECTION -->
     <div *ngIf="activeSection === 'visa-managers'">
       <h2 class="section-title">
-        <i-lucide name="plane" size="24"></i-lucide> VISA Managers
+        <i-lucide name="plane" size="28"></i-lucide> VISA Managers
       </h2>
+      <p class="section-subtitle">Coordinate visa processing and staff.</p>
+
       <div class="card-grid">
         <div class="info-card" (click)="navigateTo('visa-registration')">
-          <div class="icon"><i-lucide name="user-plus" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
           <h3>Registration</h3>
           <p>Add new VISA managers</p>
         </div>
         <div class="info-card" (click)="navigateTo('active-visa')">
-          <div class="icon"><i-lucide name="check" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="check" size="24"></i-lucide></div>
           <h3>Active Managers</h3>
           <p>Handling cases now</p>
         </div>
         <div class="info-card" (click)="navigateTo('new-visa')">
-          <div class="icon"><i-lucide name="clock" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="clock" size="24"></i-lucide></div>
           <h3>New Managers</h3>
           <p>Recently added</p>
         </div>
         <div class="info-card" (click)="navigateTo('pending-visa')">
-          <div class="icon"><i-lucide name="alert-triangle" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="alert-triangle" size="24"></i-lucide></div>
           <h3>Pending Approvals</h3>
           <p>Need verification</p>
         </div>
         <div class="info-card" (click)="navigateTo('all-visa')">
-          <div class="icon"><i-lucide name="users" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="users" size="24"></i-lucide></div>
           <h3>All Managers</h3>
           <p>Complete directory</p>
         </div>
 
         <div class="info-card filler-card">
-          <div class="filler-content">
-            <i-lucide name="shield-check" size="24"></i-lucide>
-            <h3>Secure Portal</h3>
-            <p>VISA processing is a sensitive task. All modules are secured and logged for auditing.</p>
-          </div>
+          <div class="icon"><i-lucide name="shield-check" size="24"></i-lucide></div>
+          <h3>Secure Portal</h3>
+          <p>VISA processing is a sensitive task. All modules are secured.</p>
         </div>
-
       </div>
+
       <div class="summary-stats">
         <div class="summary-item">
           <h4>42</h4>
@@ -179,42 +185,46 @@
       </div>
     </div>
 
+    <!-- ADMISSION MANAGERS SECTION -->
     <div *ngIf="activeSection === 'admission-managers'">
       <h2 class="section-title">
-        <i-lucide name="building" size="24"></i-lucide> Admission Managers
+        <i-lucide name="building" size="28"></i-lucide> Admission Managers
       </h2>
+      <p class="section-subtitle">Oversee college admissions and applications.</p>
+
       <div class="card-grid">
         <div class="info-card" (click)="navigateTo('addmission-manager-registration')">
-          <div class="icon"><i-lucide name="user-plus" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
           <h3>Registration</h3>
-          <p>Add new Addmission Manager</p>
+          <p>Add new Admission Manager</p>
         </div>
         <div class="info-card" (click)="navigateTo('admission-manager-access')">
-          <div class="icon"><i-lucide name="key" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="key" size="24"></i-lucide></div>
           <h3>Access College</h3>
           <p>Assign colleges</p>
         </div>
         <div class="info-card" (click)="navigateTo('active-admission-manager')">
-          <div class="icon"><i-lucide name="check-circle" size="28"></i-lucide></div>
-          <h3>Active Addmission Manager</h3>
+          <div class="icon"><i-lucide name="check-circle" size="24"></i-lucide></div>
+          <h3>Active Managers</h3>
           <p>Operational</p>
         </div>
         <div class="info-card" (click)="navigateTo('update-admission-manager-details')">
-          <div class="icon"><i-lucide name="edit-3" size="28"></i-lucide></div>
-          <h3>Update Admission Manager</h3>
-          <p>Manage Admission Manager Details </p>
+          <div class="icon"><i-lucide name="edit-3" size="24"></i-lucide></div>
+          <h3>Update Details</h3>
+          <p>Manage Manager Profiles</p>
         </div>
         <div class="info-card" (click)="navigateTo('pending-am')">
-          <div class="icon"><i-lucide name="alert-circle" size="28"></i-lucide></div>
+          <div class="icon"><i-lucide name="alert-circle" size="24"></i-lucide></div>
           <h3>Pending Approval</h3>
           <p>Awaiting review</p>
         </div>
         <div class="info-card" (click)="navigateTo('all-am')">
-          <div class="icon"><i-lucide name="list" size="28"></i-lucide></div>
-          <h3>All Addmission Manager</h3>
+          <div class="icon"><i-lucide name="list" size="24"></i-lucide></div>
+          <h3>All Managers</h3>
           <p>Complete list</p>
         </div>
       </div>
+
       <div class="summary-stats">
         <div class="summary-item">
           <h4>68</h4>
@@ -231,14 +241,18 @@
       </div>
     </div>
 
+    <!-- COLLEGES SECTION -->
     <div *ngIf="activeSection === 'colleges'">
       <h2 class="section-title">
-        <i-lucide name="university" size="24"></i-lucide> Colleges
+        <i-lucide name="university" size="28"></i-lucide> Colleges
       </h2>
+      <p class="section-subtitle">Manage partner institutions and locations.</p>
+
       <div class="success-message" *ngIf="showSuccessMessage">
         <i-lucide name="check-circle" size="20"></i-lucide>
         <span>{{ successMessage }}</span>
       </div>
+
       <div class="action-bar">
         <button class="btn-primary" (click)="openAddModal()">
           <i-lucide name="plus" size="18"></i-lucide> Add College
@@ -251,14 +265,17 @@
           </button>
         </div>
       </div>
+
       <div *ngIf="loading" class="loading-spinner">
         <div class="spinner"></div>
         <p>Loading colleges...</p>
       </div>
+
       <div *ngIf="error" class="error-message">
         <i-lucide name="alert-circle" size="20"></i-lucide>
         <span>{{ error }}</span>
       </div>
+
       <div class="table-container" *ngIf="!loading && !error">
         <table class="data-table">
           <thead>
@@ -270,7 +287,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let college of filteredColleges; let i = index" [style.animation-delay.s]="i * 0.05">
+            <tr *ngFor="let college of filteredColleges; let i = index">
               <td><strong>{{ college.collegeName }}</strong></td>
               <td>{{ college.city }}</td>
               <td>{{ college.country }}</td>
@@ -291,6 +308,7 @@
       </div>
     </div>
 
+    <!-- MODAL FOR ADDING COLLEGE -->
     <div class="modal-backdrop" *ngIf="showAddModal" (click)="closeModal()"></div>
     <div class="modal" *ngIf="showAddModal" (click)="$event.stopPropagation()">
       <div class="modal-header">
@@ -333,31 +351,30 @@
         <button class="btn-primary" [disabled]="isAdding" (click)="addCollege()">
           <i-lucide *ngIf="!isAdding" name="check" size="16"></i-lucide>
           <span *ngIf="!isAdding">Add College</span>
-          <div *ngIf="isAdding" class="spinner button-spinner"></div>
+          <div *ngIf="isAdding" class="spinner button-spinner"
+            style="width: 1.25rem; height: 1.25rem; border-width: 2px; margin: 0;"></div>
         </button>
       </div>
     </div>
 
-    <!-- User Management Section with Premium Role Cards -->
+    <!-- USER MANAGEMENT SECTION -->
     <div *ngIf="activeSection === 'users'">
       <h2 class="section-title">
-        <i-lucide name="shield" size="24"></i-lucide> User Management
+        <i-lucide name="shield" size="28"></i-lucide> User Management
       </h2>
-      <p class="section-subtitle">Create and manage user roles with specific permissions</p>
+      <p class="section-subtitle">Create and manage user roles with specific permissions.</p>
 
       <div class="user-roles-grid">
         <!-- Agent Card -->
         <div class="user-role-card agent-card">
-          <div class="role-card-glow"></div>
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              <i-lucide name="briefcase" size="32"></i-lucide>
+              <i-lucide name="briefcase" size="24"></i-lucide>
             </div>
             <div class="role-badge">Field</div>
           </div>
           <h3 class="role-title">Agent</h3>
-          <p class="role-description">Education consultants who manage student applications and guide them through the
-            admission process</p>
+          <p class="role-description">Education consultants managing student applications.</p>
           <div class="role-stats">
             <div class="stat-item">
               <span class="stat-value">156</span>
@@ -370,23 +387,20 @@
             </div>
           </div>
           <button class="role-action-btn">
-            <i-lucide name="plus" size="16"></i-lucide>
-            Create Agent
+            <i-lucide name="plus" size="16"></i-lucide> Create Agent
           </button>
         </div>
 
         <!-- Admission Manager Card -->
         <div class="user-role-card admission-card">
-          <div class="role-card-glow"></div>
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              <i-lucide name="user-check" size="32"></i-lucide>
+              <i-lucide name="user-check" size="24"></i-lucide>
             </div>
             <div class="role-badge">Core</div>
           </div>
           <h3 class="role-title">Admission Manager</h3>
-          <p class="role-description">Oversee admission workflows, approve applications, and coordinate with
-            universities</p>
+          <p class="role-description">Oversee workflows & university coordination.</p>
           <div class="role-stats">
             <div class="stat-item">
               <span class="stat-value">24</span>
@@ -399,23 +413,20 @@
             </div>
           </div>
           <button class="role-action-btn">
-            <i-lucide name="plus" size="16"></i-lucide>
-            Create Manager
+            <i-lucide name="plus" size="16"></i-lucide> Create Manager
           </button>
         </div>
 
         <!-- University Coordinator Card -->
         <div class="user-role-card university-card">
-          <div class="role-card-glow"></div>
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              <i-lucide name="building-2" size="32"></i-lucide>
+              <i-lucide name="building-2" size="24"></i-lucide>
             </div>
             <div class="role-badge">Partner</div>
           </div>
-          <h3 class="role-title">University Coordinator</h3>
-          <p class="role-description">University representatives who verify documents and issue admission confirmations
-          </p>
+          <h3 class="role-title">uni Coordinator</h3>
+          <p class="role-description">Verify documents & issue admissions.</p>
           <div class="role-stats">
             <div class="stat-item">
               <span class="stat-value">18</span>
@@ -428,23 +439,20 @@
             </div>
           </div>
           <button class="role-action-btn">
-            <i-lucide name="plus" size="16"></i-lucide>
-            Create Coordinator
+            <i-lucide name="plus" size="16"></i-lucide> Create Coord
           </button>
         </div>
 
         <!-- Doc Person Card -->
         <div class="user-role-card doc-card">
-          <div class="role-card-glow"></div>
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              <i-lucide name="file-check" size="32"></i-lucide>
+              <i-lucide name="file-check" size="24"></i-lucide>
             </div>
-            <div class="role-badge">Document</div>
+            <div class="role-badge">Docs</div>
           </div>
           <h3 class="role-title">Doc Person</h3>
-          <p class="role-description">Handle document verification, attestation, and ensure compliance with requirements
-          </p>
+          <p class="role-description">Verify & attest documents for compliance.</p>
           <div class="role-stats">
             <div class="stat-item">
               <span class="stat-value">8</span>
@@ -457,22 +465,20 @@
             </div>
           </div>
           <button class="role-action-btn">
-            <i-lucide name="plus" size="16"></i-lucide>
-            Create Doc Person
+            <i-lucide name="plus" size="16"></i-lucide> Create Doc Person
           </button>
         </div>
 
         <!-- Accountant Card -->
         <div class="user-role-card accountant-card">
-          <div class="role-card-glow"></div>
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              <i-lucide name="calculator" size="32"></i-lucide>
+              <i-lucide name="calculator" size="24"></i-lucide>
             </div>
             <div class="role-badge">Finance</div>
           </div>
           <h3 class="role-title">Accountant</h3>
-          <p class="role-description">Manage financial transactions, fee collections, and payment confirmations</p>
+          <p class="role-description">Manage transactions & confirm fees.</p>
           <div class="role-stats">
             <div class="stat-item">
               <span class="stat-value">6</span>
@@ -485,23 +491,20 @@
             </div>
           </div>
           <button class="role-action-btn">
-            <i-lucide name="plus" size="16"></i-lucide>
-            Create Accountant
+            <i-lucide name="plus" size="16"></i-lucide> Create Accountant
           </button>
         </div>
 
         <!-- Telex Man Card -->
         <div class="user-role-card telex-card">
-          <div class="role-card-glow"></div>
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              <i-lucide name="send" size="32"></i-lucide>
+              <i-lucide name="send" size="24"></i-lucide>
             </div>
-            <div class="role-badge">Communication</div>
+            <div class="role-badge">Comms</div>
           </div>
           <h3 class="role-title">Telex Man</h3>
-          <p class="role-description">Process telex applications, coordinate with MEA, and handle official
-            communications</p>
+          <p class="role-description">Handle telex applications & MEA coords.</p>
           <div class="role-stats">
             <div class="stat-item">
               <span class="stat-value">4</span>
@@ -514,22 +517,20 @@
             </div>
           </div>
           <button class="role-action-btn">
-            <i-lucide name="plus" size="16"></i-lucide>
-            Create Telex Man
+            <i-lucide name="plus" size="16"></i-lucide> Create Telex Man
           </button>
         </div>
 
         <!-- Visa Man Card -->
         <div class="user-role-card visa-card">
-          <div class="role-card-glow"></div>
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              <i-lucide name="plane" size="32"></i-lucide>
+              <i-lucide name="plane" size="24"></i-lucide>
             </div>
             <div class="role-badge">Travel</div>
           </div>
           <h3 class="role-title">Visa Man</h3>
-          <p class="role-description">Handle visa applications, embassy coordination, and travel documentation</p>
+          <p class="role-description">Embassy coordination & visa stamping.</p>
           <div class="role-stats">
             <div class="stat-item">
               <span class="stat-value">10</span>
@@ -542,22 +543,20 @@
             </div>
           </div>
           <button class="role-action-btn">
-            <i-lucide name="plus" size="16"></i-lucide>
-            Create Visa Man
+            <i-lucide name="plus" size="16"></i-lucide> Create Visa Man
           </button>
         </div>
 
         <!-- Custom User Card -->
         <div class="user-role-card custom-card">
-          <div class="role-card-glow"></div>
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              <i-lucide name="settings" size="32"></i-lucide>
+              <i-lucide name="settings" size="24"></i-lucide>
             </div>
-            <div class="role-badge">Flexible</div>
+            <div class="role-badge">Flex</div>
           </div>
           <h3 class="role-title">Custom User</h3>
-          <p class="role-description">Create users with custom permissions and specialized access rights</p>
+          <p class="role-description">Detailed custom permissions access.</p>
           <div class="role-stats">
             <div class="stat-item">
               <span class="stat-value">15</span>
@@ -570,23 +569,20 @@
             </div>
           </div>
           <button class="role-action-btn">
-            <i-lucide name="plus" size="16"></i-lucide>
-            Create Custom User
+            <i-lucide name="plus" size="16"></i-lucide> Create Custom
           </button>
         </div>
 
         <!-- Admin Card -->
         <div class="user-role-card admin-card">
-          <div class="role-card-glow"></div>
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              <i-lucide name="crown" size="32"></i-lucide>
+              <i-lucide name="crown" size="24"></i-lucide>
             </div>
-            <div class="role-badge premium-badge">Super</div>
+            <div class="role-badge premium-badge" style="background: var(--accent-gold); color: white;">Super</div>
           </div>
           <h3 class="role-title">Admin</h3>
-          <p class="role-description">Full system access with administrative privileges and user management capabilities
-          </p>
+          <p class="role-description">Full system administrative access.</p>
           <div class="role-stats">
             <div class="stat-item">
               <span class="stat-value">3</span>
@@ -599,23 +595,26 @@
             </div>
           </div>
           <button class="role-action-btn admin-btn">
-            <i-lucide name="plus" size="16"></i-lucide>
-            Create Admin
+            <i-lucide name="plus" size="16"></i-lucide> Create Admin
           </button>
         </div>
       </div>
     </div>
 
+    <!-- PLACEHOLDER SECTIONS -->
     <div *ngIf="['applications', 'payments', 'reports'].includes(activeSection)">
       <h2 class="section-title">
-        <i-lucide [name]="currentSectionIcon" size="24"></i-lucide> {{ pageTitle }}
+        <i-lucide [name]="currentSectionIcon" size="28"></i-lucide> {{ pageTitle }}
       </h2>
-      <div class="section-placeholder">
-        <div class="placeholder-icon">
-          <i-lucide [name]="currentSectionIcon" size="72"></i-lucide>
+      <p class="section-subtitle">Coming Soon</p>
+
+      <div class="section-placeholder"
+        style="text-align: center; padding: 4rem; background: white; border-radius: 1rem; border: 1px dashed var(--border-light);">
+        <div class="placeholder-icon" style="color: var(--border-light); margin-bottom: 1.5rem;">
+          <i-lucide [name]="currentSectionIcon" size="64"></i-lucide>
         </div>
-        <p>This section is under development.</p>
-        <button class="btn-primary">Coming Soon</button>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">This module is currently under development.</p>
+        <button class="btn-primary">Notify Me When Ready</button>
       </div>
     </div>
 
@@ -623,6 +622,6 @@
       <h2>Section Not Found</h2>
       <p>Please select a valid module from the sidebar.</p>
     </div>
-  </div>
 
+  </div>
 </div>

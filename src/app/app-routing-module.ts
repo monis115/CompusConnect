@@ -6,6 +6,7 @@ import { AdminLogin } from './components/admin-login/admin-login';
 import { AdminDashboars } from './components/admin/admin-dashboars/admin-dashboars';
 import { AdminAgentRegistration } from './components/admin/admin-agent-registration/admin-agent-registration';
 import { AdminDashboardOverview } from './components/admin/admin-dashboard-overview/admin-dashboard-overview';
+import { AdminAnalytics } from './components/admin/admin-analytics/admin-analytics';
 import { ActiveAgents } from './components/admin/active-agents/active-agents';
 import { PendingAgents } from './components/admin/pending-agents/pending-agents';
 import { AddmissionManagerRegistration } from './components/admin/addmission-manager-registration/addmission-manager-registration';
@@ -34,8 +35,8 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     data: { role: 'admin' },
     children: [
-      { path: '', component: AdminDashboardOverview, data: { section: 'overview' } },
-      { path: 'overview', component: AdminDashboardOverview, data: { section: 'overview' } },
+      { path: '', component: AdminAnalytics, data: { section: 'overview' } },
+      { path: 'overview', component: AdminAnalytics, data: { section: 'overview' } },
       { path: 'students', component: AdminDashboardOverview, data: { section: 'students' } },
       { path: 'agents', component: AdminDashboardOverview, data: { section: 'agents' } },
       { path: 'visa-managers', component: AdminDashboardOverview, data: { section: 'visa-managers' } },

@@ -77,7 +77,16 @@ import {
   // Additional icons for Agent Registration
   Globe,
   RefreshCw,
-  ChevronUp
+  ChevronUp,
+  LogOut,
+  // Admin Analytics icons
+  Activity,
+  GitBranch,
+  Inbox,
+  TrendingUp,
+  BarChart2,
+  Layers,
+  ArrowRight
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -103,6 +112,7 @@ import { ReplaceUnderscorePipe } from './pipes/replace-underscore.pipe';
 import { TelexManagerDashboard } from './components/telex-manager-dashboard/telex-manager-dashboard';
 import { AccountantDashboard } from './components/accountant-dashboard/accountant-dashboard';
 import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashboard';
+import { AdminAnalytics } from './components/admin/admin-analytics/admin-analytics';
 
 
 @NgModule({
@@ -126,7 +136,8 @@ import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashb
     DocPersonDashbaord,
     TelexManagerDashboard,
     AccountantDashboard,
-    VisaManDashboard
+    VisaManDashboard,
+    AdminAnalytics
   ],
   imports: [
     BrowserModule,
@@ -202,7 +213,16 @@ import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashb
       Crown,
       // Agent Registration icons
       Globe,
-      RefreshCw
+      RefreshCw,
+      LogOut,
+      // Admin Analytics icons
+      Activity,
+      GitBranch,
+      Inbox,
+      TrendingUp,
+      BarChart2,
+      Layers,
+      ArrowRight,
     })
   ],
   providers: [

@@ -3481,14 +3481,48 @@ router-outlet+* {
   }
 }
 
-/* Hanging Notes Container */
+/* Hanging Notes Container - Now a Marquee Carousel */
 .hanging-notes-container {
   position: relative;
   display: flex;
-  justify-content: center;
-  gap: 60px;
+  gap: 40px;
   padding-top: 60px;
   min-height: 380px;
+  overflow: hidden;
+  mask-image: linear-gradient(to right,
+      transparent 0%,
+      black 8%,
+      black 92%,
+      transparent 100%);
+  -webkit-mask-image: linear-gradient(to right,
+      transparent 0%,
+      black 8%,
+      black 92%,
+      transparent 100%);
+}
+
+/* The sliding track that holds duplicated news items */
+.news-track {
+  display: flex;
+  gap: 40px;
+  animation: newsScroll 30s linear infinite;
+  width: max-content;
+}
+
+/* Pause animation on hover for entire container */
+.hanging-notes-container:hover .news-track {
+  animation-play-state: paused;
+}
+
+/* Infinite scroll animation */
+@keyframes newsScroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* The String Line at Top */
@@ -3574,6 +3608,14 @@ router-outlet+* {
 
 .note-3 {
   animation-delay: 0.5s;
+}
+
+.note-4 {
+  animation-delay: 0.7s;
+}
+
+.note-5 {
+  animation-delay: 0.9s;
 }
 
 /* The Hanging String */
@@ -3682,6 +3724,14 @@ router-outlet+* {
   animation-delay: 4s;
 }
 
+.note-4 .note-card {
+  animation-delay: 1s;
+}
+
+.note-5 .note-card {
+  animation-delay: 3s;
+}
+
 .note-card:hover {
   transform: rotate(0deg) scale(1.05) translateY(-8px);
   animation-play-state: paused;
@@ -3788,6 +3838,76 @@ router-outlet+* {
 
 .note-amber .tag-dot {
   background: #0f172a;
+}
+
+/* Purple Note Style */
+.note-purple {
+  background: linear-gradient(145deg,
+      #faf8fc 0%,
+      #f5f3f7 50%,
+      #eeecf2 100%);
+  border: 1px solid rgba(100, 80, 150, 0.12);
+  box-shadow:
+    0 10px 40px rgba(100, 80, 150, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+}
+
+.note-purple:hover {
+  box-shadow:
+    0 20px 60px rgba(100, 80, 150, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.note-purple .note-icon {
+  color: #6b21a8;
+  background: rgba(107, 33, 168, 0.08);
+}
+
+.note-purple .note-tag {
+  background: rgba(107, 33, 168, 0.08);
+  color: #6b21a8;
+}
+
+.note-purple .tag-dot {
+  background: #6b21a8;
+}
+
+/* Pink Note Style */
+.note-pink {
+  background: linear-gradient(145deg,
+      #fdf8fa 0%,
+      #faf3f6 50%,
+      #f5edf1 100%);
+  border: 1px solid rgba(200, 100, 150, 0.12);
+  box-shadow:
+    0 10px 40px rgba(200, 100, 150, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+}
+
+.note-pink:hover {
+  box-shadow:
+    0 20px 60px rgba(200, 100, 150, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.note-pink .note-icon {
+  color: #be185d;
+  background: rgba(190, 24, 93, 0.08);
+}
+
+.note-pink .note-tag {
+  background: rgba(190, 24, 93, 0.08);
+  color: #be185d;
+}
+
+.note-pink .tag-dot {
+  background: #be185d;
 }
 
 /* Note Fold Effect */
@@ -5481,4 +5601,66 @@ router-outlet+* {
 .btn-success-close:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 30px rgba(16, 185, 129, 0.45);
+}
+
+/* === Visa Stamped Overlay === */
+.btn-icon-modern,
+.btn-icon-eye {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.visa-stamp-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  border: 2px solid #22c55e;
+  /* Emerald 500 */
+  color: #22c55e;
+  font-size: 8px;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 4px;
+  white-space: nowrap;
+  background: rgba(34, 197, 94, 0.1);
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2);
+  backdrop-filter: blur(1px);
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn-icon-modern:hover .visa-stamp-overlay,
+.btn-icon-eye:hover .visa-stamp-overlay {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #16a34a;
+  /* Emerald 600 */
+  color: #16a34a;
+}
+
+.visa-stamp-overlay-large {
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  border: 8px solid #22c55e;
+  /* Emerald 500 */
+  color: #22c55e;
+  font-size: 36px;
+  font-weight: 900;
+  padding: 16px 48px;
+  border-radius: 12px;
+  white-space: nowrap;
+  background: rgba(34, 197, 94, 0.05);
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+  letter-spacing: 4px;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+  backdrop-filter: blur(0);
+  opacity: 0.8;
+  mix-blend-mode: multiply;
 }

@@ -283,7 +283,7 @@
       </div>
 
       <!-- News Section - Hanging Notes Style (Premium Animated) -->
-      <div class="news-section">
+      <div class="news-section" *ngIf="newsItems.length > 0">
         <!-- Sparkle Decorations -->
         <div class="sparkle sparkle-1"></div>
         <div class="sparkle sparkle-2"></div>
@@ -310,122 +310,149 @@
         </div>
 
         <div class="hanging-notes-container">
-          <!-- String Line with Knots -->
+          <!-- String Line with Knots (now spans full width) -->
           <div class="string-line">
             <div class="string-knot knot-left"></div>
             <div class="string-knot knot-right"></div>
           </div>
 
-          <!-- News Note 1 -->
-          <div class="hanging-note note-1">
-            <div class="string"></div>
-            <div class="pin">
-              <div class="pin-head"></div>
-              <div class="pin-shine"></div>
-              <div class="pin-shadow"></div>
-            </div>
-            <div class="note-card note-blue">
-              <div class="note-shine"></div>
-              <div class="note-fold"></div>
-              <div class="note-content">
-                <div class="note-icon">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
+          <!-- Scrolling Track - Contains duplicated items for seamless infinite scroll -->
+          <div class="news-track">
+            <!-- First set of news items -->
+            <ng-container *ngFor="let news of newsItems; let i = index">
+              <div class="hanging-note" [ngClass]="'note-' + ((i % 5) + 1)">
+                <div class="string"></div>
+                <div class="pin">
+                  <div class="pin-head"></div>
+                  <div class="pin-shine"></div>
+                  <div class="pin-shadow"></div>
                 </div>
-                <span class="note-date">Dec 7, 2024</span>
-                <h3 class="note-title">2025 Intake Applications Open</h3>
-                <p class="note-text">Applications for the Spring 2025 intake are now open. Limited seats available for
-                  MBBS programs.</p>
-                <div class="note-footer">
-                  <div class="note-tag">
-                    <span class="tag-dot"></span>
-                    Admissions
-                  </div>
-                  <div class="read-more-hint">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
+                <div class="note-card" [ngClass]="getNoteColorClass(i)">
+                  <div class="note-shine"></div>
+                  <div class="note-fold"></div>
+                  <div class="note-content">
+                    <div class="note-icon">
+                      <!-- Clock Icon for admission/time-related -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'clock'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                      <!-- Info Icon for general -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'info'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <!-- Calendar Icon for holiday -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'calendar'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
+                      <!-- Stamp Icon for visa -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'stamp'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                      </svg>
+                      <!-- Document Icon (default) -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'document'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                      </svg>
+                    </div>
+                    <span class="note-date">{{ formatNewsDate(news.createdAt) }}</span>
+                    <h3 class="note-title">{{ news.heading }}</h3>
+                    <p class="note-text">{{ news.content }}</p>
+                    <div class="note-footer">
+                      <div class="note-tag">
+                        <span class="tag-dot"></span>
+                        {{ formatTag(news.tag) }}
+                      </div>
+                      <div class="read-more-hint">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </ng-container>
 
-          <!-- News Note 2 -->
-          <div class="hanging-note note-2">
-            <div class="string"></div>
-            <div class="pin">
-              <div class="pin-head"></div>
-              <div class="pin-shine"></div>
-              <div class="pin-shadow"></div>
-            </div>
-            <div class="note-card note-green">
-              <div class="note-shine"></div>
-              <div class="note-fold"></div>
-              <div class="note-content">
-                <div class="note-icon">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </svg>
+            <!-- Duplicate set for seamless infinite scroll -->
+            <ng-container *ngFor="let news of newsItems; let i = index">
+              <div class="hanging-note" [ngClass]="'note-' + ((i % 5) + 1)">
+                <div class="string"></div>
+                <div class="pin">
+                  <div class="pin-head"></div>
+                  <div class="pin-shine"></div>
+                  <div class="pin-shadow"></div>
                 </div>
-                <span class="note-date">Dec 5, 2024</span>
-                <h3 class="note-title">Fee Structure Updated</h3>
-                <p class="note-text">New fee structure for international students has been released. Check the updated
-                  tuition and hostel fees.</p>
-                <div class="note-footer">
-                  <div class="note-tag">
-                    <span class="tag-dot"></span>
-                    Fee Update
-                  </div>
-                  <div class="read-more-hint">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- News Note 3 -->
-          <div class="hanging-note note-3">
-            <div class="string"></div>
-            <div class="pin">
-              <div class="pin-head"></div>
-              <div class="pin-shine"></div>
-              <div class="pin-shadow"></div>
-            </div>
-            <div class="note-card note-amber">
-              <div class="note-shine"></div>
-              <div class="note-fold"></div>
-              <div class="note-content">
-                <div class="note-icon">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                    <path d="M2 17l10 5 10-5" />
-                    <path d="M2 12l10 5 10-5" />
-                  </svg>
-                </div>
-                <span class="note-date">Dec 3, 2024</span>
-                <h3 class="note-title">New University Partner</h3>
-                <p class="note-text">We've partnered with Samarkand State Medical University. More options for students
-                  seeking quality education.</p>
-                <div class="note-footer">
-                  <div class="note-tag">
-                    <span class="tag-dot"></span>
-                    Partnership
-                  </div>
-                  <div class="read-more-hint">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
+                <div class="note-card" [ngClass]="getNoteColorClass(i)">
+                  <div class="note-shine"></div>
+                  <div class="note-fold"></div>
+                  <div class="note-content">
+                    <div class="note-icon">
+                      <!-- Clock Icon for admission/time-related -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'clock'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                      <!-- Info Icon for general -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'info'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <!-- Calendar Icon for holiday -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'calendar'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
+                      <!-- Stamp Icon for visa -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'stamp'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                      </svg>
+                      <!-- Document Icon (default) -->
+                      <svg *ngIf="getNewsIcon(news.tag) === 'document'" width="28" height="28" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                      </svg>
+                    </div>
+                    <span class="note-date">{{ formatNewsDate(news.createdAt) }}</span>
+                    <h3 class="note-title">{{ news.heading }}</h3>
+                    <p class="note-text">{{ news.content }}</p>
+                    <div class="note-footer">
+                      <div class="note-tag">
+                        <span class="tag-dot"></span>
+                        {{ formatTag(news.tag) }}
+                      </div>
+                      <div class="read-more-hint">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </ng-container>
           </div>
         </div>
       </div>
@@ -454,6 +481,7 @@
 
               <div class="action-buttons-simplified">
                 <button class="btn-icon-eye" (click)="viewStudentDetails(task)" title="View Details">
+                  <div class="visa-stamp-overlay" *ngIf="task.applicationStatus === 'VISA_STAMPED'">VISA STAMPED</div>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                     <circle cx="12" cy="12" r="3" />
@@ -757,6 +785,7 @@
                 <td>
                   <div class="action-buttons">
                     <button class="btn-icon-modern" (click)="viewStudentDetails(s)" title="View Details">
+                      <div class="visa-stamp-overlay" *ngIf="s.applicationStatus === 'VISA_STAMPED'">VISA STAMPED</div>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -829,6 +858,9 @@
           <div class="glass-card profile-card-modern">
             <div class="profile-header-bg"></div>
             <div class="profile-content">
+              <div class="visa-stamp-overlay-large" *ngIf="selectedStudent.applicationStatus === 'VISA_STAMPED'">VISA
+                STAMPED
+              </div>
               <div class="profile-avatar-large">{{ selectedStudent.fullName.charAt(0) }}</div>
               <h2>{{ selectedStudent.fullName }}</h2>
               <div class="profile-contact">

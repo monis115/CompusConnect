@@ -40,6 +40,21 @@ interface TelexFormData {
   passportNumber: string;
 }
 
+// News Item Interface
+interface NewsItem {
+  id: number;
+  activeFrom: string;
+  tillDate: string;
+  heading: string;
+  content: string;
+  tag: string;
+  username: string;
+  forUser: string;
+  createdAt: string;
+  updatedAt: string | null;
+  active: boolean;
+}
+
 // --- Animations ---
 const listAnimation = trigger('listAnimation', [
   transition('* => *', [
@@ -74,6 +89,9 @@ export class AgentDashboard implements OnInit {
   agentData: AgentData | null = null;
   students: Student[] = [];
   selectedStudent: Student | null = null;
+
+  // --- News Data ---
+  newsItems: NewsItem[] = [];
 
   // --- Stats & Widgets ---
   stats = { totalStudents: 0, pending: 0, approved: 0, completed: 0, rejected: 0 };
@@ -261,6 +279,7 @@ export class AgentDashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadAgentData();
+    this.fetchNews();
   }
 
   // --- Core Data Loading ---
@@ -351,6 +370,69 @@ export class AgentDashboard implements OnInit {
     });
   }
 
+  // --- Fetch News ---
+  fetchNews(): void {
+    this.http.get<NewsItem[]>('http://localhost:8080/api/news').subscribe({
+      next: (news) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+        // Filter news by active status and date range
+        this.newsItems = news.filter(item => {
+          if (!item.active) return false;
+
+          const activeFrom = new Date(item.activeFrom);
+          const tillDate = new Date(item.tillDate);
+          activeFrom.setHours(0, 0, 0, 0);
+          tillDate.setHours(23, 59, 59, 999); // End of day
+
+          return today >= activeFrom && today <= tillDate;
+        });
+
+        // Sort by createdAt (most recent first)
+        this.newsItems.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to fetch news', err)
+    });
+  }
+
+  // Get note color class based on index
+  getNoteColorClass(index: number): string {
+    const colors = ['note-blue', 'note-green', 'note-amber', 'note-purple', 'note-pink'];
+    return colors[index % colors.length];
+  }
+
+  // Format date for display
+  formatNewsDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // Get icon for news based on tag
+  getNewsIcon(tag: string): string {
+    switch (tag?.toLowerCase()) {
+      case 'admission':
+        return 'clock';
+      case 'general':
+        return 'info';
+      case 'holiday':
+        return 'calendar';
+      case 'visa':
+        return 'stamp';
+      default:
+        return 'document';
+    }
+  }
+
+  // Format tag for display
+  formatTag(tag: string): string {
+    return tag ? tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase() : 'General';
+  }
+
   // --- Logic ---
   calculateStats(): void {
     if (!this.students) return;
@@ -385,22 +467,26 @@ export class AgentDashboard implements OnInit {
   }
 
   generateCollegeDistribution(): void {
-    if (!this.students) return;
-    const countMap = new Map<string, number>();
-    this.students.forEach(s => {
-      if (s.college) {
-        const name = s.college.collegeName;
-        countMap.set(name, (countMap.get(name) || 0) + 1);
-      }
-    });
+    // Use agent's collegeAccess to show all colleges the agent has access to
+    // along with the student count for each college
+    if (!this.agentData?.collegeAccess) return;
 
     const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
-    let idx = 0;
-    this.collegeDistribution = Array.from(countMap.entries()).map(([name, count]) => ({
-      collegeName: name,
-      count: count,
-      color: colors[idx++ % colors.length]
-    }));
+
+    this.collegeDistribution = this.agentData.collegeAccess.map((access: any, idx: number) => {
+      const collegeName = access.college?.collegeName || 'Unknown College';
+      // Count students enrolled in this college
+      const studentCount = this.students.filter(s =>
+        s.college?.id === access.college?.id ||
+        s.college?.collegeName === collegeName
+      ).length;
+
+      return {
+        collegeName: collegeName,
+        count: studentCount,
+        color: colors[idx % colors.length]
+      };
+    });
   }
 
   // --- Navigation & Views ---
