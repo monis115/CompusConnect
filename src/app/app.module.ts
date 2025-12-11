@@ -14,6 +14,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 // Material Modules (ONLY import modules, NOT components)
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatCardModule } from '@angular/material/card';
@@ -21,7 +22,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { provideCharts, withDefaultRegisterables, BaseChartDirective } from 'ng2-charts';
 
-// Lucide Icons
+// Lucide Icons - All icons used in the app
 import {
   LayoutDashboard,
   GraduationCap,
@@ -64,8 +65,7 @@ import {
   Info,
   Edit3,
   Database,
-  Map, // <--- Imported here
-  // New icons for User Role Cards
+  Map,
   Briefcase,
   UserCheck,
   Building2,
@@ -74,24 +74,47 @@ import {
   Send,
   Settings,
   Crown,
-  // Additional icons for Agent Registration
   Globe,
   RefreshCw,
   ChevronUp,
   LogOut,
-  // Admin Analytics icons
   Activity,
   GitBranch,
   Inbox,
   TrendingUp,
   BarChart2,
   Layers,
-  ArrowRight
+  ArrowRight,
+  UserCircle,
+  IdCard,
+  Hash,
+  CalendarCheck,
+  Landmark,
+  Package,
+  Circle,
+  Wallet,
+  // Student Dashboard icons
+  Award,
+  Banknote,
+  CalendarClock,
+  Download,
+  ExternalLink,
+  FileCheck2,
+  FileSignature,
+  FolderX,
+  Image,
+  IndianRupee,
+  Receipt,
+  Scroll,
+  UserCog,
+  UserX,
+  CircleDot
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
 // Components
 import { AdminDashboars } from './components/admin/admin-dashboars/admin-dashboars';
+import { StudentStatusPipe } from './pipes/student-status.pipe';
 import { AdminAgentRegistration } from './components/admin/admin-agent-registration/admin-agent-registration';
 import { AdminDashboardOverview } from './components/admin/admin-dashboard-overview/admin-dashboard-overview';
 import { ActiveAgents } from './components/admin/active-agents/active-agents';
@@ -113,6 +136,7 @@ import { TelexManagerDashboard } from './components/telex-manager-dashboard/tele
 import { AccountantDashboard } from './components/accountant-dashboard/accountant-dashboard';
 import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashboard';
 import { AdminAnalytics } from './components/admin/admin-analytics/admin-analytics';
+import { StudentDashboard } from './components/admin/student-dashboard/student-dashboard';
 
 
 @NgModule({
@@ -137,7 +161,9 @@ import { AdminAnalytics } from './components/admin/admin-analytics/admin-analyti
     TelexManagerDashboard,
     AccountantDashboard,
     VisaManDashboard,
-    AdminAnalytics
+    AdminAnalytics,
+    StudentDashboard,
+
   ],
   imports: [
     BrowserModule,
@@ -147,6 +173,7 @@ import { AdminAnalytics } from './components/admin/admin-analytics/admin-analyti
     ReactiveFormsModule,
     HttpClientModule,
     MatTableModule,
+    MatPaginatorModule,
     MatSelectModule,
     BaseChartDirective,
     MatIconModule,
@@ -201,8 +228,7 @@ import { AdminAnalytics } from './components/admin/admin-analytics/admin-analyti
       Edit3,
       Database,
       ChevronUp,
-      Map, // <--- ADDED HERE
-      // User Role Card icons
+      Map,
       Briefcase,
       UserCheck,
       Building2,
@@ -211,11 +237,9 @@ import { AdminAnalytics } from './components/admin/admin-analytics/admin-analyti
       Send,
       Settings,
       Crown,
-      // Agent Registration icons
       Globe,
       RefreshCw,
       LogOut,
-      // Admin Analytics icons
       Activity,
       GitBranch,
       Inbox,
@@ -223,7 +247,32 @@ import { AdminAnalytics } from './components/admin/admin-analytics/admin-analyti
       BarChart2,
       Layers,
       ArrowRight,
-    })
+      UserCircle,
+      IdCard,
+      Hash,
+      CalendarCheck,
+      Landmark,
+      Package,
+      Circle,
+      Wallet,
+      // Student Dashboard icons
+      Award,
+      Banknote,
+      CalendarClock,
+      Download,
+      ExternalLink,
+      FileCheck2,
+      FileSignature,
+      FolderX,
+      Image,
+      IndianRupee,
+      Receipt,
+      Scroll,
+      UserCog,
+      UserX,
+      CircleDot
+    }),
+    StudentStatusPipe
   ],
   providers: [
     provideCharts(withDefaultRegisterables()),

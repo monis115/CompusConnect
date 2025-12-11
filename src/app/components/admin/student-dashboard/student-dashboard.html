@@ -1,0 +1,1257 @@
+<div class="dashboard-container">
+
+    <!-- Full Screen Loading Overlay -->
+    <div *ngIf="isLoading" class="fullscreen-loading-overlay">
+        <div class="loading-content">
+            <div class="premium-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+            <div class="loading-text">Loading Students...</div>
+        </div>
+    </div>
+
+
+
+    <!-- LIST VIEW -->
+    <div *ngIf="viewMode === 'LIST'" class="list-view fade-in">
+        <div class="list-header">
+            <div class="header-title">
+                <h1>Student Directory</h1>
+                <div class="badge-count">{{ totalStudents }} Students</div>
+            </div>
+            <div class="header-actions">
+                <!-- Premium Search Bar -->
+                <div class="search-container">
+                    <i-lucide name="search" size="18" class="search-icon"></i-lucide>
+                    <input type="text" class="search-input" placeholder="Search by name, email or App ID..."
+                        [(ngModel)]="searchQuery" (input)="onSearch()">
+                    <button *ngIf="searchQuery" class="clear-search" (click)="clearSearch()">
+                        <i-lucide name="x" size="16"></i-lucide>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container glass-panel">
+
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>App ID</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>College</th>
+                        <th>Payment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let student of students" (click)="viewStudentDetails(student)" class="clickable-row">
+                        <td>
+                            <div class="student-cell">
+                                <div class="avatar-circle">{{ getInitials(student.fullName) }}</div>
+                                <div class="student-name">{{ student.fullName }}</div>
+                            </div>
+                        </td>
+                        <td><span class="mono-badge">{{ student.applicationId }}</span></td>
+                        <td class="text-muted">{{ student.email }}</td>
+                        <td>
+                            <span class="status-badge" [ngClass]="student.applicationStatus">
+                                {{ student.applicationStatus | studentStatus }}
+                            </span>
+                        </td>
+                        <td>
+                            <span *ngIf="student.college" class="college-name">
+                                <i-lucide name="university" size="14"></i-lucide> {{ student.college.collegeName }}
+                            </span>
+                            <span *ngIf="!student.college" class="empty-dash">-</span>
+                        </td>
+                        <td>
+                            <span class="payment-badge" [class.paid]="student.paymentStatus === 'Paid'"
+                                [class.pending]="student.paymentStatus !== 'Paid'">
+                                {{ student.paymentStatus }}
+                            </span>
+                        </td>
+                        <td>
+                            <button mat-icon-button (click)="$event.stopPropagation(); viewStudentDetails(student)">
+                                <i-lucide name="chevron-right" size="20"></i-lucide>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <mat-paginator [length]="totalStudents" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+                (page)="handlePageEvent($event)" aria-label="Select page of students">
+            </mat-paginator>
+        </div>
+    </div>
+
+    <!-- DETAIL VIEW - THE $50M DESIGN -->
+    <div *ngIf="viewMode === 'DETAIL' && selectedStudent" class="detail-view fade-in">
+
+        <!-- Premium Header Section -->
+        <div class="detail-header glass-panel sticky-header">
+            <div class="header-left">
+                <button class="back-btn" (click)="backToList()">
+                    <i-lucide name="chevron-left"></i-lucide> Back
+                </button>
+                <div class="profile-main">
+                    <div class="profile-image-wrapper">
+                        <div class="profile-img-placeholder">
+                            {{ getInitials(selectedStudent.fullName) }}
+                        </div>
+                        <div class="status-ring" [ngClass]="selectedStudent.applicationStatus"></div>
+                        <!-- Visa Stamp Overlay -->
+                        <div *ngIf="selectedStudent.applicationStatus === 'VISA_STAMPED'" class="visa-stamp-overlay">
+                            VISA STAMPED
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="student-name-large">{{ selectedStudent.fullName }}</h1>
+                        <div class="id-row">
+                            <span class="app-id">ID: {{ selectedStudent.applicationId }}</span>
+                            <i-lucide name="copy" size="14" class="copy-icon"
+                                (click)="copyToClipboard(selectedStudent.applicationId)"></i-lucide>
+                        </div>
+                        <div class="status-pill pulse" [ngClass]="selectedStudent.applicationStatus">
+                            {{ selectedStudent.applicationStatus | studentStatus }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="metric-group">
+                    <span class="label">Completeness</span>
+                    <div class="completeness-bar">
+                        <div class="bar-fill" [style.width.%]="completenessScore"
+                            [style.background]="'var(--primary-color)'"></div>
+                    </div>
+                    <span class="score-val">{{ completenessScore }}%</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-primary" (click)="openEmailModal()">
+                        <i-lucide name="mail" size="16"></i-lucide> Send Email
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Bento Grid Layout -->
+        <div class="mega-bento-grid">
+
+            <!-- ========== SECTION 1: PERSONAL IDENTITY ========== -->
+            <div class="bento-card identity-card span-2">
+                <div class="card-header">
+                    <h3><i-lucide name="user-circle" size="20"></i-lucide> Personal Identity</h3>
+                    <span class="card-badge">Core Info</span>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid-4">
+                        <div class="info-item">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value">{{ selectedStudent.fullName }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">First Name</span>
+                            <span class="info-value">{{ selectedStudent.firstName || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Middle Name</span>
+                            <span class="info-value">{{ selectedStudent.middleName || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Surname</span>
+                            <span class="info-value">{{ selectedStudent.surname || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date of Birth</span>
+                            <span class="info-value">{{ selectedStudent.dob | date:'mediumDate' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Age</span>
+                            <span class="info-value highlight">{{ selectedStudent.age }} years</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Sex</span>
+                            <span class="info-value">{{ selectedStudent.sex || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Marital Status</span>
+                            <span class="info-value">{{ selectedStudent.maritalStatus || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Father's Name</span>
+                            <span class="info-value">{{ selectedStudent.fathersName }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Mother's Name</span>
+                            <span class="info-value">{{ selectedStudent.mothersName }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Place of Birth</span>
+                            <span class="info-value">{{ selectedStudent.placeOfBirth || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Country of Birth</span>
+                            <span class="info-value">{{ selectedStudent.countryOfBirth || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Citizenship</span>
+                            <span class="info-value">{{ selectedStudent.citizenship || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Previous Citizenship</span>
+                            <span class="info-value">{{ selectedStudent.previousCitizenship || 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 2: CONTACT INFORMATION ========== -->
+            <div class="bento-card contact-card">
+                <div class="card-header">
+                    <h3><i-lucide name="phone" size="20"></i-lucide> Contact Details</h3>
+                </div>
+                <div class="card-content">
+                    <div class="contact-list">
+                        <div class="contact-item">
+                            <div class="contact-icon email-icon"><i-lucide name="mail" size="18"></i-lucide></div>
+                            <div class="contact-details">
+                                <span class="contact-label">Email</span>
+                                <span class="contact-value">{{ selectedStudent.email }}</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon phone-icon"><i-lucide name="phone" size="18"></i-lucide></div>
+                            <div class="contact-details">
+                                <span class="contact-label">Contact Number</span>
+                                <span class="contact-value">{{ selectedStudent.contactNo }}</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon emergency-icon"><i-lucide name="alert-circle" size="18"></i-lucide>
+                            </div>
+                            <div class="contact-details">
+                                <span class="contact-label">Emergency Contact</span>
+                                <span class="contact-value">{{ selectedStudent.emergencyContactNo }}</span>
+                                <span class="contact-sub">{{ selectedStudent.emergencyRelation }}</span>
+                            </div>
+                        </div>
+                        <div class="contact-item full-width">
+                            <div class="contact-icon address-icon"><i-lucide name="map-pin" size="18"></i-lucide></div>
+                            <div class="contact-details">
+                                <span class="contact-label">Address</span>
+                                <span class="contact-value address-text">{{ selectedStudent.address }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 3: PASSPORT & ID DOCUMENTS ========== -->
+            <div class="bento-card passport-card span-2">
+                <div class="card-header">
+                    <h3><i-lucide name="id-card" size="20"></i-lucide> Passport & Identity</h3>
+                    <span class="card-badge primary">Travel Docs</span>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid-4">
+                        <div class="info-item">
+                            <span class="info-label">Passport Number</span>
+                            <span class="info-value mono">{{ selectedStudent.passportNo || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Passport Type</span>
+                            <span class="info-value">{{ selectedStudent.passportType || 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Issue Date</span>
+                            <span class="info-value">{{ selectedStudent.passportIssueDate | date:'mediumDate' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Expiration Date</span>
+                            <span class="info-value"
+                                [class.warning-text]="isPassportExpiringSoon(selectedStudent.passportExpirationDate)">
+                                {{ selectedStudent.passportExpirationDate | date:'mediumDate' }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Valid Till</span>
+                            <span class="info-value">{{ selectedStudent.passportValidTill | date:'mediumDate' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Validation Date</span>
+                            <span class="info-value">{{ selectedStudent.passportValidationDate | date:'mediumDate'
+                                }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Aadhaar Card No</span>
+                            <span class="info-value mono">{{ selectedStudent.adhaarCardNo }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Created At</span>
+                            <span class="info-value">{{ selectedStudent.createdAt | date:'mediumDate' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 4: ACADEMIC PROFILE ========== -->
+            <div class="bento-card academic-card">
+                <div class="card-header">
+                    <h3><i-lucide name="graduation-cap" size="20"></i-lucide> Academic Profile</h3>
+                </div>
+                <div class="card-content">
+                    <div class="academic-showcase">
+                        <div class="marks-ring-container">
+                            <div class="marks-ring">
+                                <svg viewBox="0 0 100 100">
+                                    <circle class="ring-bg" cx="50" cy="50" r="45"></circle>
+                                    <circle class="ring-fill" cx="50" cy="50" r="45"
+                                        [style.stroke-dasharray]="getCircleDashArray(selectedStudent.class12thMarks, selectedStudent.maxMarks)">
+                                    </circle>
+                                </svg>
+                                <div class="ring-content">
+                                    <span class="ring-percentage">{{ (selectedStudent.class12thMarks /
+                                        selectedStudent.maxMarks * 100) | number:'1.0-0' }}%</span>
+                                    <span class="ring-label">12th Grade</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="academic-details">
+                            <div class="academic-row">
+                                <span class="academic-label">Marks Obtained</span>
+                                <span class="academic-value">{{ selectedStudent.class12thMarks }} / {{
+                                    selectedStudent.maxMarks }}</span>
+                            </div>
+                            <div class="academic-row">
+                                <span class="academic-label">Passing Year</span>
+                                <span class="academic-value">{{ selectedStudent.class12thPassingYear }}</span>
+                            </div>
+                            <div class="academic-row">
+                                <span class="academic-label">Board</span>
+                                <span class="academic-value">{{ selectedStudent.baords }}</span>
+                            </div>
+                            <div class="academic-row">
+                                <span class="academic-label">Applied For</span>
+                                <span class="academic-value highlight">{{ selectedStudent.appliedFor }}</span>
+                            </div>
+                            <div class="academic-row">
+                                <span class="academic-label">Intake</span>
+                                <span class="academic-value">{{ selectedStudent.intake }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEET Section -->
+                    <div class="neet-section" *ngIf="selectedStudent.hasGivenNEET">
+                        <div class="neet-badge-premium">
+                            <div class="neet-icon"><i-lucide name="award" size="24"></i-lucide></div>
+                            <div class="neet-info">
+                                <span class="neet-title">NEET Qualified</span>
+                                <span class="neet-score-val">{{ selectedStudent.neetScore }} <small>/ {{
+                                        selectedStudent.neetYear }}</small></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 5: APPLICATION JOURNEY TIMELINE ========== -->
+            <div class="bento-card timeline-card span-row-2">
+                <div class="card-header">
+                    <h3><i-lucide name="git-branch" size="20"></i-lucide> Application Journey</h3>
+                    <span class="card-badge success"
+                        *ngIf="selectedStudent.applicationStatus === 'VISA_STAMPED'">Complete</span>
+                </div>
+                <div class="card-content scroll-container">
+                    <div class="premium-timeline">
+                        <div class="timeline-track"></div>
+                        <div class="timeline-item"
+                            *ngFor="let history of selectedStudent.studentStatusHistory; let i = index; let last = last"
+                            [class.active]="last">
+                            <div class="timeline-node" [class.completed]="!last" [class.current]="last">
+                                <i-lucide [name]="last ? 'circle-dot' : 'check'" size="16"></i-lucide>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-status">{{ history.studentApplicationStatus | studentStatus }}
+                                </div>
+                                <div class="timeline-meta">
+                                    <span class="timeline-date">{{ history.updatedAt | date:'MMM d, y, h:mm a' }}</span>
+                                    <span class="timeline-user" *ngIf="history.updatedBy">by {{ history.updatedBy
+                                        }}</span>
+                                </div>
+                                <div class="timeline-remarks" *ngIf="history.remarks">{{ history.remarks }}</div>
+                            </div>
+                        </div>
+                        <!-- Next Step -->
+                        <div class="timeline-item pending" *ngIf="selectedStudent.nextStep">
+                            <div class="timeline-node pending">
+                                <i-lucide name="clock" size="16"></i-lucide>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-status pending-text">Next: {{ selectedStudent.nextStep |
+                                    studentStatus }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 6: COLLEGE & PREFERENCES ========== -->
+            <div class="bento-card college-card">
+                <div class="card-header">
+                    <h3><i-lucide name="building-2" size="20"></i-lucide> College Assignment</h3>
+                </div>
+                <div class="card-content">
+                    <!-- Assigned College -->
+                    <div class="assigned-college" *ngIf="selectedStudent.college">
+                        <div class="college-badge assigned">
+                            <i-lucide name="check-circle" size="20"></i-lucide>
+                            <span>Assigned</span>
+                        </div>
+                        <div class="college-name-large">{{ selectedStudent.college.collegeName }}</div>
+                        <div class="college-location" *ngIf="selectedStudent.college.city">
+                            <i-lucide name="map-pin" size="14"></i-lucide>
+                            {{ selectedStudent.college.city }}, {{ selectedStudent.college.country }}
+                        </div>
+                    </div>
+                    <div class="no-assignment" *ngIf="!selectedStudent.college">
+                        <i-lucide name="alert-circle" size="24"></i-lucide>
+                        <span>No College Assigned Yet</span>
+                    </div>
+
+                    <!-- College Preferences -->
+                    <div class="preferences-section" *ngIf="selectedStudent.collegePreferences?.length">
+                        <div class="section-subtitle">Preferences</div>
+                        <div class="preference-list">
+                            <div class="preference-item"
+                                *ngFor="let college of selectedStudent.collegePreferences; let i = index">
+                                <span class="preference-rank">#{{ i + 1 }}</span>
+                                <span class="preference-name">{{ college.collegeName }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 6B: QUICK INSIGHTS ========== -->
+            <div class="bento-card insights-card">
+                <div class="card-header">
+                    <h3><i-lucide name="bar-chart-2" size="20"></i-lucide> Quick Insights</h3>
+                </div>
+                <div class="card-content">
+                    <div class="insights-grid">
+                        <!-- Days in Process -->
+                        <div class="insight-item highlight-purple">
+                            <div class="insight-icon">
+                                <i-lucide name="calendar-clock" size="22"></i-lucide>
+                            </div>
+                            <div class="insight-data">
+                                <span class="insight-value">{{ getDaysInProcess() }}</span>
+                                <span class="insight-label">Days in Process</span>
+                            </div>
+                        </div>
+
+                        <!-- Application Stage Progress -->
+                        <div class="insight-item highlight-blue">
+                            <div class="insight-icon">
+                                <i-lucide name="trending-up" size="22"></i-lucide>
+                            </div>
+                            <div class="insight-data">
+                                <span class="insight-value">{{ getStageProgress() }}%</span>
+                                <span class="insight-label">Stage Progress</span>
+                            </div>
+                        </div>
+
+                        <!-- Total Updates -->
+                        <div class="insight-item highlight-green">
+                            <div class="insight-icon">
+                                <i-lucide name="git-branch" size="22"></i-lucide>
+                            </div>
+                            <div class="insight-data">
+                                <span class="insight-value">{{ selectedStudent.studentStatusHistory?.length || 0
+                                    }}</span>
+                                <span class="insight-label">Status Updates</span>
+                            </div>
+                        </div>
+
+                        <!-- Documents Uploaded -->
+                        <div class="insight-item highlight-orange">
+                            <div class="insight-icon">
+                                <i-lucide name="file-check" size="22"></i-lucide>
+                            </div>
+                            <div class="insight-data">
+                                <span class="insight-value">{{ getDocumentCount() }}</span>
+                                <span class="insight-label">Documents</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next Step Indicator -->
+                    <div class="next-step-indicator" *ngIf="selectedStudent.nextStep">
+                        <div class="next-step-header">
+                            <i-lucide name="arrow-right" size="16"></i-lucide>
+                            <span>Next Step</span>
+                        </div>
+                        <div class="next-step-value">{{ selectedStudent.nextStep | studentStatus }}</div>
+                    </div>
+
+                    <!-- Applied For Badge -->
+                    <div class="applied-for-badge" *ngIf="selectedStudent.appliedFor">
+                        <span class="badge-label">Applied For</span>
+                        <span class="badge-value">{{ selectedStudent.appliedFor }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 7: THE DOCUMENT VAULT ========== -->
+            <div class="bento-card documents-card span-3">
+                <div class="card-header">
+                    <h3><i-lucide name="folder-open" size="20"></i-lucide> Document Vault</h3>
+                    <span class="card-badge">{{ getDocumentCount() }} Documents</span>
+                </div>
+                <div class="card-content">
+                    <div class="documents-grid">
+                        <!-- Passport -->
+                        <div class="doc-card" *ngIf="selectedStudent.passportPath"
+                            (click)="openDocument(selectedStudent.passportPath)">
+                            <div class="doc-icon-wrapper passport">
+                                <i-lucide name="file-text" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Passport</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Aadhaar -->
+                        <div class="doc-card" *ngIf="selectedStudent.adhaarPath"
+                            (click)="openDocument(selectedStudent.adhaarPath)">
+                            <div class="doc-icon-wrapper id-card">
+                                <i-lucide name="credit-card" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Aadhaar Card</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- 12th Marksheet -->
+                        <div class="doc-card" *ngIf="selectedStudent.markseetPath"
+                            (click)="openDocument(selectedStudent.markseetPath)">
+                            <div class="doc-icon-wrapper academic">
+                                <i-lucide name="file-check" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">12th Marksheet</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- NEET Marksheet -->
+                        <div class="doc-card" *ngIf="selectedStudent.neetMarksheetPath"
+                            (click)="openDocument(selectedStudent.neetMarksheetPath)">
+                            <div class="doc-icon-wrapper neet">
+                                <i-lucide name="award" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">NEET Scorecard</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Confirmation Page -->
+                        <div class="doc-card" *ngIf="selectedStudent.confirmationPagePath"
+                            (click)="openDocument(selectedStudent.confirmationPagePath)">
+                            <div class="doc-icon-wrapper confirmation">
+                                <i-lucide name="file-check-2" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Confirmation Page</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Admission Letter -->
+                        <div class="doc-card special" *ngIf="selectedStudent.admissionLetterPath"
+                            (click)="openDocument(selectedStudent.admissionLetterPath)">
+                            <div class="doc-icon-wrapper admission">
+                                <i-lucide name="scroll" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Admission Letter</span>
+                                <span class="doc-action success">Download</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="download" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Conditional Offer Letter -->
+                        <div class="doc-card" *ngIf="selectedStudent.conditionalOfferLetterPath"
+                            (click)="openDocument(selectedStudent.conditionalOfferLetterPath)">
+                            <div class="doc-icon-wrapper offer">
+                                <i-lucide name="file-signature" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Conditional Offer Letter</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Telex Documents -->
+                        <div class="doc-card" *ngIf="selectedStudent.telexDocumentsPath"
+                            (click)="openDocument(selectedStudent.telexDocumentsPath)">
+                            <div class="doc-icon-wrapper telex">
+                                <i-lucide name="file-text" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Telex Documents</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Telex Payment Screenshot -->
+                        <div class="doc-card" *ngIf="selectedStudent.telexPaymentScreenshotPath"
+                            (click)="openDocument(selectedStudent.telexPaymentScreenshotPath)">
+                            <div class="doc-icon-wrapper payment">
+                                <i-lucide name="receipt" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Telex Payment Proof</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Visa Photo -->
+                        <div class="doc-card" *ngIf="selectedStudent.visaPhotoPath"
+                            (click)="openDocument(selectedStudent.visaPhotoPath)">
+                            <div class="doc-icon-wrapper photo">
+                                <i-lucide name="image" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Visa Photo</span>
+                                <span class="doc-action">View Photo</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Visa Passport Copy -->
+                        <div class="doc-card" *ngIf="selectedStudent.visaPassportCopyPath"
+                            (click)="openDocument(selectedStudent.visaPassportCopyPath)">
+                            <div class="doc-icon-wrapper passport">
+                                <i-lucide name="file-text" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Visa Passport Copy</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Visa Payment Confirmation -->
+                        <div class="doc-card" *ngIf="selectedStudent.visaPaymentConfirmationPath"
+                            (click)="openDocument(selectedStudent.visaPaymentConfirmationPath)">
+                            <div class="doc-icon-wrapper payment">
+                                <i-lucide name="receipt" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Visa Payment Proof</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- TT Copy -->
+                        <div class="doc-card" *ngIf="selectedStudent.ttCopyPath"
+                            (click)="openDocument(selectedStudent.ttCopyPath)">
+                            <div class="doc-icon-wrapper payment">
+                                <i-lucide name="file-text" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">TT Copy</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- Payment Confirmation -->
+                        <div class="doc-card" *ngIf="selectedStudent.paymentConfirmationPath"
+                            (click)="openDocument(selectedStudent.paymentConfirmationPath)">
+                            <div class="doc-icon-wrapper payment">
+                                <i-lucide name="check-circle" size="24"></i-lucide>
+                            </div>
+                            <div class="doc-info">
+                                <span class="doc-title">Payment Confirmation</span>
+                                <span class="doc-action">View Document</span>
+                            </div>
+                            <div class="doc-arrow"><i-lucide name="external-link" size="16"></i-lucide></div>
+                        </div>
+
+                        <!-- No Documents Message -->
+                        <div class="no-docs-message" *ngIf="getDocumentCount() === 0">
+                            <i-lucide name="folder-x" size="48"></i-lucide>
+                            <span>No Documents Uploaded Yet</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 8: TELEX PROCESS ========== -->
+            <div class="bento-card telex-card span-2">
+                <div class="card-header">
+                    <h3><i-lucide name="send" size="20"></i-lucide> Telex Process</h3>
+                    <span class="card-badge" [class.success]="selectedStudent.telexNumber"
+                        [class.warning]="!selectedStudent.telexNumber">
+                        {{ selectedStudent.telexNumber ? 'Issued' : 'Pending' }}
+                    </span>
+                </div>
+                <div class="card-content">
+                    <div class="telex-grid">
+                        <div class="telex-stat">
+                            <div class="stat-icon"><i-lucide name="hash" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Telex Number</span>
+                                <span class="stat-value mono">{{ selectedStudent.telexNumber || 'Not Issued' }}</span>
+                            </div>
+                        </div>
+                        <div class="telex-stat">
+                            <div class="stat-icon"><i-lucide name="calendar" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Issue Date</span>
+                                <span class="stat-value">{{ selectedStudent.telexIssueDate | date:'mediumDate' }}</span>
+                            </div>
+                        </div>
+                        <div class="telex-stat">
+                            <div class="stat-icon"><i-lucide name="dollar-sign" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Payment Amount</span>
+                                <span class="stat-value">{{ selectedStudent.telexPaymentAmount | currency:'USD'
+                                    }}</span>
+                            </div>
+                        </div>
+                        <div class="telex-stat">
+                            <div class="stat-icon"><i-lucide name="credit-card" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Transaction ID</span>
+                                <span class="stat-value mono">{{ selectedStudent.telexPaymentTxId || 'N/A' }}</span>
+                            </div>
+                        </div>
+                        <div class="telex-stat">
+                            <div class="stat-icon"><i-lucide name="check-circle" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Received Amount</span>
+                                <span class="stat-value">{{ selectedStudent.telexPaymentReceivedAmount | currency:'USD'
+                                    }}</span>
+                            </div>
+                        </div>
+                        <div class="telex-stat">
+                            <div class="stat-icon"><i-lucide name="calendar-check" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Received Date</span>
+                                <span class="stat-value">{{ selectedStudent.telexPaymentReceivedDate | date:'mediumDate'
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="approval-status-row">
+                        <div class="approval-item" [class.approved]="selectedStudent.isTelexAccountantApproved">
+                            <i-lucide [name]="selectedStudent.isTelexAccountantApproved ? 'check-circle' : 'clock'"
+                                size="16"></i-lucide>
+                            <span>Accountant Approved</span>
+                        </div>
+                        <div class="approval-item" [class.approved]="selectedStudent.isTelexDocApproved">
+                            <i-lucide [name]="selectedStudent.isTelexDocApproved ? 'check-circle' : 'clock'"
+                                size="16"></i-lucide>
+                            <span>Doc Person Approved</span>
+                        </div>
+                    </div>
+                    <div class="doc-comment" *ngIf="selectedStudent.docPersonComment">
+                        <span class="comment-label">Doc Person Comment:</span>
+                        <span class="comment-text">{{ selectedStudent.docPersonComment }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 9: VISA INFORMATION ========== -->
+            <div class="bento-card visa-card">
+                <div class="card-header">
+                    <h3><i-lucide name="plane" size="20"></i-lucide> Visa Details</h3>
+                    <span class="card-badge success"
+                        *ngIf="selectedStudent.applicationStatus === 'VISA_STAMPED'">Stamped</span>
+                </div>
+                <div class="card-content">
+                    <div class="visa-info-list">
+                        <div class="visa-row">
+                            <span class="visa-label">Duration of Procedure</span>
+                            <span class="visa-value">{{ selectedStudent.durationOfVisaProcedure || 'Pending' }}</span>
+                        </div>
+                        <div class="visa-row">
+                            <span class="visa-label">Place of Issuance</span>
+                            <span class="visa-value">{{ selectedStudent.placeOfVisaIssuance || 'N/A' }}</span>
+                        </div>
+                        <div class="visa-row">
+                            <span class="visa-label">Payment Requested</span>
+                            <span class="visa-value">{{ selectedStudent.visaPaymentRequestedAmount |
+                                currency:(selectedStudent.visaPaymentRequestedCurrency || 'USD') }}</span>
+                        </div>
+                        <div class="visa-row">
+                            <span class="visa-label">Bank Details Sent</span>
+                            <span class="visa-value">{{ selectedStudent.visaBankDetailsSentDate | date:'mediumDate'
+                                }}</span>
+                        </div>
+                        <div class="visa-row">
+                            <span class="visa-label">Transaction ID</span>
+                            <span class="visa-value mono">{{ selectedStudent.visaPaymentTxId || 'N/A' }}</span>
+                        </div>
+                        <div class="visa-row">
+                            <span class="visa-label">Received Amount</span>
+                            <span class="visa-value">{{ selectedStudent.visaPaymentReceivedAmount | currency:'USD'
+                                }}</span>
+                        </div>
+                        <div class="visa-row">
+                            <span class="visa-label">Received Date</span>
+                            <span class="visa-value">{{ selectedStudent.visaPaymentReceivedDate | date:'mediumDate'
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 10: BANK DETAILS ========== -->
+            <div class="bento-card bank-card span-2">
+                <div class="card-header">
+                    <h3><i-lucide name="landmark" size="20"></i-lucide> Bank Details</h3>
+                    <span class="card-badge info">Wire Transfer</span>
+                </div>
+                <div class="card-content">
+                    <div class="bank-grid">
+                        <div class="bank-item">
+                            <span class="bank-label">Bank Name</span>
+                            <span class="bank-value">{{ selectedStudent.visaBankName || 'N/A' }}</span>
+                        </div>
+                        <div class="bank-item">
+                            <span class="bank-label">Account Number</span>
+                            <span class="bank-value mono">{{ selectedStudent.visaBankAccountNumber || 'N/A' }}</span>
+                        </div>
+                        <div class="bank-item">
+                            <span class="bank-label">SWIFT Code</span>
+                            <span class="bank-value mono">{{ selectedStudent.visaBankSwiftCode || 'N/A' }}</span>
+                        </div>
+                        <div class="bank-item">
+                            <span class="bank-label">Beneficiary Name</span>
+                            <span class="bank-value">{{ selectedStudent.visaBankBeneficiaryName || 'N/A' }}</span>
+                        </div>
+                        <div class="bank-item full">
+                            <span class="bank-label">Branch Address</span>
+                            <span class="bank-value">{{ selectedStudent.visaBankBranchAddress || 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 11: DOCUMENT TRACKING ========== -->
+            <div class="bento-card doc-tracking-card">
+                <div class="card-header">
+                    <h3><i-lucide name="package" size="20"></i-lucide> Original Document Tracking</h3>
+                </div>
+                <div class="card-content">
+                    <div class="tracking-info">
+                        <div class="tracking-row">
+                            <span class="tracking-label">Location</span>
+                            <span class="tracking-value">{{ selectedStudent.originalDocLocation || 'N/A' }}</span>
+                        </div>
+                        <div class="tracking-row">
+                            <span class="tracking-label">Docs Sent</span>
+                            <span class="tracking-value" [class.yes]="selectedStudent.originalDocsSent"
+                                [class.no]="!selectedStudent.originalDocsSent">
+                                {{ selectedStudent.originalDocsSent ? 'Yes' : 'No' }}
+                            </span>
+                        </div>
+                        <div class="tracking-row">
+                            <span class="tracking-label">Delivery Method</span>
+                            <span class="tracking-value">{{ selectedStudent.docDeliveryMethod || 'N/A' }}</span>
+                        </div>
+                        <div class="tracking-row" *ngIf="selectedStudent.docDeliveryMethod === 'COURIER'">
+                            <span class="tracking-label">Courier Partner</span>
+                            <span class="tracking-value">{{ selectedStudent.courierPartner || 'N/A' }}</span>
+                        </div>
+                        <div class="tracking-row" *ngIf="selectedStudent.courierTrackingId">
+                            <span class="tracking-label">Tracking ID</span>
+                            <span class="tracking-value mono">{{ selectedStudent.courierTrackingId }}</span>
+                        </div>
+                        <div class="tracking-row" *ngIf="selectedStudent.selfPersonContact">
+                            <span class="tracking-label">Self Person Contact</span>
+                            <span class="tracking-value">{{ selectedStudent.selfPersonContact }}</span>
+                        </div>
+                        <div class="tracking-row">
+                            <span class="tracking-label">Tentative Reach</span>
+                            <span class="tracking-value">{{ selectedStudent.docTentativeReachDate | date:'mediumDate'
+                                }}</span>
+                        </div>
+                        <div class="tracking-row">
+                            <span class="tracking-label">Received Date</span>
+                            <span class="tracking-value">{{ selectedStudent.docReceivedDate | date:'mediumDate'
+                                }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Document Receipt Checklist -->
+                    <div class="receipt-checklist">
+                        <div class="checklist-title">Documents Received</div>
+                        <div class="checklist-items">
+                            <div class="checklist-item" [class.received]="selectedStudent.received12thMarksheet">
+                                <i-lucide [name]="selectedStudent.received12thMarksheet ? 'check-circle' : 'circle'"
+                                    size="16"></i-lucide>
+                                <span>12th Marksheet</span>
+                            </div>
+                            <div class="checklist-item" [class.received]="selectedStudent.received10thMarksheet">
+                                <i-lucide [name]="selectedStudent.received10thMarksheet ? 'check-circle' : 'circle'"
+                                    size="16"></i-lucide>
+                                <span>10th Marksheet</span>
+                            </div>
+                            <div class="checklist-item" [class.received]="selectedStudent.receivedNeetScorecard">
+                                <i-lucide [name]="selectedStudent.receivedNeetScorecard ? 'check-circle' : 'circle'"
+                                    size="16"></i-lucide>
+                                <span>NEET Scorecard</span>
+                            </div>
+                            <div class="checklist-item" [class.received]="selectedStudent.receivedPassport">
+                                <i-lucide [name]="selectedStudent.receivedPassport ? 'check-circle' : 'circle'"
+                                    size="16"></i-lucide>
+                                <span>Passport</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Return -->
+                    <div class="return-section" *ngIf="selectedStudent.readyForDocReturn">
+                        <div class="return-title">Document Return</div>
+                        <div class="return-info">
+                            <div class="return-row">
+                                <span class="return-label">Returned Date</span>
+                                <span class="return-value">{{ selectedStudent.docReturnedDate | date:'mediumDate'
+                                    }}</span>
+                            </div>
+                            <div class="return-row">
+                                <span class="return-label">Return Method</span>
+                                <span class="return-value">{{ selectedStudent.docReturnMethod || 'N/A' }}</span>
+                            </div>
+                            <div class="return-row" *ngIf="selectedStudent.docReturnTrackingId">
+                                <span class="return-label">Return Tracking ID</span>
+                                <span class="return-value mono">{{ selectedStudent.docReturnTrackingId }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 12: PAYMENT DETAILS ========== -->
+            <div class="bento-card payment-card span-2">
+                <div class="card-header">
+                    <h3><i-lucide name="wallet" size="20"></i-lucide> Payment Details</h3>
+                    <span class="card-badge" [class.success]="selectedStudent.hasPaid"
+                        [class.warning]="!selectedStudent.hasPaid">
+                        {{ selectedStudent.hasPaid ? 'Paid' : 'Pending' }}
+                    </span>
+                </div>
+                <div class="card-content">
+                    <div class="payment-grid">
+                        <div class="payment-stat main-stat" [class.paid]="selectedStudent.hasPaid">
+                            <div class="stat-icon"><i-lucide name="banknote" size="28"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Payment Status</span>
+                                <span class="stat-value large">{{ selectedStudent.paymentStatus }}</span>
+                            </div>
+                        </div>
+                        <div class="payment-stat">
+                            <div class="stat-icon"><i-lucide name="indian-rupee" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Amount Paid</span>
+                                <span class="stat-value">{{ selectedStudent.paidAmount | currency:'INR' }}</span>
+                            </div>
+                        </div>
+                        <div class="payment-stat">
+                            <div class="stat-icon"><i-lucide name="building" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Paid To</span>
+                                <span class="stat-value">{{ selectedStudent.paidTo || 'N/A' }}</span>
+                            </div>
+                        </div>
+                        <div class="payment-stat">
+                            <div class="stat-icon"><i-lucide name="credit-card" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Payment Type</span>
+                                <span class="stat-value">{{ selectedStudent.paymentType || 'N/A' }}</span>
+                            </div>
+                        </div>
+                        <div class="payment-stat">
+                            <div class="stat-icon"><i-lucide name="calendar-clock" size="20"></i-lucide></div>
+                            <div class="stat-content">
+                                <span class="stat-label">Due Date</span>
+                                <span class="stat-value"
+                                    [class.overdue]="isPaymentOverdue(selectedStudent.paymentDueDate)">
+                                    {{ selectedStudent.paymentDueDate | date:'mediumDate' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 13: ASSIGNED TEAM ========== -->
+            <div class="bento-card team-card">
+                <div class="card-header">
+                    <h3><i-lucide name="users" size="20"></i-lucide> Assigned Team</h3>
+                </div>
+                <div class="card-content">
+                    <div class="team-list">
+                        <!-- Agent -->
+                        <div class="team-member" *ngIf="selectedStudent.agent">
+                            <div class="member-avatar agent">
+                                <i-lucide name="briefcase" size="18"></i-lucide>
+                            </div>
+                            <div class="member-info">
+                                <span class="member-role">Agent</span>
+                                <span class="member-name">{{ selectedStudent.agent.fullName || 'Assigned' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Admission Manager -->
+                        <div class="team-member" *ngIf="selectedStudent.admissionManager">
+                            <div class="member-avatar manager">
+                                <i-lucide name="user-cog" size="18"></i-lucide>
+                            </div>
+                            <div class="member-info">
+                                <span class="member-role">Admission Manager</span>
+                                <span class="member-name">{{ selectedStudent.admissionManager.fullName || 'Assigned'
+                                    }}</span>
+                            </div>
+                        </div>
+
+                        <!-- University Person -->
+                        <div class="team-member" *ngIf="selectedStudent.universityPerson">
+                            <div class="member-avatar university">
+                                <i-lucide name="building-2" size="18"></i-lucide>
+                            </div>
+                            <div class="member-info">
+                                <span class="member-role">University Person</span>
+                                <span class="member-name">{{ selectedStudent.universityPerson.fullName || 'Assigned'
+                                    }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Telex Man -->
+                        <div class="team-member" *ngIf="selectedStudent.telexMan">
+                            <div class="member-avatar telex">
+                                <i-lucide name="send" size="18"></i-lucide>
+                            </div>
+                            <div class="member-info">
+                                <span class="member-role">Telex Manager</span>
+                                <span class="member-name">{{ selectedStudent.telexMan.fullName || 'Assigned' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Visa Man -->
+                        <div class="team-member" *ngIf="selectedStudent.visaMan">
+                            <div class="member-avatar visa">
+                                <i-lucide name="plane" size="18"></i-lucide>
+                            </div>
+                            <div class="member-info">
+                                <span class="member-role">Visa Manager</span>
+                                <span class="member-name">{{ selectedStudent.visaMan.fullName || 'Assigned' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Doc Person -->
+                        <div class="team-member" *ngIf="selectedStudent.docPerson">
+                            <div class="member-avatar doc">
+                                <i-lucide name="file-check" size="18"></i-lucide>
+                            </div>
+                            <div class="member-info">
+                                <span class="member-role">Doc Person</span>
+                                <span class="member-name">{{ selectedStudent.docPerson.fullName || 'Assigned' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Accountant -->
+                        <div class="team-member" *ngIf="selectedStudent.accountant">
+                            <div class="member-avatar accountant">
+                                <i-lucide name="calculator" size="18"></i-lucide>
+                            </div>
+                            <div class="member-info">
+                                <span class="member-role">Accountant</span>
+                                <span class="member-name">{{ selectedStudent.accountant.fullName || 'Assigned' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- No Team Assigned -->
+                        <div class="no-team"
+                            *ngIf="!selectedStudent.agent && !selectedStudent.admissionManager && !selectedStudent.universityPerson">
+                            <i-lucide name="user-x" size="24"></i-lucide>
+                            <span>No Team Assigned Yet</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== SECTION 14: METADATA ========== -->
+            <div class="bento-card metadata-card span-3">
+                <div class="card-header">
+                    <h3><i-lucide name="info" size="20"></i-lucide> Additional Metadata</h3>
+                </div>
+                <div class="card-content">
+                    <div class="metadata-grid">
+                        <div class="metadata-item">
+                            <span class="meta-label">Updated By</span>
+                            <span class="meta-value">{{ selectedStudent.updatedBy || 'System' }}</span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="meta-label">Created At</span>
+                            <span class="meta-value">{{ selectedStudent.createdAt | date:'medium' }}</span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="meta-label">Application ID</span>
+                            <span class="meta-value mono">{{ selectedStudent.applicationId }}</span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="meta-label">Student ID</span>
+                            <span class="meta-value mono">{{ selectedStudent.id }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========== PREMIUM EMAIL MODAL ========== -->
+    <div class="email-modal-overlay" *ngIf="showEmailModal" (click)="closeEmailModal()">
+        <div class="email-modal" (click)="$event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-icon">
+                        <i-lucide name="mail" size="24"></i-lucide>
+                    </div>
+                    <div class="modal-title-text">
+                        <h2>Compose Email</h2>
+                        <p>Send a message to {{ selectedStudent?.fullName }}</p>
+                    </div>
+                </div>
+                <button class="modal-close" (click)="closeEmailModal()">
+                    <i-lucide name="x" size="20"></i-lucide>
+                </button>
+            </div>
+
+            <!-- Email Sending Overlay (Inside Modal) -->
+            <div *ngIf="isSendingEmail" class="email-sending-overlay">
+                <div class="loading-content">
+                    <div class="premium-spinner thin">
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-ring"></div>
+                    </div>
+                    <div class="loading-text">Sending Message...</div>
+                </div>
+            </div>
+
+            <!-- Success State -->
+            <div class="modal-success" *ngIf="emailSent">
+                <div class="success-animation">
+                    <div class="success-ripple"></div>
+                    <div class="success-ripple delay-1"></div>
+                    <div class="success-ripple delay-2"></div>
+                    <div class="success-circle">
+                        <i-lucide name="check" size="56"></i-lucide>
+                    </div>
+                </div>
+                <h3>Email Sent Successfully! </h3>
+                <p>Your message has been delivered to</p>
+                <div class="success-email-badge">
+                    <i-lucide name="mail" size="16"></i-lucide>
+                    {{ selectedStudent?.email }}
+                </div>
+                <button class="btn-primary success-done-btn" (click)="closeEmailModal()">
+                    <i-lucide name="check-circle" size="18"></i-lucide>
+                    Done
+                </button>
+            </div>
+
+            <!-- Compose Form -->
+            <div class="modal-content" *ngIf="!emailSent">
+                <!-- Recipient Display -->
+                <div class="recipient-display">
+                    <span class="recipient-label">To:</span>
+                    <div class="recipient-chip">
+                        <div class="recipient-avatar">{{ getInitials(selectedStudent?.fullName || '') }}</div>
+                        <div class="recipient-info">
+                            <span class="recipient-name">{{ selectedStudent?.fullName }}</span>
+                            <span class="recipient-email">{{ selectedStudent?.email }}</span>
+                        </div>
+                        <div class="recipient-verified">
+                            <i-lucide name="check-circle" size="16"></i-lucide>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subject Field -->
+                <div class="form-group">
+                    <label for="emailSubject">
+                        <i-lucide name="hash" size="14"></i-lucide>
+                        Subject
+                    </label>
+                    <input type="text" id="emailSubject" class="form-input"
+                        placeholder="e.g., Important Update Regarding Your Application" [(ngModel)]="emailSubject">
+                </div>
+
+                <!-- Content Field -->
+                <div class="form-group">
+                    <label for="emailContent">
+                        <i-lucide name="file-text" size="14"></i-lucide>
+                        Message
+                    </label>
+                    <textarea id="emailContent" class="form-textarea"
+                        placeholder="Write your message here... Be clear and professional." rows="8"
+                        [(ngModel)]="emailContent"></textarea>
+                    <div class="textarea-footer">
+                        <span class="hint-text">Tip: Keep your message clear and concise</span>
+                        <span class="char-counter" [class.warning]="emailContent.length > 2000">
+                            {{ emailContent.length }} / 2500
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer" *ngIf="!emailSent">
+                <button class="btn-secondary" (click)="closeEmailModal()">
+                    <i-lucide name="x" size="16"></i-lucide>
+                    Cancel
+                </button>
+                <button class="btn-primary send-btn" [disabled]="!emailSubject || !emailContent || isSendingEmail"
+                    (click)="sendEmail()">
+                    <span *ngIf="!isSendingEmail">
+                        <i-lucide name="send" size="16"></i-lucide>
+                        Send Email
+                    </span>
+                    <span *ngIf="isSendingEmail" class="sending-state">
+                        <div class="btn-spinner"></div>
+                        Sending...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

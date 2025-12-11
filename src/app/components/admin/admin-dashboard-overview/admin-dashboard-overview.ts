@@ -339,4 +339,74 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     return this.menuItems.some(m => m.id === this.activeSection);
   }
 
+
+  // === 🚀 APPLICATION TRACKER LOGIC ===
+  showAppSearchModal = false;
+  appSearchQuery = '';
+  isAppSearching = false;
+  appSearchError = '';
+  foundApplication: any | null = null;
+
+  openAppSearch() {
+    this.showAppSearchModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeAppSearch() {
+    this.showAppSearchModal = false;
+    this.appSearchQuery = '';
+    this.appSearchError = '';
+    this.foundApplication = null;
+    this.cdr.detectChanges();
+  }
+
+  searchApplication() {
+    if (!this.appSearchQuery.trim()) return;
+
+    this.isAppSearching = true;
+    this.appSearchError = '';
+    this.foundApplication = null;
+    this.cdr.detectChanges();
+
+    // Directly use HttpClient if PublicService isn't injected, 
+    // BUT we should inject PublicService preferably.
+    // For now, I'll use direct HTTP for speed as per "all in existing component" request or inject it.
+    // Since I can't easily change constructor signature in a replace_file_content without context of full file easily (though I can try),
+    // I will use `this.http` since `PublicService` essentially does the same.
+    // Endpoint: http://localhost:8080/api/public/track-application?query={query}
+
+    this.http.get<any>(`http://localhost:8080/api/public/track-application?query=${this.appSearchQuery}`).subscribe({
+      next: (data) => {
+        this.foundApplication = data;
+        this.isAppSearching = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('App search error:', err);
+        if (err.status === 404) {
+          this.appSearchError = 'Application not found. Check ID or Email.';
+        } else {
+          this.appSearchError = 'Search failed. Please try again.';
+        }
+        this.isAppSearching = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getAppStatusColor(status: string): string {
+    switch (status) {
+      case 'VISA_STAMPED': return 'success';
+      case 'ADMISSION_LETTER_ISSUED': return 'primary';
+      case 'APPLICATION_REJECTED': return 'danger';
+      case 'VISA_REJECTED': return 'danger';
+      case 'PENDING': return 'warning';
+      default: return 'info';
+    }
+  }
+
+  formatAppStatus(status: string): string {
+    return status ? status.replace(/_/g, ' ') : '';
+  }
+
 }

@@ -29,7 +29,7 @@
           <h3>Registration</h3>
           <p>Complete forms & documents</p>
         </div>
-        <div class="info-card" (click)="navigateTo('app-status')">
+        <div class="info-card" (click)="openAppSearch()">
           <div class="icon"><i-lucide name="search" size="24"></i-lucide></div>
           <h3>Application Status</h3>
           <p>Track progress in real-time</p>
@@ -51,24 +51,7 @@
         </div>
       </div>
 
-      <div class="summary-stats">
-        <div class="summary-item">
-          <h4>1,248</h4>
-          <p>Total Students</p>
-        </div>
-        <div class="summary-item">
-          <h4>89</h4>
-          <p>New This Week</p>
-        </div>
-        <div class="summary-item">
-          <h4>23</h4>
-          <p>Pending Docs</p>
-        </div>
-        <div class="summary-item">
-          <h4>97%</h4>
-          <p>Completion Rate</p>
-        </div>
-      </div>
+
     </div>
 
     <!-- AGENTS SECTION -->
@@ -112,20 +95,7 @@
         </div>
       </div>
 
-      <div class="summary-stats">
-        <div class="summary-item">
-          <h4>156</h4>
-          <p>Total Agents</p>
-        </div>
-        <div class="summary-item">
-          <h4>12</h4>
-          <p>Pending Approval</p>
-        </div>
-        <div class="summary-item">
-          <h4>8.2</h4>
-          <p>Avg. Students/Agent</p>
-        </div>
-      </div>
+
     </div>
 
     <!-- VISA MANAGERS SECTION -->
@@ -169,20 +139,7 @@
         </div>
       </div>
 
-      <div class="summary-stats">
-        <div class="summary-item">
-          <h4>42</h4>
-          <p>Total Managers</p>
-        </div>
-        <div class="summary-item">
-          <h4>5</h4>
-          <p>Pending</p>
-        </div>
-        <div class="summary-item">
-          <h4>312</h4>
-          <p>VISAs Processed</p>
-        </div>
-      </div>
+
     </div>
 
     <!-- ADMISSION MANAGERS SECTION -->
@@ -225,20 +182,7 @@
         </div>
       </div>
 
-      <div class="summary-stats">
-        <div class="summary-item">
-          <h4>68</h4>
-          <p>Total AM</p>
-        </div>
-        <div class="summary-item">
-          <h4>7</h4>
-          <p>Pending</p>
-        </div>
-        <div class="summary-item">
-          <h4>18</h4>
-          <p>Colleges Covered</p>
-        </div>
-      </div>
+
     </div>
 
     <!-- COLLEGES SECTION -->
@@ -621,6 +565,84 @@
     <div *ngIf="!isValidSection()">
       <h2>Section Not Found</h2>
       <p>Please select a valid module from the sidebar.</p>
+    </div>
+
+
+    <!-- APPLICATION TRACKER SEARCH MODAL -->
+    <div class="app-search-overlay" *ngIf="showAppSearchModal" (click)="closeAppSearch()">
+      <div class="app-search-container" (click)="$event.stopPropagation()">
+        <button class="close-search-btn" (click)="closeAppSearch()">
+          <i-lucide name="x" size="24"></i-lucide>
+        </button>
+
+        <div class="search-header">
+          <div class="brand-pill">
+            <i-lucide name="graduation-cap" size="16"></i-lucide>
+            <span>Application Tracker</span>
+          </div>
+          <h2>Track Student Status</h2>
+          <p>Enter Application ID or Registered Email to verify progress.</p>
+        </div>
+
+        <div class="search-input-wrapper">
+          <i-lucide name="search" class="search-icon" size="20"></i-lucide>
+          <input type="text" [(ngModel)]="appSearchQuery" (keyup.enter)="searchApplication()"
+            placeholder="e.g. 241212001 or student@example.com" [disabled]="isAppSearching">
+          <button class="search-action-btn" (click)="searchApplication()"
+            [disabled]="isAppSearching || !appSearchQuery">
+            <span *ngIf="!isAppSearching">Track</span>
+            <div *ngIf="isAppSearching" class="spinner-sm"></div>
+          </button>
+        </div>
+
+        <!-- RESULTS AREA -->
+        <div class="search-results-area" *ngIf="foundApplication || appSearchError">
+
+          <!-- Error State -->
+          <div class="error-state" *ngIf="appSearchError">
+            <i-lucide name="alert-circle" size="32"></i-lucide>
+            <p>{{ appSearchError }}</p>
+          </div>
+
+          <!-- Success State -->
+          <div class="result-card" *ngIf="foundApplication">
+            <div class="result-header">
+              <div>
+                <h3>{{ foundApplication.fullName }}</h3>
+                <span class="result-id">#{{ foundApplication.applicationId }}</span>
+              </div>
+              <div class="status-badge" [ngClass]="getAppStatusColor(foundApplication.currentStatus)">
+                <i-lucide name="check-circle" size="16"
+                  *ngIf="foundApplication.currentStatus === 'VISA_STAMPED'"></i-lucide>
+                <i-lucide name="clock" size="16" *ngIf="foundApplication.currentStatus !== 'VISA_STAMPED'"></i-lucide>
+                <span>{{ formatAppStatus(foundApplication.currentStatus) }}</span>
+              </div>
+            </div>
+
+            <div class="timeline-wrapper">
+              <h4>Timeline History</h4>
+              <div class="timeline">
+                <div class="timeline-item" *ngFor="let event of foundApplication.history; let first = first">
+                  <div class="timeline-marker" [class.active]="first"></div>
+                  <div class="timeline-content">
+                    <div class="t-header">
+                      <span class="t-status">{{ formatAppStatus(event.status) }}</span>
+                      <span class="t-date">{{ event.updatedAt | date:'mediumDate' }}</span>
+                    </div>
+                    <p class="t-meta">Updated by {{ event.updatedBy }}</p>
+                    <p class="t-note" *ngIf="event.remarks">"{{ event.remarks }}"</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="result-footer">
+              Last Updated: {{ foundApplication.lastUpdated | date:'medium' }}
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
 
   </div>

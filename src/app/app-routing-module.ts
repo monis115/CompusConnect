@@ -16,11 +16,13 @@ import { ActiveAdmissionManager } from './components/admin/active-admission-mana
 import { StudentAgentDetails } from './components/admin/student-agent-details/student-agent-details';
 import { AllAgentDetails } from './components/admin/all-agent-details/all-agent-details';
 import { UniversityPersonDashboard } from './components/university-person-dashbaord/university-person-dashbaord';
+import { StudentDashboard } from './components/admin/student-dashboard/student-dashboard';
 import { DocPersonDashbaord } from './components/doc-person-dashbaord/doc-person-dashbaord';
 import { TelexManagerDashboard } from './components/telex-manager-dashboard/telex-manager-dashboard';
 import { AccountantDashboard } from './components/accountant-dashboard/accountant-dashboard';
 import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashboard';
 import { AuthGuard } from './guards/auth.guard';
+
 
 const routes: Routes = [
   { path: '', component: AdminLogin },
@@ -38,6 +40,7 @@ const routes: Routes = [
       { path: '', component: AdminAnalytics, data: { section: 'overview' } },
       { path: 'overview', component: AdminAnalytics, data: { section: 'overview' } },
       { path: 'students', component: AdminDashboardOverview, data: { section: 'students' } },
+      { path: 'student-dashboard', component: StudentDashboard }, // <--- ADDED THIS ROUTE
       { path: 'agents', component: AdminDashboardOverview, data: { section: 'agents' } },
       { path: 'visa-managers', component: AdminDashboardOverview, data: { section: 'visa-managers' } },
       { path: 'admission-managers', component: AdminDashboardOverview, data: { section: 'admission-managers' } },
