@@ -108,7 +108,16 @@ import {
   Scroll,
   UserCog,
   UserX,
-  CircleDot
+  CircleDot,
+  ArrowLeft,
+  FileX,
+  // Admission Letters Premium icons
+  Sparkles,
+  CheckCircle2,
+  LayoutList,
+  MousePointer,
+  Filter,
+  Lock
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -136,8 +145,8 @@ import { TelexManagerDashboard } from './components/telex-manager-dashboard/tele
 import { AccountantDashboard } from './components/accountant-dashboard/accountant-dashboard';
 import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashboard';
 import { AdminAnalytics } from './components/admin/admin-analytics/admin-analytics';
+import { StudentAdmissionLetters } from './components/admin/student-admission-letters/student-admission-letters';
 import { StudentDashboard } from './components/admin/student-dashboard/student-dashboard';
-
 
 @NgModule({
   declarations: [
@@ -163,6 +172,7 @@ import { StudentDashboard } from './components/admin/student-dashboard/student-d
     VisaManDashboard,
     AdminAnalytics,
     StudentDashboard,
+    StudentAdmissionLetters,
 
   ],
   imports: [
@@ -212,6 +222,7 @@ import { StudentDashboard } from './components/admin/student-dashboard/student-d
       Plus,
       Edit,
       Bell,
+      Lock,
       Trash2,
       FolderOpen,
       PlusCircle,
@@ -270,7 +281,15 @@ import { StudentDashboard } from './components/admin/student-dashboard/student-d
       Scroll,
       UserCog,
       UserX,
-      CircleDot
+      CircleDot,
+      ArrowLeft,
+      FileX,
+      // Admission Letters Premium icons
+      Sparkles,
+      CheckCircle2,
+      LayoutList,
+      MousePointer,
+      Filter,
     }),
     StudentStatusPipe
   ],

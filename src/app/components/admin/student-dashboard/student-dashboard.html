@@ -17,9 +17,15 @@
     <!-- LIST VIEW -->
     <div *ngIf="viewMode === 'LIST'" class="list-view fade-in">
         <div class="list-header">
-            <div class="header-title">
-                <h1>Student Directory</h1>
-                <div class="badge-count">{{ totalStudents }} Students</div>
+            <div class="header-left-group">
+                <button class="premium-back-btn" (click)="goBackToDashboard()">
+                    <i-lucide name="arrow-left" size="20"></i-lucide>
+                    <span>Back</span>
+                </button>
+                <div class="header-title">
+                    <h1>Student Directory</h1>
+                    <div class="badge-count">{{ totalStudents }} Students</div>
+                </div>
             </div>
             <div class="header-actions">
                 <!-- Premium Search Bar -->

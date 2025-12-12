@@ -1,9 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { StudentService } from '../../../services/student.service';
 import { Student } from '../../../models/student.model';
-
 @Component({
   selector: 'app-student-dashboard',
   standalone: false,
@@ -42,11 +42,17 @@ export class StudentDashboard implements OnInit {
   constructor(
     private studentService: StudentService,
     private cdr: ChangeDetectorRef,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     this.loadStudents();
+  }
+
+  // Navigation
+  goBackToDashboard(): void {
+    this.router.navigate(['/admin-dashboard/students']);
   }
 
   loadStudents(): void {

@@ -31,12 +31,20 @@
     </div>
 
     <!-- Header shows when data loaded and not showing success -->
-    <div class="form-header" *ngIf="dataLoaded && !success">
-      <div class="header-icon-box">
-        <i-lucide name="user-plus" [size]="32"></i-lucide>
+    <div class="form-header-row" *ngIf="dataLoaded && !success">
+      <button class="premium-back-btn" (click)="goBack()">
+        <i-lucide name="arrow-left" size="20"></i-lucide>
+        <span>Back</span>
+      </button>
+      <div class="form-header-content">
+        <div class="header-icon-box">
+          <i-lucide name="user-plus" [size]="32"></i-lucide>
+        </div>
+        <div>
+          <h1>New Agent Registration</h1>
+          <p class="header-subtitle">Create credentials and assign territorial access.</p>
+        </div>
       </div>
-      <h1>New Agent Registration</h1>
-      <p class="header-subtitle">Create credentials and assign territorial access.</p>
     </div>
 
     <!-- Form shows when data loaded and not showing success -->

@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, TrackByFunction } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 interface College { id: number; collegeName: string; city: string; country: string; }
 interface Location { id: number; state: string; district: string; }
@@ -9,11 +10,14 @@ interface Agent {
   fullName: string;
   email: string;
   contactNo: string;
-  designation: string;
   companyName: string;
   status: string;
-  collegePrivileges: College[];
-  accessibleLocations: Location[];
+  userId: string;
+  collegeAccessCount: number;
+  locationAccessCount: number;
+  collegePrivileges?: College[];
+  accessibleLocations?: Location[];
+  designation?: string; // Optional as it was in old code but not in new JSON
 }
 
 @Component({
@@ -25,8 +29,8 @@ interface Agent {
 })
 export class ActiveAgents implements OnInit {
   agents: Agent[] = [];
-  filteredAgents: Agent[] = [];  // For global search
-  displayedColumns: string[] = ['fullName', 'email', 'contactNo', 'designation', 'company', 'colleges', 'locations', 'status'];
+  filteredAgents: Agent[] = [];
+  displayedColumns: string[] = ['fullName', 'email', 'contactNo', 'company', 'colleges', 'locations', 'status'];
   loading = true;
   error: string | null = null;
 
@@ -47,8 +51,9 @@ export class ActiveAgents implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.loadAgents();
@@ -67,11 +72,17 @@ export class ActiveAgents implements OnInit {
         this.cdr.markForCheck();
       },
       error: (err) => {
+        console.error('Error loading agents:', err);
+        // Fallback or just show error
         this.error = 'Failed to load agents. Please try again.';
         this.loading = false;
         this.cdr.markForCheck();
       }
     });
+  }
+
+  goBack() {
+    this.router.navigate(['/admin-dashboard/agents']);
   }
 
   // GLOBAL SEARCH
@@ -80,7 +91,8 @@ export class ActiveAgents implements OnInit {
     this.filteredAgents = this.agents.filter(agent =>
       agent.fullName.toLowerCase().includes(query) ||
       agent.email.toLowerCase().includes(query) ||
-      agent.contactNo.includes(query.replace(/[- ]/g, ''))
+      agent.contactNo.includes(query.replace(/[- ]/g, '')) ||
+      (agent.companyName && agent.companyName.toLowerCase().includes(query))
     );
     this.cdr.markForCheck();
   }
@@ -115,6 +127,8 @@ export class ActiveAgents implements OnInit {
 
   openCollegesModal(agent: Agent, event: Event) {
     event.stopPropagation();
+    if (!agent.collegePrivileges || agent.collegePrivileges.length === 0) return;
+
     this.modalType = 'college';
     this.modalTitle = `${agent.fullName} - College Access`;
     this.modalColleges = agent.collegePrivileges;
@@ -126,6 +140,8 @@ export class ActiveAgents implements OnInit {
 
   openLocationsModal(agent: Agent, event: Event) {
     event.stopPropagation();
+    if (!agent.accessibleLocations || agent.accessibleLocations.length === 0) return;
+
     this.modalType = 'location';
     this.modalTitle = `${agent.fullName} - Location Access`;
     this.modalLocations = agent.accessibleLocations;

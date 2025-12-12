@@ -223,6 +223,7 @@ body {
 .header-icon-box {
   width: 64px;
   height: 64px;
+  margin-top: 1rem;
   margin-bottom: 1.25rem;
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   border-radius: var(--radius-lg);
@@ -1719,4 +1720,106 @@ body {
   .form-header h1 {
     font-size: 1.375rem;
   }
+}
+
+/* Premium Header & Back Button (CENTERED LAYOUT) */
+.form-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.premium-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.premium-back-btn span {
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: 0;
+}
+
+.premium-back-btn:hover {
+  width: 100px;
+  /* Expand width */
+  border-color: #d4af37;
+  color: #0f172a;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+  transform: translateY(-50%) translateX(2px);
+  /* Maintain vertical center */
+  border-radius: 99px;
+  /* Become pill */
+  padding: 0 16px;
+  /* Add padding for pill shape */
+  justify-content: flex-start;
+  /* Align expanding content */
+  gap: 8px;
+}
+
+.premium-back-btn:hover span {
+  max-width: 50px;
+  /* Reveal text */
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.premium-back-btn i-lucide {
+  min-width: 20px;
+  /* Prevent icon squish */
+  transition: transform 0.3s ease;
+}
+
+.premium-back-btn:hover i-lucide {
+  transform: translateX(0);
+  /* Keep stable or subtle move */
+}
+
+.form-header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.form-header-content .header-icon-box {
+  margin-bottom: 0.5rem;
+}
+
+.form-header-content h1 {
+  margin-bottom: 0.25rem;
+}
+
+/* Override existing form-header margin if needed since mapped to new structure */
+.form-header {
+  margin-bottom: 0;
 }

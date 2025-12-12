@@ -19,30 +19,44 @@
       <p class="section-subtitle">Manage student lifecycle from registration to admission.</p>
 
       <div class="card-grid">
-        <div class="info-card" (click)="navigateTo('new-students')">
-          <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
-          <h3>New Students</h3>
-          <p>Onboard & register new applicants</p>
+        <!-- New Students - Coming Soon -->
+        <div class="info-card coming-soon-card">
+          <div class="lock-overlay">
+            <i-lucide name="lock" size="32"></i-lucide>
+            <span class="coming-soon-text">Coming Soon</span>
+            <p class="coming-soon-desc">Comprehensive applicant onboarding with digital verification</p>
+          </div>
+          <div class="card-content-blur">
+            <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
+            <h3>New Students</h3>
+            <p>Onboard & register new applicants</p>
+          </div>
         </div>
-        <div class="info-card" (click)="navigateTo('registration')">
-          <div class="icon"><i-lucide name="file-text" size="24"></i-lucide></div>
-          <h3>Registration</h3>
-          <p>Complete forms & documents</p>
+
+        <!-- Registration - Coming Soon -->
+        <div class="info-card coming-soon-card">
+          <div class="lock-overlay">
+            <i-lucide name="lock" size="32"></i-lucide>
+            <span class="coming-soon-text">Coming Soon</span>
+            <p class="coming-soon-desc">Here ,will put some intresting directory that will help to manage students</p>
+          </div>
+          <div class="card-content-blur">
+            <div class="icon"><i-lucide name="file-text" size="24"></i-lucide></div>
+            <h3>Registration</h3>
+            <p>Online registration portal</p>
+          </div>
         </div>
+
         <div class="info-card" (click)="openAppSearch()">
           <div class="icon"><i-lucide name="search" size="24"></i-lucide></div>
           <h3>Application Status</h3>
           <p>Track progress in real-time</p>
         </div>
-        <div class="info-card" (click)="navigateTo('payment')">
-          <div class="icon"><i-lucide name="dollar-sign" size="24"></i-lucide></div>
-          <h3>Payment Status</h3>
-          <p>Verify fees & receipts</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('admission-letter')">
+
+        <div class="info-card" (click)="navigateTo('student-admission-letters')">
           <div class="icon"><i-lucide name="mail" size="24"></i-lucide></div>
           <h3>Admission Letter</h3>
-          <p>Generate & send offers</p>
+          <p>University Admission Letter</p>
         </div>
         <div class="info-card" (click)="navigateTo('student-dashboard')">
           <div class="icon"><i-lucide name="layout-dashboard" size="24"></i-lucide></div>

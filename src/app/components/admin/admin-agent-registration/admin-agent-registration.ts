@@ -71,6 +71,10 @@ export class AdminAgentRegistration implements OnInit {
     this.loadData();
   }
 
+  goBack(): void {
+    this.router.navigate(['/admin-dashboard/agents']);
+  }
+
   /* --------------------------------------------------------------------- */
   /* --------------------------- LOAD DATA ------------------------------- */
   /* --------------------------------------------------------------------- */
