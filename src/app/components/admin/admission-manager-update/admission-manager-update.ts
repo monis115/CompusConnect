@@ -63,7 +63,7 @@ export class AdmissionManagerUpdate implements OnInit {
     private http: HttpClient,
     private cdr: ChangeDetectorRef, // Injected ChangeDetectorRef for manual UI updates
     private location: Location // Injected Location service
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadManagers();
@@ -170,9 +170,9 @@ export class AdmissionManagerUpdate implements OnInit {
     } else {
       // Emit the close event for the parent component to handle
       this.close.emit();
-      
+
       // Fallback for browser back, as seen in original file
-      // this.location.back();
+      this.location.back();
     }
   }
 
@@ -181,9 +181,9 @@ export class AdmissionManagerUpdate implements OnInit {
    */
   isValidForm(): boolean {
     return !!this.updateDto.fullName?.trim() &&
-           !!this.updateDto.email?.trim() &&
-           !!this.updateDto.contactNumber?.trim() &&
-           !!this.updateDto.status;
+      !!this.updateDto.email?.trim() &&
+      !!this.updateDto.contactNumber?.trim() &&
+      !!this.updateDto.status;
   }
 
   /**
@@ -200,13 +200,13 @@ export class AdmissionManagerUpdate implements OnInit {
         // Use the DTO's full name, as it might have been what was updated
         this.successMessage = `Successfully updated profile for ${this.updateDto.fullName}`;
         this.showSuccessModal = true;
-        
+
         // Reset state
         this.isEditing = false;
         this.selectedManager = null;
         this.title = 'Admission Managers';
         this.subtitle = 'Manage admission managers and their assignments';
-        
+
         this.isLoading = false;
         this.loadManagers(); // Reload the list *after* showing success
         // DTO is reset *after* success modal reads from it

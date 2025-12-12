@@ -147,6 +147,7 @@ import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashb
 import { AdminAnalytics } from './components/admin/admin-analytics/admin-analytics';
 import { StudentAdmissionLetters } from './components/admin/student-admission-letters/student-admission-letters';
 import { StudentDashboard } from './components/admin/student-dashboard/student-dashboard';
+import { UpdateAgentAccess } from './components/admin/update-agent-access/update-agent-access';
 
 @NgModule({
   declarations: [
@@ -173,6 +174,7 @@ import { StudentDashboard } from './components/admin/student-dashboard/student-d
     AdminAnalytics,
     StudentDashboard,
     StudentAdmissionLetters,
+    UpdateAgentAccess,
 
   ],
   imports: [
@@ -269,6 +271,7 @@ import { StudentDashboard } from './components/admin/student-dashboard/student-d
       // Student Dashboard icons
       Award,
       Banknote,
+
       CalendarClock,
       Download,
       ExternalLink,

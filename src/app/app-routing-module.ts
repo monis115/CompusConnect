@@ -23,7 +23,7 @@ import { TelexManagerDashboard } from './components/telex-manager-dashboard/tele
 import { AccountantDashboard } from './components/accountant-dashboard/accountant-dashboard';
 import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashboard';
 import { AuthGuard } from './guards/auth.guard';
-
+import { UpdateAgentAccess } from './components/admin/update-agent-access/update-agent-access';
 
 const routes: Routes = [
   { path: '', component: AdminLogin },
@@ -59,7 +59,8 @@ const routes: Routes = [
       { path: 'update-admission-manager-details', component: AdmissionManagerUpdate },
       { path: 'active-admission-manager', component: ActiveAdmissionManager },
       { path: 'student-agent-details', component: StudentAgentDetails },
-      { path: 'all-agent-details', component: AllAgentDetails }
+      { path: 'all-agent-details', component: AllAgentDetails },
+      { path: 'update-agent-access', component: UpdateAgentAccess }
     ]
   },
 

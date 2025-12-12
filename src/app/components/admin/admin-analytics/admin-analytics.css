@@ -45,9 +45,7 @@
 .analytics-dashboard {
     min-height: 100vh;
     padding: 32px;
-    background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.08), transparent 40%),
-        radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent 40%),
-        var(--bg-page);
+    background: #e2e8f0;
     font-family: 'Inter', sans-serif;
     color: var(--text-primary);
 }

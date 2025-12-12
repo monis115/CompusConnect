@@ -1,29 +1,165 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
 import { catchError, finalize, takeUntil } from 'rxjs/operators';
 
+export interface LocationDetail {
+  id: number;
+  state: string;
+  district: string;
+}
 
+export interface CollegeAccess {
+  collegeId: number;
+  collegeName: string;
+  accessAllLocations: boolean;
+  locationDetails: LocationDetail[];
+  locationIds: number[];
+}
+
+export interface AgentProfile {
+  id: number;
+  fullName: string;
+  age: number;
+  dob: string;
+  email: string;
+  contactNo: string;
+  gender: string;
+  address: string;
+  identityProofType: string;
+  identityProofNumber: string;
+  designation: string;
+  experience: string;
+  status: string;
+  activationDate: string;
+  creationDate: string;
+  companyName: string;
+  registeredBusinessName: string;
+  businessType: string;
+  registrationNumber: string;
+  panOrGstNumber: string;
+  registeredOfficeAddress: string;
+  branchOfficeAddress: string;
+  companyEmail: string;
+  companyContactNo: string;
+  website: string;
+  userId: string;
+  role: string | null;
+  collegeAccessList: CollegeAccess[];
+  // Helper property for UI state
+  isExpanded?: boolean;
+}
 
 @Component({
   selector: 'app-all-agent-details',
   standalone: false,
   templateUrl: './all-agent-details.html',
   styleUrl: './all-agent-details.css',
-    changeDetection: ChangeDetectionStrategy.OnPush
-
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AllAgentDetails    implements OnInit, OnDestroy {
- agents: any[] = [];
-  selectedAgent: any = null;
+export class AllAgentDetails implements OnInit, OnDestroy {
+  agents: AgentProfile[] = [];
+  selectedAgent: AgentProfile | null = null;
   isLoading: boolean = true;
   error: string | null = null;
-  
-  private destroy$ = new Subject<void>();
-  private apiUrl = 'http://localhost:8080/api/agents';
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) { }
+  // Search functionality
+  searchQuery: string = '';
+  showFloatingSearch: boolean = false;
+  isSearchFocused: boolean = false;
+
+  // Reference to search section for scroll detection
+  @ViewChild('searchSection') searchSection!: ElementRef;
+
+  // Track which states are expanded for click-to-reveal districts
+  expandedStates: Map<string, boolean> = new Map();
+
+  private destroy$ = new Subject<void>();
+  private apiUrl = 'http://localhost:8080/api/agents/all-details';
+
+  /**
+   * Get filtered agents based on search query
+   * Filters by name, userId, and email
+   */
+  get filteredAgents(): AgentProfile[] {
+    if (!this.searchQuery.trim()) {
+      return this.agents;
+    }
+
+    const query = this.searchQuery.toLowerCase().trim();
+    return this.agents.filter(agent =>
+      (agent.fullName && agent.fullName.toLowerCase().includes(query)) ||
+      (agent.userId && agent.userId.toLowerCase().includes(query)) ||
+      (agent.email && agent.email.toLowerCase().includes(query))
+    );
+  }
+
+  /**
+   * Handle search input changes
+   */
+  onSearchChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery = input.value;
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Clear search query
+   */
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Handle window scroll for floating search button
+   */
+  @HostListener('window:scroll', [])
+  onWindowScroll(): void {
+    if (this.searchSection?.nativeElement) {
+      const rect = this.searchSection.nativeElement.getBoundingClientRect();
+      this.showFloatingSearch = rect.bottom < 0;
+      this.cdr.markForCheck();
+    }
+  }
+
+  /**
+   * Scroll to search and focus
+   */
+  scrollToSearch(): void {
+    if (this.searchSection?.nativeElement) {
+      this.searchSection.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Focus the input after scrolling
+      setTimeout(() => {
+        const input = this.searchSection.nativeElement.querySelector('.search-input');
+        if (input) {
+          input.focus();
+        }
+      }, 500);
+    }
+  }
+
+  /**
+   * Toggle floating search panel
+   */
+  toggleFloatingSearch(): void {
+    this.isSearchFocused = !this.isSearchFocused;
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Navigate back to agents dashboard
+   */
+  goToAgentsDashboard(): void {
+    this.router.navigate(['/admin-dashboard/agents']);
+  }
+
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.fetchAgents();
@@ -32,31 +168,28 @@ export class AllAgentDetails    implements OnInit, OnDestroy {
   fetchAgents(): void {
     this.isLoading = true;
     this.error = null;
-    
-    // This is now a real API call
-    this.http.get<any[]>(this.apiUrl)
+
+    this.http.get<AgentProfile[]>(this.apiUrl)
       .pipe(
-        takeUntil(this.destroy$), // Unsubscribe when component is destroyed
+        takeUntil(this.destroy$),
         finalize(() => {
-          // This runs on both success and error
           this.isLoading = false;
-          this.cdr.markForCheck(); // Trigger change detection
+          this.cdr.markForCheck();
         }),
         catchError((err) => {
-          // Handle API errors gracefully
           console.error('Failed to fetch agents:', err);
           this.error = 'Failed to load agent data. Please check the API and try again.';
-          return of([]); // Return an empty array so the app doesn't crash
+          return of([]);
         })
       )
       .subscribe((data) => {
         this.agents = data;
-        // No need to set isLoading or markForCheck here, finalize() handles it
       });
   }
 
-  selectAgent(agent: any): void {
+  selectAgent(agent: AgentProfile): void {
     this.selectedAgent = agent;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     this.cdr.markForCheck();
   }
 
@@ -65,23 +198,110 @@ export class AllAgentDetails    implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  getStudentCountText(agent: any): string {
-    const count = agent.student?.length || 0;
-    if (count > 0) {
-      return `${count} student${count > 1 ? 's' : ''} registered`;
-    }
-    return 'No students registered yet.';
+  // Modal State
+  showDistrictModal = false;
+  modalStateName = '';
+  modalDistricts: string[] = [];
+
+  openDistrictModal(stateName: string, districts: string[]) {
+    this.modalStateName = stateName;
+    this.modalDistricts = districts;
+    this.showDistrictModal = true;
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeDistrictModal() {
+    this.showDistrictModal = false;
+    this.modalStateName = '';
+    this.modalDistricts = [];
+    // Restore background scrolling
+    document.body.style.overflow = '';
+  }
+
+  // --- Helper Methods ---
+
+  getInitials(name: string): string {
+    if (!name) return '';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
   }
 
   getStatusClass(status: string): string {
-    if (!status) {
-      return 'pending';
+    if (!status) return 'inactive';
+    switch (status.toLowerCase()) {
+      case 'active': return 'active';
+      case 'pending': return 'pending';
+      case 'inactive': return 'inactive';
+      default: return 'inactive';
     }
-    return status.toLowerCase().replace(/\s+/g, '-') || 'pending';
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  getLocationsCount(access: CollegeAccess): number {
+    return access.accessAllLocations ? -1 : access.locationDetails?.length || 0;
+  }
+
+  /**
+   * Groups location details by state for cleaner display.
+   * Returns a map of state -> district[]
+   */
+  getLocationsByState(locations: LocationDetail[]): Map<string, string[]> {
+    const stateMap = new Map<string, string[]>();
+
+    if (!locations) return stateMap;
+
+    locations.forEach(loc => {
+      if (!stateMap.has(loc.state)) {
+        stateMap.set(loc.state, []);
+      }
+      if (loc.district) {
+        stateMap.get(loc.state)?.push(loc.district);
+      }
+    });
+
+    return stateMap;
+  }
+
+  /**
+   * Checks if agent has too many locations to display individually
+   */
+  hasLargeLocationList(access: CollegeAccess): boolean {
+    return !access.accessAllLocations && (access.locationDetails?.length || 0) > 20;
+  }
+
+  /**
+   * Toggle state expansion to show/hide districts
+   */
+  toggleState(collegeId: number, stateName: string, event: Event): void {
+    event.stopPropagation();
+    const key = `${collegeId}-${stateName}`;
+    this.expandedStates.set(key, !this.expandedStates.get(key));
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Check if a state is expanded
+   */
+  isStateExpanded(collegeId: number, stateName: string): boolean {
+    const key = `${collegeId}-${stateName}`;
+    return this.expandedStates.get(key) || false;
   }
 
   ngOnDestroy(): void {
-    // This cleans up the subscription to prevent memory leaks
     this.destroy$.next();
     this.destroy$.complete();
   }

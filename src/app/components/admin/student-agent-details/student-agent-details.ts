@@ -1,146 +1,146 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Subscription, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-
-// ... (Interfaces keep same as previous) ...
-// Ensure Student interface has all fields:
-export interface College { id: number; collegeName: string; city: string; country: string; }
-export interface Student {
-  id: number; fullName: string; dob: string; age: number; email: string; contactNo: string; address: string;
-  emergencyContactNo: string; emergencyRelation: string; passportNo: string; passportValidTill: string;
-  highestDegree: string; marks: number; appliedFor: string; presentStatus: string; nextStep: string;
-  college: College; confirmationPagePath: string | null; admissionLetterPath: string | null;
-}
-export interface Agent {
-  id: number; fullName: string; email: string; contactNo: string; companyName: string;
-  registeredOfficeAddress: string; student: Student[];
-}
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
+import { AgentManagerService } from '../../../services/agent-manager.service';
+import { AgentSummary } from '../../../models/agent-summary';
+import { Student } from '../../../models/student';
+import { Subscription, EMPTY } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-student-agent-details',
-  standalone: false, // Ensure this matches your module setup
+  standalone: false,
   templateUrl: './student-agent-details.html',
   styleUrl: './student-agent-details.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StudentAgentDetails implements OnInit, OnDestroy {
+export class StudentAgentDetails implements OnInit {
   @Output() back = new EventEmitter<void>();
 
-  public agents: Agent[] = [];
-  public selectedAgent: Agent | null = null;
-  
+  // Master Data
+  public agents: AgentSummary[] = [];
+  public filteredAgents: AgentSummary[] = [];
+
+  // Detail Data
+  public selectedAgent: AgentSummary | null = null;
+  public students: Student[] = [];
   public filteredStudents: Student[] = [];
-  public searchTerm: string = '';
-  public statusFilter: string = '';
-  
-  public selectedStudent: Student | null = null;
-  public isModalOpen: boolean = false;
 
-  public isLoading: boolean = true;
-  public viewState: 'list' | 'detail' = 'list';
-  private dataSubscription: Subscription | undefined;
+  // UI States
+  public isLoadingAgents: boolean = false;
+  public isLoadingStudents: boolean = false;
+  public agentSearchTerm: string = '';
+  public studentSearchTerm: string = '';
 
-  public availableStatuses: string[] = [];
+  private subscriptions: Subscription[] = [];
 
-  constructor(private cdr: ChangeDetectorRef, private http: HttpClient) { }
+  constructor(
+    private agentService: AgentManagerService,
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.fetchAgents();
   }
 
   fetchAgents(): void {
-    this.isLoading = true;
-    this.dataSubscription = this.http.get<Agent[]>('http://localhost:8080/api/agents/with-students')
-      .pipe(catchError(err => {
-          this.isLoading = false;
+    this.isLoadingAgents = true;
+    this.cdr.markForCheck(); // Ensure UI updates
+
+    const sub = this.agentService.getAgentsWithStudents()
+      .pipe(
+        catchError(err => {
+          console.error('Error fetching agents', err);
+          this.isLoadingAgents = false;
           this.cdr.markForCheck();
-          return throwError(() => new Error('Failed to load agents'));
-      }))
+          return EMPTY;
+        }),
+        finalize(() => {
+          this.isLoadingAgents = false;
+          this.cdr.markForCheck();
+        })
+      )
       .subscribe(data => {
         this.agents = data;
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        this.filteredAgents = data;
       });
+
+    this.subscriptions.push(sub);
   }
 
-  selectAgent(agent: Agent): void {
+  onAgentSearch(event: any): void {
+    const term = event.target.value.toLowerCase();
+    this.agentSearchTerm = term;
+    this.filteredAgents = this.agents.filter(a =>
+      a.fullName.toLowerCase().includes(term) ||
+      a.companyName.toLowerCase().includes(term) ||
+      a.email.toLowerCase().includes(term)
+    );
+  }
+
+  selectAgent(agent: AgentSummary): void {
+    if (this.selectedAgent?.id === agent.id) return; // Already selected
+
     this.selectedAgent = agent;
-    this.viewState = 'detail';
-    this.searchTerm = '';
-    this.statusFilter = '';
-    
-    const statuses = new Set(agent.student.map(s => s.presentStatus));
-    this.availableStatuses = Array.from(statuses);
-
-    this.filterStudents();
-    window.scrollTo(0,0);
+    this.students = [];
+    this.filteredStudents = [];
+    this.studentSearchTerm = '';
+    this.isLoadingStudents = true;
     this.cdr.markForCheck();
+
+    const sub = this.agentService.getEnrolledStudents(agent.id)
+      .pipe(
+        catchError(err => {
+          console.error('Error fetching students', err);
+          this.isLoadingStudents = false;
+          this.cdr.markForCheck();
+          return EMPTY;
+        }),
+        finalize(() => {
+          this.isLoadingStudents = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe(data => {
+        this.students = data;
+        this.filteredStudents = data;
+      });
+
+    this.subscriptions.push(sub);
   }
 
-  filterStudents(): void {
-    if (!this.selectedAgent) return;
-
-    this.filteredStudents = this.selectedAgent.student.filter(student => {
-      const term = this.searchTerm.toLowerCase();
-      const matchesSearch = 
-        (student.fullName && student.fullName.toLowerCase().includes(term)) ||
-        (student.email && student.email.toLowerCase().includes(term)) ||
-        (student.contactNo && student.contactNo.includes(term)) ||
-        (student.id.toString().includes(term));
-
-      const matchesStatus = this.statusFilter ? student.presentStatus === this.statusFilter : true;
-
-      return matchesSearch && matchesStatus;
-    });
+  onStudentSearch(event: any): void {
+    const term = event.target.value.toLowerCase();
+    this.studentSearchTerm = term;
+    this.filteredStudents = this.students.filter(s =>
+      s.fullName.toLowerCase().includes(term) ||
+      s.email.toLowerCase().includes(term) ||
+      s.passportNo?.toLowerCase().includes(term)
+    );
   }
 
-  onSearchChange(event: any): void {
-    this.searchTerm = event.target.value;
-    this.filterStudents();
+  onBack(): void {
+    this.router.navigate(['/admin-dashboard/agents']);
   }
 
-  onStatusChange(event: any): void {
-    this.statusFilter = event.target.value;
-    this.filterStudents();
-  }
-
-  getFileUrl(path: string | null): string {
+  getFileUrl(path: string | undefined): string {
     if (!path) return '#';
     const cleanPath = path.startsWith('/') ? path.substring(1) : path;
     return `http://localhost:8080/${cleanPath}`;
   }
 
-  goBackToList(): void {
-    this.selectedAgent = null;
-    this.viewState = 'list';
-    this.cdr.markForCheck();
+  // Helper to check if file exists for button state
+  hasFile(path: string | undefined): boolean {
+    return !!path && path.length > 0;
   }
 
-  onBack(): void { this.back.emit(); }
-
-  openStudentModal(student: Student): void {
-    this.selectedStudent = student;
-    this.isModalOpen = true;
-    this.cdr.markForCheck();
-  }
-
-  closeStudentModal(): void {
-    this.isModalOpen = false;
-    setTimeout(() => {
-      this.selectedStudent = null;
-      this.cdr.markForCheck();
-    }, 200);
-  }
-
-  getStudentStatusClass(status: string): string {
-    if(!status) return '';
-    return status.toLowerCase().replace(/_/g, '-');
-  }
-
-  ngOnDestroy(): void {
-    if (this.dataSubscription) {
-      this.dataSubscription.unsubscribe();
-    }
+  // Badge color logic
+  getStatusClass(status: string): string {
+    if (!status) return 'status-default';
+    const s = status.toLowerCase();
+    if (s.includes('admission') || s.includes('generated')) return 'status-success';
+    if (s.includes('pending') || s.includes('process')) return 'status-warning';
+    if (s.includes('reject') || s.includes('fail')) return 'status-danger';
+    return 'status-info';
   }
 }
