@@ -1,166 +1,218 @@
-<div class="login-container">
-  <!-- Animated background elements -->
-  <div class="bg-animation">
-    <div class="gradient-sphere sphere-1"></div>
-    <div class="gradient-sphere sphere-2"></div>
-    <div class="gradient-sphere sphere-3"></div>
-    <div class="grid-overlay"></div>
-
-    <!-- Interactive Particles -->
-    <div class="particles-container">
-      <div *ngFor="let p of particles()" class="particle" [style.left.%]="p.x" [style.top.%]="p.y"
-        [style.width.px]="p.size" [style.height.px]="p.size" [style.animation-duration.s]="p.duration"
-        [style.animation-delay.s]="p.delay">
-      </div>
-    </div>
-  </div>
-
-  <!-- Interactive Decorative Elements Around Login Card -->
-  <div class="decorative-elements">
-    <!-- Floating Orbs -->
-    <div class="floating-orb orb-1"></div>
-    <div class="floating-orb orb-2"></div>
-    <div class="floating-orb orb-3"></div>
-    <div class="floating-orb orb-4"></div>
-
-    <!-- Geometric Shapes -->
-    <div class="geometric-shape shape-circle-1"></div>
-    <div class="geometric-shape shape-circle-2"></div>
-    <div class="geometric-shape shape-square-1"></div>
-    <div class="geometric-shape shape-triangle-1"></div>
-
-    <!-- Animated Lines -->
-    <div class="animated-line line-1"></div>
-    <div class="animated-line line-2"></div>
-    <div class="animated-line line-3"></div>
-
-    <!-- Glowing Dots -->
-    <div class="glowing-dot dot-1"></div>
-    <div class="glowing-dot dot-2"></div>
-    <div class="glowing-dot dot-3"></div>
-    <div class="glowing-dot dot-4"></div>
-    <div class="glowing-dot dot-5"></div>
-    <div class="glowing-dot dot-6"></div>
-  </div>
-
-  <!-- Main login card -->
-  <div class="login-card" #loginCard>
-    <!-- Logo/Brand section -->
-    <div class="brand-section">
-      <div class="logo-container">
-        <div class="logo-pulse"></div>
-        <!-- Stack of Layers Icon -->
-        <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5z" />
-          <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-        </svg>
-      </div>
-      <h1 class="brand-title">Login Portal</h1>
-      <p class="brand-subtitle">Welcome back! Please login to continue.</p>
-    </div>
-
-    <!-- Login form -->
-    <form class="login-form" (ngSubmit)="onLogin()">
-      <!-- User ID field -->
-      <div class="form-group">
-        <div class="input-container" [class.has-value]="userId()">
-          <input id="userId" type="text" class="form-input" [ngModel]="userId()" name="userId" required
-            (input)="onUserIdInput($event)" autocomplete="username">
-          <label for="userId" class="form-label">
-            <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
-            </svg>
-            <span>User ID</span>
-          </label>
-          <div class="input-highlight"></div>
-        </div>
-      </div>
-
-      <!-- Password field -->
-      <div class="form-group">
-        <div class="input-container" [class.has-value]="password()">
-          <input id="password" [type]="passwordFieldType()" class="form-input" [ngModel]="password()" name="password"
-            required (input)="onPasswordInput($event)" autocomplete="current-password">
-          <label for="password" class="form-label">
-            <svg class="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            <span>Password</span>
-          </label>
-          <div class="input-highlight"></div>
-
-          <button type="button" class="toggle-password" (click)="togglePasswordVisibility()"
-            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
-            <svg *ngIf="!showPassword()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            <svg *ngIf="showPassword()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path
-                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-              <line x1="1" y1="1" x2="23" y2="23" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Error message -->
-      <div class="error-message" *ngIf="errorMessage()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
-        <span>{{ errorMessage() }}</span>
-      </div>
-
-      <!-- Submit button -->
-      <button type="submit" class="submit-button" [disabled]="isLoading()">
-        <span class="button-text">Sign In</span>
-        <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14m-7-7l7 7-7 7" />
-        </svg>
-      </button>
-    </form>
-
-    <!-- Footer links -->
-    <div class="card-footer">
-      <a routerLink="/" class="footer-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5m7-7l-7 7 7 7" />
-        </svg>
-        Back to Home
+<!-- Main Page Container -->
+<div class="page-container">
+  <!-- Top Navigation Header -->
+  <header class="top-header">
+    <div class="header-content">
+      <a href="https://rareeducation.in" target="_blank" class="logo-link">
+        <img src="rare-education-logo.png" alt="Rare Education" class="logo-image">
       </a>
+      <nav class="nav-links">
+        <a href="https://rareeducation.in/#enquiry" target="_blank" class="nav-link">Get Enquiry</a>
+        <a href="https://rareeducation.in/#contact" target="_blank" class="nav-link">Contact Us</a>
+      </nav>
     </div>
-  </div>
+  </header>
 
-  <!-- Floating Fullscreen Toggle Button -->
-  <button class="floating-fullscreen-btn" [class.active]="isFullscreen()" (click)="toggleFullscreen()"
-    [title]="isFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen'">
-    <!-- Expand Icon (when not fullscreen) -->
-    <svg *ngIf="!isFullscreen()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-      stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 3 21 3 21 9"></polyline>
-      <polyline points="9 21 3 21 3 15"></polyline>
-      <line x1="21" y1="3" x2="14" y2="10"></line>
-      <line x1="3" y1="21" x2="10" y2="14"></line>
-    </svg>
-    <!-- Compress Icon (when fullscreen) -->
-    <svg *ngIf="isFullscreen()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-      stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="4 14 10 14 10 20"></polyline>
-      <polyline points="20 10 14 10 14 4"></polyline>
-      <line x1="14" y1="10" x2="21" y2="3"></line>
-      <line x1="3" y1="21" x2="10" y2="14"></line>
-    </svg>
-  </button>
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Left Side - 2D Illustration (Always Visible) -->
+      <div class="illustration-side">
+        <div class="illustration-container">
+          <!-- SVG Illustration - Person at Computer -->
+          <svg class="illustration-svg" viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background Circle -->
+            <circle cx="200" cy="200" r="160" fill="#e8f4fd" opacity="0.6" />
+            <circle cx="200" cy="200" r="120" fill="#d4ebfc" opacity="0.4" />
+
+            <!-- Desk -->
+            <rect x="60" y="280" width="280" height="12" rx="4" fill="#1a4ca0" opacity="0.15" />
+
+            <!-- Monitor -->
+            <rect x="100" y="120" width="200" height="140" rx="10" fill="#ffffff" stroke="#1a4ca0" stroke-width="4" />
+            <rect x="115" y="135" width="170" height="100" rx="4" fill="#e8f4fd" />
+
+            <!-- Screen Content -->
+            <rect x="130" y="155" width="100" height="12" rx="3" fill="#1a4ca0" opacity="0.3" />
+            <rect x="130" y="175" width="140" height="10" rx="3" fill="#1a4ca0" opacity="0.2" />
+            <rect x="130" y="195" width="140" height="10" rx="3" fill="#1a4ca0" opacity="0.2" />
+            <rect x="130" y="215" width="80" height="10" rx="3" fill="#f5a623" />
+
+            <!-- Monitor Stand -->
+            <rect x="175" y="260" width="50" height="20" fill="#64748b" />
+            <rect x="155" y="280" width="90" height="8" rx="4" fill="#475569" />
+
+            <!-- Person - Body -->
+            <ellipse cx="380" cy="150" rx="32" ry="35" fill="#fcd5c8" />
+            <!-- Hair -->
+            <ellipse cx="380" cy="130" rx="35" ry="25" fill="#111E38" />
+            <!-- Person - Torso -->
+            <path d="M340 260 C340 200 380 185 380 185 C380 185 420 200 420 260" fill="#1a4ca0" />
+
+            <!-- Laptop on lap -->
+            <rect x="335" y="305" width="90" height="55" rx="4" fill="#475569" />
+            <rect x="342" y="312" width="76" height="42" fill="#94a3b8" />
+            <rect x="320" y="360" width="120" height="6" rx="2" fill="#334155" />
+
+            <!-- Decorative Elements -->
+            <circle cx="60" cy="320" r="25" fill="#f5a623" opacity="0.3" />
+            <circle cx="440" cy="80" r="18" fill="#26a69a" opacity="0.4" />
+            <rect x="50" y="150" width="25" height="25" rx="4" fill="#1a4ca0" opacity="0.2"
+              transform="rotate(15 62 162)" />
+            <circle cx="450" cy="250" r="15" fill="#1a4ca0" opacity="0.2" />
+
+            <!-- Floating Icons -->
+            <circle cx="300" cy="100" r="20" fill="#f5a623" opacity="0.8" />
+            <path d="M295 100 L300 95 L305 100 L300 105 Z" fill="#ffffff" />
+
+            <circle cx="80" cy="220" r="18" fill="#26a69a" opacity="0.8" />
+            <rect x="74" y="216" width="12" height="8" rx="1" fill="#ffffff" />
+          </svg>
+        </div>
+
+        <!-- Info Badges Below Illustration -->
+        <div class="info-badges">
+          <div class="info-badge">
+            <span class="badge-icon">🎓</span>
+            <span class="badge-label">4+ Universities</span>
+          </div>
+          <div class="info-badge">
+            <span class="badge-icon">👥</span>
+            <span class="badge-label">1000+ Students</span>
+          </div>
+          <div class="info-badge">
+            <span class="badge-icon">✅</span>
+            <span class="badge-label">100% Support</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side - Login Form Card -->
+      <div class="form-side">
+        <div class="login-card" #loginCard>
+          <div class="card-header">
+            <h2 class="card-title">Sign In</h2>
+            <p class="card-subtitle">Enter your credentials to access your account</p>
+          </div>
+
+          <!-- Login Form -->
+          <form class="login-form" (ngSubmit)="onLogin()">
+            <!-- User ID Field -->
+            <div class="form-group">
+              <label class="input-label" for="userId">User ID</label>
+              <div class="input-wrapper" [class.focused]="userId()">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+                </svg>
+                <input id="userId" type="text" class="form-input" placeholder="Enter your User ID" [ngModel]="userId()"
+                  name="userId" required (input)="onUserIdInput($event)" autocomplete="username">
+              </div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+              <label class="input-label" for="password">Password</label>
+              <div class="input-wrapper" [class.focused]="password()">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <input id="password" [type]="passwordFieldType()" class="form-input" placeholder="Enter your password"
+                  [ngModel]="password()" name="password" required (input)="onPasswordInput($event)"
+                  autocomplete="current-password">
+                <button type="button" class="toggle-password" (click)="togglePasswordVisibility()"
+                  [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                  <svg *ngIf="!showPassword()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <svg *ngIf="showPassword()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" *ngIf="errorMessage()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>{{ errorMessage() }}</span>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-button" [disabled]="isLoading()"
+              style="background: #1a4ca0; color: #ffffff;">
+              <span class="button-text" style="color: #ffffff;">Sign In</span>
+              <svg class="button-arrow" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5">
+                <path d="M5 12h14m-7-7l7 7-7 7" />
+              </svg>
+            </button>
+          </form>
+
+          <!-- Security Badge -->
+          <div class="card-footer">
+            <div class="security-badge">
+              <svg class="security-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              <span class="security-text">Secure Portal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Info Section - Above Footer -->
+  <section class="info-section">
+    <div class="info-container">
+      <h3 class="info-heading">Why Choose Rare Education?</h3>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-icon">🏛️</div>
+          <h4>Official Partner</h4>
+          <p>Authorized contractor for Uzbekistan's top government medical colleges with 100% authentic processes.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">🌍</div>
+          <h4>On-Ground Support</h4>
+          <p>Local team handles airport pickup, hostel settling, and daily support—focus on your studies.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">🏠</div>
+          <h4>Indian Hostels & Mess</h4>
+          <p>Secure, Indian-managed hostels with North/South Indian meals—feel at home abroad.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">📚</div>
+          <h4>FMGE/NExT Coaching</h4>
+          <p>End-to-end support: visas, coaching, and career guidance until you become a licensed doctor.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Orange Footer -->
+  <footer class="page-footer">
+    <p>Copyright © 2025 | Rare Education | All Rights Reserved</p>
+    <p class="footer-credit">Designed and Developed by <a href="https://www.zorixlab.com" target="_blank"
+        class="footer-link">Zorix Lab</a></p>
+  </footer>
 </div>
 
-<!-- Premium loading spinner -->
+<!-- Premium Loading Spinner -->
 <div class="spinner-overlay" *ngIf="isLoading()">
   <div class="spinner-container">
+    <!-- Logo in spinner -->
+    <img src="rare-education-logo.png" alt="Rare Education" class="spinner-logo">
+
     <!-- Animated rings -->
     <div class="spinner-rings">
       <div class="ring ring-1" [class.success]="spinnerPhase() === 'success'"
@@ -169,30 +221,15 @@
         [class.error]="spinnerPhase() === 'error'"></div>
       <div class="ring ring-3" [class.success]="spinnerPhase() === 'success'"
         [class.error]="spinnerPhase() === 'error'"></div>
-
-      <!-- Center content inside rings -->
-      <div class="spinner-center">
-        <!-- Shield icon (Always visible inside ring) -->
-        <div class="spinner-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2l8 4v6c0 5.5-3.5 10.5-8 12-4.5-1.5-8-6.5-8-12V6l8-4z" />
-          </svg>
-        </div>
-      </div>
     </div>
 
-    <!-- Status Section (Below Ring) -->
+    <!-- Status Section -->
     <div class="spinner-status">
-      <!-- Success/Error Icons -->
-      <!-- Success/Error Icons -->
       <div class="status-icon-container" *ngIf="spinnerPhase() !== 'validating'">
-        <!-- Success checkmark -->
         <svg *ngIf="spinnerPhase() === 'success'" class="status-icon success" viewBox="0 0 24 24" fill="none"
           stroke="currentColor">
           <path d="M20 6L9 17l-5-5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-
-        <!-- Error cross -->
         <svg *ngIf="spinnerPhase() === 'error'" class="status-icon error" viewBox="0 0 24 24" fill="none"
           stroke="currentColor">
           <circle cx="12" cy="12" r="10" stroke-width="3" />
@@ -201,17 +238,17 @@
         </svg>
       </div>
 
-      <!-- Text -->
       <div class="spinner-text" *ngIf="spinnerText()" [class.success]="spinnerPhase() === 'success'"
         [class.error]="spinnerPhase() === 'error'">
         {{ spinnerText() }}
       </div>
     </div>
 
-    <!-- Progress dots below spinner -->
+    <!-- Progress dots -->
     <div class="progress-dots" *ngIf="spinnerPhase() === 'validating'">
       <span class="dot"></span>
       <span class="dot"></span>
       <span class="dot"></span>
     </div>
   </div>
+</div>
