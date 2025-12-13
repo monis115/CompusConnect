@@ -45,7 +45,7 @@ export class AddmissionManagerRegistration implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-      private router: Router,
+    private router: Router,
 
     private zone: NgZone,
     private cdr: ChangeDetectorRef
@@ -136,7 +136,7 @@ export class AddmissionManagerRegistration implements OnInit {
       .subscribe({
         next: (response) => {
           console.log('✅ Success response received:', response);
-          
+
           // Use setTimeout to ensure the state updates are processed
           setTimeout(() => {
             this.zone.run(() => {
@@ -180,6 +180,6 @@ export class AddmissionManagerRegistration implements OnInit {
   }
 
   onClose(): void {
-  this.router.navigate(['/admin-dashboard/admission-managers']);
-}
+    this.router.navigate(['/admin-dashboard/admission-managers']);
+  }
 }

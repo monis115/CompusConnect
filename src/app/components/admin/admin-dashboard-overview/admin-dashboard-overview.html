@@ -117,49 +117,7 @@
 
     </div>
 
-    <!-- VISA MANAGERS SECTION -->
-    <div *ngIf="activeSection === 'visa-managers'">
-      <h2 class="section-title">
-        <i-lucide name="plane" size="28"></i-lucide> VISA Managers
-      </h2>
-      <p class="section-subtitle">Coordinate visa processing and staff.</p>
-
-      <div class="card-grid">
-        <div class="info-card" (click)="navigateTo('visa-registration')">
-          <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
-          <h3>Registration</h3>
-          <p>Add new VISA managers</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('active-visa')">
-          <div class="icon"><i-lucide name="check" size="24"></i-lucide></div>
-          <h3>Active Managers</h3>
-          <p>Handling cases now</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('new-visa')">
-          <div class="icon"><i-lucide name="clock" size="24"></i-lucide></div>
-          <h3>New Managers</h3>
-          <p>Recently added</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('pending-visa')">
-          <div class="icon"><i-lucide name="alert-triangle" size="24"></i-lucide></div>
-          <h3>Pending Approvals</h3>
-          <p>Need verification</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('all-visa')">
-          <div class="icon"><i-lucide name="users" size="24"></i-lucide></div>
-          <h3>All Managers</h3>
-          <p>Complete directory</p>
-        </div>
-
-        <div class="info-card filler-card">
-          <div class="icon"><i-lucide name="shield-check" size="24"></i-lucide></div>
-          <h3>Secure Portal</h3>
-          <p>VISA processing is a sensitive task. All modules are secured.</p>
-        </div>
-      </div>
-
-
-    </div>
+    <!-- Section Removed: VISA MANAGERS -->
 
     <!-- ADMISSION MANAGERS SECTION -->
     <div *ngIf="activeSection === 'admission-managers'">
@@ -565,7 +523,8 @@
     </div>
 
     <!-- PLACEHOLDER SECTIONS -->
-    <div *ngIf="['applications', 'payments', 'reports'].includes(activeSection)">
+    <div
+      *ngIf="['telex', 'visa', 'university-coordinators', 'account', 'doc-person', 'news-management', 'payments', 'reports'].includes(activeSection)">
       <h2 class="section-title">
         <i-lucide [name]="currentSectionIcon" size="28"></i-lucide> {{ pageTitle }}
       </h2>
@@ -576,7 +535,7 @@
         <div class="placeholder-icon" style="color: var(--border-light); margin-bottom: 1.5rem;">
           <i-lucide [name]="currentSectionIcon" size="64"></i-lucide>
         </div>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">This module is currently under development.</p>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">This will be implemented later.</p>
         <button class="btn-primary">Notify Me When Ready</button>
       </div>
     </div>

@@ -10,7 +10,8 @@ import { Home } from './components/home/home';
 import { StudentLogin } from './components/student-login/student-login';
 import { AdminLogin } from './components/admin-login/admin-login';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 // Material Modules (ONLY import modules, NOT components)
 import { MatTableModule } from '@angular/material/table';
@@ -117,7 +118,30 @@ import {
   LayoutList,
   MousePointer,
   Filter,
-  Lock
+  Lock,
+  School,
+  Pause,
+  Radio,
+  ChevronsLeft,
+  ChevronsRight,
+  LogIn,
+  // World-Class Activity Logs icons
+  SlidersHorizontal,
+  Columns,
+  Sun,
+  Moon,
+  Menu,
+  AlignJustify,
+  BarChart3,
+  PieChart,
+  FileSpreadsheet,
+  FileJson,
+  XCircle,
+  Loader2,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  CheckSquare
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -148,6 +172,7 @@ import { AdminAnalytics } from './components/admin/admin-analytics/admin-analyti
 import { StudentAdmissionLetters } from './components/admin/student-admission-letters/student-admission-letters';
 import { StudentDashboard } from './components/admin/student-dashboard/student-dashboard';
 import { UpdateAgentAccess } from './components/admin/update-agent-access/update-agent-access';
+import { SystemActivityLogs } from './components/admin/system-activity-logs/system-activity-logs';
 
 @NgModule({
   declarations: [
@@ -175,6 +200,7 @@ import { UpdateAgentAccess } from './components/admin/update-agent-access/update
     StudentDashboard,
     StudentAdmissionLetters,
     UpdateAgentAccess,
+    SystemActivityLogs,
 
   ],
   imports: [
@@ -268,6 +294,7 @@ import { UpdateAgentAccess } from './components/admin/update-agent-access/update
       Package,
       Circle,
       Wallet,
+      School,
       // Student Dashboard icons
       Award,
       Banknote,
@@ -280,8 +307,10 @@ import { UpdateAgentAccess } from './components/admin/update-agent-access/update
       FolderX,
       Image,
       IndianRupee,
+      Pause,
       Receipt,
       Scroll,
+      Radio,
       UserCog,
       UserX,
       CircleDot,
@@ -293,6 +322,27 @@ import { UpdateAgentAccess } from './components/admin/update-agent-access/update
       LayoutList,
       MousePointer,
       Filter,
+      // System Activity Logs icons
+      ChevronsLeft,
+      ChevronsRight,
+      LogIn,
+      // World-Class Activity Logs icons
+      SlidersHorizontal,
+      Columns,
+      Sun,
+      Moon,
+      Menu,
+      AlignJustify,
+      BarChart3,
+      PieChart,
+      FileSpreadsheet,
+      FileJson,
+      XCircle,
+      Loader2,
+      ArrowUp,
+      ArrowDown,
+      ArrowUpDown,
+      CheckSquare,
     }),
     StudentStatusPipe
   ],
@@ -300,7 +350,12 @@ import { UpdateAgentAccess } from './components/admin/update-agent-access/update
     provideCharts(withDefaultRegisterables()),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideClientHydration(withEventReplay())
+    provideClientHydration(withEventReplay()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [App]
 })

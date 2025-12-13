@@ -94,11 +94,15 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     { id: 'overview', label: 'Overview', icon: 'layout-dashboard' },
     { id: 'students', label: 'Students', icon: 'graduation-cap' },
     { id: 'agents', label: 'Agents', icon: 'users' },
-    { id: 'visa-managers', label: 'VISA Managers', icon: 'plane' },
     { id: 'admission-managers', label: 'Admission Managers', icon: 'building' },
     { id: 'colleges', label: 'Colleges', icon: 'university' },
     { id: 'users', label: 'User Management', icon: 'shield' },
-    { id: 'applications', label: 'Applications', icon: 'file-text' },
+    { id: 'telex', label: 'Telex', icon: 'send' },
+    { id: 'visa', label: 'Visa', icon: 'plane' },
+    { id: 'university-coordinators', label: 'University Coordinators', icon: 'school' },
+    { id: 'account', label: 'Account', icon: 'credit-card' },
+    { id: 'doc-person', label: 'Doc Person', icon: 'file-check' },
+    { id: 'news-management', label: 'News Management', icon: 'file-text' },
     { id: 'payments', label: 'Payments', icon: 'credit-card' },
     { id: 'reports', label: 'Reports & Audits', icon: 'bar-chart' }
   ];

@@ -400,3 +400,342 @@
     opacity: 1;
   }
 }
+
+/* ==========================================================================
+   System Configuration Floating Menu - Premium Dark Transparent Glass
+   ========================================================================== */
+.sys-config-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+}
+
+/* Floating Action Button (FAB) */
+.sys-config-fab {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  /* Dark Transparent Glass */
+  background: rgba(30, 41, 59, 0.45);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  /* Subtle light rim for definition */
+  border: 1px solid rgba(255, 255, 255, 0.125);
+  /* Deep ambient shadow */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+  /* Slate 300 */
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Inner Glow Gradient */
+.sys-config-fab::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.1), transparent 60%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sys-config-fab:hover {
+  transform: translateY(-4px) scale(1.05);
+  /* Lighter glass on hover */
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.4),
+    0 0 15px rgba(99, 102, 241, 0.3);
+  /* Indigo glow */
+  color: white;
+}
+
+.sys-config-fab.active {
+  background: #0f172a;
+  /* Solid Navy Activity */
+  border-color: rgba(239, 68, 68, 0.5);
+  /* Red border tint */
+  color: #ef4444;
+  transform: rotate(180deg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.fab-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Menu Container */
+.sys-config-menu {
+  position: absolute;
+  bottom: 80px;
+  right: 0;
+  width: 300px;
+  /* Dark Transparent Glass Surface */
+  background: rgba(15, 23, 42, 0.55);
+  /* Moderate Blur */
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 24px;
+  padding: 0.75rem;
+  /* Glass Border */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Elevation Shadow */
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px) scale(0.96);
+  transform-origin: bottom right;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sys-config-menu.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Menu List */
+.sys-menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sys-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 1rem;
+  position: relative;
+  background: transparent;
+  border: 1px solid transparent;
+  /* Placeholder for layout stability */
+}
+
+/* Hover State - Deep Navy Glass */
+.sys-menu-item:hover {
+  background: #0f172a;
+  /* Deep Navy Solid */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  /* Light border */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateX(-4px);
+}
+
+.sys-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  /* Slate 300 */
+  transition: all 0.2s ease;
+  letter-spacing: 0.2px;
+}
+
+.sys-menu-item:hover .sys-label {
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Icon Styling */
+.sys-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.sys-menu-item:hover .sys-icon-wrapper {
+  background: linear-gradient(135deg, #d4af37, #fde047);
+  /* Premium Gold */
+  color: #0f172a;
+  /* Navy icon */
+  border-color: transparent;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3);
+}
+
+/* Staggered Animation */
+.sys-menu-item {
+  opacity: 0;
+  transform: translateX(15px);
+}
+
+.sys-config-menu.active .sys-menu-item {
+  animation: slideInGlass 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideInGlass {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sys-config-menu.active .sys-menu-item:nth-child(1) {
+  animation-delay: 0.03s;
+}
+
+.sys-config-menu.active .sys-menu-item:nth-child(2) {
+  animation-delay: 0.06s;
+}
+
+.sys-config-menu.active .sys-menu-item:nth-child(3) {
+  animation-delay: 0.09s;
+}
+
+.sys-config-menu.active .sys-menu-item:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+.sys-config-menu.active .sys-menu-item:nth-child(5) {
+  animation-delay: 0.15s;
+}
+
+.sys-config-menu.active .sys-menu-item:nth-child(6) {
+  animation-delay: 0.18s;
+}
+
+.sys-config-menu.active .sys-menu-item:nth-child(7) {
+  animation-delay: 0.21s;
+}
+
+/* ==========================================================================
+   Premium Spinner Overlay
+   ========================================================================== */
+.system-activity-spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.75);
+  /* Dark semi-transparent overlay */
+  backdrop-filter: blur(12px);
+  z-index: 10000;
+  /* Above everything */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInOverlay 0.3s ease;
+}
+
+.premium-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* "Transparent Thin Premium Spinner" */
+.premium-thin-spinner {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  /* Very subtle track */
+  border-top-color: #ffd700;
+  /* Gold top */
+  border-right-color: transparent;
+  border-bottom-color: #ffd700;
+  /* Gold bottom */
+  border-left-color: transparent;
+  animation: spinPremium 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  position: relative;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+  /* Soft gold glow */
+}
+
+/* Inner thin ring for complexity */
+.premium-thin-spinner::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top-color: #ef4444;
+  /* Red accent */
+  border-bottom-color: transparent;
+  animation: spinPremiumReverse 1.5s linear infinite;
+}
+
+.loading-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #e2e8f0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease 0.2s forwards;
+}
+
+@keyframes spinPremium {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinPremiumReverse {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

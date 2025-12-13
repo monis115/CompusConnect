@@ -24,6 +24,7 @@ import { AccountantDashboard } from './components/accountant-dashboard/accountan
 import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashboard';
 import { AuthGuard } from './guards/auth.guard';
 import { UpdateAgentAccess } from './components/admin/update-agent-access/update-agent-access';
+import { SystemActivityLogs } from './components/admin/system-activity-logs/system-activity-logs';
 
 const routes: Routes = [
   { path: '', component: AdminLogin },
@@ -44,11 +45,15 @@ const routes: Routes = [
       { path: 'student-dashboard', component: StudentDashboard },
       { path: 'student-admission-letters', component: StudentAdmissionLetters }, // <--- ADDED THIS ROUTE
       { path: 'agents', component: AdminDashboardOverview, data: { section: 'agents' } },
-      { path: 'visa-managers', component: AdminDashboardOverview, data: { section: 'visa-managers' } },
+      { path: 'telex', component: AdminDashboardOverview, data: { section: 'telex' } },
+      { path: 'visa', component: AdminDashboardOverview, data: { section: 'visa' } },
+      { path: 'university-coordinators', component: AdminDashboardOverview, data: { section: 'university-coordinators' } },
+      { path: 'account', component: AdminDashboardOverview, data: { section: 'account' } },
+      { path: 'doc-person', component: AdminDashboardOverview, data: { section: 'doc-person' } },
+      { path: 'news-management', component: AdminDashboardOverview, data: { section: 'news-management' } },
       { path: 'admission-managers', component: AdminDashboardOverview, data: { section: 'admission-managers' } },
       { path: 'colleges', component: AdminDashboardOverview, data: { section: 'colleges' } },
       { path: 'users', component: AdminDashboardOverview, data: { section: 'users' } },
-      { path: 'applications', component: AdminDashboardOverview, data: { section: 'applications' } },
       { path: 'payments', component: AdminDashboardOverview, data: { section: 'payments' } },
       { path: 'reports', component: AdminDashboardOverview, data: { section: 'reports' } },
       { path: 'agent-registration', component: AdminAgentRegistration, data: { section: 'agents' } },
@@ -60,7 +65,8 @@ const routes: Routes = [
       { path: 'active-admission-manager', component: ActiveAdmissionManager },
       { path: 'student-agent-details', component: StudentAgentDetails },
       { path: 'all-agent-details', component: AllAgentDetails },
-      { path: 'update-agent-access', component: UpdateAgentAccess }
+      { path: 'update-agent-access', component: UpdateAgentAccess },
+      { path: 'system-activity', component: SystemActivityLogs }
     ]
   },
 

@@ -25,6 +25,14 @@
     </div>
   </div>
 
+  <!-- Premium Spinner Overlay -->
+  <div class="system-activity-spinner-overlay" *ngIf="showSystemActivitySpinner">
+    <div class="premium-spinner-container">
+      <div class="premium-thin-spinner"></div>
+      <div class="loading-text">Loading Activity Logs...</div>
+    </div>
+  </div>
+
   <!-- Sidebar -->
   <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
     <div class="sidebar-header">
@@ -74,4 +82,64 @@
       <router-outlet></router-outlet>
     </div>
   </main>
+
+  <!-- Premium System Configuration Floating Menu -->
+  <div class="sys-config-container">
+    <!-- Menu Options -->
+    <div class="sys-config-menu" [class.active]="isConfigOpen">
+      <ul class="sys-menu-list">
+        <li class="sys-menu-item" (click)="handleOption('System Activity')">
+          <span class="sys-label">System Activity</span>
+          <div class="sys-icon-wrapper">
+            <i-lucide name="activity" size="20"></i-lucide>
+          </div>
+        </li>
+        <li class="sys-menu-item" (click)="handleOption('Search')">
+          <span class="sys-label">Search</span>
+          <div class="sys-icon-wrapper">
+            <i-lucide name="search" size="20"></i-lucide>
+          </div>
+        </li>
+        <li class="sys-menu-item" (click)="handleOption('System Dashboard')">
+          <span class="sys-label">System Dashboard</span>
+          <div class="sys-icon-wrapper">
+            <i-lucide name="layout-dashboard" size="20"></i-lucide>
+          </div>
+        </li>
+        <li class="sys-menu-item" (click)="handleOption('Application Restart')">
+          <span class="sys-label">Application Restart</span>
+          <div class="sys-icon-wrapper">
+            <i-lucide name="refresh-cw" size="20"></i-lucide>
+          </div>
+        </li>
+        <li class="sys-menu-item" (click)="handleOption('Logo Configuration')">
+          <span class="sys-label">Logo Configuration</span>
+          <div class="sys-icon-wrapper">
+            <i-lucide name="image" size="20"></i-lucide>
+          </div>
+        </li>
+        <li class="sys-menu-item" (click)="handleOption('Sessions')">
+          <span class="sys-label">Sessions</span>
+          <div class="sys-icon-wrapper">
+            <i-lucide name="calendar" size="20"></i-lucide>
+          </div>
+        </li>
+        <li class="sys-menu-item" (click)="handleOption('Settings')">
+          <span class="sys-label">Settings</span>
+          <div class="sys-icon-wrapper">
+            <i-lucide name="settings" size="20"></i-lucide>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Main Floating Button -->
+    <button class="sys-config-fab" (click)="toggleConfigMenu()" [class.active]="isConfigOpen">
+      <div class="fab-content">
+        <i-lucide name="settings" size="24" class="fab-icon main-icon" *ngIf="!isConfigOpen"></i-lucide>
+        <i-lucide name="x" size="24" class="fab-icon close-icon" *ngIf="isConfigOpen"></i-lucide>
+      </div>
+      <div class="fab-ripple"></div>
+    </button>
+  </div>
 </div>

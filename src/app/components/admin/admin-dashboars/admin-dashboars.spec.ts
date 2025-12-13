@@ -10,7 +10,7 @@ describe('AdminDashboars', () => {
     await TestBed.configureTestingModule({
       declarations: [AdminDashboars]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AdminDashboars);
     component = fixture.componentInstance;
