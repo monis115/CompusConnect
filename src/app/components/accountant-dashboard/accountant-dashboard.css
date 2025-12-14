@@ -5697,3 +5697,890 @@ textarea {
     color: #92400E;
     font-weight: 500;
 }
+
+/* ============================================
+   HISTORY MODAL STYLES (Appended Fix)
+   ============================================ */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: white;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: scaleIn 0.3s var(--ease-spring);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, #ffffff, #f8fafc);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: 70vh;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: #f8fafc;
+}
+
+.close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: #f1f5f9;
+    color: #ef4444;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ==========================================================================
+   PREMIUM FUND REQUEST TABLE - Modern Financial Dashboard Aesthetic
+   ========================================================================== */
+
+.fund-request-container {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 10px 20px -5px rgba(0, 0, 0, 0.05),
+        0 1px 3px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+    position: relative;
+}
+
+.fund-request-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,
+            #4f46e5 0%,
+            #7c3aed 25%,
+            #06b6d4 50%,
+            #10b981 75%,
+            #4f46e5 100%);
+    background-size: 200% 100%;
+    animation: premiumShimmer 4s linear infinite;
+}
+
+@keyframes premiumShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Table Header */
+.fund-request-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.fund-request-header h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.fund-request-header h3 i {
+    color: #4f46e5;
+    font-size: 1.1rem;
+}
+
+.fund-request-header .refresh-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fund-request-header .refresh-btn:hover {
+    border-color: #4f46e5;
+    color: #4f46e5;
+    background: #eef2ff;
+    transform: rotate(90deg);
+}
+
+/* Premium Table Styles */
+.fund-request-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.fund-request-table thead tr {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.fund-request-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 2px solid rgba(79, 70, 229, 0.12);
+    position: relative;
+    white-space: nowrap;
+}
+
+.fund-request-table th:first-child {
+    padding-left: 20px;
+}
+
+.fund-request-table th:last-child {
+    padding-right: 20px;
+    text-align: right;
+}
+
+/* Animated underline on hover */
+.fund-request-table th::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.fund-request-table th:hover::after {
+    width: 80%;
+}
+
+/* Table Body */
+.fund-request-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.fund-request-table tbody tr:nth-child(odd) {
+    background: #ffffff;
+}
+
+.fund-request-table tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+.fund-request-table tbody tr:hover {
+    background: #f8f9ff;
+}
+
+.fund-request-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    vertical-align: middle;
+    font-size: 0.9rem;
+    color: #374151;
+    transition: all 0.3s ease;
+}
+
+.fund-request-table td:first-child {
+    padding-left: 20px;
+}
+
+.fund-request-table td:last-child {
+    padding-right: 20px;
+    text-align: right;
+}
+
+.fund-request-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Request ID Badge */
+.fund-id-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    border-radius: 8px;
+    font-family: 'SF Mono', 'Roboto Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4f46e5;
+    border: 1px solid rgba(79, 70, 229, 0.15);
+    transition: all 0.25s ease;
+}
+
+.fund-id-badge:hover {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    transform: scale(1.02);
+}
+
+/* Requester Info Cell */
+.fund-requester-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.fund-requester-info .name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.9rem;
+}
+
+.fund-requester-info .meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.fund-requester-info .role-tag {
+    padding: 2px 8px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.7rem;
+    color: #374151;
+}
+
+/* Purpose Cell */
+.fund-purpose-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.fund-purpose-cell .purpose-text {
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.fund-purpose-cell .payment-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 5px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #1d4ed8;
+    width: fit-content;
+}
+
+.fund-purpose-cell .date-text {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+/* Amount Cells */
+.fund-amount {
+    font-weight: 700;
+    font-size: 0.95rem;
+    font-family: 'SF Mono', 'Roboto Mono', monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+.fund-amount.requested {
+    color: #1e293b;
+}
+
+.fund-amount.paid {
+    color: #059669;
+}
+
+.fund-amount.pending {
+    color: #d97706;
+}
+
+.fund-paid-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.fund-paid-cell .txn-id {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Roboto Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #047857;
+    width: fit-content;
+}
+
+.fund-paid-cell .payment-date {
+    font-size: 0.7rem;
+    color: #6b7280;
+}
+
+/* Premium Status Badges */
+.fund-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.25s ease;
+}
+
+.fund-status-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(1.2);
+    }
+}
+
+.fund-status-badge.status-pending {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    color: #b45309;
+    border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.fund-status-badge.status-pending::before {
+    background: #f59e0b;
+}
+
+.fund-status-badge.status-partial {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    color: #c2410c;
+    border: 1px solid rgba(234, 88, 12, 0.2);
+}
+
+.fund-status-badge.status-partial::before {
+    background: #ea580c;
+}
+
+.fund-status-badge.status-paid {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    color: #047857;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.fund-status-badge.status-paid::before {
+    background: #10b981;
+    animation: none;
+}
+
+.fund-status-badge.status-rejected {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #b91c1c;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.fund-status-badge.status-rejected::before {
+    background: #ef4444;
+    animation: none;
+}
+
+/* Balance Remaining */
+.fund-balance-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #b45309;
+}
+
+.fund-balance-tag i {
+    font-size: 0.65rem;
+}
+
+/* Action Buttons */
+.fund-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.fund-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    font-family: inherit;
+}
+
+.fund-action-btn.primary {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+}
+
+.fund-action-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+}
+
+.fund-action-btn.primary:disabled {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.fund-action-btn.secondary {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: #4f46e5;
+    border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.fund-action-btn.secondary:hover {
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    border-color: #4f46e5;
+    transform: translateY(-1px);
+}
+
+.fund-action-btn.success {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.fund-action-btn.success:hover {
+    background: #10b981;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.fund-history-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #c7d2fe;
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.fund-history-btn:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    border-color: transparent;
+    transform: scale(1.08);
+}
+
+/* Empty State */
+.fund-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+    text-align: center;
+}
+
+.fund-empty-state .empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.fund-empty-state .empty-icon i {
+    font-size: 24px;
+    color: #94a3b8;
+}
+
+.fund-empty-state h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #475569;
+    margin: 0 0 6px;
+}
+
+.fund-empty-state p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+/* Responsive Animation for Table Rows */
+@keyframes tableRowFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fund-request-table tbody tr {
+    animation: tableRowFadeIn 0.4s ease forwards;
+}
+
+.fund-request-table tbody tr:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.fund-request-table tbody tr:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.fund-request-table tbody tr:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.fund-request-table tbody tr:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.fund-request-table tbody tr:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.fund-request-table tbody tr:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.fund-request-table tbody tr:nth-child(7) {
+    animation-delay: 0.35s;
+}
+
+.fund-request-table tbody tr:nth-child(8) {
+    animation-delay: 0.4s;
+}
+
+.fund-request-table tbody tr:nth-child(9) {
+    animation-delay: 0.45s;
+}
+
+.fund-request-table tbody tr:nth-child(10) {
+    animation-delay: 0.5s;
+}
+
+/* ==========================================================================
+   SIDE-BY-SIDE QR CODE LAYOUT
+   ========================================================================== */
+.payment-details-row {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.qr-side-panel {
+    width: 160px;
+    min-width: 160px;
+    background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1px solid #86efac;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.qr-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #16a34a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.qr-panel-header i {
+    font-size: 14px;
+}
+
+.qr-panel-image {
+    background: white;
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.qr-panel-image img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.qr-scan-hint {
+    font-size: 0.7rem;
+    color: #16a34a;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+/* Purple Action Icon */
+.action-icon.purple {
+    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25);
+}
+/* ==========================================================================
+   LARGE QR SCAN PANEL (BESIDE MODAL)
+   ========================================================================== */
+.fund-payment-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    max-width: 900px;
+}
+
+.fund-modal-main {
+    flex: 1;
+    max-width: 480px;
+}
+
+.qr-scan-panel {
+    width: 280px;
+    min-width: 280px;
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.qr-scan-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #16a34a;
+}
+
+.qr-scan-header i {
+    font-size: 1.3rem;
+}
+
+.qr-scan-image {
+    background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 3px solid #86efac;
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.qr-scan-image img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.qr-scan-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+}
+
+.qr-scan-info .qr-amount {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #16a34a;
+}
+
+.qr-scan-info .qr-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    max-width: 220px;
+    word-break: break-word;
+}
+
+/* Make QR panel match form height */
+.fund-payment-wrapper {
+    align-items: stretch !important;
+}
+
+.qr-scan-panel {
+    width: 320px !important;
+    min-width: 320px !important;
+    justify-content: center;
+    padding: 32px !important;
+}
+
+.qr-scan-header {
+    font-size: 1.2rem !important;
+}
+
+.qr-scan-image {
+    padding: 24px !important;
+}
+
+.qr-scan-image img {
+    width: 240px !important;
+    height: 240px !important;
+}
+
+.qr-scan-info .qr-amount {
+    font-size: 1.6rem !important;
+}
+
+/* Fund Count Badge */
+.fund-count-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 12px;
+    vertical-align: middle;
+}
+
+.fund-count-badge.pending {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #b45309;
+}
+
+.fund-count-badge.paid {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #047857;
+}

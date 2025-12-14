@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil, finalize, interval } from 'rxjs';
@@ -14,6 +14,7 @@ import {
   RecentActivity,
   AssignedStudent
 } from '../../services/accountant.service';
+import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
 
 @Component({
   selector: 'app-accountant-dashboard',
@@ -80,8 +81,26 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   };
 
   // UI State
-  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' = 'dashboard';
+  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' = 'dashboard';
   isSidebarCollapsed = false;
+
+  // History Modal State
+  showHistoryModal: boolean = false;
+  selectedHistoryRequest: any = null;
+
+  openHistoryModal(req: any): void {
+    this.selectedHistoryRequest = req;
+    this.showHistoryModal = true;
+  }
+
+  closeHistoryModal(): void {
+    this.showHistoryModal = false;
+    this.selectedHistoryRequest = null;
+  }
+
+  getPendingAmount(req: any): number {
+    return (req.remainingAmount !== undefined) ? req.remainingAmount : Math.max(0, (req.requestedAmount || 0) - (req.amountPaid || 0));
+  }
   isLoading = true;
   isRefreshing = false;
   isSubmitting = false;
@@ -134,7 +153,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     private accountantService: AccountantService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private http: HttpClient
+    private http: HttpClient,
+    @Inject(PaymentRequestService) private paymentRequestService: PaymentRequestService
   ) { }
 
   ngOnInit(): void {
@@ -346,10 +366,14 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // --- Navigation ---
 
-  switchView(view: typeof this.activeView): void {
+  switchView(view: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds'): void {
     this.activeView = view;
     this.searchTerm = '';
-    this.filterStudents();
+    if (view === 'funds') {
+      this.loadFundRequests();
+    } else {
+      this.filterStudents();
+    }
     this.cdr.detectChanges();
   }
 
@@ -610,7 +634,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     return `http://localhost:8080/${path}`;
   }
 
-  formatCurrency(amount: number | null): string {
+  formatCurrency(amount: number | null | undefined): string {
     if (amount === null || amount === undefined) return '$0';
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -619,7 +643,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }).format(amount);
   }
 
-  formatDate(date: string | null): string {
+  formatDate(date: string | null | undefined): string {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString('en-IN', {
       year: 'numeric',
@@ -968,5 +992,136 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   logout(): void {
     this.openLogoutModal();
+    this.showSendBankDetailsModal = false;
+    this.cdr.detectChanges();
+  }
+
+  // ============================================
+  // FUND REQUESTS (REQUESTED MONEY)
+  // ============================================
+  fundRequests: PaymentRequest[] = [];
+  filteredFundRequests: PaymentRequest[] = [];
+  selectedFundRequest: PaymentRequest | null = null;
+  showFundPaymentModal = false;
+
+  fundPaymentForm = {
+    amountPaid: 0,
+    transactionId: '',
+    paymentMode: 'CASH'
+  };
+  isFundSubmitting = false;
+
+  loadFundRequests(): void {
+    this.isLoading = true;
+    this.cdr.detectChanges();
+    this.paymentRequestService.getAllRequests().subscribe({
+      next: (data) => {
+        this.fundRequests = data;
+        // Compute stats or remaining amounts if not from backend
+        this.fundRequests.forEach(req => {
+          if (req.remainingAmount === undefined) {
+            req.remainingAmount = (req.requestedAmount || 0) - (req.amountPaid || 0);
+          }
+        });
+        this.filteredFundRequests = [...this.fundRequests];
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading fund requests', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getFundRequestById(id: number): void {
+    // Refresh specific request details for the modal
+    // Ideally backend endpoint /api/request-money/{id} exists, but if not we reload all or use existing
+    // For now, let's assume we reload all to be safe or use what we have, 
+    // but the "Add Payment" modal needs up-to-date transactions.
+    // If no single GET, we might need to rely on the list or reload list.
+    // Let's reload list silently if needed, or just trust the list data if it includes transactions now.
+    // Assuming getAllRequests returns transactions array now.
+  }
+
+  openFundPaymentModal(request: PaymentRequest): void {
+    this.selectedFundRequest = request;
+    // Default to remaining amount
+    const remaining = request.remainingAmount !== undefined ? request.remainingAmount : ((request.requestedAmount || 0) - (request.amountPaid || 0));
+
+    this.fundPaymentForm = {
+      amountPaid: remaining > 0 ? remaining : 0,
+      transactionId: '',
+      paymentMode: 'CASH'
+    };
+    this.showFundPaymentModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeFundPaymentModal(): void {
+    this.showFundPaymentModal = false;
+    this.selectedFundRequest = null;
+    this.cdr.detectChanges();
+  }
+
+  submitFundPayment(): void {
+    if (!this.selectedFundRequest || !this.selectedFundRequest.id) return;
+
+    // Validation
+    if (this.fundPaymentForm.paymentMode === 'ONLINE' && !this.fundPaymentForm.transactionId) {
+      alert('Transaction ID is required for online payments.');
+      return;
+    }
+    if (this.fundPaymentForm.amountPaid <= 0) {
+      alert('Please enter a valid amount.');
+      return;
+    }
+
+    const remaining = this.selectedFundRequest.remainingAmount !== undefined
+      ? this.selectedFundRequest.remainingAmount
+      : ((this.selectedFundRequest.requestedAmount || 0) - (this.selectedFundRequest.amountPaid || 0));
+
+    if (this.fundPaymentForm.amountPaid > remaining) {
+      alert(`Amount cannot exceed the remaining balance of ₹${remaining}`);
+      return;
+    }
+
+    this.isFundSubmitting = true;
+    const payload = {
+      amountPaid: this.fundPaymentForm.amountPaid,
+      accountantPaymentMode: this.fundPaymentForm.paymentMode, // Mapped to paymentMode in backend Transaction
+      transactionId: this.fundPaymentForm.paymentMode === 'CASH' ? null : this.fundPaymentForm.transactionId
+    };
+
+    this.paymentRequestService.payRequest(this.selectedFundRequest.id, payload).subscribe({
+      next: () => {
+        this.showSuccess('Payment recorded successfully');
+        this.closeFundPaymentModal();
+        this.loadFundRequests();
+        this.isFundSubmitting = false;
+      },
+      error: (err) => {
+        console.error('Error processing payment', err);
+        this.isFundSubmitting = false;
+        alert('Failed to process payment');
+      }
+    });
+  }
+
+  getFundStatusClass(status: string | undefined): string {
+    if (!status) return 'status-default';
+    switch (status) {
+      case 'PENDING': return 'status-warning';
+      case 'PAID': return 'status-success';
+      case 'PARTIAL': return 'status-info';
+      case 'REJECTED': return 'status-danger';
+      default: return 'status-default';
+    }
+  }
+
+  // Count of pending/partial fund requests (not fully paid)
+  get pendingFundRequestsCount(): number {
+    return this.fundRequests.filter(r => r.status === 'PENDING' || r.status === 'PARTIAL').length;
   }
 }

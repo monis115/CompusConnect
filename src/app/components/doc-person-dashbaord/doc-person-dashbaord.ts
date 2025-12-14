@@ -19,6 +19,7 @@ import {
   bounceAnimation,
   slideUpAnimation
 } from './animations';
+import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
 
 @Component({
   selector: 'app-doc-person-dashbaord',
@@ -38,15 +39,19 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // STATE MANAGEMENT
   // ============================================
-  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' = 'dashboard';
+  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' = 'dashboard';
   isLoading: boolean = false;
   isLoggingOut: boolean = false;
   isDarkMode: boolean = false;
 
-  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile'): void {
+  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds'): void {
     this.activeTab = tab;
     this.pagination.currentPage = 1; // Reset pagination
+    this.pagination.currentPage = 1; // Reset pagination
     this.applyFilters(); // Re-apply filters based on the new tab
+    if (tab === 'funds') {
+      this.loadMyRequests();
+    }
     this.cdr.detectChanges();
   }
 
@@ -187,13 +192,17 @@ export class DocPersonDashbaord implements OnInit {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private renderer: Renderer2,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private paymentRequestService: PaymentRequestService
   ) { }
 
   ngOnInit(): void {
     this.fetchDashboardData();
     this.loadDarkModePreference();
     this.initializeKeyboardShortcuts();
+    if (this.activeTab === 'funds') {
+      this.loadMyRequests();
+    }
   }
 
   // ============================================
@@ -1088,5 +1097,223 @@ export class DocPersonDashbaord implements OnInit {
       this.filters.statusFilter = 'all';
     }
     this.applyFilters();
+  }
+
+  // ============================================
+  // FUND REQUESTS
+  // ============================================
+  fundRequestForm = {
+    amount: null,
+    purpose: '',
+    paymentMode: 'UPI',
+    // Specific fields
+    upiId: '',
+    accountNumber: '',
+    confirmAccountNumber: '',
+    accountHolderName: '',
+    ifscCode: '',
+    branchName: '',
+    // Processed field
+    bankDetails: '',
+    qrCodeBase64: ''
+  };
+  qrCodePreview: string | ArrayBuffer | null = null;
+  isQrUploading: boolean = false;
+  myFundRequests: any[] = [];
+  isFundSubmitting: boolean = false;
+
+  // History Modal State
+  showHistoryModal: boolean = false;
+  selectedHistoryRequest: any = null;
+  showFundRequestModal: boolean = false;
+
+  openHistoryModal(req: any): void {
+    this.selectedHistoryRequest = req;
+    this.showHistoryModal = true;
+  }
+
+  closeHistoryModal(): void {
+    this.showHistoryModal = false;
+    this.selectedHistoryRequest = null;
+  }
+
+  getPendingAmount(req: any): number {
+    return (req.remainingAmount !== undefined) ? req.remainingAmount : Math.max(0, (req.requestedAmount || 0) - (req.amountPaid || 0));
+  }
+
+  onQrCodeSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 1024 * 1024 * 5) { // 5MB limit catch
+        this.showToast('error', 'File size too large. Max 5MB.');
+        return;
+      }
+
+      this.isQrUploading = true;
+      this.resizeImage(file, 800, 800).then(
+        (resizedBase64: string) => {
+          this.qrCodePreview = resizedBase64;
+          this.fundRequestForm.qrCodeBase64 = resizedBase64;
+          this.isQrUploading = false;
+          this.cdr.detectChanges();
+        },
+        (err) => {
+          console.error('Image resize error', err);
+          this.showToast('error', 'Failed to process image.');
+          this.isQrUploading = false;
+          this.cdr.detectChanges();
+        }
+      );
+    }
+  }
+
+  private resizeImage(file: File, maxWidth: number, maxHeight: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event: any) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const elem = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+          elem.width = width;
+          elem.height = height;
+          const ctx = elem.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          // Compress to 0.7 quality
+          resolve(elem.toDataURL('image/jpeg', 0.7));
+        };
+        img.onerror = error => reject(error);
+      };
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  submitFundRequest(): void {
+    if (!this.fundRequestForm.amount || !this.fundRequestForm.purpose) {
+      this.showToast('error', 'Please fill in amount and purpose.');
+      return;
+    }
+
+    // Validate based on mode
+    let detailsString = '';
+
+    if (this.fundRequestForm.paymentMode === 'UPI') {
+      if (!this.fundRequestForm.upiId) {
+        this.showToast('error', 'Please enter UPI ID.');
+        return;
+      }
+      detailsString = `UPI ID: ${this.fundRequestForm.upiId}`;
+    } else {
+      // Bank Transfer
+      if (!this.fundRequestForm.accountNumber ||
+        !this.fundRequestForm.accountHolderName ||
+        !this.fundRequestForm.ifscCode ||
+        !this.fundRequestForm.branchName) {
+        this.showToast('error', 'Please fill all bank details.');
+        return;
+      }
+      if (this.fundRequestForm.accountNumber !== this.fundRequestForm.confirmAccountNumber) {
+        this.showToast('error', 'Account numbers do not match.');
+        return;
+      }
+      detailsString = `Bank Transfer
+Account Holder: ${this.fundRequestForm.accountHolderName}
+Account No: ${this.fundRequestForm.accountNumber}
+IFSC: ${this.fundRequestForm.ifscCode}
+Branch: ${this.fundRequestForm.branchName}`;
+    }
+
+    const username = sessionStorage.getItem('username') || 'DOC_001';
+    const fullName = this.docPerson?.fullName || this.docPerson?.fullName || username;
+
+    const request: PaymentRequest = {
+      requesterUsername: username,
+      requesterFullName: fullName,
+      requesterRole: 'DocPerson',
+      purpose: this.fundRequestForm.purpose,
+      requestedAmount: this.fundRequestForm.amount,
+      requesterPaymentMode: this.fundRequestForm.paymentMode,
+      bankDetails: detailsString,
+      qrCode: this.fundRequestForm.qrCodeBase64
+    };
+
+    this.isFundSubmitting = true;
+    this.paymentRequestService.createRequest(request)
+      .subscribe({
+        next: (res) => {
+          this.isFundSubmitting = false;
+          this.showToast('success', 'Fund request submitted successfully!');
+          this.resetFundForm();
+          this.loadMyRequests();
+        },
+        error: (err) => {
+          this.isFundSubmitting = false;
+          console.error('Error submitting fund request', err);
+          this.showToast('error', 'Failed to submit request. Please try again.');
+        }
+      });
+  }
+
+  resetFundForm(): void {
+    this.fundRequestForm = {
+      amount: null,
+      purpose: '',
+      paymentMode: 'UPI',
+      upiId: '',
+      accountNumber: '',
+      confirmAccountNumber: '',
+      accountHolderName: '',
+      ifscCode: '',
+      branchName: '',
+      bankDetails: '',
+      qrCodeBase64: ''
+    };
+    this.qrCodePreview = null;
+  }
+
+  loadMyRequests(): void {
+    const username = sessionStorage.getItem('username') || 'DOC_001'; // Ensure fallback for dev
+    this.isLoading = true;
+    this.paymentRequestService.getRequestsByUsername(username)
+      .subscribe({
+        next: (requests) => {
+          this.myFundRequests = requests;
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading fund requests', err);
+          this.isLoading = false;
+          // Don't show critical error for empty list on dev
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  getFundStatusClass(status: string): string {
+    switch (status) {
+      case 'PENDING': return 'status-pending';
+      case 'PAID': return 'status-approved';
+      case 'PARTIAL': return 'status-warning';
+      case 'REJECTED': return 'status-rejected';
+      default: return '';
+    }
+  }
+
+  // Count of paid or partially paid fund requests
+  get paidFundRequestsCount(): number {
+    return this.myFundRequests.filter(r => r.status === 'PAID' || r.status === 'PARTIAL').length;
   }
 }

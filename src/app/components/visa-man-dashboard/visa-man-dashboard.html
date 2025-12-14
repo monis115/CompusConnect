@@ -48,6 +48,14 @@
                 <span>Pipeline</span>
             </div>
 
+            <div class="nav-item" [class.active]="activeSection === 'funds'" (click)="setActiveSection('funds')">
+                <i>💰</i>
+                <span>Fund Requests</span>
+                <span class="nav-badge-count" *ngIf="paidFundRequestsCount > 0">{{paidFundRequestsCount}}</span>
+            </div>
+
+
+
             <div class="nav-item" [class.active]="activeSection === 'students'" (click)="setActiveSection('students')">
                 <i>👥</i>
                 <span>All Students</span>
@@ -90,6 +98,7 @@
                     <span *ngIf="activeSection === 'actions'">Actions Required</span>
                     <span *ngIf="activeSection === 'pipeline'">Visa Pipeline</span>
                     <span *ngIf="activeSection === 'students'">All Students</span>
+                    <span *ngIf="activeSection === 'funds'">Fund Requests</span>
                 </h1>
                 <p>{{ getCurrentDate() }}</p>
             </div>
@@ -436,8 +445,315 @@
                 </div>
             </ng-container>
 
+            <!-- ============================================
+           FUNDS SECTION
+           ============================================ -->
+            <!-- ============================================
+           FUNDS SECTION - LIGHT THEME
+           ============================================ -->
+            <ng-container *ngIf="activeSection === 'funds'">
+                <div class="funds-view-light">
+                    <!-- Header with New Request Button -->
+                    <div class="funds-header-light">
+                        <div class="funds-title-light">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <h3>My Fund Requests</h3>
+                            <span class="fund-count-badge paid"
+                                *ngIf="paidFundRequestsCount > 0">{{paidFundRequestsCount}} Paid</span>
+                        </div>
+                        <div class="funds-actions-light">
+                            <button class="refresh-btn-light" (click)="loadMyRequests()" title="Refresh">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="new-request-btn-light" (click)="showFundRequestModal = true">
+                                <i class="fas fa-plus"></i>
+                                <span>New Request</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Requests Table - Full Width -->
+                    <div class="funds-table-card-light">
+                        <table class="funds-table-light">
+                            <thead>
+                                <tr>
+                                    <th style="width: 70px;">ID</th>
+                                    <th>Purpose</th>
+                                    <th style="width: 140px;">Amount</th>
+                                    <th style="width: 110px;">Status</th>
+                                    <th style="width: 120px;">Date</th>
+                                    <th style="width: 80px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let req of myFundRequests">
+                                    <td>
+                                        <span class="id-pill-light">#{{req.id}}</span>
+                                    </td>
+                                    <td>
+                                        <div class="purpose-cell-light">
+                                            <span class="purpose-text">{{req.purpose}}</span>
+                                            <span class="mode-tag-light"
+                                                [class.upi]="req.requesterPaymentMode === 'UPI'"
+                                                [class.bank]="req.requesterPaymentMode === 'BANK_TRANSFER'">
+                                                <i class="fas"
+                                                    [ngClass]="req.requesterPaymentMode === 'UPI' ? 'fa-mobile-alt' : 'fa-university'"></i>
+                                                {{req.requesterPaymentMode === 'BANK_TRANSFER' ? 'Bank' :
+                                                req.requesterPaymentMode}}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="amount-cell-light">
+                                            <span class="amount-main">₹{{req.requestedAmount | number}}</span>
+                                            <span *ngIf="req.status === 'PAID'" class="amount-paid">
+                                                Paid: ₹{{req.amountPaid | number}}
+                                            </span>
+                                            <span *ngIf="req.status === 'PARTIAL'" class="amount-pending">
+                                                ₹{{req.remainingAmount || ((req.requestedAmount || 0) - (req.amountPaid
+                                                || 0))}} pending
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge-light" [ngClass]="{
+                                            'pending': req.status === 'PENDING',
+                                            'partial': req.status === 'PARTIAL',
+                                            'paid': req.status === 'PAID',
+                                            'rejected': req.status === 'REJECTED'
+                                        }">{{req.status}}</span>
+                                    </td>
+                                    <td class="date-cell-light">
+                                        {{formatDate(req.createdAt)}}
+                                    </td>
+                                    <td>
+                                        <button class="history-btn-light" (click)="openHistoryModal(req)"
+                                            title="View History">
+                                            <i class="fas fa-history"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="myFundRequests.length === 0">
+                                    <td colspan="6">
+                                        <div class="empty-state-light">
+                                            <i class="fas fa-inbox"></i>
+                                            <h4>No Requests Found</h4>
+                                            <p>Click "New Request" to create your first fund request.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- FUND REQUEST MODAL - LIGHT THEME -->
+                <div class="fund-modal-overlay-light" *ngIf="showFundRequestModal"
+                    (click)="showFundRequestModal = false">
+                    <div class="fund-modal-light" (click)="$event.stopPropagation()">
+                        <div class="fund-modal-header-light">
+                            <h3><i class="fas fa-plus-circle"></i> New Fund Request</h3>
+                            <button class="close-btn-light" (click)="showFundRequestModal = false">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="fund-modal-body-light">
+                            <div class="form-row-light">
+                                <div class="form-group-light">
+                                    <label>Amount (₹) *</label>
+                                    <input type="number" [(ngModel)]="fundRequestForm.amount" name="amount"
+                                        placeholder="e.g. 5000" required>
+                                </div>
+                                <div class="form-group-light">
+                                    <label>Purpose *</label>
+                                    <input type="text" [(ngModel)]="fundRequestForm.purpose" name="purpose"
+                                        placeholder="e.g. Visa Application Fee" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group-light">
+                                <label>Payment Mode</label>
+                                <div class="payment-mode-options-light">
+                                    <label class="mode-option-light"
+                                        [class.selected]="fundRequestForm.paymentMode === 'UPI'">
+                                        <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode"
+                                            value="UPI">
+                                        <i class="fas fa-mobile-alt"></i>
+                                        <span>UPI</span>
+                                    </label>
+                                    <label class="mode-option-light"
+                                        [class.selected]="fundRequestForm.paymentMode === 'BANK_TRANSFER'">
+                                        <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode"
+                                            value="BANK_TRANSFER">
+                                        <i class="fas fa-university"></i>
+                                        <span>Bank Transfer</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- UPI Details -->
+                            <div *ngIf="fundRequestForm.paymentMode === 'UPI'" class="upi-section-light">
+                                <div class="form-group-light">
+                                    <label>UPI ID</label>
+                                    <input type="text" [(ngModel)]="fundRequestForm.upiId" name="upiId"
+                                        placeholder="e.g. name@paytm">
+                                </div>
+                                <div class="form-group-light">
+                                    <label>QR Code (Optional)</label>
+                                    <div class="qr-upload-light" (click)="qrInput.click()">
+                                        <i class="fas fa-qrcode"></i>
+                                        <span *ngIf="!isQrUploading && !qrCodePreview">Click to upload</span>
+                                        <span *ngIf="isQrUploading"><i class="fas fa-spinner fa-spin"></i>
+                                            Processing...</span>
+                                        <input #qrInput type="file" (change)="onQrCodeSelected($event)" accept="image/*"
+                                            hidden>
+                                    </div>
+                                    <div *ngIf="qrCodePreview" class="qr-preview-light">
+                                        <img [src]="qrCodePreview" alt="QR Preview">
+                                        <button type="button"
+                                            (click)="fundRequestForm.qrCodeBase64 = ''; qrCodePreview = null">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bank Details -->
+                            <div *ngIf="fundRequestForm.paymentMode === 'BANK_TRANSFER'" class="bank-section-light">
+                                <div class="form-group-light full-width">
+                                    <label>Account Holder Name</label>
+                                    <input type="text" [(ngModel)]="fundRequestForm.accountHolderName"
+                                        name="accountHolderName" placeholder="Name as per bank records">
+                                </div>
+                                <div class="form-row-light">
+                                    <div class="form-group-light">
+                                        <label>Account Number</label>
+                                        <input type="text" [(ngModel)]="fundRequestForm.accountNumber"
+                                            name="accountNumber" placeholder="Your account number">
+                                    </div>
+                                    <div class="form-group-light">
+                                        <label>Confirm Account No</label>
+                                        <input type="text" [(ngModel)]="fundRequestForm.confirmAccountNumber"
+                                            name="confirmAccountNumber" placeholder="Re-enter account number">
+                                    </div>
+                                </div>
+                                <div class="form-row-light">
+                                    <div class="form-group-light">
+                                        <label>IFSC Code</label>
+                                        <input type="text" [(ngModel)]="fundRequestForm.ifscCode" name="ifscCode"
+                                            placeholder="e.g. HDFC0001234">
+                                    </div>
+                                    <div class="form-group-light">
+                                        <label>Branch Name</label>
+                                        <input type="text" [(ngModel)]="fundRequestForm.branchName" name="branchName"
+                                            placeholder="e.g. Mumbai Main Branch">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="fund-modal-footer-light">
+                                <button type="button" class="cancel-btn-light"
+                                    (click)="showFundRequestModal = false">Cancel</button>
+                                <button type="button" class="submit-btn-light" (click)="submitFundRequest()"
+                                    [disabled]="isFundSubmitting">
+                                    <i class="fas"
+                                        [ngClass]="isFundSubmitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+                                    {{isFundSubmitting ? 'Submitting...' : 'Submit Request'}}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
         </div>
     </main>
+</div>
+
+<!-- ============================================
+     MODALS
+     ============================================ -->
+
+<!-- HISTORY MODAL -->
+<div class="modal-overlay detail-modal fund-history-modal" *ngIf="showHistoryModal" (click)="closeHistoryModal()">
+    <div class="modal-content" style="max-width: 600px;" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-history"></i> Payment History</h2>
+            <button class="modal-close" (click)="closeHistoryModal()">✕</button>
+        </div>
+        <div class="modal-body" *ngIf="selectedHistoryRequest">
+            <!-- Header Info -->
+            <div class="fund-modal-info">
+                <div class="fund-modal-info-item">
+                    <span class="label">Request ID</span>
+                    <span class="value mono">#{{selectedHistoryRequest.id}}</span>
+                </div>
+                <div class="fund-modal-info-item">
+                    <span class="label">Purpose</span>
+                    <span class="value">{{selectedHistoryRequest.purpose}}</span>
+                </div>
+                <div class="fund-modal-info-item">
+                    <span class="fund-status-pill" [ngClass]="{
+                            'status-pending': selectedHistoryRequest.status === 'PENDING',
+                            'status-partial': selectedHistoryRequest.status === 'PARTIAL',
+                            'status-paid': selectedHistoryRequest.status === 'PAID',
+                            'status-rejected': selectedHistoryRequest.status === 'REJECTED'
+                        }">
+                        {{selectedHistoryRequest.status}}
+                    </span>
+                </div>
+            </div>
+
+            <table class="fund-modal-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Mode</th>
+                        <th>Ref ID</th>
+                        <th style="text-align: right;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let txn of selectedHistoryRequest.transactions">
+                        <td>{{formatDate(txn.paymentDate)}}</td>
+                        <td>
+                            <span class="mode-badge"
+                                [style.background]="txn.paymentMode === 'CASH' ? 'rgba(255,255,255,0.1)' : 'rgba(59, 130, 246, 0.15)'"
+                                [style.color]="txn.paymentMode === 'CASH' ? 'var(--text-secondary)' : '#60a5fa'">
+                                {{txn.paymentMode}}
+                            </span>
+                        </td>
+                        <td style="font-family: monospace; color: var(--text-muted);">
+                            {{txn.transactionId || 'N/A'}}
+                        </td>
+                        <td class="amount-cell">
+                            ₹{{txn.amount | number}}
+                        </td>
+                    </tr>
+                    <tr *ngIf="!selectedHistoryRequest.transactions?.length">
+                        <td colspan="4"
+                            style="text-align: center; color: var(--text-muted); padding: 30px; font-style: italic;">
+                            No transactions found for this request.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Summary Footer -->
+            <div class="fund-modal-summary">
+                <div class="fund-modal-summary-item">
+                    <div class="label">Total Requested</div>
+                    <div class="value requested">₹{{selectedHistoryRequest.requestedAmount | number}}</div>
+                </div>
+                <div class="fund-modal-summary-item">
+                    <div class="label">Total Paid</div>
+                    <div class="value paid">₹{{selectedHistoryRequest.amountPaid | number}}</div>
+                </div>
+                <div class="fund-modal-summary-item">
+                    <div class="label">Pending</div>
+                    <div class="value pending">₹{{getPendingAmount(selectedHistoryRequest) | number}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ============================================
