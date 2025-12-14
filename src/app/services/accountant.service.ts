@@ -50,6 +50,7 @@ export interface Student {
     // Visa Payment Fields
     visaPaymentRequestedAmount?: number | null;
     visaPaymentRequestedCurrency?: string | null;
+    visaManServiceCharge?: number | null;
     visaPaymentTxId?: string | null;
     visaPaymentConfirmationPath?: string | null;
 }
@@ -122,6 +123,7 @@ export interface AssignedStudent {
     // Visa Payment Fields
     visaPaymentRequestedAmount?: number | null;
     visaPaymentRequestedCurrency?: string | null;
+    visaManServiceCharge?: number | null;
     visaPaymentTxId?: string | null;
     visaPaymentConfirmationPath?: string | null;
 }

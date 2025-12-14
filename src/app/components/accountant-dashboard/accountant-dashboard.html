@@ -664,7 +664,8 @@
                                     <div class="pvc-body">
                                         <div class="pvc-amount-row">
                                             <span class="pvc-label">Requested Amount</span>
-                                            <span class="pvc-amount visa">{{student.visaPaymentRequestedAmount || 0}}
+                                            <span class="pvc-amount visa">{{(student.visaPaymentRequestedAmount || 0) +
+                                                (student.visaManServiceCharge || 0)}}
                                                 {{student.visaPaymentRequestedCurrency || 'USD'}}</span>
                                         </div>
                                     </div>
@@ -707,7 +708,8 @@
                                     <div class="pvc-body">
                                         <div class="pvc-amount-row">
                                             <span class="pvc-label">Expected Amount</span>
-                                            <span class="pvc-amount confirm">{{student.visaPaymentRequestedAmount || 0}}
+                                            <span class="pvc-amount confirm">{{(student.visaPaymentRequestedAmount || 0)
+                                                + (student.visaManServiceCharge || 0)}}
                                                 {{student.visaPaymentRequestedCurrency || 'USD'}}</span>
                                         </div>
                                         <div class="pvc-tx-id" *ngIf="student.visaPaymentTxId">
@@ -1433,10 +1435,27 @@
                             <line x1="12" y1="16" x2="12.01" y2="16"></line>
                         </svg>
                     </div>
-                    <div class="info-box-content">
-                        <span class="info-box-label">Requested by Visa Manager</span>
-                        <span class="info-box-value">{{selectedStudent?.visaPaymentRequestedAmount}}
-                            {{selectedStudent?.visaPaymentRequestedCurrency}}</span>
+                    <div class="info-box-content" style="width: 100%;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span class="info-box-label">Visa Fee:</span>
+                            <span class="info-box-value">{{selectedStudent?.visaPaymentRequestedAmount}}
+                                {{selectedStudent?.visaPaymentRequestedCurrency}}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"
+                            *ngIf="selectedStudent?.visaManServiceCharge">
+                            <span class="info-box-label">Service Charge:</span>
+                            <span class="info-box-value">{{selectedStudent?.visaManServiceCharge}}
+                                {{selectedStudent?.visaPaymentRequestedCurrency}}</span>
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 4px; margin-top: 4px;">
+                            <span class="info-box-label" style="font-weight: 600;">Total Requested:</span>
+                            <span class="info-box-value"
+                                style="font-weight: 600; color: #059669;">{{(selectedStudent?.visaPaymentRequestedAmount
+                                ||
+                                0) + (selectedStudent?.visaManServiceCharge || 0)}}
+                                {{selectedStudent?.visaPaymentRequestedCurrency}}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1611,7 +1630,8 @@
                 <div class="visa-details-box">
                     <div class="detail-row">
                         <span class="detail-label">Expected Amount</span>
-                        <span class="detail-value highlight">{{selectedStudent?.visaPaymentRequestedAmount || 0}}
+                        <span class="detail-value highlight">{{(selectedStudent?.visaPaymentRequestedAmount || 0) +
+                            (selectedStudent?.visaManServiceCharge || 0)}}
                             {{selectedStudent?.visaPaymentRequestedCurrency || 'USD'}}</span>
                     </div>
                     <div class="detail-row" *ngIf="selectedStudent?.visaPaymentTxId">

@@ -247,6 +247,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
               actionOnUser: s.actionOnUser,
               visaPaymentRequestedAmount: s.visaPaymentRequestedAmount,
               visaPaymentRequestedCurrency: s.visaPaymentRequestedCurrency,
+              visaManServiceCharge: s.visaManServiceCharge,
               visaPaymentTxId: s.visaPaymentTxId,
               visaPaymentConfirmationPath: s.visaPaymentConfirmationPath
             }));
@@ -308,6 +309,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
             actionOnUser: (s as any).actionOnUser,
             visaPaymentRequestedAmount: (s as any).visaPaymentRequestedAmount,
             visaPaymentRequestedCurrency: (s as any).visaPaymentRequestedCurrency,
+            visaManServiceCharge: (s as any).visaManServiceCharge,
             visaPaymentTxId: (s as any).visaPaymentTxId,
             visaPaymentConfirmationPath: (s as any).visaPaymentConfirmationPath
           }));
@@ -806,8 +808,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
    * Open modal to send bank details to agent
    */
   openSendBankDetailsModal(student: any): void {
+    console.log('Sending Bank Details for Student:', student); // DEBUG: Check if visaManServiceCharge is present
     this.selectedStudent = student;
-    this.bankDetailsAmount = student.visaPaymentRequestedAmount || 0;
+    // Calculate total: Requested Visa Fee + Service Charge
+    const visaFee = student.visaPaymentRequestedAmount || 0;
+    const serviceCharge = student.visaManServiceCharge || 0;
+    this.bankDetailsAmount = visaFee + serviceCharge;
+
     this.bankDetailsCurrency = student.visaPaymentRequestedCurrency || 'USD';
     // Reset bank details form
     this.bankName = '';

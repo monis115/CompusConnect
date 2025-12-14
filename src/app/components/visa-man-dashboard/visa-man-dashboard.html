@@ -393,7 +393,10 @@
                                 <th>Student</th>
                                 <th>Application ID</th>
                                 <th>Passport</th>
+
                                 <th>Telex Number</th>
+                                <th>Visa Fee</th>
+                                <th>Service Charge</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -413,6 +416,19 @@
                                     </div>
                                 </td>
                                 <td>{{ student.telexNumber || 'Not Issued' }}</td>
+                                <td>
+                                    <span *ngIf="student.visaPaymentRequestedAmount" style="font-weight: 500;">
+                                        {{ student.visaPaymentRequestedAmount }} {{ student.visaPaymentRequestedCurrency
+                                        }}
+                                    </span>
+                                    <span *ngIf="!student.visaPaymentRequestedAmount" class="text-muted">-</span>
+                                </td>
+                                <td>
+                                    <span *ngIf="student.visaManServiceCharge" style="font-weight: 500;">
+                                        {{ student.visaManServiceCharge }} {{ student.visaPaymentRequestedCurrency }}
+                                    </span>
+                                    <span *ngIf="!student.visaManServiceCharge" class="text-muted">-</span>
+                                </td>
                                 <td>
                                     <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
                                         {{ formatStatus(student.applicationStatus) }}
@@ -760,6 +776,19 @@
      MODALS
      ============================================ -->
 
+<!-- CONFIRMATION MODAL -->
+<div class="modal-overlay confirm-modal" *ngIf="showConfirmModal" (click)="closeConfirmModal()">
+    <div class="modal-content confirm-content" (click)="$event.stopPropagation()">
+        <div class="confirm-icon">⚠️</div>
+        <h3>{{ confirmTitle }}</h3>
+        <p>{{ confirmMessage }}</p>
+        <div class="modal-actions">
+            <button class="modal-cancel-btn" (click)="closeConfirmModal()">Cancel</button>
+            <button class="modal-confirm-btn" (click)="confirmAction()">Confirm</button>
+        </div>
+    </div>
+</div>
+
 <!-- Student Detail Modal -->
 <div class="modal-overlay detail-modal" *ngIf="showDetailModal && selectedStudent" (click)="closeDetailModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
@@ -866,6 +895,12 @@
                     <label>Amount <span class="required">*</span></label>
                     <input type="number" [(ngModel)]="paymentAmount" placeholder="Enter amount" class="form-input"
                         min="1">
+                </div>
+
+                <div class="form-group">
+                    <label>Service Charge</label>
+                    <input type="number" [(ngModel)]="paymentServiceCharge" placeholder="Enter service charge"
+                        class="form-input" min="0">
                 </div>
 
                 <div class="form-group">

@@ -23,6 +23,7 @@ interface Student {
   profileImagePath: string;
   visaPaymentRequestedAmount?: number;
   visaPaymentRequestedCurrency?: string;
+  visaManServiceCharge?: number;
 }
 
 // VisaMan Profile Interface
@@ -69,8 +70,17 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   paymentStudent: Student | null = null;
   successMessage: string = '';
 
+  // Confirmation Modal
+  showConfirmModal: boolean = false;
+  confirmTitle: string = '';
+  confirmMessage: string = '';
+  onConfirm: (() => void) | null = null;
+
+
+
   // Payment Form
   paymentAmount: number | null = null;
+  paymentServiceCharge: number | null = null;
   paymentCurrency: string = 'INR';
   paymentError: string = '';
 
@@ -285,6 +295,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   openPaymentModal(student: Student): void {
     this.paymentStudent = student;
     this.paymentAmount = null;
+    this.paymentServiceCharge = null;
     this.paymentCurrency = 'INR';
     this.paymentError = '';
     this.showPaymentModal = true;
@@ -295,6 +306,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     this.showPaymentModal = false;
     this.paymentStudent = null;
     this.paymentAmount = null;
+    this.paymentServiceCharge = null;
     this.paymentError = '';
     this.cdr.detectChanges();
   }
@@ -320,7 +332,8 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     const payload = {
       visaManUsername: this.currentUsername,
       amount: this.paymentAmount,
-      currency: this.paymentCurrency
+      currency: this.paymentCurrency,
+      visaManServiceCharge: this.paymentServiceCharge || 0.0
     };
 
     this.http.post(`${this.API_URL}/visa/request-payment/${this.paymentStudent.id}`, payload)
@@ -353,6 +366,16 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
   // Apply for Visa
   applyForVisa(student: Student): void {
+    this.openConfirmModal(
+      'Apply for Visa',
+      `Are you sure you have submitted the Visa Application for ${student.fullName}?`,
+      () => {
+        this.processApplyForVisa(student);
+      }
+    );
+  }
+
+  processApplyForVisa(student: Student): void {
     this.processingId = student.id;
 
     const payload = { managerUsername: this.currentUsername };
@@ -379,6 +402,16 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
   // Submit Passport to Embassy
   submitToEmbassy(student: Student): void {
+    this.openConfirmModal(
+      'Submit to Embassy',
+      `Confirm submission of passport to Embassy for ${student.fullName}?`,
+      () => {
+        this.processSubmitToEmbassy(student);
+      }
+    );
+  }
+
+  processSubmitToEmbassy(student: Student): void {
     this.processingId = student.id;
 
     const payload = { managerUsername: this.currentUsername };
@@ -405,6 +438,16 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
   // Mark Visa Stamped
   markVisaStamped(student: Student): void {
+    this.openConfirmModal(
+      'Mark Visa Stamped',
+      `Confirm that Visa has been stamped for ${student.fullName}?`,
+      () => {
+        this.processMarkVisaStamped(student);
+      }
+    );
+  }
+
+  processMarkVisaStamped(student: Student): void {
     this.processingId = student.id;
 
     const payload = { managerUsername: this.currentUsername };
@@ -456,6 +499,30 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     this.showSuccessModal = false;
     this.successMessage = '';
     this.cdr.detectChanges();
+  }
+
+
+
+  // Confirmation Modal Methods
+  openConfirmModal(title: string, message: string, onConfirm: () => void): void {
+    this.confirmTitle = title;
+    this.confirmMessage = message;
+    this.onConfirm = onConfirm;
+    this.showConfirmModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeConfirmModal(): void {
+    this.showConfirmModal = false;
+    this.onConfirm = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmAction(): void {
+    if (this.onConfirm) {
+      this.onConfirm();
+    }
+    this.closeConfirmModal();
   }
 
   openLogoutModal(): void {

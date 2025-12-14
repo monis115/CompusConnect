@@ -120,6 +120,12 @@ export class TelexManagerDashboard implements OnInit {
   successTitle: string = '';
   successMessage: string = '';
 
+  // Confirmation Modal
+  showConfirmModal: boolean = false;
+  confirmTitle: string = '';
+  confirmMessage: string = '';
+  onConfirm: () => void = () => { };
+
   // Copy Field State
   copiedField: string | null = null;
 
@@ -292,67 +298,92 @@ export class TelexManagerDashboard implements OnInit {
     const files = this.selectedFiles[student.id];
     if (!files || files.length === 0) return;
 
-    this.processingId = student.id;
-    this.cdr.detectChanges();
+
 
     try {
-      const formData = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
-      }
-      formData.append('managerUsername', this.currentUsername);
+      // 1. We are submitting docs
+      this.openConfirmModal(
+        'Confirm Document Upload',
+        `Are you sure you want to submit internal documents for ${student.fullName}?`,
+        async () => {
+          try {
+            this.processingId = student.id;
+            this.cdr.detectChanges();
 
-      await firstValueFrom(this.http.post(`${this.BASE_URL}/upload-documents/${student.id}`, formData));
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+              formData.append('files', files[i]);
+            }
+            formData.append('managerUsername', this.currentUsername);
 
-      this.showSuccess('Documents Uploaded', `Internal documents for ${student.fullName} uploaded successfully.`);
-      this.refreshData();
+            await firstValueFrom(this.http.post(`${this.BASE_URL}/upload-documents/${student.id}`, formData));
+
+            this.showSuccess('Documents Uploaded', `Internal documents for ${student.fullName} uploaded successfully.`);
+            this.refreshData();
+          } catch (err) {
+            console.error('Upload failed', err);
+            this.showSuccess('Upload Failed', 'Failed to upload documents. Please try again.');
+          } finally {
+            this.processingId = null;
+            this.cdr.detectChanges();
+          }
+        }
+      );
     } catch (err) {
-      console.error('Upload failed', err);
-      this.showSuccess('Upload Failed', 'Failed to upload documents. Please try again.');
-    } finally {
-      this.processingId = null;
-      this.cdr.detectChanges();
+      console.error('Upload initiation failed', err);
     }
   }
 
   // Action: SUBMIT_TELEX_TO_UNIVERSITY (Step 2)
   async handleSubmitToUniversity(student: Student) {
-    this.processingId = student.id;
-    this.cdr.detectChanges();
+    this.openConfirmModal(
+      'Submit to University',
+      `Are you sure you have  submitted ${student.fullName}'s application to the University?`,
+      async () => {
+        this.processingId = student.id;
+        this.cdr.detectChanges();
 
-    const body = { managerUsername: this.currentUsername };
+        const body = { managerUsername: this.currentUsername };
 
-    try {
-      await firstValueFrom(this.http.post(`${this.BASE_URL}/submit-university/${student.id}`, body));
-      this.showSuccess('Submitted Successfully', `Application for ${student.fullName} submitted to University.`);
-      this.refreshData();
-    } catch (err) {
-      console.error('University submit failed', err);
-      this.showSuccess('Submission Failed', 'Failed to submit to University.');
-    } finally {
-      this.processingId = null;
-      this.cdr.detectChanges();
-    }
+        try {
+          await firstValueFrom(this.http.post(`${this.BASE_URL}/submit-university/${student.id}`, body));
+          this.showSuccess('Submitted Successfully', `Application for ${student.fullName} submitted to University.`);
+          this.refreshData();
+        } catch (err) {
+          console.error('University submit failed', err);
+          this.showSuccess('Submission Failed', 'Failed to submit to University.');
+        } finally {
+          this.processingId = null;
+          this.cdr.detectChanges();
+        }
+      }
+    );
   }
 
   // Action: SUBMIT_TELEX_TO_MEA
   async handleSubmitToMEA(student: Student) {
-    this.processingId = student.id;
-    this.cdr.detectChanges();
+    this.openConfirmModal(
+      'Submit to MEA',
+      `Are you sure you have submitted ${student.fullName}'s application to MEA?`,
+      async () => {
+        this.processingId = student.id;
+        this.cdr.detectChanges();
 
-    const body = { managerUsername: this.currentUsername };
+        const body = { managerUsername: this.currentUsername };
 
-    try {
-      await firstValueFrom(this.http.post(`${this.BASE_URL}/submit-mea/${student.id}`, body));
-      this.showSuccess('Submitted to MEA', `Application for ${student.fullName} submitted to MEA successfully.`);
-      this.refreshData();
-    } catch (err) {
-      console.error('MEA submit failed', err);
-      this.showSuccess('Submission Failed', 'Failed to submit to MEA.');
-    } finally {
-      this.processingId = null;
-      this.cdr.detectChanges();
-    }
+        try {
+          await firstValueFrom(this.http.post(`${this.BASE_URL}/submit-mea/${student.id}`, body));
+          this.showSuccess('Submitted to MEA', `Application for ${student.fullName} submitted to MEA successfully.`);
+          this.refreshData();
+        } catch (err) {
+          console.error('MEA submit failed', err);
+          this.showSuccess('Submission Failed', 'Failed to submit to MEA.');
+        } finally {
+          this.processingId = null;
+          this.cdr.detectChanges();
+        }
+      }
+    );
   }
 
   // Action: NEED_TO_ISSUE_TELEX
@@ -363,25 +394,31 @@ export class TelexManagerDashboard implements OnInit {
       return;
     }
 
-    this.processingId = student.id;
-    this.cdr.detectChanges();
+    this.openConfirmModal(
+      'Issue Telex Number',
+      `Are you sure you want to issue Telex Number "${telexNum}" to ${student.fullName}?`,
+      async () => {
+        this.processingId = student.id;
+        this.cdr.detectChanges();
 
-    const body = {
-      telexNumber: telexNum,
-      managerUsername: this.currentUsername
-    };
+        const body = {
+          telexNumber: telexNum,
+          managerUsername: this.currentUsername
+        };
 
-    try {
-      await firstValueFrom(this.http.post(`${this.BASE_URL}/issue-number/${student.id}`, body));
-      this.showSuccess('Telex Issued', `Telex Number "${telexNum}" issued to ${student.fullName} successfully.`);
-      this.refreshData();
-    } catch (err) {
-      console.error('Issue number failed', err);
-      this.showSuccess('Issue Failed', 'Failed to issue Telex Number.');
-    } finally {
-      this.processingId = null;
-      this.cdr.detectChanges();
-    }
+        try {
+          await firstValueFrom(this.http.post(`${this.BASE_URL}/issue-number/${student.id}`, body));
+          this.showSuccess('Telex Issued', `Telex Number "${telexNum}" issued to ${student.fullName} successfully.`);
+          this.refreshData();
+        } catch (err) {
+          console.error('Issue number failed', err);
+          this.showSuccess('Issue Failed', 'Failed to issue Telex Number.');
+        } finally {
+          this.processingId = null;
+          this.cdr.detectChanges();
+        }
+      }
+    );
   }
 
   // ============================================
@@ -397,6 +434,30 @@ export class TelexManagerDashboard implements OnInit {
   closeSuccessModal(): void {
     this.showSuccessModal = false;
     this.cdr.detectChanges();
+  }
+
+  // ============================================
+  // CONFIRMATION MODAL
+  // ============================================
+  openConfirmModal(title: string, message: string, onConfirmAction: () => void): void {
+    this.confirmTitle = title;
+    this.confirmMessage = message;
+    this.onConfirm = onConfirmAction;
+    this.showConfirmModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeConfirmModal(): void {
+    this.showConfirmModal = false;
+    this.onConfirm = () => { }; // Reset callback
+    this.cdr.detectChanges();
+  }
+
+  confirmAction(): void {
+    if (this.onConfirm) {
+      this.onConfirm();
+    }
+    this.closeConfirmModal();
   }
 
   // ============================================
