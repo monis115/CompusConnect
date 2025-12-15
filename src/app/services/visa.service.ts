@@ -1,0 +1,38 @@
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class VisaService {
+    private baseUrl = 'http://localhost:8080/api/visa';
+
+    constructor(private http: HttpClient) { }
+
+    applyForVisa(studentId: number, managerUsername: string): Observable<any> {
+        return this.http.post(`${this.baseUrl}/apply/${studentId}`, { managerUsername });
+    }
+
+    // 1. Collect Passport (Physical Collection)
+    collectPassport(studentId: number, managerUsername: string): Observable<any> {
+        return this.http.post(`${this.baseUrl}/collect-passport/${studentId}`, { managerUsername });
+    }
+
+    // 3. Submit to Embassy
+    submitToEmbassy(studentId: number, managerUsername: string): Observable<any> {
+        return this.http.post(`${this.baseUrl}/passport-submitted/${studentId}`, { managerUsername });
+    }
+
+    // 4. Mark Visa Stamped
+    markVisaStamped(studentId: number, managerUsername: string): Observable<any> {
+        return this.http.post(`${this.baseUrl}/stamped/${studentId}`, { managerUsername });
+    }
+
+    // Return Documents to Doc Person (Post-Stamping)
+    returnDocsToDocPerson(studentId: number, username: string): Observable<any> {
+        // Controller uses @RequestParam for username
+        return this.http.post(`${this.baseUrl}/return-docs/${studentId}?username=${username}`, {});
+    }
+}

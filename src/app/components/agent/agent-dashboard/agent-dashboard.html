@@ -476,7 +476,13 @@
             <div class="card-content-simplified">
               <div class="student-identity">
                 <div class="avatar-circle-sm">{{ task.fullName.charAt(0) }}</div>
-                <span class="student-name-bold">{{ task.fullName }}</span>
+                <div style="display: flex; flex-direction: column;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="student-name-bold">{{ task.fullName }}</span>
+                    <span class="passport-eligible-badge" *ngIf="task.canRequestDocReturn">Passport Eligible</span>
+                  </div>
+                  <span class="student-id-text">ID: {{ task.applicationId || task.id }}</span>
+                </div>
               </div>
 
               <div class="action-buttons-simplified">
@@ -492,12 +498,68 @@
                   Initiate Telex
                 </button>
 
+                <button class="btn-request-docs" *ngIf="showRequestDocsButton(task)"
+                  (click)="openRequestDocsModal(task)">
+                  Request Docs
+                </button>
+
                 <button class="btn-visa-payment-action" *ngIf="showVisaPaymentButton(task)"
                   (click)="openPaymentConfirmationModal(task)">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                   </svg>
                   View &amp; Pay
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ready for Document Return Section -->
+      <div class="action-section" *ngIf="getDocReturnEligibleStudents().length > 0">
+        <div class="section-header">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Ready for Document Return
+          </h2>
+          <span class="badge-count" style="background: #f97316;">{{ getDocReturnEligibleStudents().length }}</span>
+        </div>
+
+        <div class="action-cards-grid">
+          <div class="action-card-simplified" *ngFor="let task of getDocReturnEligibleStudents()">
+            <div class="card-content-simplified">
+              <div class="student-identity">
+                <div class="avatar-circle-sm">{{ task.fullName.charAt(0) }}</div>
+                <div style="display: flex; flex-direction: column;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="student-name-bold">{{ task.fullName }}</span>
+                    <span class="passport-eligible-badge"
+                      style="background: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.3);">Passport
+                      Ready</span>
+                  </div>
+                  <span class="student-id-text">ID: {{ task.applicationId || task.id }}</span>
+                </div>
+              </div>
+
+              <div class="action-buttons-simplified">
+                <button class="btn-icon-eye" (click)="viewStudentDetails(task)" title="View Details">
+                  <div class="visa-stamp-overlay">VISA STAMPED</div>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+
+                <!-- Orange Request Passport Button -->
+                <button class="btn-request-docs"
+                  style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);"
+                  (click)="openRequestDocsModal(task)">
+                  Request Passport
                 </button>
               </div>
             </div>
@@ -798,6 +860,17 @@
                         stroke-width="2">
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                    </button>
+                    <button class="btn-icon-modern orange" *ngIf="showRequestDocsButton(s)"
+                      (click)="openRequestDocsModal(s)" title="Request Documents Return">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="12" y1="18" x2="12" y2="12" />
+                        <line x1="9" y1="15" x2="12" y2="18" />
+                        <line x1="15" y1="15" x2="12" y2="18" />
                       </svg>
                     </button>
                     <button class="btn-icon-modern visa-payment" *ngIf="showVisaPaymentButton(s)"
@@ -2097,4 +2170,164 @@
 <div class="toast-notification" [class.show]="showToast" [class.success]="toastType === 'success'"
   [class.error]="toastType === 'error'">
   <span class="toast-message">{{ toastMessage }}</span>
+</div>
+
+<!-- Request Document Return Modal -->
+<div class="modal-overlay telex-modal" *ngIf="isRequestDocsModalOpen && requestDocsForm"
+  (click)="closeRequestDocsModal()">
+  <div class="modal-content-modern" style="max-width: 800px; width: 95%; max-height: 90vh; overflow-y: auto;"
+    (click)="$event.stopPropagation()">
+    <div class="modal-header-modern">
+      <h3>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="12" y1="18" x2="12" y2="12" />
+          <line x1="9" y1="15" x2="12" y2="18" />
+          <line x1="15" y1="15" x2="12" y2="18" />
+        </svg>
+        Request Document Return
+      </h3>
+      <button class="btn-close-modern" (click)="closeRequestDocsModal()">✕</button>
+    </div>
+
+    <div class="modal-body-modern" [formGroup]="requestDocsForm">
+
+      <!-- Student Info -->
+      <div class="student-summary-card" style="margin-bottom: 20px;">
+        <div class="summary-avatar" style="background: var(--primary-gradient);">{{
+          selectedDocsStudent?.fullName?.charAt(0) }}</div>
+        <div class="summary-details">
+          <h4 style="margin: 0; color: var(--text-primary);">{{ selectedDocsStudent?.fullName }}</h4>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">{{ selectedDocsStudent?.id
+            }}</p>
+        </div>
+        <div class="summary-status">
+          <span class="status-badge"
+            style="background: rgba(16, 185, 129, 0.1); color: #10B981; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">VISA
+            STAMPED</span>
+        </div>
+      </div>
+
+      <div class="form-section-title"
+        style="color: var(--text-primary); margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path
+            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+        </svg>
+        Contact & Delivery Details
+      </div>
+
+      <div class="form-grid-modern" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group-modern">
+          <label>Contact Person Name <span class="required" style="color: #ef4444;">*</span></label>
+          <input type="text" formControlName="contactPersonName" class="form-control"
+            placeholder="Who will collect/receive?">
+          <div class="error-msg"
+            *ngIf="requestDocsForm.get('contactPersonName')?.touched && requestDocsForm.get('contactPersonName')?.invalid"
+            style="color: #ef4444; font-size: 0.8rem; margin-top: 4px;">
+            Required
+          </div>
+        </div>
+
+        <div class="form-group-modern">
+          <label>Contact Phone <span class="required" style="color: #ef4444;">*</span></label>
+          <input type="text" formControlName="contactPhone" class="form-control" placeholder="+91...">
+          <div class="error-msg"
+            *ngIf="requestDocsForm.get('contactPhone')?.touched && requestDocsForm.get('contactPhone')?.invalid"
+            style="color: #ef4444; font-size: 0.8rem; margin-top: 4px;">
+            Required
+          </div>
+        </div>
+
+        <div class="form-group-modern">
+          <label>Alternative Phone</label>
+          <input type="text" formControlName="alternativePhone" class="form-control" placeholder="Optional">
+        </div>
+
+        <div class="form-group-modern">
+          <label>Want Before Date</label>
+          <input type="date" formControlName="needBeforeDate" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group-modern full-width" style="margin-top: 16px;">
+        <label>Delivery Address with Zip Code <span class="required" style="color: #ef4444;">*</span></label>
+        <textarea formControlName="addressWithZip" class="form-control" rows="2"
+          placeholder="Full address for courier/contact"></textarea>
+        <div class="error-msg"
+          *ngIf="requestDocsForm.get('addressWithZip')?.touched && requestDocsForm.get('addressWithZip')?.invalid"
+          style="color: #ef4444; font-size: 0.8rem; margin-top: 4px;">
+          Required
+        </div>
+      </div>
+
+      <div class="form-separator" style="height: 1px; background: rgba(0,0,0,0.1); margin: 24px 0;"></div>
+
+      <div class="form-section-title"
+        style="color: var(--text-primary); margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+        Travel Details (Optional)
+      </div>
+
+      <div class="form-grid-modern" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group-modern">
+          <label>Travel Date</label>
+          <input type="date" formControlName="travelDate" class="form-control">
+        </div>
+        <div class="form-group-modern">
+          <label>PNR Number</label>
+          <input type="text" formControlName="pnrNumber" class="form-control" placeholder="Airline PNR">
+        </div>
+
+        <div class="form-group-modern">
+          <label>From Country</label>
+          <input type="text" formControlName="fromCountry" class="form-control" placeholder="Origin">
+        </div>
+        <div class="form-group-modern">
+          <label>From Airport Code</label>
+          <input type="text" formControlName="fromAirport" class="form-control" placeholder="e.g. DEL">
+        </div>
+
+        <div class="form-group-modern">
+          <label>To Country</label>
+          <input type="text" formControlName="toCountry" class="form-control" placeholder="Destination">
+        </div>
+        <div class="form-group-modern">
+          <label>To Airport Code</label>
+          <input type="text" formControlName="toAirport" class="form-control" placeholder="e.g. TAS">
+        </div>
+      </div>
+
+      <div class="form-group-modern full-width" style="margin-top: 16px;">
+        <label>Upload Ticket (PDF) - Optional</label>
+        <div class="file-upload-box" (click)="ticketInput.click()"
+          style="border: 2px dashed rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: rgba(99, 102, 241, 0.05);">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="color: #6366F1; margin-bottom: 8px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <div *ngIf="!fileTicket" style="color: var(--text-secondary);">Click to upload Ticket PDF</div>
+          <div *ngIf="fileTicket" class="file-selected" style="color: #6366F1; font-weight: 500;">
+            {{ fileTicket.name }}
+          </div>
+          <input #ticketInput type="file" (change)="onTicketFileSelected($event)" accept="application/pdf" hidden>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer-modern" style="margin-top: 24px;">
+      <button class="btn-cancel-modern" (click)="closeRequestDocsModal()">Cancel</button>
+      <button class="btn-submit-modern" (click)="submitRequestDocs()" [disabled]="isSubmittingDocs"
+        style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; border: none;">
+        <span *ngIf="!isSubmittingDocs">Submit Request</span>
+        <span *ngIf="isSubmittingDocs">Processing...</span>
+      </button>
+    </div>
+  </div>
 </div>

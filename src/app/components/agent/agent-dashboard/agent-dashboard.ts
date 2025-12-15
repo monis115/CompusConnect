@@ -277,6 +277,19 @@ export class AgentDashboard implements OnInit {
     private telexService: TelexApplicationService
   ) { }
 
+  private readonly API_URL = 'http://localhost:8080/api';
+
+  showToastMessage(message: string, type: 'success' | 'error' = 'success'): void {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToast = true;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.showToast = false;
+      this.cdr.detectChanges();
+    }, 3000);
+  }
+
   ngOnInit(): void {
     this.loadAgentData();
     this.fetchNews();
@@ -447,16 +460,29 @@ export class AgentDashboard implements OnInit {
     this.stats.rejected = this.students.filter(s => s.applicationStatus === 'REJECTED').length;
   }
 
+  getDocReturnEligibleStudents(): Student[] {
+    if (!this.students) return [];
+    return this.students.filter(s =>
+      s.applicationStatus === 'VISA_STAMPED' && s.canRequestDocReturn === true
+    );
+  }
+
   generateDashboardTasks(): void {
     // Show students where Action is required by Agent or those with ADMISSION_LETTER_APPROVED status
+    // EXCLUDING those eligible for Doc Return (displayed in separate section)
     this.dashboardTasks = this.students
-      .filter(s =>
-        s['actionOnUser'] === 'AGENT' ||
-        s['actionOnUser'] === 'agent' ||
-        s.applicationStatus === StudentStatus.ADMISSION_LETTER_APPROVED ||
-        (s['action'] === 'INITIATE_TELEX' && s['actionOnUser'] === 'agent') ||
-        (s['action'] === 'SEND_VISA_PAYMENT_TO_ACCOUNTANT' && (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT'))
-      )
+      .filter(s => {
+        const isDocReturnEligible = s.applicationStatus === 'VISA_STAMPED' && s.canRequestDocReturn === true;
+        if (isDocReturnEligible) return false;
+
+        return (
+          s['actionOnUser'] === 'AGENT' ||
+          s['actionOnUser'] === 'agent' ||
+          s.applicationStatus === StudentStatus.ADMISSION_LETTER_APPROVED ||
+          (s['action'] === 'INITIATE_TELEX' && s['actionOnUser'] === 'agent') ||
+          (s['action'] === 'SEND_VISA_PAYMENT_TO_ACCOUNTANT' && (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT'))
+        );
+      })
       .sort((a, b) => {
         // Sort by registration date (latest first)
         const dateA = new Date(a.createdAt).getTime();
@@ -799,6 +825,97 @@ export class AgentDashboard implements OnInit {
       typeControl?.updateValueAndValidity();
       dueDateControl?.updateValueAndValidity();
     });
+  }
+
+  // --- RETURN DOCUMENTS WORKFLOW ---
+  isRequestDocsModalOpen = false;
+  requestDocsForm!: FormGroup;
+  selectedDocsStudent: Student | null = null;
+  fileTicket: File | null = null;
+  isSubmittingDocs = false;
+
+  initRequestDocsForm(): void {
+    this.requestDocsForm = this.fb.group({
+      contactPersonName: ['', Validators.required],
+      contactPhone: ['', Validators.required],
+      alternativePhone: [''],
+      addressWithZip: ['', Validators.required],
+      needBeforeDate: [null],
+      travelDate: [null],
+      fromCountry: [''],
+      fromAirport: [''],
+      toCountry: [''],
+      toAirport: [''],
+      pnrNumber: ['']
+    });
+  }
+
+  openRequestDocsModal(student: Student): void {
+    this.selectedDocsStudent = student;
+    this.fileTicket = null;
+    this.initRequestDocsForm();
+    this.isRequestDocsModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeRequestDocsModal(): void {
+    this.isRequestDocsModalOpen = false;
+    this.selectedDocsStudent = null;
+    this.cdr.detectChanges();
+  }
+
+  showRequestDocsButton(student: Student): boolean {
+    return student.applicationStatus === 'VISA_STAMPED' && student.canRequestDocReturn === true;
+  }
+
+  onTicketFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        this.showToastMessage('Only PDF files are allowed for tickets.', 'error');
+        return;
+      }
+      this.fileTicket = file;
+    }
+  }
+
+  submitRequestDocs(): void {
+    if (this.requestDocsForm.invalid) {
+      this.requestDocsForm.markAllAsTouched();
+      this.showToastMessage('Please fill all required fields.', 'error');
+      return;
+    }
+
+    if (!this.selectedDocsStudent) return;
+
+    this.isSubmittingDocs = true;
+    const formValue = this.requestDocsForm.value;
+
+    // Construct FormData
+    const formData = new FormData();
+    const agentUsername = this.agentData?.userId || this.authService.getUserData()?.username || '';
+
+    formData.append('agentUsername', agentUsername);
+    formData.append('requestDetails', JSON.stringify(formValue));
+
+    if (this.fileTicket) {
+      formData.append('ticketPdf', this.fileTicket);
+    }
+
+    this.http.post(`${this.API_URL}/agents/request-docs/${this.selectedDocsStudent.id}`, formData)
+      .subscribe({
+        next: (res: any) => {
+          this.isSubmittingDocs = false;
+          this.showToastMessage('Document return request submitted successfully!', 'success');
+          this.closeRequestDocsModal();
+          this.refreshDashboard();
+        },
+        error: (err) => {
+          this.isSubmittingDocs = false;
+          console.error('Failed to submit doc return request', err);
+          this.showToastMessage('Failed to submit request. Please try again.', 'error');
+        }
+      });
   }
 
   prefillData(student: Student): void {

@@ -4,7 +4,11 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil, finalize, catchError } from 'rxjs';
 import { of } from 'rxjs';
 
+import { VisaService } from '../../services/visa.service';
 import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
+// ... imports
+
+// ...
 
 // Student Interface
 interface Student {
@@ -56,6 +60,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   students: Student[] = [];
   visaManProfile: VisaManProfile | null = null;
 
+
   // Loading States
   isLoading: boolean = true;
   isRefreshing: boolean = false;
@@ -99,6 +104,9 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // Search
   searchQuery: string = '';
 
+  // Toasts
+  toasts: Array<{ id: string; type: 'success' | 'error' | 'info' | 'warning'; message: string; show: boolean }> = [];
+
   // Sidebar Mobile Toggle
   sidebarOpen: boolean = false;
 
@@ -125,7 +133,8 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private paymentRequestService: PaymentRequestService
+    private paymentRequestService: PaymentRequestService,
+    private visaService: VisaService
   ) { }
 
   ngOnInit(): void {
@@ -364,11 +373,42 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     this.openPaymentModal(student);
   }
 
-  // Apply for Visa
+  // 1. Collect Passport
+  collectPassport(student: Student): void {
+    this.openConfirmModal(
+      'Confirm Passport Collection',
+      `Have you physically collected the passport from the Doc Person for ${student.fullName}?`,
+      () => {
+        this.processCollectPassport(student);
+      }
+    );
+  }
+
+  processCollectPassport(student: Student): void {
+    this.processingId = student.id;
+    this.visaService.collectPassport(student.id, this.currentUsername)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.processingId = null; this.cdr.detectChanges(); }),
+        catchError(err => {
+          console.error('Failed to collect passport:', err);
+          this.showToast('error', 'Failed to collect passport.');
+          return of(null);
+        })
+      )
+      .subscribe(response => {
+        if (response) {
+          this.showSuccess(`Passport collected for ${student.fullName}`);
+          this.refreshData();
+        }
+      });
+  }
+
+  // 2. Apply for Visa
   applyForVisa(student: Student): void {
     this.openConfirmModal(
       'Apply for Visa',
-      `Are you sure you have submitted the Visa Application for ${student.fullName}?`,
+      `Ready to apply for visa for ${student.fullName}?`,
       () => {
         this.processApplyForVisa(student);
       }
@@ -377,30 +417,25 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
   processApplyForVisa(student: Student): void {
     this.processingId = student.id;
-
-    const payload = { managerUsername: this.currentUsername };
-
-    this.http.post(`${this.API_URL}/visa/apply/${student.id}`, payload)
+    this.visaService.applyForVisa(student.id, this.currentUsername)
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => {
-          this.processingId = null;
-          this.cdr.detectChanges();
-        }),
+        finalize(() => { this.processingId = null; this.cdr.detectChanges(); }),
         catchError(err => {
           console.error('Failed to apply for visa:', err);
+          this.showToast('error', 'Failed to apply for visa.');
           return of(null);
         })
       )
       .subscribe(response => {
         if (response) {
-          this.showSuccess(`Visa application submitted for ${student.fullName}`);
+          this.showSuccess(`Visa applied for ${student.fullName}`);
           this.refreshData();
         }
       });
   }
 
-  // Submit Passport to Embassy
+  // 3. Submit Passport to Embassy
   submitToEmbassy(student: Student): void {
     this.openConfirmModal(
       'Submit to Embassy',
@@ -413,18 +448,13 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
   processSubmitToEmbassy(student: Student): void {
     this.processingId = student.id;
-
-    const payload = { managerUsername: this.currentUsername };
-
-    this.http.post(`${this.API_URL}/visa/passport-submitted/${student.id}`, payload)
+    this.visaService.submitToEmbassy(student.id, this.currentUsername)
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => {
-          this.processingId = null;
-          this.cdr.detectChanges();
-        }),
+        finalize(() => { this.processingId = null; this.cdr.detectChanges(); }),
         catchError(err => {
           console.error('Failed to submit passport:', err);
+          this.showToast('error', 'Failed to submit passport.');
           return of(null);
         })
       )
@@ -436,7 +466,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       });
   }
 
-  // Mark Visa Stamped
+  // 4. Mark Visa Stamped
   markVisaStamped(student: Student): void {
     this.openConfirmModal(
       'Mark Visa Stamped',
@@ -449,24 +479,50 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
   processMarkVisaStamped(student: Student): void {
     this.processingId = student.id;
-
-    const payload = { managerUsername: this.currentUsername };
-
-    this.http.post(`${this.API_URL}/visa/stamped/${student.id}`, payload)
+    this.visaService.markVisaStamped(student.id, this.currentUsername)
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => {
-          this.processingId = null;
-          this.cdr.detectChanges();
-        }),
+        finalize(() => { this.processingId = null; this.cdr.detectChanges(); }),
         catchError(err => {
           console.error('Failed to mark visa stamped:', err);
+          this.showToast('error', 'Failed to mark visa.');
           return of(null);
         })
       )
       .subscribe(response => {
         if (response) {
           this.showSuccess(`Visa successfully issued for ${student.fullName}! 🎉`);
+          this.refreshData();
+        }
+      });
+  }
+
+  // 5. Return Documents to Doc Person
+  confirmReturnDocs(student: Student): void {
+    this.openConfirmModal(
+      'Return to Doc Person',
+      `Have you physically returned the documents to the Doc Person for ${student.fullName}?`,
+      () => {
+        this.processReturnDocs(student);
+      }
+    );
+  }
+
+  processReturnDocs(student: Student): void {
+    this.processingId = student.id;
+    this.visaService.returnDocsToDocPerson(student.id, this.currentUsername)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.processingId = null; this.cdr.detectChanges(); }),
+        catchError(err => {
+          console.error('Failed to return docs:', err);
+          this.showToast('error', 'Failed to return documents.');
+          return of(null);
+        })
+      )
+      .subscribe(response => {
+        if (response) {
+          this.showSuccess(`Documents returned to Doc Person for ${student.fullName}`);
           this.refreshData();
         }
       });
@@ -546,6 +602,20 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   // HELPERS
   // ============================================
+
+  // Toast Notification
+  showToast(type: 'success' | 'error' | 'info' | 'warning', message: string): void {
+    const id = Date.now().toString();
+    this.toasts.push({ id, type, message, show: true });
+    setTimeout(() => this.dismissToast(id), 5000);
+    this.cdr.detectChanges();
+  }
+
+  dismissToast(id: string): void {
+    this.toasts = this.toasts.filter(t => t.id !== id);
+    this.cdr.detectChanges();
+  }
+
   getImageUrl(path: string | undefined): string {
     if (!path) return '';
     if (path.startsWith('http')) return path;
@@ -589,22 +659,35 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
     const actionMap: { [key: string]: string } = {
       'NEED_APPLY_VISA': 'Apply for Visa',
+      'COLLECT_PASSPORT_FRM_DOC_PERSON': 'Collect Passport & Apply Visa',
       'NEED_SUBMIT_PASSPORT_TO_EMBASSY': 'Submit Passport to Embassy',
       'NEED_TO_ISSUE_VISA': 'Mark Visa Stamped',
+      'NEED_TO_RETURN_VISA': 'Return Docs to Doc Person',
       'REQUEST_FOR_VISA_PAYMENT_TO_ACCOUNTANT': 'Request Payment'
     };
 
     return actionMap[action] || action.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   }
 
+
+
   getActionButton(student: Student): { label: string; action: () => void; icon: string } | null {
     switch (student.action) {
+      case 'COLLECT_PASSPORT_FRM_DOC_PERSON':
+        // 1. Collect Passport
+        return { label: 'Collect Passport', action: () => this.collectPassport(student), icon: '📖' };
       case 'NEED_APPLY_VISA':
+        // 2. Apply for Visa
         return { label: 'Apply for Visa', action: () => this.applyForVisa(student), icon: '🎫' };
       case 'NEED_SUBMIT_PASSPORT_TO_EMBASSY':
+        // 3. Submit to Embassy
         return { label: 'Submit to Embassy', action: () => this.submitToEmbassy(student), icon: '📤' };
       case 'NEED_TO_ISSUE_VISA':
+        // 4. Mark Stamped
         return { label: 'Mark Visa Stamped', action: () => this.markVisaStamped(student), icon: '✅' };
+      case 'NEED_TO_RETURN_VISA':
+        // 5. Return Docs
+        return { label: 'Return to Doc Person', action: () => this.confirmReturnDocs(student), icon: '↩️' };
       case 'REQUEST_FOR_VISA_PAYMENT_TO_ACCOUNTANT':
         return { label: 'Request Payment', action: () => this.requestPayment(student), icon: '💳' };
       default:

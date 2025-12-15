@@ -61,6 +61,8 @@ export interface Student {
     telexIssueDate?: string;
     studentStatusHistory?: any[];
     actionOnUser?: string;
+    applicationId?: string;
+    canRequestDocReturn?: boolean;
 }
 
 export interface AgentData {

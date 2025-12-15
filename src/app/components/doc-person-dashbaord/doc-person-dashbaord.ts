@@ -20,6 +20,7 @@ import {
   slideUpAnimation
 } from './animations';
 import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
+import { DocPersonService } from '../../services/doc-person.service';
 
 @Component({
   selector: 'app-doc-person-dashbaord',
@@ -193,7 +194,8 @@ export class DocPersonDashbaord implements OnInit {
     private router: Router,
     private renderer: Renderer2,
     private elementRef: ElementRef,
-    private paymentRequestService: PaymentRequestService
+    private paymentRequestService: PaymentRequestService,
+    private docPersonService: DocPersonService
   ) { }
 
   ngOnInit(): void {
@@ -339,9 +341,11 @@ export class DocPersonDashbaord implements OnInit {
     );
     this.filteredVerifyList = [...this.verifyList];
 
-    // 3. Return List: readyForDocReturn === true
+    // 3. Return List: readyForDocReturn === true OR specific action states
     this.returnList = this.students.filter(s =>
-      s.readyForDocReturn === true
+      s.readyForDocReturn === true ||
+      s.action === 'COLLECT_DOCS' ||
+      s.action === 'INITIATE_DOC_RETURN'
     );
     this.filteredReturnList = [...this.returnList];
 
@@ -616,7 +620,7 @@ export class DocPersonDashbaord implements OnInit {
       docPersonUsername: this.docPerson?.username || 'doc_person_user'
     };
 
-    this.http.post(`${this.API_ENDPOINT}/return-docs/${this.selectedStudent.id}`, payload)
+    this.docPersonService.returnDocsToStudent(this.selectedStudent.id, payload)
       .subscribe({
         next: () => {
           this.isSubmitting = false;
@@ -636,6 +640,117 @@ export class DocPersonDashbaord implements OnInit {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  // --- COLLECTION CONFIRMATION ---
+  confirmCollection(student: Student): void {
+    if (!student) return;
+
+    const payload = {
+      docPersonUsername: this.docPerson?.username || 'doc_person_user'
+    };
+
+    this.isSubmitting = true;
+    this.docPersonService.confirmCollection(student.id, payload).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.showToast('success', `Documents for ${student.fullName} collected successfully.`);
+        this.fetchDashboardData(); // Refresh to update status
+      },
+      error: (err: any) => {
+        this.isSubmitting = false;
+        this.handleError(err);
+      }
+    });
+  }
+
+  // --- VIEW REQUEST DETAILS ---
+  requestDetails: any = null;
+  showRequestDetailsModal: boolean = false;
+
+  viewRequestDetails(student: Student): void {
+    // Set the modal flag FIRST to prevent Verify Documents modal from flashing
+    this.showRequestDetailsModal = true;
+    this.selectedStudent = student;
+    this.isLoading = true;
+
+    this.docPersonService.getRequestDetails(student.id).subscribe({
+      next: (data: any) => {
+        // Handle potential nested JSON string for requestDetails
+        let parsedDetails = data;
+
+        if (data && typeof data.requestDetails === 'string') {
+          try {
+            const innerDetails = JSON.parse(data.requestDetails);
+            // Merge inner details with the main object (which might contain ticketPdfPath)
+            parsedDetails = { ...data, ...innerDetails };
+          } catch (e) {
+            console.error('Failed to parse requestDetails JSON', e);
+          }
+        }
+
+        this.requestDetails = parsedDetails;
+        this.showRequestDetailsModal = true;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        if (err.status === 404) {
+          // Expected behavior if no details exist yet
+          this.requestDetails = {
+            error: 'No return request details found for this student.'
+          };
+          this.showRequestDetailsModal = true;
+        } else {
+          console.error('Error fetching request details', err);
+          this.requestDetails = {
+            error: 'Could not fetch detailed request info. Please try again later.'
+          };
+          this.showToast('error', 'Could not fetch request details.');
+        }
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // --- VIEW TICKET (SEPARATE BUTTON) ---
+  viewTicket(student: Student): void {
+    this.isLoading = true;
+    this.docPersonService.getRequestDetails(student.id).subscribe({
+      next: (data: any) => {
+        this.isLoading = false;
+        if (data && data.ticketPdfPath) {
+          this.downloadFile(data.ticketPdfPath); // Reuse download logic
+        } else {
+          this.showToast('error', 'No ticket uploaded for this request.');
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.isLoading = false;
+        if (err.status === 404) {
+          this.showToast('error', 'No request details found.');
+        } else {
+          this.showToast('error', 'Could not check for ticket. Please try again.');
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
+  downloadFile(ticketPdfPath: any) {
+    if (!ticketPdfPath) {
+      this.showToast('error', 'File path is missing.');
+      return;
+    }
+    const url = this.getDocumentUrl(ticketPdfPath);
+    window.open(url, '_blank');
+  }
+
+  closeRequestDetailsModal(): void {
+    this.showRequestDetailsModal = false;
+    this.requestDetails = null;
+    this.selectedStudent = null;
   }
 
   // DETAILS MODAL
