@@ -36,24 +36,11 @@
                 <span><i class="fas fa-reply"></i> Returns</span>
                 <span *ngIf="returnList.length > 0" class="badge">{{ returnList.length }}</span>
             </a>
-            <a (click)="setActiveTab('pipeline')" [class.active]="activeTab === 'pipeline'" class="nav-item-badge">
-                <span><i class="fas fa-clock"></i> In Pipeline</span>
-                <span *ngIf="pipelineList.length > 0" class="badge">{{ pipelineList.length }}</span>
+            <a (click)="setActiveTab('all-students')" [class.active]="activeTab === 'all-students'">
+                <i class="fas fa-users"></i> All Students
             </a>
-            <a (click)="setActiveTab('stamped')" [class.active]="activeTab === 'stamped'" class="nav-item-badge">
-                <span><i class="fas fa-stamp"></i> Stamped</span>
-                <span *ngIf="stampedList.length > 0" class="badge">{{ stampedList.length }}</span>
-            </a>
-            <a (click)="setActiveTab('funds')" [class.active]="activeTab === 'funds'" class="nav-item-badge">
-                <span><i class="fas fa-money-bill-wave"></i> Fund Requests</span>
-                <span *ngIf="paidFundRequestsCount > 0" class="badge success">{{ paidFundRequestsCount }}</span>
-            </a>
-            <a (click)="setActiveTab('reports')" [class.active]="activeTab === 'reports'">
-                <i class="fas fa-chart-line"></i> Reports
-            </a>
-            <a (click)="setActiveTab('profile')" [class.active]="activeTab === 'profile'">
-                <i class="fas fa-user"></i> Profile
-            </a>
+
+
         </nav>
 
         <div class="sidebar-footer">
@@ -64,6 +51,43 @@
         </div>
     </aside>
 
+    <!-- PROFILE BANNER OVERLAY -->
+    <div class="profile-banner-backdrop" *ngIf="showProfileBanner" (click)="closeProfileBanner()">
+        <div class="profile-banner-card animate-scale-in" (click)="$event.stopPropagation()">
+            <div class="banner-header">
+                <div class="banner-avatar-xl">{{ getInitials(docPerson?.fullName) }}</div>
+                <div class="banner-user-info">
+                    <h3>{{ docPerson?.fullName || 'Doc Person' }}</h3>
+                    <span class="role-badge">{{ docPerson?.role || 'Document Manager' }}</span>
+                </div>
+                <button class="close-banner-btn" (click)="closeProfileBanner()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="banner-body">
+                <div class="info-group">
+                    <label><i class="fas fa-id-card"></i> Username</label>
+                    <p>{{ docPerson?.username || 'N/A' }}</p>
+                </div>
+                <div class="info-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <p>{{ docPerson?.email || 'N/A' }}</p>
+                </div>
+                <div class="info-group">
+                    <label><i class="fas fa-phone"></i> Contact</label>
+                    <p>{{ docPerson?.contactNumber || 'N/A' }}</p>
+                </div>
+            </div>
+
+            <div class="banner-footer">
+                <button class="full-profile-btn" (click)="setActiveTab('profile'); closeProfileBanner()">
+                    View Full Profile
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN CONTENT -->
     <main class="main-content">
 
@@ -73,6 +97,12 @@
                 <h2><i [class]="getTabIcon()"></i> {{ activeTab | titlecase }}</h2>
             </div>
             <div class="header-right">
+                <!-- Request Funds Button -->
+                <button class="btn-glass-header" (click)="showFundRequestModal = true">
+                    <i class="fas fa-coins" style="color: #f59e0b;"></i>
+                    <span>Request Funds</span>
+                </button>
+
                 <!-- Dark Mode Toggle -->
                 <button class="icon-btn" (click)="toggleDarkMode()"
                     [title]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
@@ -90,7 +120,7 @@
                     <i class="fas fa-download"></i> Export
                 </button>
 
-                <div class="user-profile-pill" (click)="setActiveTab('profile')">
+                <div class="user-profile-pill" (click)="toggleProfileBanner()">
                     <span>{{ docPerson?.fullName || docPerson?.username }}</span>
                     <div class="avatar-sm">{{ getInitials(docPerson?.fullName) }}</div>
                 </div>
@@ -116,6 +146,96 @@
                     <i class="fas fa-redo"></i> Retry
                 </button>
             </div>
+
+            <!-- ALL STUDENTS DIRECTORY - PRODUCTION READY -->
+            <section class="dashboard-section premium-section" *ngIf="activeTab === 'all-students'">
+                <div class="section-header-modern">
+                    <div class="header-content-flex">
+                        <div class="header-icon-box">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="header-text-block">
+                            <h2>All Students Directory</h2>
+                            <p>Comprehensive directory of all registered students and their application statuses</p>
+                        </div>
+                    </div>
+                    <div class="header-stats-badge">
+                        <span class="stats-number">{{ filteredStudents.length }}</span>
+                        <span class="stats-label">Total Students</span>
+                    </div>
+                </div>
+
+                <!-- Enhanced Search Bar -->
+                <div class="filter-bar-enhanced">
+                    <div class="search-wrapper-pro">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search by name, passport, or application ID..."
+                            [(ngModel)]="filters.searchQuery" (ngModelChange)="applyFilters()">
+                        <button *ngIf="filters.searchQuery" class="clear-btn"
+                            (click)="filters.searchQuery = ''; applyFilters()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Professional Table -->
+                <div class="table-container-pro fade-in-up">
+                    <table class="premium-table-v2">
+                        <thead>
+                            <tr>
+                                <th>Application ID</th>
+                                <th>Student Name</th>
+                                <th>Passport No.</th>
+                                <th>Applied For</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let student of filteredStudents" class="table-row-hover">
+                                <td><span class="id-badge-pro">{{ student.applicationId || 'N/A' }}</span></td>
+                                <td>
+                                    <div class="user-cell-pro">
+                                        <div class="avatar-pro">{{ getInitials(student.fullName) }}</div>
+                                        <div class="user-info-pro">
+                                            <span class="name-pro">{{ student.fullName }}</span>
+                                            <span class="email-pro">{{ student.email }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="passport-text">{{ student.passportNo }}</span></td>
+                                <td><span class="course-badge">{{ student.appliedFor || 'N/A' }}</span></td>
+                                <td><span class="status-badge-pro"
+                                        [class]="getStatusClass(student.applicationStatus)">{{
+                                        student.applicationStatus }}</span></td>
+                                <td>
+                                    <button class="btn-action-pro" (click)="openStudentDetails(student)"
+                                        title="View Full Details">
+                                        <i class="fas fa-eye"></i>
+                                        <span>View</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <ng-container *ngIf="isLoading">
+                                <tr *ngFor="let i of [1,2,3]">
+                                    <td colspan="6">
+                                        <div class="skeleton-row-modern"></div>
+                                    </td>
+                                </tr>
+                            </ng-container>
+                            <tr *ngIf="!isLoading && filteredStudents.length === 0">
+                                <td colspan="6" class="empty-state-pro">
+                                    <div class="empty-icon-wrap">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                    <h4>No students found</h4>
+                                    <p>Try adjusting your search criteria</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
             <!-- DASHBOARD VIEW -->
             <div *ngIf="activeTab === 'dashboard' && !isLoading && !errorState.hasError"
@@ -519,17 +639,17 @@
                             <span>Address & Travel Info</span>
                         </button>
 
-                        <!-- Collect Button (Visible if action is COLLECT_DOCS) -->
-                        <button
-                            *ngIf="student.action === 'COLLECT_DOCS' || (!student.action && student.readyForDocReturn)"
+                        <!-- Collect Button (Visible only when readyForDocReturn is true AND action is COLLECT_DOCS) -->
+                        <button *ngIf="student.readyForDocReturn === true && student.action === 'COLLECT_DOCS'"
                             class="btn-warning btn-verify ripple-effect" (click)="confirmCollection(student)"
                             style="background-color: #f59e0b; color: white;">
                             <i class="fas fa-hand-holding"></i>
                             <span>Collect Docs</span>
                         </button>
 
-                        <!-- Return Button (Visible/Enabled only if action is INITIATE_DOC_RETURN) -->
-                        <div *ngIf="student.action === 'INITIATE_DOC_RETURN'" class="tooltip-wrapper">
+                        <!-- Return Button (Visible when agent has requested AND docs are collected) -->
+                        <div *ngIf="student.hasRaiseReturnRequest && (student.action === 'INITIATE_DOC_RETURN' || student.action === 'NEED_TO_RETURN_VISA')"
+                            class="tooltip-wrapper">
                             <button class="btn-primary btn-verify ripple-effect" (click)="openReturnModal(student)">
                                 <i class="fas fa-paper-plane"></i>
                                 <span>Return Docs</span>
@@ -539,16 +659,16 @@
 
                     <!-- Status Badge Below -->
                     <div style="margin-top: 8px;">
-                        <span
-                            *ngIf="student.action === 'COLLECT_DOCS' || (!student.action && student.readyForDocReturn)"
+                        <span *ngIf="student.readyForDocReturn === true && student.action === 'COLLECT_DOCS'"
                             class="status-badge warning">
                             <i class="fas fa-exclamation-circle"></i> Ready to Collect
                         </span>
-                        <span *ngIf="student.action === 'INITIATE_DOC_RETURN'" class="status-badge success">
+                        <span
+                            *ngIf="student.hasRaiseReturnRequest && (student.action === 'INITIATE_DOC_RETURN' || student.action === 'NEED_TO_RETURN_VISA')"
+                            class="status-badge success">
                             <i class="fas fa-check-circle"></i> Ready to Dispatch
                         </span>
-                        <span *ngIf="!student.readyForDocReturn && student.action !== 'INITIATE_DOC_RETURN'"
-                            class="status-badge pending">
+                        <span *ngIf="student.action === 'NEED_TO_RETURN_VISA'" class="status-badge pending">
                             <i class="fas fa-clock"></i> Waiting for Visa Manager
                         </span>
                     </div>
@@ -652,212 +772,211 @@
             </div>
         </div>
 
-        <!-- FUNDS VIEW -->
-        <div class="funds-view-new animate-fade-in" *ngIf="activeTab === 'funds' && !isLoading" [@fadeIn]>
-            <!-- Header with New Request Button -->
-            <div class="funds-header">
-                <div class="funds-title">
-                    <i class="fas fa-history"></i>
-                    <h3>My Fund Requests</h3>
-                    <span class="fund-count-badge paid" *ngIf="paidFundRequestsCount > 0">{{paidFundRequestsCount}}
-                        Paid</span>
-                </div>
-                <div class="funds-actions">
-                    <button class="refresh-btn" (click)="loadMyRequests()" title="Refresh">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                    <button class="new-request-btn" (click)="showFundRequestModal = true">
-                        <i class="fas fa-plus"></i>
-                        <span>New Request</span>
-                    </button>
-                </div>
-            </div>
 
-            <!-- Requests Table - Full Width -->
-            <div class="funds-table-card">
-                <table class="funds-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 80px;">ID</th>
-                            <th>Purpose</th>
-                            <th style="width: 150px;">Amount</th>
-                            <th style="width: 100px;">Status</th>
-                            <th style="width: 130px;">Date</th>
-                            <th style="width: 80px;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let req of myFundRequests">
-                            <td>
-                                <span class="id-pill">#{{req.id}}</span>
-                            </td>
-                            <td>
-                                <div class="purpose-cell">
-                                    <span class="purpose-text">{{req.purpose}}</span>
-                                    <span class="mode-tag" [class.upi]="req.requesterPaymentMode === 'UPI'"
-                                        [class.bank]="req.requesterPaymentMode === 'BANK_TRANSFER'">
-                                        <i class="fas"
-                                            [ngClass]="req.requesterPaymentMode === 'UPI' ? 'fa-mobile-alt' : 'fa-university'"></i>
-                                        {{req.requesterPaymentMode === 'BANK_TRANSFER' ? 'Bank' :
-                                        req.requesterPaymentMode}}
-                                    </span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="amount-cell">
-                                    <span class="amount-main">₹{{req.requestedAmount | number}}</span>
-                                    <span *ngIf="req.status === 'PAID'" class="amount-paid">
-                                        Paid: ₹{{req.amountPaid | number}}
-                                    </span>
-                                    <span *ngIf="req.status === 'PARTIAL'" class="amount-pending">
-                                        ₹{{req.remainingAmount || ((req.requestedAmount || 0) - (req.amountPaid ||
-                                        0))}} pending
-                                    </span>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="status-badge" [ngClass]="{
-                                        'pending': req.status === 'PENDING',
-                                        'partial': req.status === 'PARTIAL',
-                                        'paid': req.status === 'PAID',
-                                        'rejected': req.status === 'REJECTED'
-                                    }">{{req.status}}</span>
-                            </td>
-                            <td class="date-cell">
-                                {{(req.createdAt || req.createdDate || req.requestDate || req.date) | date:'MMM d,
-                                y'}}
-                            </td>
-                            <td>
-                                <button class="history-btn" (click)="openHistoryModal(req)" title="View History">
-                                    <i class="fas fa-history"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr *ngIf="!isLoading && myFundRequests.length === 0">
-                            <td colspan="6">
-                                <div class="empty-state">
-                                    <i class="fas fa-inbox"></i>
-                                    <h4>No Requests Found</h4>
-                                    <p>Click "New Request" to create your first fund request.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <!-- FUND REQUEST MODAL -->
-        <div class="fund-modal-overlay" *ngIf="showFundRequestModal" (click)="showFundRequestModal = false">
-            <div class="fund-modal" (click)="$event.stopPropagation()">
-                <div class="fund-modal-header">
-                    <h3><i class="fas fa-plus-circle"></i> New Fund Request</h3>
-                    <button class="close-btn" (click)="showFundRequestModal = false">
+        <!-- FUND REQUEST MODAL (PREMIUM GLASSMORPHISM) -->
+        <div class="modal-backdrop glass-backdrop" *ngIf="showFundRequestModal" (click)="showFundRequestModal = false">
+            <div class="glass-modal-content" (click)="$event.stopPropagation()">
+                <!-- Modal Header -->
+                <div class="glass-header">
+                    <div class="header-title">
+                        <div class="icon-box-glow">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div>
+                            <h3>My Funds</h3>
+                            <p>Manage requests & view history</p>
+                        </div>
+                    </div>
+                    <button class="glass-close-btn" (click)="showFundRequestModal = false">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="fund-modal-body">
-                    <form (ngSubmit)="submitFundRequest(); showFundRequestModal = false">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Amount (₹) *</label>
-                                <input type="number" [(ngModel)]="fundRequestForm.amount" name="amount"
-                                    placeholder="e.g. 5000" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Purpose *</label>
-                                <input type="text" [(ngModel)]="fundRequestForm.purpose" name="purpose"
-                                    placeholder="e.g. Travel Reimbursement" required>
-                            </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>Payment Mode</label>
-                            <div class="payment-mode-options">
-                                <label class="mode-option" [class.selected]="fundRequestForm.paymentMode === 'UPI'">
-                                    <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode"
-                                        value="UPI">
-                                    <i class="fas fa-mobile-alt"></i>
-                                    <span>UPI</span>
-                                </label>
-                                <label class="mode-option"
-                                    [class.selected]="fundRequestForm.paymentMode === 'BANK_TRANSFER'">
-                                    <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode"
-                                        value="BANK_TRANSFER">
-                                    <i class="fas fa-university"></i>
-                                    <span>Bank Transfer</span>
-                                </label>
-                            </div>
-                        </div>
+                <!-- Internal Tabs -->
+                <div class="glass-tabs">
+                    <button class="glass-tab" [class.active]="fundModalTab === 'new'" (click)="fundModalTab = 'new'">
+                        <i class="fas fa-plus-circle"></i> New Request
+                    </button>
+                    <button class="glass-tab" [class.active]="fundModalTab === 'history'"
+                        (click)="fundModalTab = 'history'; loadMyRequests()">
+                        <i class="fas fa-history"></i> History
+                        <span class="count-badge-small" *ngIf="myFundRequests.length > 0">{{ myFundRequests.length
+                            }}</span>
+                    </button>
+                </div>
 
-                        <!-- UPI Details -->
-                        <div *ngIf="fundRequestForm.paymentMode === 'UPI'" class="upi-section">
-                            <div class="form-group">
-                                <label>UPI ID</label>
-                                <input type="text" [(ngModel)]="fundRequestForm.upiId" name="upiId"
-                                    placeholder="e.g. name@paytm">
-                            </div>
-                            <div class="form-group">
-                                <label>QR Code (Optional)</label>
-                                <div class="qr-upload" (click)="qrInput.click()">
-                                    <i class="fas fa-qrcode"></i>
-                                    <span *ngIf="!isQrUploading && !qrCodePreview">Click to upload</span>
-                                    <span *ngIf="isQrUploading"><i class="fas fa-spinner fa-spin"></i>
-                                        Processing...</span>
-                                    <input #qrInput type="file" (change)="onQrCodeSelected($event)" accept="image/*"
-                                        hidden>
-                                </div>
-                                <div *ngIf="qrCodePreview" class="qr-preview">
-                                    <img [src]="qrCodePreview" alt="QR Preview">
-                                    <button type="button"
-                                        (click)="fundRequestForm.qrCodeBase64 = ''; qrCodePreview = null">Remove</button>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Modal Body -->
+                <div class="glass-body">
 
-                        <!-- Bank Details -->
-                        <div *ngIf="fundRequestForm.paymentMode === 'BANK_TRANSFER'" class="bank-section">
-                            <div class="form-group full-width">
-                                <label>Account Holder Name</label>
-                                <input type="text" [(ngModel)]="fundRequestForm.accountHolderName"
-                                    name="accountHolderName" placeholder="Name as per bank records">
+                    <!-- TAB: NEW REQUEST -->
+                    <div *ngIf="fundModalTab === 'new'" class="tab-pane animate-scale-in">
+                        <form (ngSubmit)="submitFundRequest()">
+                            <!-- Grid Row for Amount and Purpose -->
+                            <div class="form-grid-row">
+                                <div class="form-group">
+                                    <label>Amount (₹)</label>
+                                    <div class="input-icon-wrapper">
+                                        <i class="fas fa-rupee-sign input-icon"></i>
+                                        <input type="number" [(ngModel)]="fundRequestForm.amount" name="amount"
+                                            placeholder="0.00" class="form-input with-icon" required />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Purpose</label>
+                                    <div class="input-icon-wrapper">
+                                        <i class="fas fa-tag input-icon"></i>
+                                        <input type="text" [(ngModel)]="fundRequestForm.purpose" name="purpose"
+                                            placeholder="e.g. Travel Expenses" class="form-input with-icon" required />
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Account Number</label>
-                                    <input type="text" [(ngModel)]="fundRequestForm.accountNumber" name="accountNumber"
-                                        placeholder="Your account number">
-                                </div>
-                                <div class="form-group">
-                                    <label>Confirm Account No</label>
-                                    <input type="text" [(ngModel)]="fundRequestForm.confirmAccountNumber"
-                                        name="confirmAccountNumber" placeholder="Re-enter account number">
+
+                            <div class="glass-input-group">
+                                <label>Payment Mode</label>
+                                <div class="glass-radio-group">
+                                    <label class="glass-radio" [class.selected]="fundRequestForm.paymentMode === 'UPI'">
+                                        <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode"
+                                            value="UPI">
+                                        <span class="radio-content">
+                                            <i class="fas fa-mobile-alt"></i> UPI
+                                        </span>
+                                    </label>
+                                    <label class="glass-radio"
+                                        [class.selected]="fundRequestForm.paymentMode === 'BANK_TRANSFER'">
+                                        <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode"
+                                            value="BANK_TRANSFER">
+                                        <span class="radio-content">
+                                            <i class="fas fa-university"></i> Bank Transfer
+                                        </span>
+                                    </label>
                                 </div>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>IFSC Code</label>
-                                    <input type="text" [(ngModel)]="fundRequestForm.ifscCode" name="ifscCode"
-                                        placeholder="e.g. HDFC0001234">
+
+                            <!-- UPI Section -->
+                            <div *ngIf="fundRequestForm.paymentMode === 'UPI'" class="mode-section animate-fade-in">
+                                <div class="glass-input-group">
+                                    <label>UPI ID</label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-at"></i>
+                                        <input type="text" [(ngModel)]="fundRequestForm.upiId" name="upiId"
+                                            placeholder="username@bank">
+                                    </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group full-width">
+                                    <label>QR CODE (OPTIONAL)</label>
+                                    <div class="file-upload-box" (click)="qrInput.click()">
+                                        <input #qrInput type="file" (change)="onQrCodeSelected($event)" accept="image/*"
+                                            hidden />
+                                        <!-- Spinner Overlay -->
+                                        <div class="spinner-overlay" *ngIf="isQrUploading">
+                                            <div class="spinner-small"></div>
+                                            <span>Processing...</span>
+                                        </div>
+
+                                        <div class="upload-placeholder" *ngIf="!qrCodePreview && !isQrUploading">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <span>Click to upload QR image</span>
+                                        </div>
+                                        <div class="image-preview" *ngIf="qrCodePreview && !isQrUploading">
+                                            <img [src]="qrCodePreview" alt="QR Code" />
+                                            <button class="remove-btn"
+                                                (click)="qrCodePreview = null; $event.stopPropagation()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bank Section -->
+                            <div *ngIf="fundRequestForm.paymentMode === 'BANK_TRANSFER'"
+                                class="mode-section animate-fade-in">
+                                <div class="glass-form-grid">
+                                    <div class="glass-input-group">
+                                        <label>Account No.</label>
+                                        <input type="text" [(ngModel)]="fundRequestForm.accountNumber" name="accNo"
+                                            placeholder="XXXXXXXXXXXXXXXX">
+                                    </div>
+                                    <div class="glass-input-group">
+                                        <label>Confirm Account No.</label>
+                                        <input type="text" [(ngModel)]="fundRequestForm.confirmAccountNumber"
+                                            name="confAccNo" placeholder="XXXXXXXXXXXXXXXX">
+                                    </div>
+                                </div>
+                                <div class="glass-form-grid">
+                                    <div class="glass-input-group">
+                                        <label>IFSC Code</label>
+                                        <input type="text" [(ngModel)]="fundRequestForm.ifscCode" name="ifsc"
+                                            placeholder="ABCD0123456" style="text-transform: uppercase;">
+                                    </div>
+                                    <div class="glass-input-group">
+                                        <label>Account Holder</label>
+                                        <input type="text" [(ngModel)]="fundRequestForm.accountHolderName" name="holder"
+                                            placeholder="Name as per bank">
+                                    </div>
+                                </div>
+                                <div class="glass-input-group">
                                     <label>Branch Name</label>
-                                    <input type="text" [(ngModel)]="fundRequestForm.branchName" name="branchName"
-                                        placeholder="e.g. Mumbai Main Branch">
+                                    <input type="text" [(ngModel)]="fundRequestForm.branchName" name="branch"
+                                        placeholder="e.g. MG Road Branch">
+                                </div>
+                            </div>
+
+                            <div class="glass-footer-actions">
+                                <button type="button" class="glass-btn-secondary"
+                                    (click)="showFundRequestModal = false">Cancel</button>
+                                <button type="submit" class="glass-btn-primary" [disabled]="isFundSubmitting">
+                                    <i class="fas" [class.fa-spinner]="isFundSubmitting"
+                                        [class.fa-spin]="isFundSubmitting"
+                                        [class.fa-paper-plane]="!isFundSubmitting"></i>
+                                    {{ isFundSubmitting ? 'Sending...' : 'Submit Request' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- TAB: HISTORY -->
+                    <div *ngIf="fundModalTab === 'history'" class="tab-pane animate-scale-in">
+                        <div class="glass-list-container">
+                            <div *ngIf="isLoading" class="small-spinner-container">
+                                <div class="small-spinner"></div>
+                                <p>Loading history...</p>
+                            </div>
+
+                            <div *ngIf="!isLoading && myFundRequests.length === 0" class="empty-state-glass">
+                                <i class="fas fa-history"></i>
+                                <p>No fund requests found.</p>
+                                <button class="link-btn" (click)="fundModalTab = 'new'">Create one</button>
+                            </div>
+
+                            <div class="glass-request-card" *ngFor="let req of myFundRequests"
+                                (click)="openHistoryModal(req)">
+                                <div class="req-left">
+                                    <div class="req-icon" [ngClass]="getFundStatusClass(req.status)">
+                                        <i class="fas" [class.fa-check]="req.status === 'PAID'"
+                                            [class.fa-clock]="req.status === 'PENDING'"
+                                            [class.fa-adjust]="req.status === 'PARTIAL'"
+                                            [class.fa-times]="req.status === 'REJECTED'"></i>
+                                    </div>
+                                    <div class="req-info">
+                                        <h4>{{ req.purpose }}</h4>
+                                        <span class="req-date">{{ (req.createdAt || req.date) | date:'MMM d, y'
+                                            }}</span>
+                                    </div>
+                                </div>
+                                <div class="req-right">
+                                    <span class="req-amount">₹{{ req.requestedAmount | number }}</span>
+                                    <span class="req-status" [ngClass]="getFundStatusClass(req.status)">{{ req.status
+                                        }}</span>
+                                </div>
+                                <div class="req-arrow">
+                                    <i class="fas fa-chevron-right"></i>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="fund-modal-footer">
-                            <button type="button" class="cancel-btn"
-                                (click)="showFundRequestModal = false">Cancel</button>
-                            <button type="submit" class="submit-btn" [disabled]="isFundSubmitting">
-                                <i class="fas"
-                                    [ngClass]="isFundSubmitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
-                                {{isFundSubmitting ? 'Submitting...' : 'Submit Request'}}
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -1912,10 +2031,10 @@
 
         <!-- Loading State -->
         <div class="modal-body" *ngIf="isLoading">
-            <div class="premium-spinner">
-                <div class="spinner-ring"></div>
+            <div class="small-spinner-container">
+                <div class="small-spinner"></div>
+                <p>Loading details...</p>
             </div>
-            <p style="text-align: center; margin-top: 10px; color: var(--text-muted);">Loading details...</p>
         </div>
     </div>
 
@@ -1927,13 +2046,396 @@
         </button>
     </div>
 
-    <!-- PREMIUM SPINNER OVERLAY -->
+    <!-- SMALL SPINNER OVERLAY -->
     <div class="spinner-overlay" *ngIf="isSubmitting">
-        <div class="premium-spinner">
-            <div class="spinner-ring"></div>
-            <div class="spinner-core"></div>
+        <div class="small-spinner-container">
+            <div class="small-spinner"></div>
+            <p>Processing...</p>
         </div>
-        <p class="spinner-text">Processing...</p>
-    </div>
+    </div> <!-- STUDENT DETAILS MODAL - PRODUCTION READY -->
+    <div class="modal-backdrop-pro" *ngIf="showStudentDetailsModal" (click)="closeStudentDetails()">
+        <div class="modal-professional" (click)="$event.stopPropagation()">
 
+            <!-- Professional Modal Header -->
+            <div class="modal-header-pro">
+                <div class="header-user-section">
+                    <div class="header-avatar-large">{{ getInitials(selectedStudentForDetails?.fullName) }}</div>
+                    <div class="header-user-details">
+                        <h2 class="student-name-main">{{ selectedStudentForDetails?.fullName }}</h2>
+                        <span class="status-badge-large"
+                            [class]="getStatusClass(selectedStudentForDetails?.applicationStatus)">
+                            {{ selectedStudentForDetails?.applicationStatus }}
+                        </span>
+                    </div>
+                </div>
+                <button class="close-btn-pro" (click)="closeStudentDetails()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Professional Tabs -->
+            <div class="modal-tabs-pro">
+                <button class="tab-btn-pro" [class.active]="studentDetailsTab === 'info'"
+                    (click)="setDetailsTab('info')">
+                    <i class="fas fa-id-card"></i>
+                    <span>Basic Info</span>
+                </button>
+                <button class="tab-btn-pro" [class.active]="studentDetailsTab === 'docs'"
+                    (click)="setDetailsTab('docs')">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Documents</span>
+                </button>
+                <button class="tab-btn-pro" [class.active]="studentDetailsTab === 'timeline'"
+                    (click)="setDetailsTab('timeline')">
+                    <i class="fas fa-history"></i>
+                    <span>Timeline</span>
+                </button>
+            </div>
+
+            <!-- Professional Modal Body -->
+            <div class="modal-body-pro">
+
+                <!-- INFO TAB - Professional Grid -->
+                <div *ngIf="studentDetailsTab === 'info'" class="tab-content-pro fade-in-smooth">
+                    <div class="info-grid-professional">
+                        <div class="info-item-pro">
+                            <div class="info-icon-circle"><i class="fas fa-hashtag"></i></div>
+                            <div class="info-details">
+                                <label>Application ID</label>
+                                <p>{{ selectedStudentForDetails?.applicationId || 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item-pro">
+                            <div class="info-icon-circle blue"><i class="fas fa-passport"></i></div>
+                            <div class="info-details">
+                                <label>Passport Number</label>
+                                <p>{{ selectedStudentForDetails?.passportNo || 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item-pro full-width">
+                            <div class="info-icon-circle purple"><i class="fas fa-envelope"></i></div>
+                            <div class="info-details">
+                                <label>Email Address</label>
+                                <p class="email-text">{{ selectedStudentForDetails?.email || 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item-pro">
+                            <div class="info-icon-circle orange"><i class="fas fa-phone"></i></div>
+                            <div class="info-details">
+                                <label>Contact Number</label>
+                                <p>{{ selectedStudentForDetails?.contactNo || 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item-pro">
+                            <div class="info-icon-circle green"><i class="fas fa-graduation-cap"></i></div>
+                            <div class="info-details">
+                                <label>Applied For</label>
+                                <p>{{ selectedStudentForDetails?.appliedFor || 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="info-item-pro">
+                            <div class="info-icon-circle pink"><i class="fas fa-calendar"></i></div>
+                            <div class="info-details">
+                                <label>Date of Birth</label>
+                                <p>{{ (selectedStudentForDetails?.dob | date:'longDate') || 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DOCUMENTS TAB - Professional Cards -->
+                <div *ngIf="studentDetailsTab === 'docs'" class="tab-content-pro fade-in-smooth">
+                    <div class="docs-grid-pro">
+                        <!-- Passport -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.passportPath">
+                            <div class="doc-card-icon blue-doc">
+                                <i class="fas fa-passport"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Passport</h4>
+                                <p>Official Travel Document</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.passportPath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Aadhaar Card -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.adhaarPath">
+                            <div class="doc-card-icon orange-doc">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Aadhaar Card</h4>
+                                <p>National ID Document</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.adhaarPath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Marksheet -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.markseetPath">
+                            <div class="doc-card-icon green-doc">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Marksheet</h4>
+                                <p>Academic Record</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.markseetPath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- NEET Marksheet -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.neetMarksheetPath">
+                            <div class="doc-card-icon purple-doc">
+                                <i class="fas fa-file-medical"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>NEET Marksheet</h4>
+                                <p>Medical Entrance Exam</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.neetMarksheetPath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Admission Letter -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.admissionLetterPath">
+                            <div class="doc-card-icon green-doc">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Admission Letter</h4>
+                                <p>University Offer Letter</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.admissionLetterPath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Conditional Offer Letter -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.conditionalOfferLetterPath">
+                            <div class="doc-card-icon yellow-doc">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Conditional Offer</h4>
+                                <p>Conditional Admission Letter</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.conditionalOfferLetterPath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Telex Documents -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.telexDocumentsPath">
+                            <div class="doc-card-icon blue-doc">
+                                <i class="fas fa-file-import"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Telex Documents</h4>
+                                <p>Immigration Documents</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.telexDocumentsPath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Telex Payment Screenshot -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.telexPaymentScreenshotPath">
+                            <div class="doc-card-icon pink-doc">
+                                <i class="fas fa-receipt"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Telex Payment</h4>
+                                <p>Payment Screenshot</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.telexPaymentScreenshotPath, 'image')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- TT Copy -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.ttCopyPath">
+                            <div class="doc-card-icon orange-doc">
+                                <i class="fas fa-money-check-alt"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>TT Copy</h4>
+                                <p>Telegraph Transfer Receipt</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.ttCopyPath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Payment Confirmation -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.paymentConfirmationPath">
+                            <div class="doc-card-icon green-doc">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Payment Confirmation</h4>
+                                <p>Fee Payment Receipt</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.paymentConfirmationPath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Confirmation Page -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.confirmationPagePath">
+                            <div class="doc-card-icon purple-doc">
+                                <i class="fas fa-file-signature"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Confirmation Page</h4>
+                                <p>Application Confirmation</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.confirmationPagePath, 'pdf')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Profile Image -->
+                        <div class="doc-card-pro" *ngIf="selectedStudentForDetails?.profileImagePath">
+                            <div class="doc-card-icon pink-doc">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="doc-card-content">
+                                <h4>Profile Photo</h4>
+                                <p>Student Photograph</p>
+                            </div>
+                            <button class="doc-view-btn"
+                                (click)="previewFile(selectedStudentForDetails?.profileImagePath, 'image')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div class="empty-state-pro-docs" *ngIf="!selectedStudentForDetails?.passportPath && 
+                                   !selectedStudentForDetails?.adhaarPath && 
+                                   !selectedStudentForDetails?.markseetPath && 
+                                   !selectedStudentForDetails?.neetMarksheetPath &&
+                                   !selectedStudentForDetails?.admissionLetterPath &&
+                                   !selectedStudentForDetails?.conditionalOfferLetterPath &&
+                                   !selectedStudentForDetails?.telexDocumentsPath &&
+                                   !selectedStudentForDetails?.telexPaymentScreenshotPath &&
+                                   !selectedStudentForDetails?.ttCopyPath &&
+                                   !selectedStudentForDetails?.paymentConfirmationPath &&
+                                   !selectedStudentForDetails?.confirmationPagePath &&
+                                   !selectedStudentForDetails?.profileImagePath">
+                            <i class="fas fa-folder-open"></i>
+                            <h4>No Documents Available</h4>
+                            <p>Documents will appear here once uploaded</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TIMELINE TAB - Ultra Premium Timeline -->
+                <div *ngIf="studentDetailsTab === 'timeline'" class="tab-content-pro fade-in-smooth">
+
+                    <!-- Timeline Stats Banner -->
+                    <div class="timeline-stats-banner" *ngIf="selectedStudentForDetails?.studentStatusHistory?.length">
+                        <div class="stat-pill">
+                            <i class="fas fa-list-check"></i>
+                            <span>{{ selectedStudentForDetails?.studentStatusHistory?.length || 0 }} Events</span>
+                        </div>
+                        <div class="stat-pill">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ getDaysSinceCreation(selectedStudentForDetails) }} Day Journey</span>
+                        </div>
+                        <div class="stat-pill">
+                            <i class="fas fa-users"></i>
+                            <span>{{ getUniqueActors(selectedStudentForDetails?.studentStatusHistory || []).length }}
+                                Contributors</span>
+                        </div>
+                    </div>
+
+                    <!-- Premium Timeline -->
+                    <div class="timeline-ultra-pro">
+                        <div class="timeline-event-ultra"
+                            *ngFor="let log of selectedStudentForDetails?.studentStatusHistory; let i = index; let isFirst = first; let isLast = last"
+                            [class.first-event]="isFirst" [class.last-event]="isLast">
+
+                            <!-- Timeline Spine & Dot -->
+                            <div class="timeline-spine-section">
+                                <div class="timeline-dot-ultra"
+                                    [class]="getTimelinePhaseClass(log.newStatus || log.studentApplicationStatus)">
+                                    <i [class]="getPhaseIcon(log.newStatus || log.studentApplicationStatus)"></i>
+                                </div>
+                                <div class="timeline-line-ultra" *ngIf="!isLast"></div>
+                            </div>
+
+                            <!-- Event Card -->
+                            <div class="timeline-card-ultra"
+                                [class]="getCardPhaseClass(log.newStatus || log.studentApplicationStatus)">
+                                <div class="card-header-ultra">
+                                    <div class="status-section">
+                                        <span class="status-badge-ultra"
+                                            [class]="getStatusBadgeClass(log.newStatus || log.studentApplicationStatus)">
+                                            {{ formatStatusText(log.newStatus || log.studentApplicationStatus) }}
+                                        </span>
+                                        <span class="event-number">#{{
+                                            (selectedStudentForDetails?.studentStatusHistory?.length || 0) - i }}</span>
+                                    </div>
+                                    <div class="time-section">
+                                        <span class="relative-time">{{ getRelativeTime(log.updatedAt) }}</span>
+                                        <span class="exact-time">{{ log.updatedAt | date:'MMM d, y • h:mm a' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="card-body-ultra">
+                                    <div class="actor-row" *ngIf="log.updatedBy">
+                                        <div class="actor-avatar">
+                                            <i class="fas fa-user-circle"></i>
+                                        </div>
+                                        <div class="actor-details">
+                                            <span class="actor-name">{{ log.updatedBy }}</span>
+                                            <span class="actor-role">{{ getActorRole(log.updatedBy) }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="remark-row" *ngIf="log.remarks">
+                                        <i class="fas fa-quote-left remark-icon"></i>
+                                        <p class="remark-text">{{ log.remarks }}</p>
+                                    </div>
+
+                                    <!-- Phase Badge -->
+                                    <div class="phase-tag"
+                                        [class]="'phase-' + getPhaseForStatus(log.newStatus || log.studentApplicationStatus)">
+                                        {{ getPhaseName(log.newStatus || log.studentApplicationStatus) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div class="empty-state-ultra-timeline"
+                            *ngIf="!selectedStudentForDetails?.studentStatusHistory?.length">
+                            <div class="empty-icon-wrap">
+                                <i class="fas fa-timeline"></i>
+                            </div>
+                            <h4>No Timeline History</h4>
+                            <p>Status updates and milestones will appear here as the application progresses</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

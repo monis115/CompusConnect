@@ -40,14 +40,13 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // STATE MANAGEMENT
   // ============================================
-  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' = 'dashboard';
+  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' = 'dashboard';
   isLoading: boolean = false;
   isLoggingOut: boolean = false;
   isDarkMode: boolean = false;
 
-  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds'): void {
+  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students'): void {
     this.activeTab = tab;
-    this.pagination.currentPage = 1; // Reset pagination
     this.pagination.currentPage = 1; // Reset pagination
     this.applyFilters(); // Re-apply filters based on the new tab
     if (tab === 'funds') {
@@ -56,11 +55,46 @@ export class DocPersonDashbaord implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // ALL STUDENTS & DETAILS MODAL
+  showStudentDetailsModal: boolean = false;
+  selectedStudentForDetails: Student | null = null;
+  studentDetailsTab: 'info' | 'docs' | 'timeline' = 'info';
+
+  openStudentDetails(student: Student): void {
+    this.selectedStudentForDetails = student;
+    this.studentDetailsTab = 'info'; // Default tab
+    this.showStudentDetailsModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeStudentDetails(): void {
+    this.showStudentDetailsModal = false;
+    this.selectedStudentForDetails = null;
+    this.cdr.detectChanges();
+  }
+
+  setDetailsTab(tab: 'info' | 'docs' | 'timeline'): void {
+    this.studentDetailsTab = tab;
+    this.cdr.detectChanges();
+  }
+
   // Interactive Features
   bulkSelectedIds: Set<number> = new Set();
   showCommandPalette: boolean = false;
+  showProfileBanner: boolean = false; // New Profile Banner State
   commandPaletteQuery: string = '';
   showConfetti: boolean = false;
+
+  toggleProfileBanner(): void {
+    this.showProfileBanner = !this.showProfileBanner;
+    this.cdr.detectChanges();
+  }
+
+  // Close banner when clicking outside (handled in HTML via backdrop or directive)
+  closeProfileBanner(): void {
+    this.showProfileBanner = false;
+    this.cdr.detectChanges();
+  }
 
   // Modal States
   showSuccessModal: boolean = false;
@@ -160,6 +194,32 @@ export class DocPersonDashbaord implements OnInit {
     returnedDate: new Date().toISOString().split('T')[0]
   };
   showDetailsModal: boolean = false; // New state for details modal
+
+  // Fund Request Modal State
+  showFundRequestModal: boolean = false;
+  fundModalTab: 'new' | 'history' = 'new'; // 'new' or 'history'
+  isFundSubmitting: boolean = false;
+  isQrUploading: boolean = false;
+  qrCodePreview: string | null = null;
+
+  fundRequestForm = {
+    amount: null,
+    purpose: '',
+    paymentMode: 'UPI', // UPI or BANK_TRANSFER
+    upiId: '',
+    accountNumber: '',
+    confirmAccountNumber: '',
+    accountHolderName: '',
+    ifscCode: '',
+    branchName: '',
+    bankDetails: '',
+    qrCodeBase64: ''
+  };
+
+  // Fund Requests List
+  myFundRequests: any[] = [];
+  selectedHistoryRequest: any = null;
+  showHistoryModal: boolean = false;
 
   // ============================================
   // DOCUMENT PREVIEW
@@ -345,7 +405,8 @@ export class DocPersonDashbaord implements OnInit {
     this.returnList = this.students.filter(s =>
       s.readyForDocReturn === true ||
       s.action === 'COLLECT_DOCS' ||
-      s.action === 'INITIATE_DOC_RETURN'
+      s.action === 'INITIATE_DOC_RETURN' ||
+      s.action === 'NEED_TO_RETURN_VISA'
     );
     this.filteredReturnList = [...this.returnList];
 
@@ -403,13 +464,7 @@ export class DocPersonDashbaord implements OnInit {
 
     // Search filter
     if (this.filters.searchQuery.trim()) {
-      const query = this.filters.searchQuery.toLowerCase();
-      results = results.filter(s =>
-        s.fullName?.toLowerCase().includes(query) ||
-        s.email?.toLowerCase().includes(query) ||
-        s.id?.toString().includes(query) ||
-        s.applicationId?.toString().includes(query)
-      );
+      results = results.filter(s => this.matchesSearch(s, this.filters.searchQuery));
     }
 
     // Status filter
@@ -594,6 +649,11 @@ export class DocPersonDashbaord implements OnInit {
 
   // --- RETURN ACTION ---
   openReturnModal(student: Student): void {
+    if (!student.hasRaiseReturnRequest) {
+      this.showToast('warning', 'Student has not raised a request for the return of documents.');
+      return;
+    }
+
     this.selectedStudent = student;
     this.returnDetails = {
       method: 'COURIER',
@@ -1077,6 +1137,9 @@ export class DocPersonDashbaord implements OnInit {
       case 'dashboard':
         this.activeTab = 'dashboard';
         break;
+      case 'all-students':
+        this.setActiveTab('all-students');
+        break;
       case 'receive':
         this.activeTab = 'receive';
         break;
@@ -1217,30 +1280,7 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // FUND REQUESTS
   // ============================================
-  fundRequestForm = {
-    amount: null,
-    purpose: '',
-    paymentMode: 'UPI',
-    // Specific fields
-    upiId: '',
-    accountNumber: '',
-    confirmAccountNumber: '',
-    accountHolderName: '',
-    ifscCode: '',
-    branchName: '',
-    // Processed field
-    bankDetails: '',
-    qrCodeBase64: ''
-  };
-  qrCodePreview: string | ArrayBuffer | null = null;
-  isQrUploading: boolean = false;
-  myFundRequests: any[] = [];
-  isFundSubmitting: boolean = false;
 
-  // History Modal State
-  showHistoryModal: boolean = false;
-  selectedHistoryRequest: any = null;
-  showFundRequestModal: boolean = false;
 
   openHistoryModal(req: any): void {
     this.selectedHistoryRequest = req;
@@ -1256,11 +1296,32 @@ export class DocPersonDashbaord implements OnInit {
     return (req.remainingAmount !== undefined) ? req.remainingAmount : Math.max(0, (req.requestedAmount || 0) - (req.amountPaid || 0));
   }
 
+
+
+  resetFundForm(): void {
+    this.fundRequestForm = {
+      amount: null,
+      purpose: '',
+      paymentMode: 'UPI',
+      upiId: '',
+      accountNumber: '',
+      confirmAccountNumber: '',
+      accountHolderName: '',
+      ifscCode: '',
+      branchName: '',
+      bankDetails: '',
+      qrCodeBase64: ''
+    };
+    this.qrCodePreview = null;
+  }
+
+  // Handle QR Code Selection
+  // Handle QR Code Selection with Resizing
   onQrCodeSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      if (file.size > 1024 * 1024 * 5) { // 5MB limit catch
-        this.showToast('error', 'File size too large. Max 5MB.');
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        this.showToast('error', 'Image size should be less than 5MB');
         return;
       }
 
@@ -1274,7 +1335,7 @@ export class DocPersonDashbaord implements OnInit {
         },
         (err) => {
           console.error('Image resize error', err);
-          this.showToast('error', 'Failed to process image.');
+          this.showToast('error', 'Failed to process image');
           this.isQrUploading = false;
           this.cdr.detectChanges();
         }
@@ -1282,6 +1343,7 @@ export class DocPersonDashbaord implements OnInit {
     }
   }
 
+  // Helper: Resize Image
   private resizeImage(file: File, maxWidth: number, maxHeight: number): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1294,6 +1356,7 @@ export class DocPersonDashbaord implements OnInit {
           let width = img.width;
           let height = img.height;
 
+          // Calculate new dimensions
           if (width > maxWidth) {
             height *= maxWidth / width;
             width = maxWidth;
@@ -1302,11 +1365,13 @@ export class DocPersonDashbaord implements OnInit {
             width *= maxHeight / height;
             height = maxHeight;
           }
+
           elem.width = width;
           elem.height = height;
           const ctx = elem.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
-          // Compress to 0.7 quality
+
+          // Compress to JPEG with 0.7 quality
           resolve(elem.toDataURL('image/jpeg', 0.7));
         };
         img.onerror = error => reject(error);
@@ -1334,8 +1399,7 @@ export class DocPersonDashbaord implements OnInit {
       // Bank Transfer
       if (!this.fundRequestForm.accountNumber ||
         !this.fundRequestForm.accountHolderName ||
-        !this.fundRequestForm.ifscCode ||
-        !this.fundRequestForm.branchName) {
+        !this.fundRequestForm.ifscCode) {
         this.showToast('error', 'Please fill all bank details.');
         return;
       }
@@ -1343,23 +1407,17 @@ export class DocPersonDashbaord implements OnInit {
         this.showToast('error', 'Account numbers do not match.');
         return;
       }
-      detailsString = `Bank Transfer
-Account Holder: ${this.fundRequestForm.accountHolderName}
-Account No: ${this.fundRequestForm.accountNumber}
-IFSC: ${this.fundRequestForm.ifscCode}
-Branch: ${this.fundRequestForm.branchName}`;
+      detailsString = `Bank: ${this.fundRequestForm.branchName || 'N/A'}, Acc: ${this.fundRequestForm.accountNumber}, IFSC: ${this.fundRequestForm.ifscCode}, Holder: ${this.fundRequestForm.accountHolderName}`;
     }
 
-    const username = sessionStorage.getItem('username') || 'DOC_001';
-    const fullName = this.docPerson?.fullName || this.docPerson?.fullName || username;
-
-    const request: PaymentRequest = {
-      requesterUsername: username,
-      requesterFullName: fullName,
-      requesterRole: 'DocPerson',
+    const request: any = {
+      requesterUsername: this.docPerson?.username || sessionStorage.getItem('username') || sessionStorage.getItem('userId') || 'DOC_001',
+      requesterFullName: this.docPerson?.fullName || sessionStorage.getItem('username') || 'Doc Person',
+      requesterRole: 'DocManager',
       purpose: this.fundRequestForm.purpose,
       requestedAmount: this.fundRequestForm.amount,
       requesterPaymentMode: this.fundRequestForm.paymentMode,
+
       bankDetails: detailsString,
       qrCode: this.fundRequestForm.qrCodeBase64
     };
@@ -1372,6 +1430,10 @@ Branch: ${this.fundRequestForm.branchName}`;
           this.showToast('success', 'Fund request submitted successfully!');
           this.resetFundForm();
           this.loadMyRequests();
+          // Auto-switch to history tab
+          this.fundModalTab = 'history';
+          // Close modal on success
+          this.showFundRequestModal = false;
         },
         error: (err) => {
           this.isFundSubmitting = false;
@@ -1379,23 +1441,6 @@ Branch: ${this.fundRequestForm.branchName}`;
           this.showToast('error', 'Failed to submit request. Please try again.');
         }
       });
-  }
-
-  resetFundForm(): void {
-    this.fundRequestForm = {
-      amount: null,
-      purpose: '',
-      paymentMode: 'UPI',
-      upiId: '',
-      accountNumber: '',
-      confirmAccountNumber: '',
-      accountHolderName: '',
-      ifscCode: '',
-      branchName: '',
-      bankDetails: '',
-      qrCodeBase64: ''
-    };
-    this.qrCodePreview = null;
   }
 
   loadMyRequests(): void {
@@ -1429,6 +1474,142 @@ Branch: ${this.fundRequestForm.branchName}`;
 
   // Count of paid or partially paid fund requests
   get paidFundRequestsCount(): number {
+    if (!this.myFundRequests) return 0;
     return this.myFundRequests.filter(r => r.status === 'PAID' || r.status === 'PARTIAL').length;
+  }
+
+  // Helper for search filtering
+  matchesSearch(student: Student, query: string): boolean {
+    if (!query) return true;
+    const q = query.toLowerCase();
+    return !!(
+      (student.fullName && student.fullName.toLowerCase().includes(q)) ||
+      (student.email && student.email.toLowerCase().includes(q)) ||
+      (student.passportNo && student.passportNo.toLowerCase().includes(q)) ||
+      (student.applicationId && student.applicationId.toLowerCase().includes(q)) ||
+      (student.appliedFor && student.appliedFor.toLowerCase().includes(q))
+    );
+  }
+
+
+  previewFile(path: string | undefined, type: string): void {
+    if (!path) {
+      this.showToast('error', 'Document not available');
+      return;
+    }
+    // Use getDocumentUrl to format the path correctly for localhost:8080
+    const fullUrl = this.getDocumentUrl(path);
+    window.open(fullUrl, '_blank');
+  }
+
+  // ============================================
+  // PREMIUM TIMELINE HELPERS
+  // ============================================
+
+  getPhaseForStatus(status: string): string {
+    if (!status) return 'default';
+    const s = status.toUpperCase();
+
+    if (s.includes('REGISTER')) return 'registration';
+    if (s.includes('FORWARD') || s.includes('ADMISSION') || s.includes('OFFER') || s.includes('LETTER')) return 'admission';
+    if (s.includes('TELEX')) return 'telex';
+    if (s.includes('FEE') || s.includes('PAYMENT') || s.includes('PAID')) return 'payment';
+    if (s.includes('VISA') || s.includes('PASSPORT') || s.includes('EMBASSY') || s.includes('STAMP')) return 'visa';
+    if (s.includes('DOC') || s.includes('COLLECT') || s.includes('RETURN')) return 'completion';
+
+    return 'default';
+  }
+
+  getPhaseName(status: string): string {
+    const phase = this.getPhaseForStatus(status);
+    const phases: { [key: string]: string } = {
+      registration: 'Registration',
+      admission: 'Admission Process',
+      telex: 'Telex Processing',
+      payment: 'Payment',
+      visa: 'Visa Journey',
+      completion: 'Document Return',
+      default: 'General'
+    };
+    return phases[phase] || 'General';
+  }
+
+  getTimelinePhaseClass(status: string): string {
+    return `phase-dot-${this.getPhaseForStatus(status)}`;
+  }
+
+  getCardPhaseClass(status: string): string {
+    return `phase-card-${this.getPhaseForStatus(status)}`;
+  }
+
+  getStatusBadgeClass(status: string): string {
+    return `badge-${this.getPhaseForStatus(status)}`;
+  }
+
+  getPhaseIcon(status: string): string {
+    const phase = this.getPhaseForStatus(status);
+    const icons: { [key: string]: string } = {
+      registration: 'fas fa-user-plus',
+      admission: 'fas fa-graduation-cap',
+      telex: 'fas fa-file-signature',
+      payment: 'fas fa-dollar-sign',
+      visa: 'fas fa-passport',
+      completion: 'fas fa-check-circle',
+      default: 'fas fa-circle'
+    };
+    return icons[phase] || 'fas fa-circle';
+  }
+
+  getRelativeTime(dateString: string): string {
+    if (!dateString) return '';
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    if (days < 30) return `${Math.floor(days / 7)}w ago`;
+    if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+    return `${Math.floor(days / 365)}y ago`;
+  }
+
+  getActorRole(updatedBy: string): string {
+    if (!updatedBy) return '';
+
+    const lower = updatedBy.toLowerCase();
+    if (lower.includes('doc') || lower.includes('DOC_')) return 'Document Manager';
+    if (lower.includes('visa') || lower.includes('VM_')) return 'Visa Manager';
+    if (lower.includes('telex') || lower.includes('TM_')) return 'Telex Manager';
+    if (lower.includes('account') || lower.includes('ACC_')) return 'Accountant';
+    if (lower.includes('manager') || lower.includes('M25')) return 'Admission Manager';
+    if (lower.includes('university') || lower.includes('UE')) return 'University Coordinator';
+    if (lower.includes('agent') || lower.includes('R11')) return 'Agent';
+    if (lower.includes('system')) return 'System';
+
+    return 'Team Member';
+  }
+
+  getDaysSinceCreation(student: any): number {
+    if (!student.createdAt) return 0;
+    const created = new Date(student.createdAt);
+    const now = new Date();
+    const diff = now.getTime() - created.getTime();
+    return Math.floor(diff / 86400000);
+  }
+
+  getUniqueActors(history: any[]): string[] {
+    if (!history) return [];
+    const actors = new Set<string>();
+    history.forEach(h => {
+      if (h.updatedBy) actors.add(h.updatedBy);
+    });
+    return Array.from(actors);
   }
 }

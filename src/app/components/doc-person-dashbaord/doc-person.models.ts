@@ -53,6 +53,7 @@ export interface Student {
     readyForDocReturn?: boolean;
     isTelexDocApproved?: boolean | null;
     docPersonComment?: string | null;
+    hasRaiseReturnRequest?: boolean;
 
     // Document Delivery Tracking
     docDeliveryMethod?: 'COURIER' | 'SELF_PERSON' | string;
@@ -71,6 +72,7 @@ export interface Student {
     accountant?: { fullName: string };
     college?: { collegeName: string; city: string; country: string };
     course?: string;
+    appliedFor?: string;
     studentStatusHistory?: any[];
 
     // Additional Fields

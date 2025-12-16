@@ -857,8 +857,8 @@ Branch: ${this.fundRequestForm.branchName}`;
 
     const request: PaymentRequest = {
       requesterUsername: this.currentUsername,
-      requesterFullName: this.visaManProfile?.fullName || this.currentUsername,
-      requesterRole: 'VisaMan',
+      requesterFullName: this.visaManProfile?.fullName || this.currentUsername || 'Visa Man',
+      requesterRole: 'VisaManager',
       purpose: this.fundRequestForm.purpose,
       requestedAmount: this.fundRequestForm.amount,
       requesterPaymentMode: this.fundRequestForm.paymentMode,
