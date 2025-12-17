@@ -1142,122 +1142,191 @@
         </div>
     </div>
 
-    <!-- ========== PREMIUM EMAIL MODAL ========== -->
+    <!-- ========== PREMIUM EMAIL MODAL WITH SIDE-BY-SIDE LAYOUT ========== -->
     <div class="email-modal-overlay" *ngIf="showEmailModal" (click)="closeEmailModal()">
-        <div class="email-modal" (click)="$event.stopPropagation()">
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <div class="modal-title">
-                    <div class="modal-icon">
-                        <i-lucide name="mail" size="24"></i-lucide>
-                    </div>
-                    <div class="modal-title-text">
-                        <h2>Compose Email</h2>
-                        <p>Send a message to {{ selectedStudent?.fullName }}</p>
-                    </div>
-                </div>
-                <button class="modal-close" (click)="closeEmailModal()">
-                    <i-lucide name="x" size="20"></i-lucide>
-                </button>
+        <div class="email-modal-container" [class.templates-open]="showTemplates" (click)="$event.stopPropagation()">
+
+            <!-- Floating Template Toggle (Outside Box) -->
+            <button class="template-toggle-float" (click)="toggleTemplates()" [class.active]="showTemplates">
+                <i-lucide name="layout-template" size="18"></i-lucide>
+                <span>Templates</span>
+                <i-lucide [name]="showTemplates ? 'chevron-right' : 'chevron-left'" size="16"></i-lucide>
+            </button>
+
+            <!-- Flying Text Animation Element -->
+            <div class="flying-text" *ngIf="isAnimatingTemplate" [class.animate]="isAnimatingTemplate">
+                <div class="flying-subject">{{ animatingSubject }}</div>
+                <div class="flying-content">{{ animatingContent | slice:0:100 }}...</div>
             </div>
 
-            <!-- Email Sending Overlay (Inside Modal) -->
-            <div *ngIf="isSendingEmail" class="email-sending-overlay">
-                <div class="loading-content">
-                    <div class="premium-spinner thin">
-                        <div class="spinner-ring"></div>
-                        <div class="spinner-ring"></div>
-                        <div class="spinner-ring"></div>
-                    </div>
-                    <div class="loading-text">Sending Message...</div>
-                </div>
-            </div>
-
-            <!-- Success State -->
-            <div class="modal-success" *ngIf="emailSent">
-                <div class="success-animation">
-                    <div class="success-ripple"></div>
-                    <div class="success-ripple delay-1"></div>
-                    <div class="success-ripple delay-2"></div>
-                    <div class="success-circle">
-                        <i-lucide name="check" size="56"></i-lucide>
-                    </div>
-                </div>
-                <h3>Email Sent Successfully! </h3>
-                <p>Your message has been delivered to</p>
-                <div class="success-email-badge">
-                    <i-lucide name="mail" size="16"></i-lucide>
-                    {{ selectedStudent?.email }}
-                </div>
-                <button class="btn-primary success-done-btn" (click)="closeEmailModal()">
-                    <i-lucide name="check-circle" size="18"></i-lucide>
-                    Done
-                </button>
-            </div>
-
-            <!-- Compose Form -->
-            <div class="modal-content" *ngIf="!emailSent">
-                <!-- Recipient Display -->
-                <div class="recipient-display">
-                    <span class="recipient-label">To:</span>
-                    <div class="recipient-chip">
-                        <div class="recipient-avatar">{{ getInitials(selectedStudent?.fullName || '') }}</div>
-                        <div class="recipient-info">
-                            <span class="recipient-name">{{ selectedStudent?.fullName }}</span>
-                            <span class="recipient-email">{{ selectedStudent?.email }}</span>
+            <!-- LEFT SIDE: Email Form -->
+            <div class="email-form-panel">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <div class="modal-icon">
+                            <i-lucide name="mail" size="24"></i-lucide>
                         </div>
-                        <div class="recipient-verified">
-                            <i-lucide name="check-circle" size="16"></i-lucide>
+                        <div class="modal-title-text">
+                            <h2>Compose Email</h2>
+                            <p>Send a message to {{ selectedStudent?.fullName }}</p>
                         </div>
                     </div>
+                    <div class="modal-header-actions">
+                        <button class="modal-close" (click)="closeEmailModal()">
+                            <i-lucide name="x" size="20"></i-lucide>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Subject Field -->
-                <div class="form-group">
-                    <label for="emailSubject">
-                        <i-lucide name="hash" size="14"></i-lucide>
-                        Subject
-                    </label>
-                    <input type="text" id="emailSubject" class="form-input"
-                        placeholder="e.g., Important Update Regarding Your Application" [(ngModel)]="emailSubject">
+                <!-- Email Sending Overlay -->
+                <div *ngIf="isSendingEmail" class="email-sending-overlay">
+                    <div class="loading-content">
+                        <div class="premium-spinner thin">
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                        </div>
+                        <div class="loading-text">Sending Message...</div>
+                    </div>
                 </div>
 
-                <!-- Content Field -->
-                <div class="form-group">
-                    <label for="emailContent">
-                        <i-lucide name="file-text" size="14"></i-lucide>
-                        Message
-                    </label>
-                    <textarea id="emailContent" class="form-textarea"
-                        placeholder="Write your message here... Be clear and professional." rows="8"
-                        [(ngModel)]="emailContent"></textarea>
-                    <div class="textarea-footer">
-                        <span class="hint-text">Tip: Keep your message clear and concise</span>
-                        <span class="char-counter" [class.warning]="emailContent.length > 2000">
-                            {{ emailContent.length }} / 2500
+                <!-- Success State -->
+                <div class="modal-success" *ngIf="emailSent">
+                    <div class="success-animation">
+                        <div class="success-ripple"></div>
+                        <div class="success-ripple delay-1"></div>
+                        <div class="success-ripple delay-2"></div>
+                        <div class="success-circle">
+                            <i-lucide name="check" size="56"></i-lucide>
+                        </div>
+                    </div>
+                    <h3>Email Sent Successfully!</h3>
+                    <p>Your message has been delivered to</p>
+                    <div class="success-email-badge">
+                        <i-lucide name="mail" size="16"></i-lucide>
+                        {{ selectedStudent?.email }}
+                    </div>
+                    <button class="btn-primary success-done-btn" (click)="closeEmailModal()">
+                        <i-lucide name="check-circle" size="18"></i-lucide>
+                        Done
+                    </button>
+                </div>
+
+                <!-- Compose Form -->
+                <div class="modal-content" *ngIf="!emailSent" [class.receiving-animation]="isAnimatingTemplate">
+                    <!-- Recipient Display -->
+                    <div class="recipient-display">
+                        <span class="recipient-label">To:</span>
+                        <div class="recipient-chip">
+                            <div class="recipient-avatar">{{ getInitials(selectedStudent?.fullName || '') }}</div>
+                            <div class="recipient-info">
+                                <span class="recipient-name">{{ selectedStudent?.fullName }}</span>
+                                <span class="recipient-email">{{ selectedStudent?.email }}</span>
+                            </div>
+                            <div class="recipient-verified">
+                                <i-lucide name="check-circle" size="16"></i-lucide>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subject Field -->
+                    <div class="form-group" [class.highlight-fill]="isAnimatingTemplate">
+                        <label for="emailSubject">
+                            <i-lucide name="hash" size="14"></i-lucide>
+                            Subject
+                        </label>
+                        <input type="text" id="emailSubject" class="form-input"
+                            placeholder="e.g., Important Update Regarding Your Application" [(ngModel)]="emailSubject">
+                    </div>
+
+                    <!-- Content Field -->
+                    <div class="form-group" [class.highlight-fill]="isAnimatingTemplate">
+                        <label for="emailContent">
+                            <i-lucide name="file-text" size="14"></i-lucide>
+                            Message
+                        </label>
+                        <textarea id="emailContent" class="form-textarea"
+                            placeholder="Write your message here... Be clear and professional." rows="8"
+                            [(ngModel)]="emailContent"></textarea>
+                        <div class="textarea-footer">
+                            <span class="hint-text">Tip: Keep your message clear and concise</span>
+                            <span class="char-counter" [class.warning]="emailContent.length > 2000">
+                                {{ emailContent.length }} / 2500
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer" *ngIf="!emailSent">
+                    <button class="btn-secondary" (click)="closeEmailModal()">
+                        <i-lucide name="x" size="16"></i-lucide>
+                        Cancel
+                    </button>
+                    <button class="btn-primary send-btn" [disabled]="!emailSubject || !emailContent || isSendingEmail"
+                        (click)="sendEmail()">
+                        <span *ngIf="!isSendingEmail">
+                            <i-lucide name="send" size="16"></i-lucide>
+                            Send Email
                         </span>
+                        <span *ngIf="isSendingEmail" class="sending-state">
+                            <div class="btn-spinner"></div>
+                            Sending...
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: Templates Panel -->
+            <div class="templates-sidebar" *ngIf="showTemplates && !emailSent">
+                <!-- AI Generative Mail Section -->
+                <div class="ai-section">
+                    <div class="ai-header">
+                        <div class="ai-icon-wrapper">
+                            <i-lucide name="sparkles" size="20"></i-lucide>
+                        </div>
+                        <div class="ai-title">
+                            <span class="ai-label">AI Generative</span>
+                            <span class="ai-badge">Beta</span>
+                        </div>
+                    </div>
+                    <div class="ai-input-wrapper">
+                        <input type="text" class="ai-prompt-input" placeholder="Describe what you want to write..."
+                            [(ngModel)]="aiPrompt">
+                        <button class="ai-generate-btn" [disabled]="!aiPrompt || isGeneratingAI"
+                            (click)="generateAIEmail()">
+                            <i-lucide [name]="isGeneratingAI ? 'loader-2' : 'wand-2'" size="16"
+                                [class.spinning]="isGeneratingAI"></i-lucide>
+                        </button>
+                    </div>
+                    <p class="ai-hint">e.g., "Write a reminder about document submission"</p>
+                </div>
+
+                <!-- Templates Divider -->
+                <div class="templates-divider">
+                    <span>Quick Templates</span>
+                </div>
+
+                <!-- Templates List -->
+                <div class="templates-list">
+                    <div class="template-card" *ngFor="let template of emailTemplates; let i = index"
+                        (click)="selectTemplateWithAnimation(template, i)"
+                        [class.selected]="selectedTemplateId === template.id" [attr.data-index]="i">
+                        <div class="template-icon" [ngClass]="template.color">
+                            <i-lucide [name]="template.icon" size="18"></i-lucide>
+                        </div>
+                        <div class="template-info">
+                            <span class="template-title">{{ template.title }}</span>
+                            <span class="template-desc">{{ template.description }}</span>
+                        </div>
+                        <div class="template-arrow">
+                            <i-lucide name="chevron-right" size="16"></i-lucide>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Modal Footer -->
-            <div class="modal-footer" *ngIf="!emailSent">
-                <button class="btn-secondary" (click)="closeEmailModal()">
-                    <i-lucide name="x" size="16"></i-lucide>
-                    Cancel
-                </button>
-                <button class="btn-primary send-btn" [disabled]="!emailSubject || !emailContent || isSendingEmail"
-                    (click)="sendEmail()">
-                    <span *ngIf="!isSendingEmail">
-                        <i-lucide name="send" size="16"></i-lucide>
-                        Send Email
-                    </span>
-                    <span *ngIf="isSendingEmail" class="sending-state">
-                        <div class="btn-spinner"></div>
-                        Sending...
-                    </span>
-                </button>
-            </div>
         </div>
     </div>
 </div>

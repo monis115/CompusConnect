@@ -1,0 +1,163 @@
+<div class="directory-container">
+    <!-- Header -->
+    <div class="page-header">
+        <button class="back-btn" (click)="goBack()">
+            <i-lucide name="arrow-left" size="20"></i-lucide>
+            <span>{{ showStudentPanel ? 'Back to List' : 'Back to Telex' }}</span>
+        </button>
+
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="title-icon">
+                    <i-lucide name="users" size="28"></i-lucide>
+                </div>
+                <div>
+                    <h1>{{ showStudentPanel ? selectedTelexMan?.fullName + '\'s Students' : 'Telex Man Directory' }}
+                    </h1>
+                    <p>{{ showStudentPanel ? 'View assigned students and their application status' : 'Select a Telex
+                        Manager to view their students' }}</p>
+                </div>
+            </div>
+
+            <div class="header-stats" *ngIf="!isLoadingManagers && !showStudentPanel">
+                <div class="stat-pill">
+                    <i-lucide name="user-check" size="16"></i-lucide>
+                    <span>{{ telexManagers.length }} Telex Managers</span>
+                </div>
+                <div class="stat-pill highlight">
+                    <i-lucide name="graduation-cap" size="16"></i-lucide>
+                    <span>{{ getTotalStudents() }} Total Students</span>
+                </div>
+            </div>
+
+            <div class="header-stats" *ngIf="showStudentPanel && selectedTelexMan">
+                <div class="stat-pill highlight">
+                    <i-lucide name="graduation-cap" size="16"></i-lucide>
+                    <span>{{ students.length }} Students</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Manager Cards View -->
+        <div class="managers-view" *ngIf="!showStudentPanel">
+
+            <!-- Loading State -->
+            <div class="loading-container" *ngIf="isLoadingManagers">
+                <div class="premium-loader">
+                    <div class="loader-ring"></div>
+                    <p>Loading Telex Managers...</p>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div class="error-state" *ngIf="errorMessage && !isLoadingManagers">
+                <i-lucide name="alert-circle" size="48"></i-lucide>
+                <h3>Something went wrong</h3>
+                <p>{{ errorMessage }}</p>
+                <button class="btn-retry" (click)="loadTelexManagers()">
+                    <i-lucide name="refresh-cw" size="16"></i-lucide>
+                    Try Again
+                </button>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="!isLoadingManagers && !errorMessage && telexManagers.length === 0">
+                <div class="empty-icon">
+                    <i-lucide name="users-x" size="64"></i-lucide>
+                </div>
+                <h3>No Telex Managers Found</h3>
+                <p>There are no Telex Managers registered in the system yet.</p>
+            </div>
+
+            <!-- Manager Cards Grid -->
+            <div class="manager-cards" *ngIf="!isLoadingManagers && telexManagers.length > 0">
+                <div class="manager-card" *ngFor="let tm of telexManagers; trackBy: trackByManagerId"
+                    (click)="selectTelexMan(tm)">
+                    <div class="card-avatar">
+                        <span>{{ tm.fullName.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="card-info">
+                        <h3>{{ tm.fullName }}</h3>
+                        <span class="username">@{{ tm.username }}</span>
+                    </div>
+                    <div class="card-count">
+                        <div class="count-value">{{ tm.studentCount }}</div>
+                        <div class="count-label">Students</div>
+                    </div>
+                    <div class="card-arrow">
+                        <i-lucide name="chevron-right" size="20"></i-lucide>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Table View -->
+        <div class="students-view" *ngIf="showStudentPanel">
+
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" *ngIf="isLoadingStudents">
+                <div class="spinner"></div>
+                <p>Loading students...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="!isLoadingStudents && students.length === 0">
+                <div class="empty-icon">
+                    <i-lucide name="inbox" size="64"></i-lucide>
+                </div>
+                <h3>No Students Assigned</h3>
+                <p>This Telex Manager has no students assigned yet.</p>
+            </div>
+
+            <!-- Student Table -->
+            <div class="table-wrapper" *ngIf="!isLoadingStudents && students.length > 0">
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th>Application ID</th>
+                            <th>Student Name</th>
+                            <th>College</th>
+                            <th>Course</th>
+                            <th>Agent</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                            <th>Updated By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let student of students; trackBy: trackByStudentId">
+                            <td>
+                                <span class="app-id">{{ student.applicationId }}</span>
+                            </td>
+                            <td>
+                                <div class="student-name">{{ student.fullName }}</div>
+                            </td>
+                            <td>
+                                <span class="college-name">{{ student.collegeName || '-' }}</span>
+                            </td>
+                            <td>
+                                <span class="course-tag">{{ student.course }}</span>
+                            </td>
+                            <td>{{ student.agentName || '-' }}</td>
+                            <td>
+                                <span class="status-badge" [ngClass]="getStatusClass(student.applicationStatus)">
+                                    {{ formatStatus(student.applicationStatus) }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="date-text">{{ formatDate(student.lastHistory?.updatedAt || null) }}</span>
+                            </td>
+                            <td>
+                                <span class="updated-by">{{ student.lastHistory?.updatedBy || '-' }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

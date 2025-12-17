@@ -442,11 +442,255 @@
       </div>
     </div>
 
+    <!-- TELEX SECTION -->
+    <div *ngIf="activeSection === 'telex'">
+      <h2 class="section-title">
+        <i-lucide name="send" size="28"></i-lucide> Telex Management
+      </h2>
+      <p class="section-subtitle">Manage Telex Man users and access their directory.</p>
 
+      <div class="telex-cards-grid">
+        <!-- Manage Telex Man Card -->
+        <div class="telex-feature-card manage-card" (click)="navigateTo('manage-telex-man')">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <div class="card-icon-container">
+              <div class="icon-ring">
+                <i-lucide name="settings" size="32"></i-lucide>
+              </div>
+              <div class="icon-badge">
+                <i-lucide name="shield-check" size="14"></i-lucide>
+              </div>
+            </div>
+            <div class="card-content">
+              <h3>Manage Telex Man</h3>
+              <p>Update access permissions, assign roles, and configure Telex Man settings.</p>
+              <div class="card-features">
+                <span class="feature-tag">
+                  <i-lucide name="key" size="12"></i-lucide> Access Control
+                </span>
+                <span class="feature-tag">
+                  <i-lucide name="user-cog" size="12"></i-lucide> Role Management
+                </span>
+              </div>
+            </div>
+            <div class="card-action">
+              <span>Manage Access</span>
+              <i-lucide name="arrow-right" size="18"></i-lucide>
+            </div>
+          </div>
+        </div>
+
+        <!-- Telex Man Directory Card -->
+        <div class="telex-feature-card directory-card" (click)="navigateTo('telex-man-directory')">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <div class="card-icon-container">
+              <div class="icon-ring">
+                <i-lucide name="users" size="32"></i-lucide>
+              </div>
+              <div class="icon-badge">
+                <i-lucide name="database" size="14"></i-lucide>
+              </div>
+            </div>
+            <div class="card-content">
+              <h3>Telex Man Directory</h3>
+              <p>View all Telex Man details with associated student information and activity.</p>
+              <div class="card-features">
+                <span class="feature-tag">
+                  <i-lucide name="list" size="12"></i-lucide> Full Directory
+                </span>
+                <span class="feature-tag">
+                  <i-lucide name="graduation-cap" size="12"></i-lucide> Student Details
+                </span>
+              </div>
+            </div>
+            <div class="card-action">
+              <span>View Directory</span>
+              <i-lucide name="arrow-right" size="18"></i-lucide>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISA SECTION -->
+    <div *ngIf="activeSection === 'visa'">
+      <h2 class="section-title">
+        <i-lucide name="plane" size="28"></i-lucide> Visa Management
+      </h2>
+      <p class="section-subtitle">Manage Visa Man users and access their directory.</p>
+
+      <div class="visa-cards-grid">
+        <!-- Manage VISA Man Card -->
+        <div class="visa-feature-card manage-card" (click)="navigateTo('manage-visa-man')">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <div class="card-icon-container">
+              <div class="icon-ring">
+                <i-lucide name="settings" size="32"></i-lucide>
+              </div>
+              <div class="icon-badge">
+                <i-lucide name="shield-check" size="14"></i-lucide>
+              </div>
+            </div>
+            <div class="card-content">
+              <h3>Manage VISA Man</h3>
+              <p>Update access permissions, assign roles, and configure VISA Man settings.</p>
+              <div class="card-features">
+                <span class="feature-tag">
+                  <i-lucide name="key" size="12"></i-lucide> Access Control
+                </span>
+                <span class="feature-tag">
+                  <i-lucide name="user-cog" size="12"></i-lucide> Role Management
+                </span>
+              </div>
+            </div>
+            <div class="card-action">
+              <span>Manage Access</span>
+              <i-lucide name="arrow-right" size="18"></i-lucide>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visa Man Directory Card -->
+        <div class="visa-feature-card directory-card" (click)="navigateTo('visa-man-directory')">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <div class="card-icon-container">
+              <div class="icon-ring">
+                <i-lucide name="users" size="32"></i-lucide>
+              </div>
+              <div class="icon-badge">
+                <i-lucide name="database" size="14"></i-lucide>
+              </div>
+            </div>
+            <div class="card-content">
+              <h3>Visa Man Directory</h3>
+              <p>View all Visa Man details with associated student information and activity.</p>
+              <div class="card-features">
+                <span class="feature-tag">
+                  <i-lucide name="list" size="12"></i-lucide> Full Directory
+                </span>
+                <span class="feature-tag">
+                  <i-lucide name="graduation-cap" size="12"></i-lucide> Student Details
+                </span>
+              </div>
+            </div>
+            <div class="card-action">
+              <span>View Directory</span>
+              <i-lucide name="arrow-right" size="18"></i-lucide>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIVERSITY COORDINATORS SECTION -->
+    <div *ngIf="activeSection === 'university-coordinators'">
+      <h2 class="section-title">
+        <i-lucide name="building-2" size="28"></i-lucide> University Coordinators
+      </h2>
+      <p class="section-subtitle">Manage University Coordinators, view students, and monitor college assignments.</p>
+
+      <div class="university-cards-grid">
+        <!-- Manage University Person Card -->
+        <div class="university-feature-card manage-card" (click)="navigateTo('manage-university-person')">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <div class="card-icon-container">
+              <div class="icon-ring">
+                <i-lucide name="settings" size="32"></i-lucide>
+              </div>
+              <div class="icon-badge">
+                <i-lucide name="shield-check" size="14"></i-lucide>
+              </div>
+            </div>
+            <div class="card-content">
+              <h3>Manage University Person</h3>
+              <p>Update access, assign colleges, and configure University Coordinator settings.</p>
+              <div class="card-features">
+                <span class="feature-tag">
+                  <i-lucide name="key" size="12"></i-lucide> Access Control
+                </span>
+                <span class="feature-tag">
+                  <i-lucide name="university" size="12"></i-lucide> College Assignment
+                </span>
+              </div>
+            </div>
+            <div class="card-action">
+              <span>Manage Access</span>
+              <i-lucide name="arrow-right" size="18"></i-lucide>
+            </div>
+          </div>
+        </div>
+
+        <!-- University Person Student Directory Card -->
+        <div class="university-feature-card directory-card" (click)="navigateTo('university-person-directory')">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <div class="card-icon-container">
+              <div class="icon-ring">
+                <i-lucide name="users" size="32"></i-lucide>
+              </div>
+              <div class="icon-badge">
+                <i-lucide name="database" size="14"></i-lucide>
+              </div>
+            </div>
+            <div class="card-content">
+              <h3>Student Directory</h3>
+              <p>View all students grouped by University Person with admission status and history.</p>
+              <div class="card-features">
+                <span class="feature-tag">
+                  <i-lucide name="graduation-cap" size="12"></i-lucide> Students List
+                </span>
+                <span class="feature-tag">
+                  <i-lucide name="file-check" size="12"></i-lucide> Admission Status
+                </span>
+              </div>
+            </div>
+            <div class="card-action">
+              <span>View Directory</span>
+              <i-lucide name="arrow-right" size="18"></i-lucide>
+            </div>
+          </div>
+        </div>
+
+        <!-- University-wise Coordinator Card -->
+        <div class="university-feature-card university-wise-card" (click)="navigateTo('university-wise-coordinator')">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <div class="card-icon-container">
+              <div class="icon-ring">
+                <i-lucide name="building" size="32"></i-lucide>
+              </div>
+              <div class="icon-badge">
+                <i-lucide name="map-pin" size="14"></i-lucide>
+              </div>
+            </div>
+            <div class="card-content">
+              <h3>University-wise Coordinators</h3>
+              <p>View coordinators organized by university with assigned students and metrics.</p>
+              <div class="card-features">
+                <span class="feature-tag">
+                  <i-lucide name="layout-grid" size="12"></i-lucide> By University
+                </span>
+                <span class="feature-tag">
+                  <i-lucide name="bar-chart-2" size="12"></i-lucide> Analytics
+                </span>
+              </div>
+            </div>
+            <div class="card-action">
+              <span>View by University</span>
+              <i-lucide name="arrow-right" size="18"></i-lucide>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- PLACEHOLDER SECTIONS -->
-    <div
-      *ngIf="['telex', 'visa', 'university-coordinators', 'account', 'doc-person', 'news-management', 'payments', 'reports'].includes(activeSection)">
+    <div *ngIf="['account', 'doc-person', 'news-management', 'payments', 'reports'].includes(activeSection)">
       <h2 class="section-title">
         <i-lucide [name]="currentSectionIcon" size="28"></i-lucide> {{ pageTitle }}
       </h2>

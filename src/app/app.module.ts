@@ -145,7 +145,16 @@ import {
   Construction,
   Loader,
   ShieldAlert,
-  Lightbulb
+  Lightbulb,
+  Pencil,
+  PowerOff,
+  Power,
+  Layout,
+  LayoutTemplate,
+  FileWarning,
+  BellRing,
+  Luggage,
+  Wand2
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -177,6 +186,13 @@ import { StudentAdmissionLetters } from './components/admin/student-admission-le
 import { StudentDashboard } from './components/admin/student-dashboard/student-dashboard';
 import { UpdateAgentAccess } from './components/admin/update-agent-access/update-agent-access';
 import { SystemActivityLogs } from './components/admin/system-activity-logs/system-activity-logs';
+import { UpdateTelexManager } from './components/admin/update-telex-manager/update-telex-manager';
+import { TelexManagerStudentDirectory } from './components/admin/telex-manager-student-directory/telex-manager-student-directory';
+import { UpdateVisaManager } from './components/admin/update-visa-manager/update-visa-manager';
+import { VisaManagerStudentDirectory } from './components/admin/visa-manager-student-directory/visa-manager-student-directory';
+import { UpdateUniversityPerson } from './components/admin/update-university-person/update-university-person';
+import { UniversityPersonStudentDirectory } from './components/admin/university-person-student-directory/university-person-student-directory';
+import { UniversityWiseUniversityPerson } from './components/admin/university-wise-university-person/university-wise-university-person';
 
 @NgModule({
   declarations: [
@@ -205,6 +221,13 @@ import { SystemActivityLogs } from './components/admin/system-activity-logs/syst
     StudentAdmissionLetters,
     UpdateAgentAccess,
     SystemActivityLogs,
+    UpdateTelexManager,
+    TelexManagerStudentDirectory,
+    UpdateVisaManager,
+    VisaManagerStudentDirectory,
+    UpdateUniversityPerson,
+    UniversityPersonStudentDirectory,
+    UniversityWiseUniversityPerson,
 
   ],
   imports: [
@@ -293,7 +316,10 @@ import { SystemActivityLogs } from './components/admin/system-activity-logs/syst
       UserCircle,
       IdCard,
       Hash,
+      LayoutTemplate,
       CalendarCheck,
+      FileWarning,
+      BellRing,
       Landmark,
       Package,
       Circle,
@@ -320,6 +346,9 @@ import { SystemActivityLogs } from './components/admin/system-activity-logs/syst
       CircleDot,
       ArrowLeft,
       FileX,
+      Pencil,
+      PowerOff,
+      Power,
       // Admission Letters Premium icons
       Sparkles,
       CheckCircle2,
@@ -351,6 +380,8 @@ import { SystemActivityLogs } from './components/admin/system-activity-logs/syst
       CheckSquare,
       ShieldAlert,
       Lightbulb,
+      Luggage,
+      Wand2,
     }),
     StudentStatusPipe
   ],

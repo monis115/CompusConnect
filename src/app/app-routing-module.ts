@@ -25,6 +25,13 @@ import { VisaManDashboard } from './components/visa-man-dashboard/visa-man-dashb
 import { AuthGuard } from './guards/auth.guard';
 import { UpdateAgentAccess } from './components/admin/update-agent-access/update-agent-access';
 import { SystemActivityLogs } from './components/admin/system-activity-logs/system-activity-logs';
+import { UpdateTelexManager } from './components/admin/update-telex-manager/update-telex-manager';
+import { TelexManagerStudentDirectory } from './components/admin/telex-manager-student-directory/telex-manager-student-directory';
+import { UpdateVisaManager } from './components/admin/update-visa-manager/update-visa-manager';
+import { VisaManagerStudentDirectory } from './components/admin/visa-manager-student-directory/visa-manager-student-directory';
+import { UpdateUniversityPerson } from './components/admin/update-university-person/update-university-person';
+import { UniversityPersonStudentDirectory } from './components/admin/university-person-student-directory/university-person-student-directory';
+import { UniversityWiseUniversityPerson } from './components/admin/university-wise-university-person/university-wise-university-person';
 
 const routes: Routes = [
   { path: '', component: AdminLogin },
@@ -66,7 +73,14 @@ const routes: Routes = [
       { path: 'student-agent-details', component: StudentAgentDetails },
       { path: 'all-agent-details', component: AllAgentDetails },
       { path: 'update-agent-access', component: UpdateAgentAccess },
-      { path: 'system-activity', component: SystemActivityLogs }
+      { path: 'system-activity', component: SystemActivityLogs },
+      { path: 'manage-telex-man', component: UpdateTelexManager, data: { section: 'telex' } },
+      { path: 'telex-man-directory', component: TelexManagerStudentDirectory, data: { section: 'telex' } },
+      { path: 'manage-visa-man', component: UpdateVisaManager, data: { section: 'visa' } },
+      { path: 'visa-man-directory', component: VisaManagerStudentDirectory, data: { section: 'visa' } },
+      { path: 'manage-university-person', component: UpdateUniversityPerson, data: { section: 'university-coordinators' } },
+      { path: 'university-person-directory', component: UniversityPersonStudentDirectory, data: { section: 'university-coordinators' } },
+      { path: 'university-wise-coordinator', component: UniversityWiseUniversityPerson, data: { section: 'university-coordinators' } }
     ]
   },
 

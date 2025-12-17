@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, AfterViewInit, ElementRef, NgZone } from '@angular/core';
 import { AdminAuthService } from '../../../services/admin-auth-service';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -133,7 +133,8 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private router: Router,
-    private elRef: ElementRef
+    private elRef: ElementRef,
+    private zone: NgZone
   ) { }
 
   // --- Admin Creation Workflow Methods ---
@@ -223,16 +224,21 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
         this.isVerifyingOtp = false;
 
         // Backend response: { id: 1, userId: "...", password: "...", status: "active", role: "admin" }
-        this.generatedCredentials = response;
-        this.adminCreationStep = 'success';
-        this.cdr.detectChanges();
+        // Force UI update inside Angular Zone
+        this.zone.run(() => {
+          this.generatedCredentials = response;
+          this.adminCreationStep = 'success';
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
-        this.stopLoadingCycle();
-        this.isVerifyingOtp = false;
-        alert('Verification Failed. Invalid OTP or Server Error.');
-        console.error(err);
-        this.cdr.detectChanges();
+        this.zone.run(() => {
+          this.stopLoadingCycle();
+          this.isVerifyingOtp = false;
+          alert('Verification Failed. Invalid OTP or Server Error.');
+          console.error(err);
+          this.cdr.detectChanges();
+        });
       }
     });
   }
@@ -1154,16 +1160,17 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     this.loadingTelexSummary = true;
     this.cdr.detectChanges();
 
-    this.http.get<any[]>('http://localhost:8080/api/telex-man/summary').subscribe({
+    this.http.get<any[]>('http://localhost:8080/api/telex-man/usernames').subscribe({
       next: (response) => {
         this.loadingTelexSummary = false;
         this.existingTelexPersons = response || [];
-        this.hasActiveTelexMan = this.existingTelexPersons.some(t => t.status === 'Active');
+        // If any telex persons exist, assume they're active
+        this.hasActiveTelexMan = this.existingTelexPersons.length > 0;
         this.cdr.detectChanges();
       },
       error: (err) => {
         this.loadingTelexSummary = false;
-        console.error('Error loading Telex Man summary:', err);
+        console.error('Error loading Telex Man usernames:', err);
         this.existingTelexPersons = [];
         this.cdr.detectChanges();
       }
