@@ -32,20 +32,19 @@ export class AdmissionManagerService {
 
     // --- Telex & Visa Manager Assignment ---
 
-    // FIX: Changed return type and extract username from response
-    getTelexManagerUsernames(): Observable<string[]> {
-        return this.http.get<{ username: string }>(`${this.apiBaseUrl}/api/telex-man/username-only`)
-            .pipe(map(response => [response.username])); // Return as array with single username
+    // FIX: Updated to use new endpoint that returns telex managers with student counts
+    getTelexManagerUsernames(): Observable<{ username: string; studentCount: number }[]> {
+        return this.http.get<{ username: string; studentCount: number }[]>(`${this.apiBaseUrl}/api/telex-man/usernames`);
     }
 
-    // Interface for Visa Manager response
+    // Interface for Visa Manager response (with full details)
     getVisaManagers(): Observable<{ id: number; username: string; fullName: string; status: string }[]> {
         return this.http.get<{ id: number; username: string; fullName: string; status: string }[]>(`${this.apiBaseUrl}/api/visa-man`);
     }
 
-    // Keep old method for backward compatibility (returns just usernames)
-    getVisaManagerUsernames(): Observable<string[]> {
-        return this.getVisaManagers().pipe(map(managers => managers.map(m => m.username)));
+    // Updated to use new endpoint that returns visa managers with student counts
+    getVisaManagerUsernames(): Observable<{ username: string; studentCount: number }[]> {
+        return this.http.get<{ username: string; studentCount: number }[]>(`${this.apiBaseUrl}/api/visa-man/usernames`);
     }
 
     assignTelexManager(studentId: number, payload: any): Observable<any> {

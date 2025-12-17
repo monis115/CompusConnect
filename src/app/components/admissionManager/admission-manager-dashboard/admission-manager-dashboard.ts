@@ -174,8 +174,8 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   selectedStudent: Student | null = null;
 
   // Dropdown Data
-  availableTelexManagers: string[] = [];
-  availableVisaManagers: VisaManager[] = [];
+  availableTelexManagers: { username: string; studentCount: number }[] = [];
+  availableVisaManagers: { username: string; studentCount: number }[] = [];
 
   // Views & Lists
   activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' = 'dashboard';
@@ -474,10 +474,14 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   }
 
   loadStaffLists(): void {
-    this.admissionService.getTelexManagerUsernames().subscribe(u => this.availableTelexManagers = u);
-    this.admissionService.getVisaManagers().subscribe(managers => {
-      // Filter to only show Active visa managers
-      this.availableVisaManagers = managers.filter(m => m.status === 'Active');
+    this.admissionService.getTelexManagerUsernames().subscribe(u => {
+      this.availableTelexManagers = u;
+      this.cdr.detectChanges();
+    });
+
+    // Use the usernames endpoint which includes student counts
+    this.admissionService.getVisaManagerUsernames().subscribe(managers => {
+      this.availableVisaManagers = managers;
       this.cdr.detectChanges();
     });
   }

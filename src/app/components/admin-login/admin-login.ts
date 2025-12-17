@@ -199,6 +199,10 @@ export class AdminLogin {
       next: (res: LoginResponse) => {
         console.log('✅ Login successful:', res);
 
+        // Store username and role in sessionStorage for dashboard access
+        sessionStorage.setItem('username', res.username || this.userId());
+        sessionStorage.setItem('role', res.role);
+
         setTimeout(() => {
           this.spinnerPhase.set('success');
           this.userRole.set(res.role);

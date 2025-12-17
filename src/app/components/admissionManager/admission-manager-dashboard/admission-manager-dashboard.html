@@ -925,7 +925,8 @@
           <label>Select Telex Manager</label>
           <select class="form-select" [(ngModel)]="selectedManagerUsername">
             <option value="" disabled selected>Select Manager...</option>
-            <option *ngFor="let man of availableTelexManagers" [value]="man">{{man}}</option>
+            <option *ngFor="let man of availableTelexManagers" [value]="man.username">{{man.username}} -
+              {{man.studentCount}} Students</option>
           </select>
         </div>
 
@@ -933,8 +934,8 @@
           <label>Select Visa Manager</label>
           <select class="form-select" [(ngModel)]="selectedManagerUsername">
             <option value="" disabled selected>Select Manager...</option>
-            <option *ngFor="let man of availableVisaManagers" [value]="man.username">{{man.fullName}} ({{man.username}})
-            </option>
+            <option *ngFor="let man of availableVisaManagers" [value]="man.username">{{man.username}} -
+              {{man.studentCount}} Students</option>
           </select>
         </div>
       </div>

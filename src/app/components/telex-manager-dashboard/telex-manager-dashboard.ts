@@ -143,8 +143,8 @@ export class TelexManagerDashboard implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Get Username from Session
-    const sessionUser = sessionStorage.getItem('username');
+    // Get Username from Session - auth service stores it as 'userId'
+    const sessionUser = sessionStorage.getItem('userId') || sessionStorage.getItem('username');
     if (sessionUser) {
       this.currentUsername = sessionUser;
     }

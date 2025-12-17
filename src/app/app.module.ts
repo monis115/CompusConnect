@@ -141,7 +141,11 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
-  CheckSquare
+  CheckSquare,
+  Construction,
+  Loader,
+  ShieldAlert,
+  Lightbulb
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -328,6 +332,8 @@ import { SystemActivityLogs } from './components/admin/system-activity-logs/syst
       LogIn,
       // World-Class Activity Logs icons
       SlidersHorizontal,
+      Construction,
+      Loader,
       Columns,
       Sun,
       Moon,
@@ -343,6 +349,8 @@ import { SystemActivityLogs } from './components/admin/system-activity-logs/syst
       ArrowDown,
       ArrowUpDown,
       CheckSquare,
+      ShieldAlert,
+      Lightbulb,
     }),
     StudentStatusPipe
   ],
