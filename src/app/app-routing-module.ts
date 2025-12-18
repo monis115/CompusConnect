@@ -32,6 +32,12 @@ import { VisaManagerStudentDirectory } from './components/admin/visa-manager-stu
 import { UpdateUniversityPerson } from './components/admin/update-university-person/update-university-person';
 import { UniversityPersonStudentDirectory } from './components/admin/university-person-student-directory/university-person-student-directory';
 import { UniversityWiseUniversityPerson } from './components/admin/university-wise-university-person/university-wise-university-person';
+import { UpdateAccountant } from './components/admin/update-accountant/update-accountant';
+import { AccountantStudentDirectory } from './components/admin/accountant-student-directory/accountant-student-directory';
+import { DocPersonUpdate } from './components/admin/doc-person-update/doc-person-update';
+import { DocPersonStudentDirectory } from './components/admin/doc-person-student-directory/doc-person-student-directory';
+import { NewsDashboard } from './components/admin/news-dashboard/news-dashboard';
+import { CollegePerformancesDashbaord } from './components/admin/college-performances-dashbaord/college-performances-dashbaord';
 
 const routes: Routes = [
   { path: '', component: AdminLogin },
@@ -57,7 +63,7 @@ const routes: Routes = [
       { path: 'university-coordinators', component: AdminDashboardOverview, data: { section: 'university-coordinators' } },
       { path: 'account', component: AdminDashboardOverview, data: { section: 'account' } },
       { path: 'doc-person', component: AdminDashboardOverview, data: { section: 'doc-person' } },
-      { path: 'news-management', component: AdminDashboardOverview, data: { section: 'news-management' } },
+      { path: 'news-management', component: NewsDashboard, data: { section: 'news-management' } },
       { path: 'admission-managers', component: AdminDashboardOverview, data: { section: 'admission-managers' } },
       { path: 'colleges', component: AdminDashboardOverview, data: { section: 'colleges' } },
       { path: 'users', component: AdminDashboardOverview, data: { section: 'users' } },
@@ -80,7 +86,13 @@ const routes: Routes = [
       { path: 'visa-man-directory', component: VisaManagerStudentDirectory, data: { section: 'visa' } },
       { path: 'manage-university-person', component: UpdateUniversityPerson, data: { section: 'university-coordinators' } },
       { path: 'university-person-directory', component: UniversityPersonStudentDirectory, data: { section: 'university-coordinators' } },
-      { path: 'university-wise-coordinator', component: UniversityWiseUniversityPerson, data: { section: 'university-coordinators' } }
+      { path: 'university-wise-coordinator', component: UniversityWiseUniversityPerson, data: { section: 'university-coordinators' } },
+      { path: 'manage-accountant', component: UpdateAccountant, data: { section: 'account' } },
+      { path: 'accountant-student-directory', component: AccountantStudentDirectory, data: { section: 'account' } },
+      { path: 'manage-doc-person', component: DocPersonUpdate, data: { section: 'doc-person' } },
+      { path: 'doc-person-student-directory', component: DocPersonStudentDirectory, data: { section: 'doc-person' } },
+      { path: 'news-dashboard', component: NewsDashboard, data: { section: 'news-management' } },
+      { path: 'performance', component: CollegePerformancesDashbaord, data: { section: 'performance' } }
     ]
   },
 

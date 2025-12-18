@@ -59,7 +59,7 @@
 
   <!-- Main Content -->
   <main class="main-content">
-    <header class="header">
+    <header class="header" *ngIf="activeSection !== 'news-management'">
       <h1 class="page-title">{{ pageTitle }}</h1>
       <div class="header-right">
         <button class="btn-icon">

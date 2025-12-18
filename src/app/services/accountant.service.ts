@@ -60,7 +60,7 @@ export interface Accountant {
     fullName: string;
     username: string;
     email: string;
-    contactNo: string;
+    contactNumber: string;
     students: Student[];
 }
 
@@ -211,5 +211,45 @@ export class AccountantService {
             activities: this.getRecentActivities(username),
             students: this.getAssignedStudents(username)
         });
+    }
+
+    // --- Admin Management Methods ---
+
+    /**
+     * Get all accountants (for admin list)
+     */
+    getAllAccountants(): Observable<any[]> {
+        // Assuming there is an endpoint for this, or using the universityPerson/all-details logic if applicable?
+        // The user request implies a standard listing.
+        // If there isn't a specific /api/accountant/all, we might need to rely on the generic /api/universityPerson/all-details filtering by role?
+        // But the user asked for "Update Accountant" component which implies listing them.
+        // Let's assume a standard endpoint or use a similar one.
+        // Given the requirement "Update Accountant: Create a method to PUT ...", implies we need to list them first.
+        // I will use /api/accountant/all-details similar to universityPerson if it exists, or just /api/accountant/all.
+        // Let's assume /api/accountant/all exists or we use the generic person one.
+        // Actually, looking at `UpdateUniversityPerson` it uses `/api/universityPerson/all-details`.
+        // I'll stick to a clearer naming for now.
+        return this.http.get<any[]>(`${this.API_URL}/accountant/all`);
+    }
+
+    /**
+     * Update accountant personal details
+     */
+    updateAccountant(id: number, data: any): Observable<any> {
+        return this.http.put(`${this.API_URL}/accountant/${id}`, data);
+    }
+
+    /**
+     * Update accountant status
+     */
+    updateAccountantStatus(id: number, status: string): Observable<any> {
+        return this.http.put(`${this.API_URL}/accountant/${id}/status/${status}`, {});
+    }
+
+    /**
+     * Get accountant details with assigned students summary
+     */
+    getAccountantWithStudents(id: number): Observable<any> {
+        return this.http.get<any>(`${this.API_URL}/accountant/${id}/with-students`);
     }
 }

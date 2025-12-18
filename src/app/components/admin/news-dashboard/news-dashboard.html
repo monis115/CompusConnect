@@ -1,0 +1,295 @@
+<div class="news-dashboard-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="title-icon">
+                    <i-lucide name="file-text" [size]="28"></i-lucide>
+                </div>
+                <div>
+                    <h1>News Management</h1>
+                    <p>Create, manage and publish news for users</p>
+                </div>
+            </div>
+            <button class="btn-create" (click)="openCreateModal()">
+                <i-lucide name="plus" [size]="18"></i-lucide>
+                Create News
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card total">
+            <div class="stat-icon">
+                <i-lucide name="layers" [size]="24"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ totalCount }}</span>
+                <span class="stat-label">Total News</span>
+            </div>
+        </div>
+        <div class="stat-card active">
+            <div class="stat-icon">
+                <i-lucide name="check-circle" [size]="24"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ activeCount }}</span>
+                <span class="stat-label">Active</span>
+            </div>
+        </div>
+        <div class="stat-card inactive">
+            <div class="stat-icon">
+                <i-lucide name="minus-circle" [size]="24"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ inactiveCount }}</span>
+                <span class="stat-label">Inactive</span>
+            </div>
+        </div>
+        <div class="stat-card expired">
+            <div class="stat-icon">
+                <i-lucide name="clock" [size]="24"></i-lucide>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ expiredCount }}</span>
+                <span class="stat-label">Expired</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="filters-bar">
+        <div class="search-box">
+            <i-lucide name="search" [size]="18"></i-lucide>
+            <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()"
+                placeholder="Search news by heading...">
+        </div>
+        <div class="filter-group">
+            <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="expired">Expired</option>
+            </select>
+            <select [(ngModel)]="userFilter" (ngModelChange)="onFilterChange()">
+                <option *ngFor="let opt of userOptions" [value]="opt">{{ opt }}</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Toast Messages -->
+    <div *ngIf="successMessage" class="toast toast-success">
+        <i-lucide name="check-circle" [size]="18"></i-lucide>
+        {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="toast toast-error">
+        <i-lucide name="alert-circle" [size]="18"></i-lucide>
+        {{ errorMessage }}
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+        <div class="premium-loader">
+            <div class="loader-ring"></div>
+            <p>Loading news...</p>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredNews.length === 0" class="empty-state">
+        <div class="empty-illustration">
+            <i-lucide name="file-text" [size]="64"></i-lucide>
+        </div>
+        <h3>No News Found</h3>
+        <p>{{ allNews.length === 0 ? 'Create your first news item to get started.' : 'No news matches your current
+            filters.' }}</p>
+        <button class="btn-create-sm" (click)="openCreateModal()" *ngIf="allNews.length === 0">
+            <i-lucide name="plus" [size]="16"></i-lucide>
+            Create First News
+        </button>
+    </div>
+
+    <!-- News Table -->
+    <div *ngIf="!isLoading && filteredNews.length > 0" class="table-container">
+        <table class="news-table">
+            <thead>
+                <tr>
+                    <th>Heading</th>
+                    <th>Tag</th>
+                    <th>Target User</th>
+                    <th>Active From</th>
+                    <th>Till Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let news of filteredNews" [class.expired-row]="isExpired(news)"
+                    [class.inactive-row]="!news.active">
+                    <td class="heading-cell">
+                        <span class="news-heading">{{ news.heading }}</span>
+                        <span class="news-author">by {{ news.username }} • {{ news.createdAt | date:'shortDate'
+                            }}</span>
+                    </td>
+                    <td>
+                        <span [class]="'tag-badge ' + getTagClass(news.tag)">{{ news.tag }}</span>
+                    </td>
+                    <td>
+                        <span class="user-badge">{{ news.forUser }}</span>
+                    </td>
+                    <td>{{ news.activeFrom | date:'mediumDate' }}</td>
+                    <td>{{ news.tillDate | date:'mediumDate' }}</td>
+                    <td>
+                        <div class="status-toggle-wrapper">
+                            <button class="toggle-btn" [class.active]="news.active" (click)="toggleStatus(news)"
+                                [disabled]="isExpired(news)"
+                                [title]="isExpired(news) ? 'Cannot toggle expired news' : (news.active ? 'Deactivate' : 'Activate')">
+                                <span class="toggle-slider"></span>
+                            </button>
+                            <span [class]="'status-label ' + getStatusClass(news)">{{ getStatusLabel(news) }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-edit" (click)="openEditModal(news)" title="Edit">
+                                <i-lucide name="pencil" [size]="16"></i-lucide>
+                            </button>
+                            <button class="btn-action btn-soft-delete" (click)="confirmSoftDelete(news)"
+                                title="Deactivate">
+                                <i-lucide name="trash-2" [size]="16"></i-lucide>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div class="modal-backdrop" *ngIf="showNewsModal" (click)="closeNewsModal()">
+    <div class="news-modal" (click)="$event.stopPropagation()">
+        <div *ngIf="isSaving" class="modal-loading-overlay">
+            <div class="spinner"></div>
+            <p>{{ isEditing ? 'Updating...' : 'Creating...' }}</p>
+        </div>
+
+        <div class="modal-header">
+            <div class="modal-title">
+                <i-lucide [name]="isEditing ? 'edit' : 'plus-circle'" [size]="22"></i-lucide>
+                <h2>{{ isEditing ? 'Edit News' : 'Create News' }}</h2>
+            </div>
+            <button class="close-btn" (click)="closeNewsModal()">
+                <i-lucide name="x" [size]="18"></i-lucide>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>
+                    <i-lucide name="file-text" [size]="14"></i-lucide>
+                    Heading <span class="required">*</span>
+                </label>
+                <input type="text" [(ngModel)]="newsForm.heading" placeholder="Enter news heading">
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i-lucide name="align-justify" [size]="14"></i-lucide>
+                    Content <span class="required">*</span>
+                </label>
+                <textarea [(ngModel)]="newsForm.content" placeholder="Enter news content..." rows="5"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>
+                        <i-lucide name="tag" [size]="14"></i-lucide>
+                        Tag
+                    </label>
+                    <select [(ngModel)]="newsForm.tag">
+                        <option *ngFor="let tag of tagOptions" [value]="tag">{{ tag | titlecase }}</option>
+                    </select>
+                </div>
+                <div class="form-group half">
+                    <label>
+                        <i-lucide name="users" [size]="14"></i-lucide>
+                        Target User
+                    </label>
+                    <select [(ngModel)]="newsForm.forUser">
+                        <option *ngFor="let opt of userOptions" [value]="opt">{{ opt }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>
+                        <i-lucide name="calendar" [size]="14"></i-lucide>
+                        Active From
+                    </label>
+                    <input type="date" [(ngModel)]="newsForm.activeFrom">
+                </div>
+                <div class="form-group half">
+                    <label>
+                        <i-lucide name="calendar" [size]="14"></i-lucide>
+                        Till Date
+                    </label>
+                    <input type="date" [(ngModel)]="newsForm.tillDate">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i-lucide name="toggle-right" [size]="14"></i-lucide>
+                    Status
+                </label>
+                <div class="status-toggle-form">
+                    <button class="status-option" [class.selected]="newsForm.active === true"
+                        (click)="newsForm.active = true">
+                        <i-lucide name="check-circle" [size]="16"></i-lucide>
+                        Active
+                    </button>
+                    <button class="status-option" [class.selected]="newsForm.active === false"
+                        (click)="newsForm.active = false">
+                        <i-lucide name="minus-circle" [size]="16"></i-lucide>
+                        Inactive
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="closeNewsModal()">
+                <i-lucide name="x" [size]="16"></i-lucide>
+                Cancel
+            </button>
+            <button class="btn-save" (click)="saveNews()" [disabled]="isSaving">
+                <i-lucide name="check" [size]="16"></i-lucide>
+                {{ isEditing ? 'Update News' : 'Create News' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-backdrop confirm-backdrop" *ngIf="showConfirmModal" (click)="closeConfirmModal()">
+    <div class="confirm-modal" [class.danger]="confirmType === 'hard'" (click)="$event.stopPropagation()">
+        <div class="confirm-icon" [class.danger]="confirmType === 'hard'">
+            <i-lucide [name]="confirmType === 'hard' ? 'alert-triangle' : 'alert-circle'" [size]="32"></i-lucide>
+        </div>
+        <h3 class="confirm-title">{{ confirmTitle }}</h3>
+        <p class="confirm-message">{{ confirmMessage }}</p>
+        <div class="confirm-actions">
+            <button class="btn-cancel" (click)="closeConfirmModal()">
+                <i-lucide name="x" [size]="16"></i-lucide>
+                Cancel
+            </button>
+            <button [class]="confirmType === 'hard' ? 'btn-danger' : 'btn-confirm'" (click)="executeConfirmAction()">
+                <i-lucide name="check" [size]="16"></i-lucide>
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>

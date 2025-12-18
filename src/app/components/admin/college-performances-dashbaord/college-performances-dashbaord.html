@@ -1,0 +1,571 @@
+<div class="performance-dashboard">
+    <!-- ============================================================================
+       HEADER SECTION
+       ============================================================================ -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="header-title-section">
+                <div class="title-icon">
+                    <i-lucide name="bar-chart-3" [size]="28"></i-lucide>
+                </div>
+                <div class="title-text">
+                    <h1>College Performance Dashboard</h1>
+                    <p class="subtitle">Comprehensive analytics and insights for institutional performance</p>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <!-- College Selector -->
+                <div class="college-selector" (clickOutside)="closeDropdown()">
+                    <button class="selector-trigger" (click)="toggleCollegeDropdown()">
+                        <i-lucide name="building-2" [size]="18"></i-lucide>
+                        <span class="selector-label">
+                            @if (getSelectedCollege()) {
+                            {{ getSelectedCollege()?.collegeName }}
+                            } @else {
+                            Select College
+                            }
+                        </span>
+                        <i-lucide name="chevron-down" [size]="16" [class.rotated]="showCollegeDropdown"></i-lucide>
+                    </button>
+
+                    @if (showCollegeDropdown) {
+                    <div class="selector-dropdown">
+                        <div class="dropdown-search">
+                            <i-lucide name="search" [size]="16"></i-lucide>
+                            <input type="text" placeholder="Search colleges..." [(ngModel)]="searchQuery"
+                                (input)="filterColleges()" autofocus>
+                        </div>
+                        <div class="dropdown-list">
+                            @for (college of filteredColleges; track college.id) {
+                            <button class="dropdown-item" [class.selected]="college.id === selectedCollegeId"
+                                (click)="selectCollege(college)">
+                                <div class="college-info">
+                                    <span class="college-name">{{ college.collegeName }}</span>
+                                    <span class="college-location">{{ college.city }}, {{ college.country }}</span>
+                                </div>
+                                @if (college.id === selectedCollegeId) {
+                                <i-lucide name="check" [size]="16" class="check-icon"></i-lucide>
+                                }
+                            </button>
+                            }
+                            @if (filteredColleges.length === 0) {
+                            <div class="dropdown-empty">No colleges found</div>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                <!-- Date Presets -->
+                <div class="date-presets">
+                    @for (preset of datePresets; track preset.value) {
+                    <button class="preset-btn" [class.active]="selectedPreset === preset.value"
+                        (click)="selectPreset(preset.value)">
+                        {{ preset.label }}
+                    </button>
+                    }
+                </div>
+
+                <!-- Refresh Button -->
+                <button class="refresh-btn" (click)="refreshDashboard()" [disabled]="isRefreshing">
+                    <i-lucide name="refresh-cw" [size]="18" [class.spinning]="isRefreshing"></i-lucide>
+                </button>
+            </div>
+        </div>
+
+        <!-- College Info Badge -->
+        @if (dashboard?.collegeInfo) {
+        <div class="college-badge">
+            <i-lucide name="map-pin" [size]="14"></i-lucide>
+            <span>{{ dashboard!.collegeInfo.collegeName }}</span>
+            <span class="badge-separator">•</span>
+            <span>{{ dashboard!.collegeInfo.city }}, {{ dashboard!.collegeInfo.country }}</span>
+        </div>
+        }
+    </header>
+
+    <!-- ============================================================================
+       LOADING STATE
+       ============================================================================ -->
+    @if (isLoadingDashboard && !dashboard) {
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading dashboard data...</p>
+    </div>
+    }
+
+    <!-- ============================================================================
+       MAIN CONTENT
+       ============================================================================ -->
+    @if (dashboard) {
+    <main class="dashboard-content">
+        @if (isLoadingDashboard && dashboard) {
+        <div class="loading-overlay">
+            <div class="spinner-thin"></div>
+        </div>
+        }
+        <!-- KPI STATS ROW -->
+        <section class="kpi-section">
+            <div class="kpi-grid">
+                <!-- Total Students -->
+                <div class="kpi-card" [style.--delay]="'0s'">
+                    <div class="kpi-icon" style="--icon-color: #4f8cff;">
+                        <i-lucide name="users" [size]="24"></i-lucide>
+                    </div>
+                    <div class="kpi-value">{{ dashboard!.statsOverview.totalStudents | number }}</div>
+                    <div class="kpi-label" matTooltip="New Registrations (in selected period)">New Registrations</div>
+                    <div class="kpi-trend" [class]="getTrendClass(dashboard.statsOverview.totalStudentsTrend)">
+                        @if (getTrendDirection(dashboard.statsOverview.totalStudentsTrend) === 'up') {
+                        <i-lucide name="trending-up" [size]="14"></i-lucide>
+                        } @else if (getTrendDirection(dashboard.statsOverview.totalStudentsTrend) === 'down') {
+                        <i-lucide name="trending-down" [size]="14"></i-lucide>
+                        }
+                        <span>{{ formatTrend(dashboard.statsOverview.totalStudentsTrend) }}</span>
+                    </div>
+                </div>
+
+                <!-- Active Pipeline -->
+                <div class="kpi-card" [style.--delay]="'0.1s'">
+                    <div class="kpi-icon" style="--icon-color: #9b5de5;">
+                        <i-lucide name="activity" [size]="24"></i-lucide>
+                    </div>
+                    <div class="kpi-value">{{ dashboard.statsOverview.activePipeline | number }}</div>
+                    <div class="kpi-label">Active Pipeline</div>
+                    <div class="kpi-trend" [class]="getTrendClass(dashboard.statsOverview.activePipelineTrend)">
+                        @if (getTrendDirection(dashboard.statsOverview.activePipelineTrend) === 'up') {
+                        <i-lucide name="trending-up" [size]="14"></i-lucide>
+                        } @else if (getTrendDirection(dashboard.statsOverview.activePipelineTrend) === 'down') {
+                        <i-lucide name="trending-down" [size]="14"></i-lucide>
+                        }
+                        <span>{{ formatTrend(dashboard.statsOverview.activePipelineTrend) }}</span>
+                    </div>
+                </div>
+
+                <!-- Visa Success Rate -->
+                <div class="kpi-card" [style.--delay]="'0.2s'">
+                    <div class="kpi-icon" style="--icon-color: #00d68f;">
+                        <i-lucide name="check-circle" [size]="24"></i-lucide>
+                    </div>
+                    <div class="kpi-value">{{ dashboard!.statsOverview.visaSuccessRate | number:'1.1-1' }}%</div>
+                    <div class="kpi-label" matTooltip="Percentage of this cohort that successfully obtained a visa">Visa
+                        Success Rate</div>
+                    <div class="kpi-trend" [class]="getTrendClass(dashboard.statsOverview.visaSuccessRateTrend)">
+                        @if (getTrendDirection(dashboard.statsOverview.visaSuccessRateTrend) === 'up') {
+                        <i-lucide name="trending-up" [size]="14"></i-lucide>
+                        } @else if (getTrendDirection(dashboard.statsOverview.visaSuccessRateTrend) === 'down') {
+                        <i-lucide name="trending-down" [size]="14"></i-lucide>
+                        }
+                        <span>{{ formatTrend(dashboard.statsOverview.visaSuccessRateTrend) }}</span>
+                    </div>
+                </div>
+
+                <!-- Avg Processing Days -->
+                <div class="kpi-card" [style.--delay]="'0.3s'">
+                    <div class="kpi-icon" style="--icon-color: #ffaa00;">
+                        <i-lucide name="clock" [size]="24"></i-lucide>
+                    </div>
+                    <div class="kpi-value">{{ dashboard.statsOverview.avgProcessingDays | number:'1.1-1' }}</div>
+                    <div class="kpi-label">Avg Processing Days</div>
+                    <div class="kpi-trend"
+                        [class]="getTrendClass(dashboard.statsOverview.avgProcessingDaysTrend, true)">
+                        @if (getTrendDirection(dashboard.statsOverview.avgProcessingDaysTrend) === 'up') {
+                        <i-lucide name="trending-up" [size]="14"></i-lucide>
+                        } @else if (getTrendDirection(dashboard.statsOverview.avgProcessingDaysTrend) === 'down') {
+                        <i-lucide name="trending-down" [size]="14"></i-lucide>
+                        }
+                        <span>{{ formatTrend(dashboard.statsOverview.avgProcessingDaysTrend) }}</span>
+                    </div>
+                </div>
+
+                <!-- Conversion Rate -->
+                <div class="kpi-card" [style.--delay]="'0.4s'">
+                    <div class="kpi-icon" style="--icon-color: #ff6b9d;">
+                        <i-lucide name="target" [size]="24"></i-lucide>
+                    </div>
+                    <div class="kpi-value">{{ dashboard!.statsOverview.conversionRate | number:'1.1-1' }}%</div>
+                    <div class="kpi-label" matTooltip="Percentage of visa applicants who are currently travelling">
+                        Conversion Rate</div>
+                    <div class="kpi-trend trend-stable">
+                        <i-lucide name="minus" [size]="14"></i-lucide>
+                        <span>Calculated</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STUDENT PIPELINE SECTION -->
+        <section class="pipeline-section">
+            <div class="section-header">
+                <div>
+                    <h2>
+                        <i-lucide name="git-branch" [size]="20"></i-lucide>
+                        Student Pipeline
+                    </h2>
+                    <p class="section-subtitle">Cohort Analysis: {{ getSelectedPresetLabel() }}</p>
+                </div>
+                <div class="rejected-badge">
+                    <i-lucide name="x-circle" [size]="16"></i-lucide>
+                    <span>{{ dashboard!.studentPipeline.rejectedCount }} Rejected</span>
+                </div>
+            </div>
+
+            <div class="pipeline-funnel">
+                @for (stage of dashboard.studentPipeline.stages; track trackByStageKey($index, stage); let i = $index) {
+                <div class="pipeline-stage" [style.--delay]="i * 0.1 + 's'">
+                    <div class="stage-bar-container">
+                        <div class="stage-bar" [style.width]="getPipelineWidth(stage)"
+                            [style.background]="getStageGradient(stage.stageKey)">
+                            <div class="stage-glow"></div>
+                        </div>
+                    </div>
+                    <div class="stage-info">
+                        <div class="stage-details">
+                            <span class="stage-count">{{ stage.count | number }}</span>
+                            <span class="stage-name">{{ stage.stageName }}</span>
+                            <span class="stage-percentage">({{ stage.percentage | number:'1.1-1' }}%)</span>
+                        </div>
+                        @if (stage.dropOffRate) {
+                        <div class="drop-off">
+                            <i-lucide name="arrow-down" [size]="12"></i-lucide>
+                            <span>{{ stage.dropOffRate | number:'1.1-1' }}% drop</span>
+                        </div>
+                        }
+                    </div>
+                    @if (stage.stageKey === 'VISA_STAMPED') {
+                    <div class="stage-success">
+                        <i-lucide name="check-circle" [size]="18"></i-lucide>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+        </section>
+
+        <!-- ENTITY PERFORMANCE GRID -->
+        <section class="entity-section">
+            <div class="section-header">
+                <h2>
+                    <i-lucide name="users" [size]="20"></i-lucide>
+                    Entity Performance
+                </h2>
+            </div>
+
+            <div class="entity-grid">
+                <!-- Admission Manager -->
+                @if (dashboard.entityPerformance.admissionManager) {
+                <div class="entity-card" [style.--delay]="'0s'">
+                    <div class="entity-header">
+                        <div class="entity-icon" style="--entity-color: #4f8cff;">
+                            <i-lucide name="clipboard-list" [size]="20"></i-lucide>
+                        </div>
+                        <div class="entity-role">
+                            <h3>Admission Manager</h3>
+                            <div class="entity-status"
+                                [class]="getStatusDotClass(dashboard.entityPerformance.admissionManager.status)">
+                                <span class="status-dot"></span>
+                                {{ dashboard.entityPerformance.admissionManager.status }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="entity-name">{{ dashboard.entityPerformance.admissionManager.entityName }}</div>
+                    <div class="entity-metrics">
+                        <div class="metric">
+                            <span class="metric-value">{{ dashboard.entityPerformance.admissionManager.studentsHandled
+                                }}</span>
+                            <span class="metric-label">Handled</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">{{ dashboard.entityPerformance.admissionManager.studentsCompleted
+                                }}</span>
+                            <span class="metric-label">Completed</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">{{ dashboard.entityPerformance.admissionManager.avgProcessingDays
+                                | number:'1.1-1' }}d</span>
+                            <span class="metric-label">Avg Days</span>
+                        </div>
+                    </div>
+                </div>
+                }
+
+                <!-- University Coordinator -->
+                @if (dashboard.entityPerformance.universityCoordinator) {
+                <div class="entity-card" [style.--delay]="'0.1s'">
+                    <div class="entity-header">
+                        <div class="entity-icon" style="--entity-color: #9b5de5;">
+                            <i-lucide name="building-2" [size]="20"></i-lucide>
+                        </div>
+                        <div class="entity-role">
+                            <h3>University Coordinator</h3>
+                            <div class="entity-status"
+                                [class]="getStatusDotClass(dashboard.entityPerformance.universityCoordinator.status)">
+                                <span class="status-dot"></span>
+                                {{ dashboard.entityPerformance.universityCoordinator.status }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="entity-name">{{ dashboard.entityPerformance.universityCoordinator.entityName }}</div>
+                    <div class="entity-metrics">
+                        <div class="metric">
+                            <span class="metric-value">{{
+                                dashboard.entityPerformance.universityCoordinator.studentsHandled }}</span>
+                            <span class="metric-label">Handled</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">{{
+                                dashboard.entityPerformance.universityCoordinator.studentsInProgress }}</span>
+                            <span class="metric-label">In Progress</span>
+                        </div>
+                    </div>
+                </div>
+                }
+
+                <!-- Telex Team -->
+                @if (dashboard.entityPerformance.telexMen && dashboard.entityPerformance.telexMen.length > 0) {
+                <div class="entity-card" [style.--delay]="'0.2s'">
+                    <div class="entity-header">
+                        <div class="entity-icon" style="--entity-color: #00d68f;">
+                            <i-lucide name="send" [size]="20"></i-lucide>
+                        </div>
+                        <div class="entity-role">
+                            <h3>Telex Team</h3>
+                            <div class="entity-count">{{ dashboard.entityPerformance.telexMen.length }} Handlers</div>
+                        </div>
+                    </div>
+                    <div class="entity-list">
+                        @for (telex of dashboard.entityPerformance.telexMen; track telex.entityId) {
+                        <div class="entity-list-item">
+                            <span class="list-name">{{ telex.entityName }}</span>
+                            <span class="list-stat">{{ telex.studentsHandled }} students</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+
+                <!-- Visa Team -->
+                @if (dashboard.entityPerformance.visaMen && dashboard.entityPerformance.visaMen.length > 0) {
+                <div class="entity-card" [style.--delay]="'0.3s'">
+                    <div class="entity-header">
+                        <div class="entity-icon" style="--entity-color: #ffaa00;">
+                            <i-lucide name="plane" [size]="20"></i-lucide>
+                        </div>
+                        <div class="entity-role">
+                            <h3>Visa Team</h3>
+                            <div class="entity-count">{{ dashboard.entityPerformance.visaMen.length }} Handlers</div>
+                        </div>
+                    </div>
+                    <div class="entity-list">
+                        @for (visa of dashboard.entityPerformance.visaMen; track visa.entityId) {
+                        <div class="entity-list-item">
+                            <span class="list-name">{{ visa.entityName }}</span>
+                            <div class="list-stats">
+                                <span class="list-stat">{{ visa.studentsHandled }} handled</span>
+                                @if (visa.successRate) {
+                                <span class="list-stat success">{{ visa.successRate | number:'1.1-1' }}% success</span>
+                                }
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+
+                <!-- Document Person -->
+                @if (dashboard.entityPerformance.docPerson) {
+                <div class="entity-card" [style.--delay]="'0.4s'">
+                    <div class="entity-header">
+                        <div class="entity-icon" style="--entity-color: #ff6b9d;">
+                            <i-lucide name="file-text" [size]="20"></i-lucide>
+                        </div>
+                        <div class="entity-role">
+                            <h3>Document Person</h3>
+                            <div class="entity-status"
+                                [class]="getStatusDotClass(dashboard.entityPerformance.docPerson.status)">
+                                <span class="status-dot"></span>
+                                {{ dashboard.entityPerformance.docPerson.status }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="entity-name">{{ dashboard.entityPerformance.docPerson.entityName }}</div>
+                    <div class="entity-metrics">
+                        <div class="metric full-width">
+                            <span class="metric-value">{{ dashboard.entityPerformance.docPerson.studentsHandled
+                                }}</span>
+                            <span class="metric-label">Documents Processed</span>
+                        </div>
+                    </div>
+                </div>
+                }
+
+                <!-- Accountant -->
+                @if (dashboard.entityPerformance.accountant) {
+                <div class="entity-card" [style.--delay]="'0.5s'">
+                    <div class="entity-header">
+                        <div class="entity-icon" style="--entity-color: #6366f1;">
+                            <i-lucide name="calculator" [size]="20"></i-lucide>
+                        </div>
+                        <div class="entity-role">
+                            <h3>Accountant</h3>
+                            <div class="entity-status"
+                                [class]="getStatusDotClass(dashboard.entityPerformance.accountant.status)">
+                                <span class="status-dot"></span>
+                                {{ dashboard.entityPerformance.accountant.status }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="entity-name">{{ dashboard.entityPerformance.accountant.entityName }}</div>
+                    <div class="entity-metrics">
+                        <div class="metric full-width">
+                            <span class="metric-value">{{ dashboard.entityPerformance.accountant.studentsHandled
+                                }}</span>
+                            <span class="metric-label">Payments Processed</span>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </section>
+
+        <!-- CHARTS SECTION -->
+        <section class="charts-section">
+            <div class="charts-grid">
+                <!-- Line Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>
+                            <i-lucide name="trending-up" [size]="18"></i-lucide>
+                            Registration & Completion Trends
+                        </h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line">
+                        </canvas>
+                    </div>
+                </div>
+
+                <!-- Bar Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>
+                            <i-lucide name="bar-chart-2" [size]="18"></i-lucide>
+                            Status Transitions
+                        </h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACTIVITY & ALERTS SECTION -->
+        <section class="activity-alerts-section">
+            <div class="activity-alerts-grid">
+                <!-- Recent Activities Timeline -->
+                <div class="timeline-card">
+                    <div class="card-header">
+                        <h3>
+                            <i-lucide name="activity" [size]="18"></i-lucide>
+                            Recent Activities
+                        </h3>
+                    </div>
+                    <div class="timeline-container">
+                        @for (activity of dashboard.recentActivities; track trackByActivityId($index, activity); let i =
+                        $index) {
+                        <div class="timeline-item" [style.--delay]="i * 0.05 + 's'">
+                            <div class="timeline-marker" [style.background]="getStatusColor(activity.newStatus)">
+                                <i-lucide [name]="getStatusIcon(activity.newStatus)" [size]="14"></i-lucide>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <span class="student-name">{{ activity.studentName }}</span>
+                                    <span class="activity-time">{{ getRelativeTime(activity.updatedAt) }}</span>
+                                </div>
+                                <div class="status-change">
+                                    @if (activity.previousStatus) {
+                                    <span class="prev-status">{{ formatStatus(activity.previousStatus) }}</span>
+                                    <i-lucide name="arrow-right" [size]="12"></i-lucide>
+                                    }
+                                    <span class="new-status" [style.color]="getStatusColor(activity.newStatus)">
+                                        {{ formatStatus(activity.newStatus) }}
+                                    </span>
+                                </div>
+                                <div class="activity-meta">
+                                    <span class="app-id">{{ activity.applicationId }}</span>
+                                    <span class="updated-by">by {{ activity.updatedBy }}</span>
+                                </div>
+                                @if (activity.remarks) {
+                                <div class="activity-remarks">{{ activity.remarks }}</div>
+                                }
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Alerts Panel -->
+                <div class="alerts-card">
+                    <div class="card-header">
+                        <h3>
+                            <i-lucide name="alert-triangle" [size]="18"></i-lucide>
+                            Alerts & Bottlenecks
+                        </h3>
+                    </div>
+                    <div class="alerts-container">
+                        @for (alert of dashboard.alerts; track trackByAlertType($index, alert); let i = $index) {
+                        <div class="alert-item" [class]="getSeverityClass(alert.severity)"
+                            [class.expanded]="isAlertExpanded(alert.alertType)" [style.--delay]="i * 0.1 + 's'"
+                            (click)="toggleAlert(alert.alertType)">
+                            <div class="alert-header">
+                                <div class="alert-icon">
+                                    <i-lucide [name]="getSeverityIcon(alert.severity)" [size]="18"></i-lucide>
+                                </div>
+                                <div class="alert-info">
+                                    <h4>{{ alert.title }}</h4>
+                                    <span class="alert-count">{{ alert.affectedCount }} affected</span>
+                                </div>
+                                <i-lucide name="chevron-down" [size]="16" class="expand-icon"></i-lucide>
+                            </div>
+                            @if (isAlertExpanded(alert.alertType)) {
+                            <div class="alert-details">
+                                <p>{{ alert.message }}</p>
+                            </div>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER METADATA -->
+        <footer class="dashboard-footer">
+            <div class="metadata">
+                <span>
+                    <i-lucide name="clock" [size]="14"></i-lucide>
+                    Generated: {{ dashboard.metadata.generatedAt | date:'medium' }}
+                </span>
+                <span class="separator">•</span>
+                <span>
+                    Date Range: {{ dashboard.metadata.dateFrom | date:'mediumDate' }} - {{ dashboard.metadata.dateTo |
+                    date:'mediumDate' }}
+                </span>
+            </div>
+        </footer>
+    </main>
+    }
+
+    <!-- NO COLLEGE SELECTED STATE -->
+    @if (!isLoadingColleges && !selectedCollegeId && !isLoadingDashboard) {
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i-lucide name="building-2" [size]="64"></i-lucide>
+        </div>
+        <h2>Select a College</h2>
+        <p>Choose a college from the dropdown above to view its performance dashboard</p>
+    </div>
+    }
+</div>

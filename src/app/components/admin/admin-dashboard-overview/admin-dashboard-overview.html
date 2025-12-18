@@ -689,8 +689,51 @@
       </div>
     </div>
 
+
+    <!-- DOC PERSON SECTION -->
+    <div *ngIf="activeSection === 'doc-person'">
+      <h2 class="section-title">
+        <i-lucide name="file-check" size="28"></i-lucide> Doc Person Management
+      </h2>
+      <p class="section-subtitle">Manage Document Verification Staff and access directory.</p>
+
+      <div class="card-grid">
+        <div class="info-card" (click)="navigateTo('manage-doc-person')">
+          <div class="icon"><i-lucide name="user-cog" size="24"></i-lucide></div>
+          <h3>Manage Doc Person</h3>
+          <p>Update Doc Person details & access</p>
+        </div>
+        <div class="info-card" (click)="navigateTo('doc-person-student-directory')">
+          <div class="icon"><i-lucide name="folder-open" size="24"></i-lucide></div>
+          <h3>Student Directory</h3>
+          <p>View students for verification</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNTANT SECTION -->
+    <div *ngIf="activeSection === 'account'">
+      <h2 class="section-title">
+        <i-lucide name="calculator" size="28"></i-lucide> Accountant Management
+      </h2>
+      <p class="section-subtitle">Manage Accountants and financial records access.</p>
+
+      <div class="card-grid">
+        <div class="info-card" (click)="navigateTo('manage-accountant')">
+          <div class="icon"><i-lucide name="calculator" size="24"></i-lucide></div>
+          <h3>Manage Accountant</h3>
+          <p>Update Accountant details & access</p>
+        </div>
+        <div class="info-card" (click)="navigateTo('accountant-student-directory')">
+          <div class="icon"><i-lucide name="list" size="24"></i-lucide></div>
+          <h3>Student Directory</h3>
+          <p>View students for payment verification</p>
+        </div>
+      </div>
+    </div>
+
     <!-- PLACEHOLDER SECTIONS -->
-    <div *ngIf="['account', 'doc-person', 'news-management', 'payments', 'reports'].includes(activeSection)">
+    <div *ngIf="['payments', 'reports'].includes(activeSection)">
       <h2 class="section-title">
         <i-lucide [name]="currentSectionIcon" size="28"></i-lucide> {{ pageTitle }}
       </h2>
@@ -703,6 +746,22 @@
         </div>
         <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">This will be implemented later.</p>
         <button class="btn-primary">Notify Me When Ready</button>
+      </div>
+    </div>
+
+    <!-- NEWS MANAGEMENT SECTION -->
+    <div *ngIf="activeSection === 'news-management'">
+      <h2 class="section-title">
+        <i-lucide name="file-text" size="28"></i-lucide> News Management
+      </h2>
+      <p class="section-subtitle">Manage news and announcements for users</p>
+
+      <div class="card-grid">
+        <div class="info-card" (click)="navigateTo('news-dashboard')">
+          <div class="icon"><i-lucide name="file-text" size="24"></i-lucide></div>
+          <h3>News Dashboard</h3>
+          <p>Create, edit & manage news</p>
+        </div>
       </div>
     </div>
 

@@ -154,7 +154,20 @@ import {
   FileWarning,
   BellRing,
   Luggage,
-  Wand2
+  Wand2,
+  LayoutGrid,
+  UsersRound,
+  Ban,
+  BookOpen,
+  MinusCircle,
+  Tag,
+  ToggleRight,
+  // College Performance Dashboard icons
+  Target,
+  TrendingDown,
+  ClipboardList,
+  Minus,
+  AlertOctagon
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -193,6 +206,12 @@ import { VisaManagerStudentDirectory } from './components/admin/visa-manager-stu
 import { UpdateUniversityPerson } from './components/admin/update-university-person/update-university-person';
 import { UniversityPersonStudentDirectory } from './components/admin/university-person-student-directory/university-person-student-directory';
 import { UniversityWiseUniversityPerson } from './components/admin/university-wise-university-person/university-wise-university-person';
+import { UpdateAccountant } from './components/admin/update-accountant/update-accountant';
+import { AccountantStudentDirectory } from './components/admin/accountant-student-directory/accountant-student-directory';
+import { DocPersonUpdate } from './components/admin/doc-person-update/doc-person-update';
+import { DocPersonStudentDirectory } from './components/admin/doc-person-student-directory/doc-person-student-directory';
+import { NewsDashboard } from './components/admin/news-dashboard/news-dashboard';
+import { CollegePerformancesDashbaord } from './components/admin/college-performances-dashbaord/college-performances-dashbaord';
 
 @NgModule({
   declarations: [
@@ -228,6 +247,12 @@ import { UniversityWiseUniversityPerson } from './components/admin/university-wi
     UpdateUniversityPerson,
     UniversityPersonStudentDirectory,
     UniversityWiseUniversityPerson,
+    UpdateAccountant,
+    AccountantStudentDirectory,
+    DocPersonUpdate,
+    DocPersonStudentDirectory,
+    NewsDashboard,
+    CollegePerformancesDashbaord,
 
   ],
   imports: [
@@ -349,6 +374,13 @@ import { UniversityWiseUniversityPerson } from './components/admin/university-wi
       Pencil,
       PowerOff,
       Power,
+      LayoutGrid,
+      UsersRound,
+      Ban,
+      BookOpen,
+      MinusCircle,
+      Tag,
+      ToggleRight,
       // Admission Letters Premium icons
       Sparkles,
       CheckCircle2,
@@ -382,6 +414,12 @@ import { UniversityWiseUniversityPerson } from './components/admin/university-wi
       Lightbulb,
       Luggage,
       Wand2,
+      // College Performance Dashboard icons
+      Target,
+      TrendingDown,
+      ClipboardList,
+      Minus,
+      AlertOctagon,
     }),
     StudentStatusPipe
   ],
