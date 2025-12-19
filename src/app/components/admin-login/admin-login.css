@@ -545,12 +545,16 @@
 /* ========================================
    SPINNER OVERLAY
    ======================================== */
+/* ========================================
+   SPINNER OVERLAY
+   ======================================== */
 .spinner-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(17, 30, 56, 0.5);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(17, 30, 56, 0.7);
+  /* Darker backdrop */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -572,76 +576,91 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.75rem;
-  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-  padding: 2.5rem 3.5rem;
-  border-radius: 20px;
-  box-shadow: 0 25px 50px rgba(17, 30, 56, 0.25);
+  gap: 2rem;
+  /* Removed white card background for a cleaner, transparent look */
+  padding: 2rem;
   position: relative;
-  overflow: hidden;
 }
 
-.spinner-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-blue), var(--primary-orange), var(--teal));
+/* Visual Wrapper for Rings and Logo */
+/* Visual Wrapper for Rings and Logo */
+/* Visual Wrapper for Rings and Logo */
+.spinner-visual {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  /* Increased visible white background inside the ring */
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(2px);
 }
 
+/* Logo Styles */
 .spinner-logo {
-  height: 45px;
-  width: auto;
+  width: 75px;
+  /* Constrained width to fit inside circle */
+  height: auto;
+  /* Maintain aspect ratio */
   object-fit: contain;
+  position: relative;
+  z-index: 2;
+  opacity: 1;
+  /* Logo sits on the white background, so full opacity looks cleanest */
 }
 
+/* Ring Animations */
 .spinner-rings {
-  position: relative;
-  width: 80px;
-  height: 80px;
+  position: absolute;
+  inset: -12px;
+  /* Ring positioned further outside (-12px) */
+  border-radius: 50%;
 }
 
 .ring {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 3px solid transparent;
+  border: 2px solid transparent;
 }
 
+/* Single Ring Only */
 .ring-1 {
   border-top-color: var(--primary-blue);
-  border-right-color: rgba(26, 76, 160, 0.15);
-  animation: spin 1s linear infinite;
-}
-
-.ring-2 {
-  inset: 8px;
   border-right-color: var(--primary-orange);
-  border-bottom-color: rgba(245, 166, 35, 0.15);
-  animation: spin 1.5s linear reverse infinite;
+  /* Single ring with brand colors */
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 10px rgba(26, 76, 160, 0.1);
 }
 
-.ring-3 {
-  inset: 16px;
-  border-left-color: var(--teal);
-  border-top-color: rgba(38, 166, 154, 0.15);
-  animation: spin 2s linear infinite;
+/* Remove second ring */
+.ring-2 {
+  display: none;
 }
 
 .ring.success {
-  border-color: transparent !important;
-  border-top-color: var(--success) !important;
+  border: 3px solid var(--success) !important;
+  animation: none;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+  transition: all 0.3s ease;
 }
 
 .ring.error {
-  border-color: transparent !important;
-  border-top-color: var(--error) !important;
+  border: 3px solid var(--error) !important;
+  animation: none;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  transition: all 0.3s ease;
 }
 
 @keyframes spin {
-  to {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
     transform: rotate(360deg);
   }
 }

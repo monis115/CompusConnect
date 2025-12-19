@@ -85,6 +85,7 @@ export class AdminDashboars implements OnInit {
   // System Configuration Menu Logic
   isConfigOpen = false;
   showSystemActivitySpinner = false; // Controls the premium spinner overlay
+  showSystemDashboard = false; // Controls the System Dashboard modal
 
   toggleConfigMenu() {
     this.isConfigOpen = !this.isConfigOpen;
@@ -105,7 +106,15 @@ export class AdminDashboars implements OnInit {
         this.showSystemActivitySpinner = false;
         this.navigateTo('system-activity');
       }, 1500);
+    } else if (option === 'System Dashboard') {
+      // Close menu and open dashboard modal
+      this.isConfigOpen = false;
+      this.showSystemDashboard = true;
     }
+  }
+
+  closeSystemDashboard(): void {
+    this.showSystemDashboard = false;
   }
 
   logout() {

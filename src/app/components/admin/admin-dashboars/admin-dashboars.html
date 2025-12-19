@@ -101,7 +101,7 @@
           </div>
         </li>
         <li class="sys-menu-item" (click)="handleOption('System Dashboard')">
-          <span class="sys-label">System Dashboard</span>
+          <span class="sys-label">Reports Generation</span>
           <div class="sys-icon-wrapper">
             <i-lucide name="layout-dashboard" size="20"></i-lucide>
           </div>
@@ -142,4 +142,8 @@
       <div class="fab-ripple"></div>
     </button>
   </div>
+
+  <!-- System Performance Dashboard Modal -->
+  <app-reports-generation-dashboard [isOpen]="showSystemDashboard" (closeModal)="closeSystemDashboard()">
+  </app-reports-generation-dashboard>
 </div>

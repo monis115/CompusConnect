@@ -167,7 +167,13 @@ import {
   TrendingDown,
   ClipboardList,
   Minus,
-  AlertOctagon
+  AlertOctagon,
+  // Reports Dashboard icons
+  Trophy,
+  CalendarDays,
+  Star,
+  Zap,
+  AtSign
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -212,6 +218,8 @@ import { DocPersonUpdate } from './components/admin/doc-person-update/doc-person
 import { DocPersonStudentDirectory } from './components/admin/doc-person-student-directory/doc-person-student-directory';
 import { NewsDashboard } from './components/admin/news-dashboard/news-dashboard';
 import { CollegePerformancesDashbaord } from './components/admin/college-performances-dashbaord/college-performances-dashbaord';
+import { ReportsGenerationDashboard } from './components/admin/reports-generation-dashboard/reports-generation-dashboard';
+import { ReportsGeneratedDashbaord } from './components/admin/reports-generated-dashbaord/reports-generated-dashbaord';
 
 @NgModule({
   declarations: [
@@ -253,6 +261,8 @@ import { CollegePerformancesDashbaord } from './components/admin/college-perform
     DocPersonStudentDirectory,
     NewsDashboard,
     CollegePerformancesDashbaord,
+    ReportsGenerationDashboard,
+    ReportsGeneratedDashbaord,
 
   ],
   imports: [
@@ -406,6 +416,7 @@ import { CollegePerformancesDashbaord } from './components/admin/college-perform
       FileJson,
       XCircle,
       Loader2,
+      Star,
       ArrowUp,
       ArrowDown,
       ArrowUpDown,
@@ -420,6 +431,11 @@ import { CollegePerformancesDashbaord } from './components/admin/college-perform
       ClipboardList,
       Minus,
       AlertOctagon,
+      // Reports Dashboard icons
+      Trophy,
+      CalendarDays,
+      Zap,
+      AtSign,
     }),
     StudentStatusPipe
   ],

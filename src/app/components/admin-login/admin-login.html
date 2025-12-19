@@ -211,17 +211,18 @@
 <!-- Premium Loading Spinner -->
 <div class="spinner-overlay" *ngIf="isLoading()">
   <div class="spinner-container">
-    <!-- Logo in spinner -->
-    <img src="rare-education-logo.png" alt="Rare Education" class="spinner-logo">
+    <!-- Spinner Visual (Logo + Rings) -->
+    <div class="spinner-visual">
+      <!-- Animated rings -->
+      <div class="spinner-rings">
+        <div class="ring ring-1" [class.success]="spinnerPhase() === 'success'"
+          [class.error]="spinnerPhase() === 'error'"></div>
+        <div class="ring ring-2" [class.success]="spinnerPhase() === 'success'"
+          [class.error]="spinnerPhase() === 'error'"></div>
+      </div>
 
-    <!-- Animated rings -->
-    <div class="spinner-rings">
-      <div class="ring ring-1" [class.success]="spinnerPhase() === 'success'"
-        [class.error]="spinnerPhase() === 'error'"></div>
-      <div class="ring ring-2" [class.success]="spinnerPhase() === 'success'"
-        [class.error]="spinnerPhase() === 'error'"></div>
-      <div class="ring ring-3" [class.success]="spinnerPhase() === 'success'"
-        [class.error]="spinnerPhase() === 'error'"></div>
+      <!-- Logo in center -->
+      <img src="rare-education-logo.png" alt="Rare Education" class="spinner-logo">
     </div>
 
     <!-- Status Section -->
