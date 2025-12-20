@@ -5974,3 +5974,401 @@ router-outlet+* {
   color: var(--text-muted);
   margin-top: 2px;
 }
+
+/* Photo Upload Style */
+.photo-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.photo-upload-container {
+  width: 150px;
+  height: 200px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #f9fafb;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.photo-upload-container:hover {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #9ca3af;
+}
+
+.photo-placeholder-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.8;
+}
+
+.photo-upload-label {
+  font-size: 0.75rem;
+  color: #DC2626;
+  /* Making text distinct over image */
+  font-weight: 600;
+  text-align: center;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-top: 60%;
+  /* Position near bottom */
+}
+
+/* Document Upload Style (Passport) */
+.doc-upload-box {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.doc-upload-box:hover {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+}
+
+.doc-placeholder-img {
+  width: 80px;
+  height: 100px;
+  object-fit: contain;
+  opacity: 0.6;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  border: 2px solid #e2e8f0;
+}
+
+.doc-upload-content-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.doc-upload-icon-circle {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: transform 0.2s;
+}
+
+.doc-upload-box:hover .doc-upload-icon-circle {
+  transform: scale(1.1);
+}
+
+.doc-upload-text h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.doc-upload-text p {
+  margin: 4px 0 0 0;
+  font-size: 0.813rem;
+  color: #64748b;
+}
+
+.file-info-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.file-info-name {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.file-info-name svg {
+  color: #10b981;
+}
+
+.btn-remove-file {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  padding: 0.25rem;
+}
+
+.btn-remove-file:hover {
+  background-color: #fee2e2;
+  border-radius: 4px;
+}
+
+/* Passport Upload Container - Side by Side Layout */
+.passport-upload-container {
+  display: flex;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.passport-upload-container:hover {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+}
+
+/* Left side - Example Preview */
+.passport-example-side {
+  flex: 0 0 140px;
+  background: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  border-right: 1px solid #e2e8f0;
+}
+
+.passport-example-img {
+  width: 110px;
+  height: auto;
+  max-height: 140px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 2px solid #cbd5e1;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.passport-example-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Right side - Upload Area */
+.passport-upload-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 12px;
+}
+
+.click-to-upload-hint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 8px;
+}
+
+.passport-upload-container:hover .click-to-upload-hint {
+  color: #3b82f6;
+}
+
+.passport-upload-container:hover .passport-example-img {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* Passport Copy Preview Styles */
+.passport-preview-box {
+  position: relative;
+  min-height: 220px;
+  border: 2px solid #10b981 !important;
+  border-style: solid !important;
+  background: white !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.passport-preview-box:hover {
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+  transform: translateY(-2px);
+}
+
+.passport-preview-img {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  object-fit: contain;
+  border-radius: 10px;
+  padding: 12px;
+  background: white;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.passport-preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  opacity: 0;
+  transition: all 0.25s ease;
+  z-index: 3;
+  border-radius: 10px;
+}
+
+.passport-preview-box:hover .passport-preview-overlay {
+  opacity: 1;
+}
+
+.passport-preview-overlay svg {
+  color: white;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.passport-preview-overlay span {
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Upload Spinner Styles */
+.upload-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+}
+
+.upload-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(59, 130, 246, 0.2);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: uploadSpin 0.8s linear infinite;
+}
+
+@keyframes uploadSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.upload-spinner-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.doc-upload-box.loading-state {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
+  border-color: #3b82f6 !important;
+  border-style: solid !important;
+}
+
+/* Photo Preview Styles */
+.photo-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 6px;
+}
+
+.photo-preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 3;
+  border-radius: 6px;
+}
+
+.photo-upload-container:hover .photo-preview-overlay {
+  opacity: 1;
+}
+
+.photo-preview-overlay svg {
+  color: white;
+}
+
+.photo-preview-overlay span {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+}

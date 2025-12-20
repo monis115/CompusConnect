@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, Output, EventEmitter, Input, ChangeDetectorRef } from '@angular/core';
 import { AdmissionManagerService, AdmissionManagerReportDTO, ManagerReportStatsDTO, ReportPeriod, UniversityPersonReportDTO, UniversityPersonStatsDTO, CollegeReportDTO, CollegeStatsDTO } from '../../../services/admission-manager.service';
-import { Subject } from 'rxjs';
+import { TelexReportService, TelexStatsDTO, TelexManStats } from '../../../services/telex-report.service';
+import { VisaDashboardService, VisaManStatsDTO, EmailReportRequest } from '../../../services/visa-dashboard.service';
+import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { trigger, transition, style, animate, state } from '@angular/animations';
@@ -133,6 +135,40 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
     completionTrend: 0 as number | null
   };
 
+  // Telex Person Data - Table and Detail View
+  allTelexManagers: TelexManStats[] = [];
+  selectedTelexManager: TelexManStats | null = null;
+  telexStats: TelexStatsDTO | null = null;
+  telexActivityChartData: ChartData<'line'> | null = null;
+  telexDistributionChartData: ChartData<'doughnut'> | null = null;
+  showTelexDetailView = false;
+
+  // Telex Summary Analytics
+  telexSummaryAnalytics = {
+    totalStudents: 0,
+    totalDocsUploaded: 0,
+    totalSubmittedToUniversity: 0,
+    totalSubmittedToMEA: 0,
+    totalTelexIssued: 0,
+    completionRate: 0,
+    avgEfficiency: 0,
+    activeManagers: 0,
+    inactiveManagers: 0,
+    topPerformer: null as TelexManStats | null,
+    lowPerformer: null as TelexManStats | null
+  };
+  telexManagerComparisonChartData: ChartData<'bar'> | null = null;
+  telexPipelineChartData: ChartData<'bar'> | null = null;
+
+  // Visa Manager Data
+  visaStats: VisaManStatsDTO | null = null;
+  visaFunnelChartData: ChartData<'bar'> | null = null;
+  visaPieChartData: ChartData<'doughnut'> | null = null;
+  allVisaManagers: VisaManStatsDTO[] = [];
+  selectedVisaManager: VisaManStatsDTO | null = null;
+  showVisaDetailView = false;
+
+
   // User Types for tabs
   userTypes: { key: UserType; label: string; icon: string }[] = [
     { key: 'ADMISSION_MANAGER', label: 'Admission Managers', icon: 'user-check' },
@@ -181,8 +217,31 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
     }
   };
 
+  lineChartOptions: ChartConfiguration<'line'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      y: {
+        grid: { color: 'rgba(255,255,255,0.05)' },
+        ticks: { color: 'rgba(255,255,255,0.5)', font: { family: 'Inter' } }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: 'rgba(255,255,255,0.5)', font: { family: 'Inter' } }
+      }
+    },
+    elements: {
+      line: { tension: 0.4 }
+    }
+  };
+
   constructor(
     private admissionManagerService: AdmissionManagerService,
+    private telexReportService: TelexReportService,
+    private visaDashboardService: VisaDashboardService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -213,6 +272,10 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
         this.loadData();
       } else if (this.selectedUserType === 'UNIVERSITY_COORDINATOR') {
         this.loadCollegesData();
+      } else if (this.selectedUserType === 'TELEX_PERSON') {
+        this.loadTelexData();
+      } else if (this.selectedUserType === 'VISA_PERSON') {
+        this.loadVisaData();
       }
     }
   }
@@ -282,6 +345,17 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
       this.allManagerReports = [];
       this.universityPersonReport = null;
       this.loadCollegesData(); // Load ALL colleges for Coordinator view
+    } else if (type === 'TELEX_PERSON') {
+      this.allManagerReports = [];
+      this.universityPersonReport = null;
+      this.allCollegeReports = [];
+      this.loadTelexData();
+    } else if (type === 'VISA_PERSON') {
+      this.allManagerReports = [];
+      this.universityPersonReport = null;
+      this.allCollegeReports = [];
+      this.allTelexManagers = [];
+      this.loadVisaData();
     } else {
       // Other user types - clear data and show empty state
       this.allManagerReports = [];
@@ -302,6 +376,15 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
       this.loadData();
     } else if (this.selectedUserType === 'UNIVERSITY_COORDINATOR') {
       this.loadCollegesData();
+    } else if (this.selectedUserType === 'TELEX_PERSON') {
+      // If in detail view, reload that specific manager's stats
+      if (this.showTelexDetailView && this.selectedTelexManager) {
+        this.selectTelexManager(this.selectedTelexManager);  // Reload detail with new period
+      } else {
+        this.loadTelexData();  // Reload list
+      }
+    } else if (this.selectedUserType === 'VISA_PERSON') {
+      this.loadVisaData();
     }
   }
 
@@ -547,6 +630,265 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
           this.cdr.detectChanges();
         }
       });
+  }
+
+  // Load Telex Data - Summary Table
+  loadTelexData(): void {
+    this.isLoading = true;
+    this.allTelexManagers = [];
+    this.selectedTelexManager = null;
+    this.telexStats = null;
+    this.showTelexDetailView = false;
+    this.cdr.detectChanges();
+
+    this.telexReportService.getAllManagersStats(this.selectedTimePeriod)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (managers) => {
+          this.allTelexManagers = managers || [];
+          this.calculateTelexSummaryAnalytics();
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to load Telex managers:', err);
+          this.allTelexManagers = [];
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  // Select a TelexMan from the table to view details
+  selectTelexManager(manager: TelexManStats): void {
+    this.selectedTelexManager = manager;
+    this.showTelexDetailView = true;
+    this.isLoading = true;
+    this.telexStats = null;
+    this.cdr.detectChanges();
+
+    this.telexReportService.getTelexStats(manager.username, this.selectedTimePeriod)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats) => {
+          this.telexStats = stats;
+          this.isLoading = false;
+          this.updateTelexCharts();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to load Telex manager details:', err);
+          this.telexStats = null;
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  // Back to TelexMan summary table
+  backToTelexList(): void {
+    this.showTelexDetailView = false;
+    this.selectedTelexManager = null;
+    this.telexStats = null;
+    this.telexActivityChartData = null;
+    this.telexDistributionChartData = null;
+    this.cdr.detectChanges();
+  }
+
+  private updateTelexCharts(): void {
+    if (!this.telexStats) return;
+
+    // 1. Activity Trend (Line Chart)
+    const logs = this.telexStats.activityLogs || [];
+    // Sort logs by date
+    logs.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    this.telexActivityChartData = {
+      labels: logs.map(l => l.date),
+      datasets: [{
+        label: 'Daily Activity',
+        data: logs.map(l => l.count),
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#f59e0b',
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    };
+
+    // 2. Distribution (Doughnut) - Based on selected time period
+    let submitted = 0, toUni = 0, toMEA = 0, issued = 0;
+    if (this.selectedTimePeriod === 'daily') {
+      submitted = this.telexStats.submittedDocumentsToday;
+      toUni = this.telexStats.submittedToUniversityToday;
+      toMEA = this.telexStats.submittedToMEAToday;
+      issued = this.telexStats.telexIssuedToday;
+    } else if (this.selectedTimePeriod === 'monthly') {
+      submitted = this.telexStats.submittedDocumentsMonth;
+      toUni = this.telexStats.submittedToUniversityMonth;
+      toMEA = this.telexStats.submittedToMEAMonth;
+      issued = this.telexStats.telexIssuedMonth;
+    } else {
+      submitted = this.telexStats.submittedDocumentsYear;
+      toUni = this.telexStats.submittedToUniversityYear;
+      toMEA = this.telexStats.submittedToMEAYear;
+      issued = this.telexStats.telexIssuedYear;
+    }
+
+    this.telexDistributionChartData = {
+      labels: ['Docs Uploaded', 'To University', 'To MEA', 'Telex Issued'],
+      datasets: [{
+        data: [submitted, toUni, toMEA, issued],
+        backgroundColor: [
+          '#3b82f6', // Blue
+          '#8b5cf6', // Violet
+          '#ec4899', // Pink
+          '#10b981'  // Emerald
+        ],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    };
+  }
+
+  sendTelexReport(): void {
+    if (!this.selectedTelexManager) return;
+    this.showEmailModal = true;
+    this.emailTargetType = 'single';
+  }
+
+  // Calculate Telex Summary Analytics
+  private calculateTelexSummaryAnalytics(): void {
+    const managers = this.allTelexManagers;
+    if (!managers.length) return;
+
+    // Aggregate totals
+    const totals = managers.reduce((acc, m) => ({
+      students: acc.students + m.totalStudents,
+      docs: acc.docs + m.docsUploaded,
+      toUni: acc.toUni + m.submittedToUniversity,
+      toMEA: acc.toMEA + m.submittedToMEA,
+      issued: acc.issued + m.telexIssued
+    }), { students: 0, docs: 0, toUni: 0, toMEA: 0, issued: 0 });
+
+    // Completion rate = Telex Issued / Total Students
+    const completionRate = totals.students > 0
+      ? Math.round((totals.issued / totals.students) * 100)
+      : 0;
+
+    // Efficiency = Telex Issued / Docs Uploaded (how much gets through)
+    const avgEfficiency = totals.docs > 0
+      ? Math.round((totals.issued / totals.docs) * 100)
+      : 0;
+
+    // Active/Inactive counts
+    const activeManagers = managers.filter(m => m.status === 'Active').length;
+    const inactiveManagers = managers.length - activeManagers;
+
+    // Top Performer (highest telexIssued)
+    const sortedByPerformance = [...managers].sort((a, b) => b.telexIssued - a.telexIssued);
+    const topPerformer = sortedByPerformance[0] || null;
+    const lowPerformer = sortedByPerformance[sortedByPerformance.length - 1] || null;
+
+    this.telexSummaryAnalytics = {
+      totalStudents: totals.students,
+      totalDocsUploaded: totals.docs,
+      totalSubmittedToUniversity: totals.toUni,
+      totalSubmittedToMEA: totals.toMEA,
+      totalTelexIssued: totals.issued,
+      completionRate,
+      avgEfficiency,
+      activeManagers,
+      inactiveManagers,
+      topPerformer,
+      lowPerformer
+    };
+
+    // Manager Comparison Bar Chart (sorted by telexIssued desc)
+    const sortedManagers = [...managers].sort((a, b) => b.telexIssued - a.telexIssued);
+    this.telexManagerComparisonChartData = {
+      labels: sortedManagers.map(m => m.fullName.split(' ')[0]), // First name only
+      datasets: [{
+        label: 'Telex Issued',
+        data: sortedManagers.map(m => m.telexIssued),
+        backgroundColor: sortedManagers.map((m, i) =>
+          i === 0 ? '#10b981' : (m.status === 'Active' ? '#3b82f6' : '#6b7280')
+        ),
+        borderRadius: 8,
+        barThickness: 28
+      }]
+    };
+
+    // Pipeline Funnel Chart
+    this.telexPipelineChartData = {
+      labels: ['Students', 'Docs Uploaded', 'To University', 'To MEA', 'Telex Issued'],
+      datasets: [{
+        label: 'Pipeline',
+        data: [totals.students, totals.docs, totals.toUni, totals.toMEA, totals.issued],
+        backgroundColor: [
+          '#f59e0b',
+          '#3b82f6',
+          '#8b5cf6',
+          '#ec4899',
+          '#10b981'
+        ],
+        borderRadius: 6,
+        barThickness: 32
+      }]
+    };
+  }
+
+  // ==================================================================================
+  // VISA MANAGER LOGIC
+  // ==================================================================================
+
+  updateVisaCharts(stats?: VisaManStatsDTO): void {
+    if (stats) this.visaStats = stats;
+    if (!this.visaStats) return;
+
+    // Funnel Chart
+    this.visaFunnelChartData = {
+      labels: ['Assigned', 'Payment Req', 'Visa Applied', 'Stamped'],
+      datasets: [
+        {
+          label: 'Processing Funnel',
+          data: [
+            this.visaStats.totalAssignedStudents,
+            this.visaStats.paymentRequested,
+            this.visaStats.visaApplied,
+            this.visaStats.visaStamped
+          ],
+          backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981'],
+          borderRadius: 6,
+          barThickness: 40
+        }
+      ]
+    };
+
+    // Breakdown Pie Chart
+    this.visaPieChartData = {
+      labels: ['Payment Confirmed', 'Passport Collected', 'Embassy Submitted', 'Passport Returned'],
+      datasets: [
+        {
+          data: [
+            this.visaStats.paymentConfirmed,
+            this.visaStats.passportCollected,
+            this.visaStats.embassySubmitted,
+            this.visaStats.passportReturned
+          ],
+          backgroundColor: ['#0ea5e9', '#6366f1', '#a855f7', '#ec4899'],
+          hoverOffset: 4,
+          borderWidth: 0
+        }
+      ]
+    };
+  }
+
+  sendVisaReport(): void {
+    this.showEmailModal = true;
+    this.emailTargetType = 'single'; // Or 'all' if we support bulk
   }
 
   selectManager(manager: AdmissionManagerReportDTO): void {
@@ -918,6 +1260,65 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
   }
 
   // ============================================================================
+  // VISA MANAGER METHODS
+  // ============================================================================
+
+  loadVisaData(): void {
+    if (this.isLoading) return;
+    this.isLoading = true;
+
+    // ForkJoin to get both Global Stats and List of Managers
+    forkJoin({
+      globalStats: this.visaDashboardService.getStats(this.selectedTimePeriod),
+      allManagers: this.visaDashboardService.getAllVisaManagers(this.selectedTimePeriod)
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ globalStats, allManagers }) => {
+          this.visaStats = globalStats;
+          this.allVisaManagers = allManagers || [];
+          this.updateVisaCharts(globalStats);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to load Visa data', err);
+          this.isLoading = false;
+          // this.toastr.error('Could not load Visa Dashboard data'); // Toastr removed
+        }
+      });
+  }
+
+  selectVisaManager(manager: VisaManStatsDTO): void {
+    this.selectedVisaManager = manager;
+    this.showVisaDetailView = true;
+    this.isLoading = true;
+
+    // Fetch specific stats for this manager
+    this.visaDashboardService.getStats(this.selectedTimePeriod, manager.visaManagerUsername)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats) => {
+          this.selectedVisaManager = stats;
+          this.visaStats = stats; // Temporarily show this manager's stats in the main view area
+          this.updateVisaCharts(stats);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to load specific manager stats', err);
+          this.isLoading = false;
+        }
+      });
+  }
+
+  backToVisaList(): void {
+    this.showVisaDetailView = false;
+    this.selectedVisaManager = null;
+    this.loadVisaData(); // Reload global stats
+  }
+
+  // ============================================================================
   // EMAIL REPORT METHODS
   // ============================================================================
 
@@ -957,6 +1358,19 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
         this.selectedTimePeriod,
         this.emailAddress
       );
+    } else if (this.selectedUserType === 'TELEX_PERSON') {
+      // Send Telex Report for selected manager
+      const managerUsername = this.selectedTelexManager?.username || 'admin';
+      // Format period to Title Case (daily -> Daily)
+      const period = this.selectedTimePeriod.charAt(0).toUpperCase() + this.selectedTimePeriod.slice(1);
+      request$ = this.telexReportService.sendReportEmail(managerUsername, this.emailAddress, period);
+    } else if (this.selectedUserType === 'VISA_PERSON') {
+      const request: EmailReportRequest = {
+        period: this.selectedTimePeriod.toUpperCase() as any,
+        targetEmail: this.emailAddress,
+        username: this.showVisaDetailView && this.selectedVisaManager ? this.selectedVisaManager.visaManagerUsername : undefined
+      };
+      request$ = this.visaDashboardService.sendEmailReport(request);
     } else {
       // Default to Admission Manager logic
       request$ = this.emailTargetType === 'single' && this.selectedManagerId
@@ -1093,6 +1507,27 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
     if (rate >= 70) return 'high';
     if (rate >= 40) return 'medium';
     return 'low';
+  }
+
+  // Telex Helpers
+  getTelexMetric(metricBase: 'assigned' | 'submittedDocuments' | 'submittedToUniversity' | 'submittedToMEA' | 'telexIssued'): number {
+    if (!this.telexStats) return 0;
+    let suffix = 'Year';
+    if (this.selectedTimePeriod === 'daily') suffix = 'Today';
+    else if (this.selectedTimePeriod === 'monthly') suffix = 'Month';
+
+    const key = `${metricBase}${suffix}` as keyof TelexStatsDTO;
+    return (this.telexStats[key] as number) || 0;
+  }
+
+  getTelexTrend(metricBase: 'assigned' | 'submittedDocuments' | 'submittedToUniversity' | 'submittedToMEA' | 'telexIssued'): number | null {
+    if (!this.telexStats) return null;
+    let suffix = 'Year';
+    if (this.selectedTimePeriod === 'daily') suffix = 'Today';
+    else if (this.selectedTimePeriod === 'monthly') suffix = 'Month';
+
+    const key = `${metricBase}${suffix}Trend` as keyof TelexStatsDTO;
+    return (this.telexStats[key] as number) ?? null;
   }
 
   // Send UP report email

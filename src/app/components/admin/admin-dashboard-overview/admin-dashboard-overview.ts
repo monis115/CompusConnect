@@ -104,7 +104,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     { id: 'doc-person', label: 'Doc Person', icon: 'file-check' },
     { id: 'news-management', label: 'News Management', icon: 'file-text' },
     { id: 'payments', label: 'Payments', icon: 'credit-card' },
-    { id: 'reports', label: 'Reports & Audits', icon: 'bar-chart' }
+    { id: 'reports', label: 'System Configuration', icon: 'bar-chart' }
   ];
 
   // Admin Creation State

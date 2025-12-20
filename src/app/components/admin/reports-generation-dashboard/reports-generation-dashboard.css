@@ -65,7 +65,8 @@
 .system-dashboard-modal {
     width: 100%;
     max-width: 1280px;
-    max-height: 92vh;
+    max-height: 95vh;
+    height: 95vh;
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur) saturate(200%);
     -webkit-backdrop-filter: var(--glass-blur) saturate(200%);
@@ -287,7 +288,10 @@
 .modal-body {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 2rem;
+    min-height: 0;
+    /* Critical for flex child scroll */
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
@@ -2160,5 +2164,538 @@
 
     .insight-card-premium {
         flex: 1 1 100%;
+    }
+}
+
+/* ============================================================================
+   TELEX MANAGER TABLE STYLES
+   ============================================================================ */
+
+.telex-table .table-row {
+    cursor: pointer;
+    transition: all 0.25s var(--ease-premium);
+}
+
+.telex-table .table-row:hover {
+    background: rgba(245, 158, 11, 0.08);
+    transform: translateX(4px);
+}
+
+.manager-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.manager-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-orange) 100%);
+    color: white;
+}
+
+.manager-avatar.telex-avatar {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+}
+
+.manager-avatar.large {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+    border-radius: 12px;
+}
+
+.manager-details-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.manager-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.manager-name.large {
+    font-size: 1rem;
+}
+
+.manager-username {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.status-badge.inactive {
+    background: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.25);
+}
+
+.telex-issued-cell {
+    font-weight: 700;
+    color: #10b981;
+}
+
+/* ============================================================================
+   TELEX DETAIL HEADER PANEL
+   ============================================================================ */
+
+.detail-header-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    margin-bottom: 1.5rem;
+}
+
+.back-btn-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-premium);
+}
+
+.back-btn-inline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    transform: translateX(-2px);
+}
+
+.selected-manager-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.generate-report-btn.single {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.8rem;
+}
+
+/* ============================================================================
+   TELEX ANALYTICS SECTION
+   ============================================================================ */
+
+.telex-analytics-section {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.analytics-header {
+    margin-bottom: 1rem;
+}
+
+.analytics-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.analytics-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.analytics-kpi-card {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    transition: all 0.25s var(--ease-premium);
+}
+
+.analytics-kpi-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-2px);
+}
+
+.analytics-kpi-card.highlight {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.kpi-icon-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--kpi-color, #f59e0b);
+    flex-shrink: 0;
+}
+
+.kpi-data {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.kpi-value-sm {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.kpi-value-sm.active-count {
+    color: #22c55e;
+}
+
+.kpi-label-sm {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Telex Insights Row */
+.telex-insights-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.insight-highlight {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+}
+
+.insight-highlight.top-performer {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.insight-highlight.top-performer i-lucide {
+    color: #f59e0b;
+}
+
+.insight-highlight.pipeline-stat i-lucide {
+    color: #8b5cf6;
+}
+
+.insight-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+}
+
+.insight-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.insight-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.insight-badge {
+    padding: 0.3rem 0.6rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Telex Charts Row */
+.telex-charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.telex-comparison-chart .chart-body,
+.telex-pipeline-chart .chart-body {
+    height: 200px;
+    /* Fixed height for proper chart rendering */
+}
+
+/* Ensure Telex dashboard content has space at bottom and proper background */
+.telex-theme.dashboard-content {
+    padding-bottom: 3rem;
+    position: relative;
+    z-index: 10;
+    background: var(--bg-primary);
+}
+
+/* Fix table container for telex - show all rows */
+.telex-theme .universities-table-container {
+    background: var(--bg-card);
+    position: relative;
+    z-index: 5;
+}
+
+.telex-theme .table-wrapper {
+    max-height: none;
+    /* Remove any height constraints */
+    overflow: visible;
+}
+
+/* Top Performer Row Highlight */
+.telex-table .table-row.top-row {
+    background: rgba(245, 158, 11, 0.05);
+    border-left: 3px solid #f59e0b;
+}
+
+.top-badge {
+    color: #f59e0b;
+    margin-left: 0.5rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Telex Analytics Section - fix overlap */
+.telex-analytics-section {
+    position: relative;
+    z-index: 10;
+    background: var(--bg-card);
+}
+
+.telex-charts-row {
+    position: relative;
+    z-index: 10;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .analytics-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .telex-charts-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .telex-insights-row {
+        flex-direction: column;
+    }
+}
+
+/* ============================================================================
+   TABLE STYLES - Premium Data Table (Visa Dashboard & Generic)
+   ============================================================================ */
+
+.leaderboard-body {
+    padding: 0;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard-table th {
+    text-align: left;
+    padding: 1rem 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--glass-border);
+    white-space: nowrap;
+}
+
+.leaderboard-table td {
+    padding: 1rem 1.5rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--glass-border);
+    vertical-align: middle;
+}
+
+.leaderboard-table tr:last-child td {
+    border-bottom: none;
+}
+
+.leaderboard-table tr {
+    transition: background-color 0.2s var(--ease-premium);
+}
+
+.leaderboard-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.manager-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.manager-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-orange));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    text-transform: uppercase;
+}
+
+.trend-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.trend-badge.positive {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+}
+
+.trend-badge.neutral {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+}
+
+.trend-badge.negative {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+/* Floating Action Button Position Fix */
+.action-bar-floating {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 50;
+    animation: slideUp 0.5s var(--ease-premium) backwards;
+}
+
+.generate-report-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-orange) 100%);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+    transition: all 0.3s var(--ease-premium);
+}
+
+.generate-report-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(245, 158, 11, 0.5);
+}
+
+.generate-report-btn:active {
+    transform: translateY(-2px);
+}
+
+.telex-charts-row {
+    position: relative;
+    z-index: 10;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .analytics-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .telex-charts-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .telex-insights-row {
+        flex-direction: column;
     }
 }

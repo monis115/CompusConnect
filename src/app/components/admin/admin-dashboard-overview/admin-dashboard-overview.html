@@ -733,7 +733,8 @@
     </div>
 
     <!-- PLACEHOLDER SECTIONS -->
-    <div *ngIf="['payments', 'reports'].includes(activeSection)">
+    <!-- PAYMENTS SECTION (Placeholder) -->
+    <div *ngIf="activeSection === 'payments'">
       <h2 class="section-title">
         <i-lucide [name]="currentSectionIcon" size="28"></i-lucide> {{ pageTitle }}
       </h2>
@@ -746,6 +747,24 @@
         </div>
         <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">This will be implemented later.</p>
         <button class="btn-primary">Notify Me When Ready</button>
+      </div>
+    </div>
+
+    <!-- SYSTEM CONFIGURATION SECTION -->
+    <div *ngIf="activeSection === 'reports'">
+      <h2 class="section-title">
+        <i-lucide [name]="currentSectionIcon" size="28"></i-lucide> {{ pageTitle }}
+      </h2>
+      <p class="section-subtitle">Manage system-wide settings and configurations.</p>
+
+      <div class="section-placeholder"
+        style="text-align: center; padding: 4rem; background: white; border-radius: 1rem; border: 1px dashed var(--border-light);">
+        <div class="placeholder-icon" style="color: var(--border-light); margin-bottom: 1.5rem;">
+          <i-lucide [name]="currentSectionIcon" size="64"></i-lucide>
+        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Configure general settings, audit logs, and
+          system preferences.</p>
+        <button class="btn-primary">Manage Configuration</button>
       </div>
     </div>
 

@@ -56,6 +56,7 @@ export interface Student {
 }
 
 export interface Accountant {
+contactNo: any;
     id: number;
     fullName: string;
     username: string;

@@ -173,7 +173,10 @@ import {
   CalendarDays,
   Star,
   Zap,
-  AtSign
+  AtSign,
+  Files,
+  Book,
+  Stamp
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -220,6 +223,7 @@ import { NewsDashboard } from './components/admin/news-dashboard/news-dashboard'
 import { CollegePerformancesDashbaord } from './components/admin/college-performances-dashbaord/college-performances-dashbaord';
 import { ReportsGenerationDashboard } from './components/admin/reports-generation-dashboard/reports-generation-dashboard';
 import { ReportsGeneratedDashbaord } from './components/admin/reports-generated-dashbaord/reports-generated-dashbaord';
+import { SystemConfigurationDetails } from './components/admin/system-configuration-details/system-configuration-details';
 
 @NgModule({
   declarations: [
@@ -263,6 +267,7 @@ import { ReportsGeneratedDashbaord } from './components/admin/reports-generated-
     CollegePerformancesDashbaord,
     ReportsGenerationDashboard,
     ReportsGeneratedDashbaord,
+    SystemConfigurationDetails,
 
   ],
   imports: [
@@ -436,6 +441,9 @@ import { ReportsGeneratedDashbaord } from './components/admin/reports-generated-
       CalendarDays,
       Zap,
       AtSign,
+      Files,
+      Book,
+      Stamp
     }),
     StudentStatusPipe
   ],

@@ -155,7 +155,6 @@
     <div class="reg-form-grid">
       <div class="reg-form-group reg-form-span-2">
         <label for="collegeSelect">
-          <span class="icon" style="color: #3B82F6;">🏫</span>
           Select College<span class="required">*</span>
         </label>
         <select id="collegeSelect" name="collegeSelect" [(ngModel)]="selectedCollegeId" (change)="onCollegeChange()"
@@ -201,7 +200,6 @@
     <div class="reg-form-grid">
       <div class="reg-form-group">
         <label for="fullName">
-          <span class="icon" style="color: #3B82F6;">👤</span>
           Full Name<span class="required">*</span>
         </label>
         <input type="text" id="fullName" name="fullName" [(ngModel)]="student.fullName" required
@@ -213,7 +211,6 @@
 
       <div class="reg-form-group">
         <label for="dob">
-          <span class="icon" style="color: #EC4899;">📅</span>
           Date of Birth<span class="required">*</span>
         </label>
         <input type="date" id="dob" name="dob" [(ngModel)]="student.dob" (change)="calculateAge()" required
@@ -225,7 +222,6 @@
 
       <div class="reg-form-group">
         <label for="age">
-          <span class="icon" style="color: #F59E0B;">🎂</span>
           Age
         </label>
         <input type="number" id="age" name="age" [(ngModel)]="student.age" readonly placeholder="Auto-calculated">
@@ -233,7 +229,6 @@
 
       <div class="reg-form-group">
         <label for="email">
-          <span class="icon" style="color: #8B5CF6;">📧</span>
           Email Address<span class="required">*</span>
         </label>
         <input type="email" id="email" name="email" [(ngModel)]="student.email" required email #emailInput="ngModel"
@@ -246,7 +241,6 @@
 
       <div class="reg-form-group">
         <label for="contactNo">
-          <span class="icon" style="color: #10B981;">📱</span>
           Contact Number<span class="required">*</span>
         </label>
         <input type="tel" id="contactNo" name="contactNo" [(ngModel)]="student.contactNo" required
@@ -270,7 +264,6 @@
     <div class="reg-form-grid">
       <div class="reg-form-group">
         <label for="fathersName">
-          <span class="icon" style="color: #3B82F6;">👨</span>
           Father's Name<span class="required">*</span>
         </label>
         <input type="text" id="fathersName" name="fathersName" [(ngModel)]="student.fathersName" required
@@ -282,7 +275,6 @@
 
       <div class="reg-form-group">
         <label for="mothersName">
-          <span class="icon" style="color: #EC4899;">👩</span>
           Mother's Name<span class="required">*</span>
         </label>
         <input type="text" id="mothersName" name="mothersName" [(ngModel)]="student.mothersName" required
@@ -305,7 +297,6 @@
     <div class="reg-form-grid">
       <div class="reg-form-group">
         <label for="state">
-          <span class="icon" style="color: #06B6D4;">🏢</span>
           State<span class="required">*</span>
         </label>
         <select id="state" name="state" [(ngModel)]="student.selectedState" (change)="onStateChange()" required
@@ -323,7 +314,6 @@
 
       <div class="reg-form-group">
         <label for="district">
-          <span class="icon" style="color: #F97316;">📍</span>
           District<span class="required">*</span>
         </label>
         <select id="district" name="districtId" [(ngModel)]="student.districtId" required
@@ -338,7 +328,6 @@
 
       <div class="reg-form-group reg-form-span-2">
         <label for="address">
-          <span class="icon" style="color: #EF4444;">🏠</span>
           Street Address<span class="required">*</span>
         </label>
         <input type="text" id="address" name="address" [(ngModel)]="student.address"
@@ -362,7 +351,6 @@
     <div class="reg-form-grid">
       <div class="reg-form-group">
         <label for="emergencyContactNo">
-          <span class="icon" style="color: #DC2626;">🚨</span>
           Emergency Contact Number<span class="required">*</span>
         </label>
         <input type="tel" id="emergencyContactNo" name="emergencyContactNo" [(ngModel)]="student.emergencyContactNo"
@@ -374,7 +362,6 @@
 
       <div class="reg-form-group">
         <label for="emergencyRelation">
-          <span class="icon" style="color: #7C3AED;">👨‍👩‍👧‍👦</span>
           Relation<span class="required">*</span>
         </label>
         <input type="text" id="emergencyRelation" name="emergencyRelation" [(ngModel)]="student.emergencyRelation"
@@ -431,7 +418,6 @@
     <div class="reg-form-grid" *ngIf="hasPassport">
       <div class="reg-form-group">
         <label for="passportNo">
-          <span class="icon" style="color: #0891B2;">🛂</span>
           Passport Number<span class="required">*</span>
         </label>
         <input type="text" id="passportNo" name="passportNo" [(ngModel)]="student.passportNo" [required]="hasPassport"
@@ -443,7 +429,6 @@
 
       <div class="reg-form-group">
         <label for="passportValidTill">
-          <span class="icon" style="color: #059669;">📋</span>
           Passport Valid Till<span class="required">*</span>
         </label>
         <input type="date" id="passportValidTill" name="passportValidTill" [(ngModel)]="student.passportValidTill"
@@ -455,7 +440,6 @@
 
       <div class="reg-form-group">
         <label for="adhaarCardNo">
-          <span class="icon" style="color: #6366F1;">🆔</span>
           Aadhaar Card Number
         </label>
         <input type="text" id="adhaarCardNo" name="adhaarCardNo" [(ngModel)]="student.adhaarCardNo" maxlength="12"
@@ -478,7 +462,6 @@
     <div class="reg-form-grid">
       <div class="reg-form-group">
         <label for="boards">
-          <span class="icon" style="color: #D946EF;">🎓</span>
           Board<span class="required">*</span>
         </label>
         <select id="boards" name="boards" [(ngModel)]="student.baords" required #boardsInput="ngModel">
@@ -492,7 +475,6 @@
 
       <div class="reg-form-group">
         <label for="class12thPassingYear">
-          <span class="icon" style="color: #14B8A6;">📅</span>
           12th Passing Year<span class="required">*</span>
         </label>
         <input type="text" id="class12thPassingYear" name="class12thPassingYear"
@@ -504,7 +486,6 @@
 
       <div class="reg-form-group">
         <label for="class12thMarks">
-          <span class="icon" style="color: #F59E0B;">📊</span>
           Marks Obtained<span class="required">*</span>
         </label>
         <input type="number" id="class12thMarks" name="class12thMarks" [(ngModel)]="student.class12thMarks" required
@@ -516,7 +497,6 @@
 
       <div class="reg-form-group">
         <label for="maxMarks">
-          <span class="icon" style="color: #EF4444;">💯</span>
           Maximum Marks<span class="required">*</span>
         </label>
         <input type="number" id="maxMarks" name="maxMarks" [(ngModel)]="student.maxMarks" required
@@ -549,7 +529,6 @@
     <div class="reg-form-grid" *ngIf="student.hasGivenNEET">
       <div class="reg-form-group">
         <label for="neetYear">
-          <span class="icon" style="color: #8B5CF6;">📅</span>
           NEET Year<span class="required">*</span>
         </label>
         <input type="text" id="neetYear" name="neetYear" [(ngModel)]="student.neetYear"
@@ -561,7 +540,6 @@
 
       <div class="reg-form-group">
         <label for="neetScore">
-          <span class="icon" style="color: #10B981;">📊</span>
           NEET Score<span class="required">*</span>
         </label>
         <input type="number" id="neetScore" name="neetScore" [(ngModel)]="student.neetScore"
@@ -584,7 +562,6 @@
     <div class="reg-form-grid">
       <div class="reg-form-group">
         <label for="appliedFor">
-          <span class="icon" style="color: #14B8A6;">🎯</span>
           Applying For<span class="required">*</span>
         </label>
         <select id="appliedFor" name="appliedFor" [(ngModel)]="student.appliedFor" required>

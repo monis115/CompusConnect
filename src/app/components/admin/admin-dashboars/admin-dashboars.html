@@ -78,7 +78,7 @@
     </header>
 
     <!-- Render child routes here -->
-    <div class="content-area">
+    <div class="content-area" *ngIf="!showSystemDashboard">
       <router-outlet></router-outlet>
     </div>
   </main>

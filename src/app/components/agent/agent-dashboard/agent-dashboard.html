@@ -1698,19 +1698,113 @@
         </div>
         <div class="file-upload-group">
           <label>Photo (JPEG, max 128KB) *</label>
-          <div class="file-drop-zone">
-            <input type="file" (change)="onFileSelected($event, 'visaPhoto')" accept=".jpg,.jpeg">
-            <p *ngIf="!visaPhotoFile">Drag & Drop or Click to Upload</p>
-            <p *ngIf="visaPhotoFile" class="file-selected">{{ visaPhotoFile.name }}</p>
+          <div class="photo-upload-wrapper">
+            <div class="photo-upload-container" (click)="photoInput.click()">
+              <!-- Loading Spinner -->
+              <div class="upload-spinner-container" *ngIf="isLoadingVisaPhoto">
+                <div class="upload-spinner"></div>
+                <span class="upload-spinner-text">Processing...</span>
+              </div>
+              <!-- Placeholder when no preview and not loading -->
+              <div class="photo-placeholder" *ngIf="!visaPhotoPreviewUrl && !isLoadingVisaPhoto">
+                <img src="/assets/photoPreview.png" alt="Upload Photo" class="photo-placeholder-img">
+                <span class="photo-upload-label">Upload Photo (max 128KB)</span>
+              </div>
+              <!-- Preview when loaded -->
+              <img *ngIf="visaPhotoPreviewUrl && !isLoadingVisaPhoto" [src]="visaPhotoPreviewUrl" class="photo-preview">
+              <!-- Hover overlay for preview -->
+              <div class="photo-preview-overlay" *ngIf="visaPhotoPreviewUrl && !isLoadingVisaPhoto">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                <span>Change</span>
+              </div>
+            </div>
+            <input #photoInput type="file" (change)="onFileSelected($event, 'visaPhoto')" accept=".jpg,.jpeg" hidden>
+            <div *ngIf="visaPhotoFile" class="file-info-bar">
+              <span class="file-info-name">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                {{ visaPhotoFile.name }}
+              </span>
+              <button class="btn-remove-file" (click)="removeFile('visaPhoto')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
         <div class="file-upload-group">
           <label>Passport Copy (max 256KB) *</label>
-          <div class="file-drop-zone">
-            <input type="file" (change)="onFileSelected($event, 'visaPassportCopy')" accept=".pdf,.jpg,.jpeg,.png">
-            <p *ngIf="!visaPassportCopyFile">Drag & Drop or Click to Upload</p>
-            <p *ngIf="visaPassportCopyFile" class="file-selected">{{ visaPassportCopyFile.name }}</p>
+
+          <!-- Loading Spinner -->
+          <div class="doc-upload-box loading-state" *ngIf="isLoadingPassportCopy">
+            <div class="upload-spinner-container">
+              <div class="upload-spinner"></div>
+              <span class="upload-spinner-text">Processing image...</span>
+            </div>
+          </div>
+
+          <!-- Show preview container when we have an image preview and not loading -->
+          <div class="doc-upload-box passport-preview-box" (click)="passportInput.click()"
+            *ngIf="visaPassportCopyPreviewUrl && !isLoadingPassportCopy">
+            <img [src]="visaPassportCopyPreviewUrl" class="passport-preview-img" alt="Passport Preview">
+            <div class="passport-preview-overlay">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              <span>Change Image</span>
+            </div>
+          </div>
+
+          <!-- Show placeholder when no file OR PDF file (no preview available) -->
+          <div class="passport-upload-container" (click)="passportInput.click()"
+            *ngIf="!isLoadingPassportCopy && !visaPassportCopyPreviewUrl">
+            <!-- Left: Example Preview -->
+            <div class="passport-example-side">
+              <img src="/assets/passportPreview.png" class="passport-example-img" alt="Passport Example">
+              <span class="passport-example-label">Example Format</span>
+            </div>
+            <!-- Right: Upload Area -->
+            <div class="passport-upload-side">
+              <div class="doc-upload-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <div class="doc-upload-text">
+                <h5>Upload Passport Copy</h5>
+                <p>PDF, JPG, PNG (max 256KB)</p>
+              </div>
+              <span class="click-to-upload-hint">Click anywhere to upload</span>
+            </div>
+          </div>
+
+          <input #passportInput type="file" (change)="onFileSelected($event, 'visaPassportCopy')"
+            accept=".pdf,.jpg,.jpeg,.png" hidden>
+
+          <div *ngIf="visaPassportCopyFile && !isLoadingPassportCopy" class="file-info-bar">
+            <span class="file-info-name">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              {{ visaPassportCopyFile.name }}
+            </span>
+            <button class="btn-remove-file" (click)="removeFile('visaPassportCopy')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
         </div>
       </div>

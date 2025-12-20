@@ -156,6 +156,10 @@ export class AgentDashboard implements OnInit {
   visaPassportCopyFile: File | null = null;
   ttCopyFile: File | null = null;
   paymentConfirmationFile: File | null = null;
+  visaPhotoPreviewUrl: string | ArrayBuffer | null = null;
+  visaPassportCopyPreviewUrl: string | ArrayBuffer | null = null;
+  isLoadingVisaPhoto = false;
+  isLoadingPassportCopy = false;
 
   // --- Validation Modal State ---
   isValidationModalOpen = false;
@@ -1085,6 +1089,20 @@ export class AgentDashboard implements OnInit {
             errorMessage = 'Photo must be less than 128KB.';
           } else {
             this.visaPhotoFile = file;
+            this.isLoadingVisaPhoto = true;
+            this.cdr.detectChanges();
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = () => {
+              this.visaPhotoPreviewUrl = reader.result;
+              this.isLoadingVisaPhoto = false;
+              this.cdr.detectChanges();
+            };
+            reader.onerror = () => {
+              this.isLoadingVisaPhoto = false;
+              this.cdr.detectChanges();
+            };
+            reader.readAsDataURL(file);
           }
           break;
         case 'visaPassportCopy':
@@ -1093,6 +1111,26 @@ export class AgentDashboard implements OnInit {
             errorMessage = 'Passport copy must be less than 256KB.';
           } else {
             this.visaPassportCopyFile = file;
+            // Create preview for image files
+            if (file.type.startsWith('image/')) {
+              this.isLoadingPassportCopy = true;
+              this.visaPassportCopyPreviewUrl = null; // Clear previous preview
+              this.cdr.detectChanges();
+              const reader = new FileReader();
+              reader.onload = () => {
+                this.visaPassportCopyPreviewUrl = reader.result;
+                this.isLoadingPassportCopy = false;
+                this.cdr.detectChanges();
+              };
+              reader.onerror = () => {
+                this.isLoadingPassportCopy = false;
+                this.cdr.detectChanges();
+              };
+              reader.readAsDataURL(file);
+            } else {
+              // PDF files - no preview
+              this.visaPassportCopyPreviewUrl = null;
+            }
           }
           break;
         case 'ttCopy':
@@ -1122,6 +1160,25 @@ export class AgentDashboard implements OnInit {
     }
   }
 
+  removeFile(type: string): void {
+    switch (type) {
+      case 'visaPhoto':
+        this.visaPhotoFile = null;
+        this.visaPhotoPreviewUrl = null;
+        break;
+      case 'visaPassportCopy':
+        this.visaPassportCopyFile = null;
+        this.visaPassportCopyPreviewUrl = null;
+        break;
+      case 'ttCopy':
+        this.ttCopyFile = null;
+        break;
+      case 'paymentConfirmation':
+        this.paymentConfirmationFile = null;
+        break;
+    }
+  }
+
   closeValidationModal(): void {
     this.isValidationModalOpen = false;
     this.validationMessage = '';
@@ -1134,7 +1191,9 @@ export class AgentDashboard implements OnInit {
     this.currentStep = 1;
     this.telexForm.reset();
     this.visaPhotoFile = null;
+    this.visaPhotoPreviewUrl = null;
     this.visaPassportCopyFile = null;
+    this.visaPassportCopyPreviewUrl = null;
     this.ttCopyFile = null;
     this.paymentConfirmationFile = null;
   }
