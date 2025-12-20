@@ -48,7 +48,16 @@ export class VisaDashboardService {
     // If the user didn't specify a "List Managers" endpoint, we might rely on Global Stats or existing user lists.
     // For now, I'll stick to getStats.
 
+    // Send Email Report
     sendEmailReport(data: EmailReportRequest): Observable<any> {
-        return this.http.post(`${this.apiUrl}/report/email`, data);
+        return this.http.post(`${this.apiUrl}/report/email`, data, { responseType: 'text' });
+    }
+
+    // Get assigned students for a specific manager
+    getAssignedStudents(username: string, period: string): Observable<any[]> {
+        const params = new HttpParams()
+            .set('visaManUsername', username)
+            .set('period', period);
+        return this.http.get<any[]>(`${this.apiUrl}/students`, { params });
     }
 }

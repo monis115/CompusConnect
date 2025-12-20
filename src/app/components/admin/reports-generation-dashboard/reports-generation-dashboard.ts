@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, Output, EventEm
 import { AdmissionManagerService, AdmissionManagerReportDTO, ManagerReportStatsDTO, ReportPeriod, UniversityPersonReportDTO, UniversityPersonStatsDTO, CollegeReportDTO, CollegeStatsDTO } from '../../../services/admission-manager.service';
 import { TelexReportService, TelexStatsDTO, TelexManStats } from '../../../services/telex-report.service';
 import { VisaDashboardService, VisaManStatsDTO, EmailReportRequest } from '../../../services/visa-dashboard.service';
-import { Subject, forkJoin } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, forkJoin, of } from 'rxjs';
+import { takeUntil, catchError } from 'rxjs/operators';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 
@@ -167,6 +167,7 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
   allVisaManagers: VisaManStatsDTO[] = [];
   selectedVisaManager: VisaManStatsDTO | null = null;
   showVisaDetailView = false;
+  assignedStudents: any[] = []; // List of students for the selected manager
 
 
   // User Types for tabs
@@ -384,7 +385,11 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
         this.loadTelexData();  // Reload list
       }
     } else if (this.selectedUserType === 'VISA_PERSON') {
-      this.loadVisaData();
+      if (this.showVisaDetailView && this.selectedVisaManager) {
+        this.selectVisaManager(this.selectedVisaManager); // Refresh detail view
+      } else {
+        this.loadVisaData();
+      }
     }
   }
 
@@ -1294,20 +1299,38 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
     this.showVisaDetailView = true;
     this.isLoading = true;
 
-    // Fetch specific stats for this manager
-    this.visaDashboardService.getStats(this.selectedTimePeriod, manager.visaManagerUsername)
+    // Use visaManagerName as fallback if separate username field is missing
+    const username = manager.visaManagerUsername || manager.visaManagerName;
+
+    // ForkJoin to get both specific stats AND student list
+    forkJoin({
+      stats: this.visaDashboardService.getStats(this.selectedTimePeriod, username),
+      students: this.visaDashboardService.getAssignedStudents(username, this.selectedTimePeriod).pipe(
+        catchError(err => {
+          console.warn('Could not fetch students list (Backend API might be missing)', err);
+          return of([]);
+        })
+      )
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (stats) => {
+        next: ({ stats, students }) => {
           this.selectedVisaManager = stats;
+          // Ensure the username is preserved for email reports
+          if (!this.selectedVisaManager.visaManagerUsername) {
+            this.selectedVisaManager.visaManagerUsername = username;
+          }
           this.visaStats = stats; // Temporarily show this manager's stats in the main view area
+          this.assignedStudents = students || []; // Store fetched students
           this.updateVisaCharts(stats);
           this.isLoading = false;
           this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('Failed to load specific manager stats', err);
+          console.error('Failed to load specific manager stats or students', err);
           this.isLoading = false;
+          this.assignedStudents = []; // Clear on error
+          this.cdr.detectChanges();
         }
       });
   }
@@ -1564,5 +1587,16 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
         this.cdr.detectChanges();
       }
     });
+  }
+
+  getStudentStatusClass(status: string): string {
+    if (!status) return 'gray';
+    const s = status.toUpperCase();
+    if (s.includes('STAMPED') || s.includes('CONFIRMED') || s.includes('APPROVED')) return 'green';
+    if (s.includes('APPLIED') || s.includes('SUBMITTED')) return 'purple';
+    if (s.includes('REQUESTED') || s.includes('PENDING')) return 'amber';
+    if (s.includes('COLLECTED') || s.includes('RETURNED')) return 'blue';
+    if (s.includes('REJECTED') || s.includes('DENIED')) return 'red';
+    return 'gray';
   }
 }

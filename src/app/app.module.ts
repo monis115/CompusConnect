@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
@@ -224,6 +224,7 @@ import { CollegePerformancesDashbaord } from './components/admin/college-perform
 import { ReportsGenerationDashboard } from './components/admin/reports-generation-dashboard/reports-generation-dashboard';
 import { ReportsGeneratedDashbaord } from './components/admin/reports-generated-dashbaord/reports-generated-dashbaord';
 import { SystemConfigurationDetails } from './components/admin/system-configuration-details/system-configuration-details';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
   declarations: [
@@ -445,7 +446,13 @@ import { SystemConfigurationDetails } from './components/admin/system-configurat
       Book,
       Stamp
     }),
-    StudentStatusPipe
+    StudentStatusPipe,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   providers: [
     provideCharts(withDefaultRegisterables()),
