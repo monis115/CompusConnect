@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { CollegeService, CoordinatorValidation } from './college.service';
 
 // ============================================================================
 // REPORT INTERFACES - Performance Dashboard DTOs (Updated API Structure)
@@ -100,7 +101,10 @@ export interface CollegeReportDTO {
 export class AdmissionManagerService {
     private apiBaseUrl = 'http://localhost:8080';
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private collegeService: CollegeService
+    ) { }
 
     getManagerDetails(username: string): Observable<any> {
         return this.http.get(`${this.apiBaseUrl}/api/managers/userName/${username}`);
@@ -111,6 +115,16 @@ export class AdmissionManagerService {
     }
 
     // --- Status Actions ---
+
+    /**
+     * Validate if student can be forwarded to university
+     * Checks if the college has an active university coordinator
+     * @param collegeId - College ID to validate
+     * @returns Observable<CoordinatorValidation>
+     */
+    validateCoordinatorBeforeForward(collegeId: number): Observable<CoordinatorValidation> {
+        return this.collegeService.checkCanForwardStudents(collegeId);
+    }
 
     forwardToUniversity(studentId: number, payload: any): Observable<any> {
         // FIX: Changed from /api/admission-manager to /api/managers

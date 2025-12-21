@@ -38,6 +38,7 @@ import { DocPersonUpdate } from './components/admin/doc-person-update/doc-person
 import { DocPersonStudentDirectory } from './components/admin/doc-person-student-directory/doc-person-student-directory';
 import { NewsDashboard } from './components/admin/news-dashboard/news-dashboard';
 import { CollegePerformancesDashbaord } from './components/admin/college-performances-dashbaord/college-performances-dashbaord';
+import { SystemConfigurationDetails } from './components/admin/system-configuration-details/system-configuration-details';
 
 const routes: Routes = [
   { path: '', component: AdminLogin },
@@ -68,7 +69,7 @@ const routes: Routes = [
       { path: 'colleges', component: AdminDashboardOverview, data: { section: 'colleges' } },
       { path: 'users', component: AdminDashboardOverview, data: { section: 'users' } },
       { path: 'payments', component: AdminDashboardOverview, data: { section: 'payments' } },
-      { path: 'reports', component: AdminDashboardOverview, data: { section: 'reports' } },
+      { path: 'reports', component: SystemConfigurationDetails },
       { path: 'agent-registration', component: AdminAgentRegistration, data: { section: 'agents' } },
       { path: 'active-agents', component: ActiveAgents, data: { section: 'agents' } },
       { path: 'pending-agents', component: PendingAgents, data: { section: 'agents' } },

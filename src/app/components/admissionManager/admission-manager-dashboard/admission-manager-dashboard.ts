@@ -272,6 +272,11 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   actionType: 'forward' | 'approve' | 'assign-telex' | 'assign-visa' | null = null;
   selectedManagerUsername: string = '';
 
+  // Coordinator Validation
+  coordinatorValidationError: string = '';
+  showCoordinatorValidationModal: boolean = false;
+  isValidatingCoordinator: boolean = false;
+
   // --- Charts Configuration ---
 
   // 1. Main Pipeline Chart (Bar)
@@ -569,10 +574,47 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   // --- Action Handling (Fixing the Modal Bug) ---
 
   initiateForwardToUniversity(student: Student): void {
-    this.studentForAction = student;
-    this.actionType = 'forward';
-    this.showActionModal = true;
+    // First validate if college has active coordinator
+    if (!student.college || !student.college.id) {
+      this.coordinatorValidationError = 'Student is not assigned to any college. Please assign a college first.';
+      this.showCoordinatorValidationModal = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.isValidatingCoordinator = true;
     this.cdr.detectChanges();
+
+    // Check coordinator validation
+    this.admissionService.validateCoordinatorBeforeForward(student.college.id)
+      .pipe(
+        finalize(() => {
+          this.isValidatingCoordinator = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (validation) => {
+          if (validation.canForward) {
+            // Validation passed, proceed with forward action
+            this.studentForAction = student;
+            this.actionType = 'forward';
+            this.showActionModal = true;
+            this.cdr.detectChanges();
+          } else {
+            // Validation failed, show error modal
+            this.coordinatorValidationError = validation.message;
+            this.showCoordinatorValidationModal = true;
+            this.cdr.detectChanges();
+          }
+        },
+        error: (err) => {
+          console.error('Coordinator validation error:', err);
+          this.coordinatorValidationError = 'Unable to verify university coordinator status. Please try again or contact administrator.';
+          this.showCoordinatorValidationModal = true;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   initiateApproveLetter(student: Student): void {
@@ -670,6 +712,12 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     this.showActionModal = false;
     this.studentForAction = null;
     this.actionType = null;
+    this.cdr.detectChanges();
+  }
+
+  closeCoordinatorValidationModal(): void {
+    this.showCoordinatorValidationModal = false;
+    this.coordinatorValidationError = '';
     this.cdr.detectChanges();
   }
 

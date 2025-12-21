@@ -1,1 +1,248 @@
-<p>system-configuration-details works!</p>
+<div class="system-config-container">
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" *ngIf="isLoading">
+        <div class="spinner-wrapper">
+            <div class="premium-spinner"></div>
+            <p class="loading-text">Loading System Configuration...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-banner" *ngIf="error && !isLoading">
+        <i-lucide name="alert-triangle" size="24"></i-lucide>
+        <span>{{ error }}</span>
+        <button class="retry-btn" (click)="refreshStatus()">
+            <i-lucide name="refresh-cw" size="18"></i-lucide>
+            Retry
+        </button>
+    </div>
+
+    <!-- Hero Header Section -->
+    <div class="config-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i-lucide name="settings" size="36"></i-lucide>
+            </div>
+            <div class="header-text">
+                <h1 class="header-title">System Configuration</h1>
+                <p class="header-subtitle">CampusConnect by RareEducation</p>
+            </div>
+        </div>
+        <button class="refresh-btn" (click)="refreshStatus()" [disabled]="isLoading">
+            <i-lucide name="refresh-cw" size="20"></i-lucide>
+            <span>Refresh Status</span>
+        </button>
+    </div>
+
+    <!-- System Status Banner -->
+    <div class="status-banner" [class.compliant]="systemCompliant" [class.non-compliant]="!systemCompliant">
+        <div class="status-icon">
+            <i-lucide [name]="systemCompliant ? 'check-circle' : 'alert-octagon'" size="28"></i-lucide>
+        </div>
+        <div class="status-content">
+            <h3 class="status-title">
+                {{ systemCompliant ? 'System Operational' : 'Configuration Required' }}
+            </h3>
+            <p class="status-message">
+                {{ systemCompliant
+                ? 'All operational roles meet system requirements. CampusConnect is fully functional.'
+                : 'System requires configuration. Please ensure all roles meet minimum requirements.' }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Role Requirements Section -->
+    <div class="section-container">
+        <div class="section-header">
+            <i-lucide name="users-round" size="28"></i-lucide>
+            <h2 class="section-title">Global Operational Roles</h2>
+        </div>
+        <p class="section-description">
+            These roles operate at a centralized level and are not mapped to specific colleges.
+            They ensure operational continuity and compliance across the entire system.
+        </p>
+
+        <!-- Role Cards Grid -->
+        <div class="role-cards-grid">
+            <!-- Role Card -->
+            <div class="role-card" *ngFor="let role of roleStatuses; let i = index" [attr.data-status]="role.status"
+                [style.animation-delay]="(i * 0.1) + 's'">
+                <div class="role-card-header">
+                    <div class="role-icon-wrapper" [style.background]="role.color + '25'"
+                        [style.--glow-color]="role.color">
+                        <i-lucide [name]="role.icon" size="28" [style.color]="role.color"></i-lucide>
+                    </div>
+                    <div class="role-title-wrapper">
+                        <h3 class="role-name">{{ role.roleName }}</h3>
+                        <span class="role-type" *ngIf="role.maxAllowed === null">Global • Multiple Allowed</span>
+                        <span class="role-type" *ngIf="role.maxAllowed !== null">Global • Single Active</span>
+                    </div>
+                </div>
+
+                <div class="role-card-body">
+                    <div class="role-count">
+                        <span class="count-number">{{ role.activeCount }}</span>
+                        <span class="count-label">Active</span>
+                    </div>
+
+                    <div class="role-requirements">
+                        <div class="requirement-item">
+                            <i-lucide name="shield-check" size="16"></i-lucide>
+                            <span>Required: {{ role.required ? 'Yes' : 'No' }}</span>
+                        </div>
+                        <div class="requirement-item">
+                            <i-lucide name="users" size="16"></i-lucide>
+                            <span>Minimum: {{ role.minRequired }}</span>
+                        </div>
+                        <div class="requirement-item" *ngIf="role.maxAllowed !== null">
+                            <i-lucide name="ban" size="16"></i-lucide>
+                            <span>Maximum: {{ role.maxAllowed }}</span>
+                        </div>
+                        <div class="requirement-item" *ngIf="role.maxAllowed === null">
+                            <i-lucide name="infinity" size="16"></i-lucide>
+                            <span>No Upper Limit</span>
+                        </div>
+                    </div>
+
+                    <div class="role-status-indicator" [attr.data-status]="role.status">
+                        <i-lucide [name]="getStatusIcon(role.status)" size="18"
+                            [style.color]="getStatusColor(role.status)"></i-lucide>
+                        <span class="status-message">{{ role.message }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Governance Principles Section -->
+    <div class="section-container governance-section">
+        <div class="section-header">
+            <i-lucide name="shield-alert" size="28"></i-lucide>
+            <h2 class="section-title">Governance Principles</h2>
+        </div>
+
+        <div class="governance-grid">
+            <!-- Principle Card 1 -->
+            <div class="governance-card">
+                <div class="governance-icon">
+                    <i-lucide name="globe" size="24"></i-lucide>
+                </div>
+                <h3 class="governance-title">Centralized Control</h3>
+                <p class="governance-text">
+                    CampusConnect enforces a centralized control model for compliance-critical functions
+                    while maintaining a college-centric workflow for academic and admission operations.
+                </p>
+            </div>
+
+            <!-- Principle Card 2 -->
+            <div class="governance-card">
+                <div class="governance-icon">
+                    <i-lucide name="target" size="24"></i-lucide>
+                </div>
+                <h3 class="governance-title">Clear Accountability</h3>
+                <p class="governance-text">
+                    Single active users for Document Verification and Accountant roles ensure clear
+                    accountability and consistent decision-making across all operations.
+                </p>
+            </div>
+
+            <!-- Principle Card 3 -->
+            <div class="governance-card">
+                <div class="governance-icon">
+                    <i-lucide name="file-check-2" size="24"></i-lucide>
+                </div>
+                <h3 class="governance-title">Audit Consistency</h3>
+                <p class="governance-text">
+                    Controlled operational governance ensures complete audit trails and maintains
+                    compliance with regulatory requirements and institutional policies.
+                </p>
+            </div>
+
+            <!-- Principle Card 4 -->
+            <div class="governance-card">
+                <div class="governance-icon">
+                    <i-lucide name="trending-up" size="24"></i-lucide>
+                </div>
+                <h3 class="governance-title">Scalable Operations</h3>
+                <p class="governance-text">
+                    Multiple Visa and Telex Officers allow workload distribution while maintaining
+                    centralized oversight and operational efficiency at scale.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- College Coordinator Status Section -->
+    <div class="section-container">
+        <div class="section-header">
+            <i-lucide name="building-2" size="28"></i-lucide>
+            <h2 class="section-title">College Coordinator Assignments</h2>
+        </div>
+        <p class="section-description">
+            University Coordinators are assigned to colleges to manage student applications and admission letters.
+            Each college must have an active coordinator to receive forwarded students.
+        </p>
+
+        <!-- Loading State -->
+        <div class="colleges-loading" *ngIf="collegesLoading">
+            <div class="loading-spinner"></div>
+            <p>Loading colleges...</p>
+        </div>
+
+        <!-- Colleges Grid -->
+        <div class="colleges-grid" *ngIf="!collegesLoading">
+            <div class="college-card" *ngFor="let college of colleges; let i = index"
+                [attr.data-status]="getCollegeStatusClass(college)" [style.animation-delay]="(i * 0.05) + 's'">
+                <div class="college-card-header">
+                    <div class="college-info">
+                        <h3 class="college-name">{{ college.collegeName }}</h3>
+                        <span class="college-location" *ngIf="college.city || college.country">
+                            {{ college.city }}<span *ngIf="college.city && college.country">, </span>{{ college.country
+                            }}
+                        </span>
+                    </div>
+                    <div class="college-status-badge" [attr.data-status]="getCollegeStatusClass(college)">
+                        <i-lucide [name]="getCollegeStatusIcon(college)" size="18"
+                            [style.color]="getStatusColor(getCollegeStatusClass(college))"></i-lucide>
+                    </div>
+                </div>
+
+                <div class="college-card-body">
+                    <div class="coordinator-status">
+                        <i-lucide [name]="getCollegeStatusIcon(college)" size="16"
+                            [style.color]="getStatusColor(getCollegeStatusClass(college))"></i-lucide>
+                        <span>{{ getCollegeStatusMessage(college) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-colleges" *ngIf="colleges.length === 0">
+                <i-lucide name="building-2" size="56"></i-lucide>
+                <p>No colleges found in the system.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Important Notice -->
+    <div class="notice-banner">
+        <i-lucide name="info" size="24"></i-lucide>
+        <div class="notice-content">
+            <strong>System Requirement:</strong>
+            CampusConnect will not function properly until all role requirements are met.
+            Ensure at least one active Visa Officer and Telex Officer, along with exactly one
+            Document Verification Person and one Accountant.
+        </div>
+    </div>
+
+    <!-- Overall Configuration Feedback -->
+    <div class="overall-feedback-banner" [attr.data-status]="getOverallFeedback().class" *ngIf="!isLoading">
+        <div class="feedback-icon">
+            <i-lucide [name]="getOverallFeedback().icon" size="32"></i-lucide>
+        </div>
+        <div class="feedback-content">
+            <h3 class="feedback-title">{{ getOverallFeedback().status }}</h3>
+            <p class="feedback-message">{{ getOverallFeedback().message }}</p>
+        </div>
+    </div>
+</div>

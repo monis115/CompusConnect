@@ -176,7 +176,9 @@ import {
   AtSign,
   Files,
   Book,
-  Stamp
+  Stamp,
+  // System Configuration icons
+  Infinity
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -444,7 +446,9 @@ import { ServiceWorkerModule } from '@angular/service-worker';
       AtSign,
       Files,
       Book,
-      Stamp
+      Stamp,
+      // System Configuration icons
+      Infinity
     }),
     StudentStatusPipe,
     ServiceWorkerModule.register('ngsw-worker.js', {
