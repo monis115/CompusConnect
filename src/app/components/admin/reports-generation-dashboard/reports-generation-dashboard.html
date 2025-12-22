@@ -27,7 +27,7 @@
                 </button>
                 <!-- All Managers Report Button (Overview) -->
                 <button class="generate-report-btn"
-                    *ngIf="!showDetailView && !showVisaDetailView && !showTelexDetailView"
+                    *ngIf="!showDetailView && !showVisaDetailView && !showTelexDetailView && selectedUserType !== 'DOC_PERSON'"
                     (click)="openEmailModal('all')" [disabled]="isLoading">
                     <i-lucide name="users" size="16"></i-lucide>
                     <span>Email All Reports</span>
@@ -75,7 +75,7 @@
 
             <!-- Empty State -->
             <div class="empty-state"
-                *ngIf="!isLoading && allManagerReports.length === 0 && !universityPersonReport && allTelexManagers.length === 0 && (selectedUserType !== 'ADMISSION_MANAGER' && selectedUserType !== 'UNIVERSITY_COORDINATOR' && selectedUserType !== 'TELEX_PERSON' && selectedUserType !== 'VISA_PERSON')">
+                *ngIf="!isLoading && allManagerReports.length === 0 && !universityPersonReport && allTelexManagers.length === 0 && (selectedUserType !== 'ADMISSION_MANAGER' && selectedUserType !== 'UNIVERSITY_COORDINATOR' && selectedUserType !== 'TELEX_PERSON' && selectedUserType !== 'VISA_PERSON' && selectedUserType !== 'DOC_PERSON')">
                 <div class="empty-icon">
                     <i-lucide name="inbox" size="48"></i-lucide>
                 </div>
@@ -894,6 +894,183 @@
                 </div>
             </div>
 
+            <!-- ============================================================================
+                 DOC PERSON DASHBOARD
+                 ============================================================================ -->
+            <div class="dashboard-content doc-person-theme" *ngIf="!isLoading && selectedUserType === 'DOC_PERSON'"
+                @fadeIn>
+
+                <!-- Detail View Header (Back Button) -->
+                <div class="detail-header" *ngIf="showDetailView && selectedDocPerson"
+                    style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
+                    <button class="back-btn" (click)="backToOverview()"
+                        style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i-lucide name="arrow-left" size="18"></i-lucide> Back
+                    </button>
+                    <h2 style="margin: 0; font-size: 1.2rem; color: white;">{{ selectedDocPerson.fullName }}
+                        <span style="font-weight: 400; font-size: 0.9rem; opacity: 0.7;">(Doc Manager Details)</span>
+                    </h2>
+                </div>
+
+                <!-- KPI Cards Row (Detail View) -->
+                <div class="kpi-section" *ngIf="showDetailView && docPersonStats">
+                    <div class="kpi-grid">
+                        <!-- Assigned -->
+                        <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
+                            <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ docPersonStats.totalAssignedStudents || 0 }}</span>
+                                <span class="kpi-label">Total Assigned</span>
+                            </div>
+                        </div>
+                        <!-- Docs Received -->
+                        <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
+                            <div class="kpi-icon"><i-lucide name="inbox" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ docPersonStats.documentsReceived || 0 }}</span>
+                                <span class="kpi-label">Docs Received</span>
+                            </div>
+                        </div>
+                        <!-- Docs Verified -->
+                        <div class="kpi-card" [style.--accent-color]="'#10b981'">
+                            <div class="kpi-icon"><i-lucide name="check-circle" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ docPersonStats.documentsVerified || 0 }}</span>
+                                <span class="kpi-label">Docs Verified</span>
+                            </div>
+                        </div>
+                        <!-- Docs Collected -->
+                        <div class="kpi-card" [style.--accent-color]="'#6366f1'">
+                            <div class="kpi-icon"><i-lucide name="package-check" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ docPersonStats.documentsCollected || 0 }}</span>
+                                <span class="kpi-label">Docs Collected</span>
+                            </div>
+                        </div>
+                        <!-- Docs Returned -->
+                        <div class="kpi-card" [style.--accent-color]="'#ec4899'">
+                            <div class="kpi-icon"><i-lucide name="corner-up-left" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ docPersonStats.documentsReturned || 0 }}</span>
+                                <span class="kpi-label">Docs Returned</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Cards (Overview) -->
+                <div class="summary-cards-row" *ngIf="!showDetailView && docPersonSummaryStats">
+                    <div class="summary-card">
+                        <div class="summary-icon assignments">
+                            <i-lucide name="users" size="22"></i-lucide>
+                        </div>
+                        <div class="summary-content">
+                            <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalAssigned) }}</span>
+                            <span class="summary-label">Total Assigned</span>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon received">
+                            <i-lucide name="inbox" size="22"></i-lucide>
+                        </div>
+                        <div class="summary-content">
+                            <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalReceived) }}</span>
+                            <span class="summary-label">Docs Received</span>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon verified">
+                            <i-lucide name="package-check" size="22"></i-lucide>
+                        </div>
+                        <div class="summary-content">
+                            <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalVerified) }}</span>
+                            <span class="summary-label">Docs Verified</span>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon returned">
+                            <i-lucide name="corner-up-left" size="22"></i-lucide>
+                        </div>
+                        <div class="summary-content">
+                            <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalReturned) }}</span>
+                            <span class="summary-label">Docs Returned</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section (Overview) -->
+                <div class="charts-section" *ngIf="!showDetailView">
+                    <!-- Manager Comparison Bar Chart -->
+                    <div class="chart-card bar-chart">
+                        <div class="chart-header">
+                            <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Manager Assignments</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas baseChart *ngIf="docPersonBarChartData" [data]="docPersonBarChartData"
+                                [options]="barChartOptions" type="bar"></canvas>
+                        </div>
+                    </div>
+                    <!-- Status Distribution Donut Chart -->
+                    <div class="chart-card donut-chart">
+                        <div class="chart-header">
+                            <h3><i-lucide name="pie-chart" size="18"></i-lucide> Status Overview</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas baseChart *ngIf="docPersonPieChartData" [data]="docPersonPieChartData"
+                                [options]="donutChartOptions" type="doughnut"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doc Person List (Overview) -->
+                <div class="leaderboard-section" *ngIf="!showDetailView && allDocPersons.length > 0">
+                    <div class="section-header">
+                        <h3><i-lucide name="list" size="18"></i-lucide> Doc Personnel List</h3>
+                        <span class="badge">{{ allDocPersons.length }} Personnel</span>
+                    </div>
+                    <div class="leaderboard-body">
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let person of allDocPersons" (click)="selectDocPerson(person)"
+                                    style="cursor: pointer;">
+                                    <td>
+                                        <div class="manager-info">
+                                            <div class="manager-avatar">{{ person.fullName.charAt(0) }}</div>
+                                            <span>{{ person.fullName }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ person.username }}</td>
+                                    <td>{{ person.email }}</td>
+                                    <td>{{ person.contactNumber }}</td>
+                                    <td>
+                                        <span class="status-badge"
+                                            [ngClass]="person.status === 'ACTIVE' ? 'active' : 'inactive'">
+                                            {{ person.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="view-btn"
+                                            style="background: none; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer;">
+                                            View Stats
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -965,9 +1142,7 @@
                         </div>
                         <div class="preview-item">
                             <span class="preview-label">Managers</span>
-                            <span class="preview-value">{{ emailTargetType === 'single' ?
-                                selectedManagerReport?.managerName : allManagerReports.length + ' managers'
-                                }}</span>
+                            <span class="preview-value">{{ getReportPreviewName() }}</span>
                         </div>
                         <div class="preview-item">
                             <span class="preview-label">Format</span>

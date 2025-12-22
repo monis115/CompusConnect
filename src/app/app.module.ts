@@ -177,6 +177,8 @@ import {
   Files,
   Book,
   Stamp,
+  PackageCheck,
+  CornerUpLeft,
   // System Configuration icons
   Infinity
 } from 'lucide-angular';
@@ -447,6 +449,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
       Files,
       Book,
       Stamp,
+      PackageCheck,
+      CornerUpLeft,
       // System Configuration icons
       Infinity
     }),

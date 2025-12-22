@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, Output, EventEm
 import { AdmissionManagerService, AdmissionManagerReportDTO, ManagerReportStatsDTO, ReportPeriod, UniversityPersonReportDTO, UniversityPersonStatsDTO, CollegeReportDTO, CollegeStatsDTO } from '../../../services/admission-manager.service';
 import { TelexReportService, TelexStatsDTO, TelexManStats } from '../../../services/telex-report.service';
 import { VisaDashboardService, VisaManStatsDTO, EmailReportRequest } from '../../../services/visa-dashboard.service';
+import { DocPersonService, DocPersonDTO } from '../../../services/doc-person.service';
+import { DocPersonStats } from '../../../services/doc-person-stats.model';
 import { Subject, forkJoin, of } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -169,6 +171,23 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
   showVisaDetailView = false;
   assignedStudents: any[] = []; // List of students for the selected manager
 
+  // Doc Person Data
+  allDocPersons: DocPersonDTO[] = [];
+  selectedDocPerson: DocPersonDTO | null = null;
+  docPersonStats: DocPersonStats | null = null;
+
+  // Doc Person Aggregated Stats
+  docPersonSummaryStats = {
+    totalAssigned: 0,
+    totalReceived: 0,
+    totalVerified: 0,
+    totalCollected: 0,
+    totalReturned: 0
+  };
+
+  docPersonPieChartData: ChartData<'doughnut'> | null = null;
+  docPersonBarChartData: ChartData<'bar'> | null = null;
+
 
   // User Types for tabs
   userTypes: { key: UserType; label: string; icon: string }[] = [
@@ -243,6 +262,7 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
     private admissionManagerService: AdmissionManagerService,
     private telexReportService: TelexReportService,
     private visaDashboardService: VisaDashboardService,
+    private docPersonService: DocPersonService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -356,7 +376,15 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
       this.universityPersonReport = null;
       this.allCollegeReports = [];
       this.allTelexManagers = [];
+      this.allTelexManagers = [];
       this.loadVisaData();
+    } else if (type === 'DOC_PERSON') {
+      this.allManagerReports = [];
+      this.universityPersonReport = null;
+      this.allCollegeReports = [];
+      this.allTelexManagers = [];
+      this.allVisaManagers = [];
+      this.loadDocPersonData();
     } else {
       // Other user types - clear data and show empty state
       this.allManagerReports = [];
@@ -389,9 +417,155 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
         this.selectVisaManager(this.selectedVisaManager); // Refresh detail view
       } else {
         this.loadVisaData();
+        this.loadVisaData();
+      }
+    } else if (this.selectedUserType === 'DOC_PERSON') {
+      if (this.showDetailView && this.selectedDocPerson) {
+        this.selectDocPerson(this.selectedDocPerson);
+      } else {
+        this.loadDocPersonData();
       }
     }
   }
+
+  // Doc Person Data
+  loadDocPersonData(): void {
+    this.isLoading = true;
+    this.allDocPersons = [];
+    this.docPersonStats = null;
+    this.cdr.detectChanges();
+
+    this.docPersonService.getAllDocPersons()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (persons) => {
+          this.allDocPersons = persons || [];
+
+          if (this.allDocPersons.length === 0) {
+            this.isLoading = false;
+            this.cdr.detectChanges();
+            return;
+          }
+
+          // Fetch stats for ALL users to calculate aggregation
+          const statsRequests = this.allDocPersons.map(person =>
+            this.docPersonService.getStats(person.username, this.selectedTimePeriod)
+              .pipe(catchError(() => of(null))) // Handle errors gracefully
+          );
+
+          forkJoin(statsRequests).subscribe({
+            next: (statsList) => {
+              // Calculate Totals
+              this.docPersonSummaryStats = {
+                totalAssigned: 0,
+                totalReceived: 0,
+                totalVerified: 0,
+                totalCollected: 0,
+                totalReturned: 0
+              };
+
+              const validStats: { person: DocPersonDTO, stats: DocPersonStats }[] = [];
+
+              statsList.forEach((stat, index) => {
+                if (stat) {
+                  this.docPersonSummaryStats.totalAssigned += stat.totalAssignedStudents || 0;
+                  this.docPersonSummaryStats.totalReceived += stat.documentsReceived || 0;
+                  this.docPersonSummaryStats.totalVerified += stat.documentsVerified || 0;
+                  this.docPersonSummaryStats.totalCollected += stat.documentsCollected || 0;
+                  this.docPersonSummaryStats.totalReturned += stat.documentsReturned || 0;
+
+                  validStats.push({ person: this.allDocPersons[index], stats: stat });
+                }
+              });
+
+              this.updateDocPersonCharts(validStats);
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            },
+            error: (err) => {
+              console.error('Failed to load aggregated Doc Person stats:', err);
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Failed to load Doc Persons:', err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  selectDocPerson(person: DocPersonDTO): void {
+    this.selectedDocPerson = person;
+    this.showDetailView = true;
+    this.isLoading = true;
+    this.docPersonStats = null;
+    this.cdr.detectChanges();
+
+    this.docPersonService.getStats(person.username, this.selectedTimePeriod)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats) => {
+          this.docPersonStats = stats;
+          this.isLoading = false;
+          this.updateDocPersonCharts();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to load stats:', err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  updateDocPersonCharts(validStats: { person: DocPersonDTO, stats: DocPersonStats }[] = []): void {
+    // 1. Pie Chart: Overall Status Distribution
+    const s = this.docPersonSummaryStats;
+    this.docPersonPieChartData = {
+      labels: ['Received', 'Verified', 'Collected', 'Returned'],
+      datasets: [{
+        data: [s.totalReceived, s.totalVerified, s.totalCollected, s.totalReturned],
+        backgroundColor: [
+          'rgba(245, 158, 11, 0.85)',   // Orange - Received
+          'rgba(16, 185, 129, 0.85)',   // Green - Verified
+          'rgba(99, 102, 241, 0.85)',   // Blue/Indigo - Collected
+          'rgba(236, 72, 153, 0.85)'    // Pink - Returned
+        ],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    };
+
+    // 2. Bar Chart: Manager Comparison (Top 5 by assignments)
+    // Sort by total assigned
+    const topManagers = validStats
+      .sort((a, b) => b.stats.totalAssignedStudents - a.stats.totalAssignedStudents)
+      .slice(0, 5);
+
+    this.docPersonBarChartData = {
+      labels: topManagers.map(m => m.person.fullName.split(' ')[0]),
+      datasets: [
+        {
+          label: 'Assigned Students',
+          data: topManagers.map(m => m.stats.totalAssignedStudents),
+          backgroundColor: 'rgba(59, 130, 246, 0.8)', // Blue
+          borderRadius: 6,
+          barPercentage: 0.6
+        },
+        {
+          label: 'Docs Verified',
+          data: topManagers.map(m => m.stats.documentsVerified),
+          backgroundColor: 'rgba(16, 185, 129, 0.8)', // Green
+          borderRadius: 6,
+          barPercentage: 0.6
+        }
+      ]
+    };
+  }
+
 
   // Load University Coordinators/Persons data (Used for University Coordinators Dashboard)
   loadCollegesData(): void {
@@ -1394,6 +1568,10 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
         username: this.showVisaDetailView && this.selectedVisaManager ? this.selectedVisaManager.visaManagerUsername : undefined
       };
       request$ = this.visaDashboardService.sendEmailReport(request);
+    } else if (this.selectedUserType === 'DOC_PERSON') {
+      const period = this.selectedTimePeriod.charAt(0).toUpperCase() + this.selectedTimePeriod.slice(1);
+      const username = this.selectedDocPerson?.username || '';
+      request$ = this.docPersonService.sendReport(username, this.emailAddress, period);
     } else {
       // Default to Admission Manager logic
       request$ = this.emailTargetType === 'single' && this.selectedManagerId
@@ -1427,6 +1605,29 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
         this.cdr.detectChanges();
       }
     });
+  }
+
+  getReportPreviewName(): string {
+    if (this.selectedUserType === 'ADMISSION_MANAGER') {
+      return this.emailTargetType === 'single' ?
+        this.selectedManagerReport?.managerName || 'Unknown Manager' :
+        this.allManagerReports.length + ' Managers';
+    } else if (this.selectedUserType === 'UNIVERSITY_COORDINATOR') {
+      // Coordinator view usually sends all colleges report or single person report
+      return this.emailTargetType === 'single' && this.selectedUniversityPersonReport ?
+        this.selectedUniversityPersonReport.userName :
+        this.allUniversityPersonReports.length + ' Coordinators';
+    } else if (this.selectedUserType === 'TELEX_PERSON') {
+      return this.showTelexDetailView && this.selectedTelexManager ?
+        this.selectedTelexManager.fullName : this.allTelexManagers.length + ' Managers';
+    } else if (this.selectedUserType === 'VISA_PERSON') {
+      return this.showVisaDetailView && this.selectedVisaManager ?
+        this.selectedVisaManager.visaManagerName : this.allVisaManagers.length + ' Managers';
+    } else if (this.selectedUserType === 'DOC_PERSON') {
+      return this.showDetailView && this.selectedDocPerson ?
+        this.selectedDocPerson.fullName : this.allDocPersons.length + ' Personnel';
+    }
+    return 'Report';
   }
 
   private isValidEmail(email: string): boolean {

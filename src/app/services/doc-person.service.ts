@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { DocPersonStats } from './doc-person-stats.model';
 import { Student } from '../components/doc-person-dashbaord/doc-person.models';
 
 export interface DocPersonDTO {
@@ -52,7 +53,32 @@ export class DocPersonService {
         return this.http.get<DocPersonWithStudentsDTO>(`${this.API_ENDPOINT}/${id}/with-students`);
     }
 
-    // Existing Doc Person Dashboard APIs
+    // Stats & Reporting APIs
+    getStats(username: string, period: string = 'Today'): Observable<DocPersonStats> {
+        let params = new HttpParams()
+            .set('username', username)
+            .set('period', period);
+        return this.http.get<DocPersonStats>(`${this.API_ENDPOINT}/stats`, { params });
+    }
+
+    receiveDocs(studentId: number, data: any): Observable<any> {
+        return this.http.post(`${this.API_ENDPOINT}/receive-docs/${studentId}`, data);
+    }
+
+    verifyDocs(studentId: number, data: any): Observable<any> {
+        return this.http.post(`${this.API_ENDPOINT}/verify-telex-docs/${studentId}`, data);
+    }
+
+    returnDocs(studentId: number, data: any): Observable<any> {
+        return this.http.post(`${this.API_ENDPOINT}/return-docs/${studentId}`, data);
+    }
+
+    sendReport(username: string, email: string, period: string = 'Today'): Observable<any> {
+        const body = { username, email, period };
+        return this.http.post(`${this.API_ENDPOINT}/send-report`, body);
+    }
+
+    // Existing Doc Person Dashboard APIs (Keeping for backward compatibility)
     returnDocsToStudent(studentId: number, payload: any): Observable<any> {
         return this.http.post(`${this.API_ENDPOINT}/return-docs/${studentId}`, payload);
     }
