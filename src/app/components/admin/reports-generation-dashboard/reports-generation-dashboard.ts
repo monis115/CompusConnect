@@ -3,7 +3,9 @@ import { AdmissionManagerService, AdmissionManagerReportDTO, ManagerReportStatsD
 import { TelexReportService, TelexStatsDTO, TelexManStats } from '../../../services/telex-report.service';
 import { VisaDashboardService, VisaManStatsDTO, EmailReportRequest } from '../../../services/visa-dashboard.service';
 import { DocPersonService, DocPersonDTO } from '../../../services/doc-person.service';
+
 import { DocPersonStats } from '../../../services/doc-person-stats.model';
+import { AgentService, AgentPerformanceStats } from '../../../services/agent.service';
 import { Subject, forkJoin, of } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -101,6 +103,7 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
   isSendingEmail = false;
   emailSendSuccess = false;
   emailSendError = '';
+  emailReportPeriod: string = 'daily';
   emailTargetType: 'single' | 'all' = 'all';
 
   // University Person Data
@@ -186,7 +189,22 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
   };
 
   docPersonPieChartData: ChartData<'doughnut'> | null = null;
+
   docPersonBarChartData: ChartData<'bar'> | null = null;
+
+  // Agent Data
+  allAgentStats: AgentPerformanceStats[] = [];
+  selectedAgentStats: AgentPerformanceStats | null = null;
+  showAgentDetailView = false;
+  agentSummaryStats = {
+    totalRegistered: 0,
+    totalTelexInitiated: 0,
+    totalPaymentConfirmations: 0,
+    totalDocsRequested: 0,
+    totalWork: 0
+  };
+  agentBarChartData: ChartData<'bar'> | null = null;
+  agentPieChartData: ChartData<'doughnut'> | null = null;
 
 
   // User Types for tabs
@@ -263,6 +281,8 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
     private telexReportService: TelexReportService,
     private visaDashboardService: VisaDashboardService,
     private docPersonService: DocPersonService,
+
+    private agentService: AgentService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -354,6 +374,10 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
   selectUserType(type: UserType): void {
     this.selectedUserType = type;
     this.showDetailView = false;
+    this.showCollegeDetailView = false;
+    this.showTelexDetailView = false;
+    this.showVisaDetailView = false;
+    this.showAgentDetailView = false;
     this.selectedManagerId = null;
     this.selectedManagerReport = null;
     this.cdr.detectChanges();
@@ -376,7 +400,7 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
       this.universityPersonReport = null;
       this.allCollegeReports = [];
       this.allTelexManagers = [];
-      this.allTelexManagers = [];
+
       this.loadVisaData();
     } else if (type === 'DOC_PERSON') {
       this.allManagerReports = [];
@@ -385,6 +409,14 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
       this.allTelexManagers = [];
       this.allVisaManagers = [];
       this.loadDocPersonData();
+    } else if (type === 'AGENT') {
+      this.allManagerReports = [];
+      this.universityPersonReport = null;
+      this.allCollegeReports = [];
+      this.allTelexManagers = [];
+      this.allVisaManagers = [];
+      this.allDocPersons = [];
+      this.loadAgentData();
     } else {
       // Other user types - clear data and show empty state
       this.allManagerReports = [];
@@ -417,7 +449,7 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
         this.selectVisaManager(this.selectedVisaManager); // Refresh detail view
       } else {
         this.loadVisaData();
-        this.loadVisaData();
+
       }
     } else if (this.selectedUserType === 'DOC_PERSON') {
       if (this.showDetailView && this.selectedDocPerson) {
@@ -425,8 +457,15 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
       } else {
         this.loadDocPersonData();
       }
+    } else if (this.selectedUserType === 'AGENT') {
+      if (this.showAgentDetailView && this.selectedAgentStats) {
+        this.selectAgent(this.selectedAgentStats); // Refresh detail
+      } else {
+        this.loadAgentData();
+      }
     }
   }
+
 
   // Doc Person Data
   loadDocPersonData(): void {
@@ -1521,10 +1560,13 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
 
   openEmailModal(targetType: 'single' | 'all' = 'all'): void {
     this.emailTargetType = targetType;
-    this.emailAddress = '';
+    // Default to admin email if possible, hardcoded for now or fetch from user service
+    this.emailAddress = '@admin.com';
     this.isSendingEmail = false;
     this.emailSendSuccess = false;
     this.emailSendError = '';
+    // Default period to currently selected period
+    this.emailReportPeriod = this.selectedTimePeriod;
     this.showEmailModal = true;
     this.cdr.detectChanges();
   }
@@ -1572,6 +1614,10 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
       const period = this.selectedTimePeriod.charAt(0).toUpperCase() + this.selectedTimePeriod.slice(1);
       const username = this.selectedDocPerson?.username || '';
       request$ = this.docPersonService.sendReport(username, this.emailAddress, period);
+    } else if (this.selectedUserType === 'AGENT') {
+      const period = this.emailReportPeriod.toUpperCase(); // Use modal selected period
+      const username = this.emailTargetType === 'single' && this.selectedAgentStats ? this.selectedAgentStats.agentUsername : undefined;
+      request$ = this.agentService.sendReport(period, this.emailAddress, username);
     } else {
       // Default to Admission Manager logic
       request$ = this.emailTargetType === 'single' && this.selectedManagerId
@@ -1626,6 +1672,9 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
     } else if (this.selectedUserType === 'DOC_PERSON') {
       return this.showDetailView && this.selectedDocPerson ?
         this.selectedDocPerson.fullName : this.allDocPersons.length + ' Personnel';
+    } else if (this.selectedUserType === 'AGENT') {
+      return this.showAgentDetailView && this.selectedAgentStats ?
+        this.selectedAgentStats.agentName : this.allAgentStats.length + ' Agents';
     }
     return 'Report';
   }
@@ -1799,5 +1848,162 @@ export class ReportsGenerationDashboard implements OnInit, OnDestroy, OnChanges 
     if (s.includes('COLLECTED') || s.includes('RETURNED')) return 'blue';
     if (s.includes('REJECTED') || s.includes('DENIED')) return 'red';
     return 'gray';
+  }
+  // ============================================================================
+  // AGENT SPECIFIC METHODS
+  // ============================================================================
+
+  loadAgentData(): void {
+    this.isLoading = true;
+    this.allAgentStats = [];
+    this.agentSummaryStats = {
+      totalRegistered: 0,
+      totalTelexInitiated: 0,
+      totalPaymentConfirmations: 0,
+      totalDocsRequested: 0,
+      totalWork: 0
+    };
+    this.cdr.detectChanges();
+
+    // Map the period string to what getAgentStats expects
+    const periodArg = this.selectedTimePeriod.toUpperCase() as 'DAILY' | 'MONTHLY' | 'YEARLY';
+
+    this.agentService.getAgentStats(periodArg)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats) => {
+          this.allAgentStats = stats || [];
+          this.calculateAgentSummary();
+          this.updateAgentCharts();
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to load Agent stats:', err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  calculateAgentSummary(): void {
+    if (!this.allAgentStats.length) return;
+
+    this.agentSummaryStats = this.allAgentStats.reduce((acc, curr) => {
+      return {
+        totalRegistered: acc.totalRegistered + curr.registeredStudents,
+        totalTelexInitiated: acc.totalTelexInitiated + curr.telexInitiated,
+        totalPaymentConfirmations: acc.totalPaymentConfirmations + curr.paymentConfirmations,
+        totalDocsRequested: acc.totalDocsRequested + curr.docsRequested,
+        totalWork: acc.totalWork + curr.totalWork
+      };
+    }, {
+      totalRegistered: 0,
+      totalTelexInitiated: 0,
+      totalPaymentConfirmations: 0,
+      totalDocsRequested: 0,
+      totalWork: 0
+    });
+  }
+
+  updateAgentCharts(): void {
+    if (!this.allAgentStats.length) {
+      this.agentBarChartData = null;
+      this.agentPieChartData = null;
+      return;
+    }
+
+    // Bar Chart: Top 5 Agents by Total Work
+    const topAgents = [...this.allAgentStats]
+      .sort((a, b) => b.totalWork - a.totalWork)
+      .slice(0, 5);
+
+    this.agentBarChartData = {
+      labels: topAgents.map(a => a.agentName.split(' ')[0]),
+      datasets: [
+        {
+          label: 'Registered',
+          data: topAgents.map(a => a.registeredStudents),
+          backgroundColor: 'rgba(59, 130, 246, 0.8)', // Blue
+          borderRadius: 4
+        },
+        {
+          label: 'Total Work',
+          data: topAgents.map(a => a.totalWork),
+          backgroundColor: 'rgba(16, 185, 129, 0.8)', // Green
+          borderRadius: 4
+        }
+      ]
+    };
+
+    // Pie Chart: Activity Breakdown
+    const s = this.agentSummaryStats;
+    this.agentPieChartData = {
+      labels: ['Registered', 'Telex Initiated', 'Payment Confirmed', 'Docs Requested'],
+      datasets: [{
+        data: [s.totalRegistered, s.totalTelexInitiated, s.totalPaymentConfirmations, s.totalDocsRequested],
+        backgroundColor: [
+          '#3b82f6', // Blue
+          '#f59e0b', // Amber
+          '#10b981', // Green
+          '#8b5cf6'  // Purple
+        ],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    };
+  }
+
+  selectAgent(agent: AgentPerformanceStats): void {
+    this.isLoading = true;
+    this.showAgentDetailView = true;
+    this.selectedAgentStats = agent; // Optimistic update
+    this.cdr.detectChanges();
+
+    const periodArg = this.selectedTimePeriod.toUpperCase() as 'DAILY' | 'MONTHLY' | 'YEARLY';
+
+    this.agentService.getSingleAgentStats(agent.agentUsername, periodArg)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.selectedAgentStats = data;
+          this.updateSelectedAgentCharts();
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to load single agent stats:', err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  updateSelectedAgentCharts(): void {
+    if (!this.selectedAgentStats) return;
+    const s = this.selectedAgentStats;
+
+    this.agentPieChartData = {
+      labels: ['Registered', 'Telex Init', 'Payment', 'Docs Req'],
+      datasets: [{
+        data: [s.registeredStudents, s.telexInitiated, s.paymentConfirmations, s.docsRequested],
+        backgroundColor: [
+          '#3b82f6',
+          '#f59e0b',
+          '#10b981',
+          '#8b5cf6'
+        ],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    };
+    // Reuse pie chart variable for simplicity or create a new one if needed
+  }
+
+  backToAgentList(): void {
+    this.showAgentDetailView = false;
+    this.selectedAgentStats = null;
+    this.updateAgentCharts(); // Restore overview charts
+    this.cdr.detectChanges();
   }
 }

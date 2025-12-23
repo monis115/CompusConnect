@@ -146,4 +146,73 @@
   <!-- System Performance Dashboard Modal -->
   <app-reports-generation-dashboard [isOpen]="showSystemDashboard" (closeModal)="closeSystemDashboard()">
   </app-reports-generation-dashboard>
+
+  <!-- SESSION MANAGEMENT MODAL -->
+  <div class="modal-backdrop" *ngIf="showSessionModal" (click)="closeSessionModal()"></div>
+  <div class="session-modal" *ngIf="showSessionModal" (click)="$event.stopPropagation()">
+    <div class="session-modal-header">
+      <div class="session-modal-title">
+        <i-lucide name="calendar" size="24"></i-lucide>
+        <h3>Session Management</h3>
+      </div>
+      <button class="close-btn" (click)="closeSessionModal()">
+        <i-lucide name="x" size="20"></i-lucide>
+      </button>
+    </div>
+
+    <div class="session-modal-body">
+      <!-- Loading State -->
+      <div *ngIf="isLoadingSessions" class="session-loading">
+        <div class="session-spinner"></div>
+        <p>Loading sessions...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoadingSessions && sessions.length === 0" class="session-empty">
+        <i-lucide name="calendar-x" size="48"></i-lucide>
+        <p>No sessions found. Please check backend.</p>
+      </div>
+
+      <!-- Session List -->
+      <div class="session-list" *ngIf="!isLoadingSessions && sessions.length > 0">
+        <div class="session-item" *ngFor="let session of sessions" 
+             [class.selected]="selectedSession?.id === session.id"
+             (click)="selectSession(session)">
+          <div class="session-info">
+            <h4>{{ session.sessionName }}</h4>
+            <p>{{ session.academicYear }}</p>
+          </div>
+          <i-lucide name="check-circle" size="20" *ngIf="selectedSession?.id === session.id"></i-lucide>
+        </div>
+      </div>
+
+      <!-- Update Form -->
+      <div class="session-update-form" *ngIf="selectedSession">
+        <h4>Update Session</h4>
+        <div class="form-group">
+          <label>Session Name</label>
+          <input [(ngModel)]="sessionForm.sessionName" placeholder="e.g. Winter 2024">
+        </div>
+        <div class="form-group">
+          <label>Academic Year</label>
+          <input [(ngModel)]="sessionForm.academicYear" placeholder="e.g. 2024-2025">
+        </div>
+
+        <div class="session-error" *ngIf="sessionUpdateError">
+          <i-lucide name="alert-circle" size="16"></i-lucide>
+          {{ sessionUpdateError }}
+        </div>
+
+        <div class="session-success" *ngIf="sessionUpdateSuccess">
+          <i-lucide name="check-circle" size="16"></i-lucide>
+          Session updated successfully!
+        </div>
+
+        <button class="update-btn" [disabled]="isUpdatingSession" (click)="updateSession()">
+          <span *ngIf="!isUpdatingSession">Update Session</span>
+          <div *ngIf="isUpdatingSession" class="btn-spinner"></div>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

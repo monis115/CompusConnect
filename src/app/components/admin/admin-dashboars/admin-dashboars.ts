@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { AdminAuthService } from '../../../services/admin-auth-service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -44,7 +44,8 @@ export class AdminDashboars implements OnInit {
     private authService: AdminAuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private http: HttpClient // <-- ADD THIS
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -110,11 +111,106 @@ export class AdminDashboars implements OnInit {
       // Close menu and open dashboard modal
       this.isConfigOpen = false;
       this.showSystemDashboard = true;
+    } else if (option === 'Sessions') {
+      // Close menu and open session modal
+      this.isConfigOpen = false;
+      this.openSessionModal();
     }
   }
 
   closeSystemDashboard(): void {
     this.showSystemDashboard = false;
+  }
+
+  // === SESSION MODAL LOGIC ===
+  showSessionModal = false;
+  sessions: any[] = [];
+  selectedSession: any = null;
+  isLoadingSessions = false;
+  isUpdatingSession = false;
+  sessionUpdateSuccess = false;
+  sessionUpdateError = '';
+
+  sessionForm = {
+    id: 0,
+    sessionName: '',
+    academicYear: ''
+  };
+
+  openSessionModal() {
+    this.showSessionModal = true;
+    this.loadSessions();
+  }
+
+  closeSessionModal() {
+    this.showSessionModal = false;
+    this.selectedSession = null;
+    this.sessionUpdateError = '';
+    this.sessionUpdateSuccess = false;
+  }
+
+  loadSessions() {
+    this.isLoadingSessions = true;
+    console.log('Loading sessions...');
+    this.cdr.detectChanges();
+    this.http.get<any[]>('http://localhost:8080/api/sessions').subscribe({
+      next: (data) => {
+        console.log('Sessions loaded:', data);
+        this.sessions = data || [];
+        this.isLoadingSessions = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading sessions:', err);
+        this.sessions = [];
+        this.isLoadingSessions = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  selectSession(session: any) {
+    this.selectedSession = session;
+    this.sessionForm = { ...session };
+    this.sessionUpdateError = '';
+    this.sessionUpdateSuccess = false;
+    this.cdr.detectChanges(); // Immediately show update form
+  }
+
+  updateSession() {
+    if (!this.sessionForm.sessionName || !this.sessionForm.academicYear) {
+      alert('Please fill all fields');
+      return;
+    }
+
+    this.isUpdatingSession = true;
+    this.cdr.detectChanges();
+    this.http.put<any>(`http://localhost:8080/api/sessions/${this.sessionForm.id}`, this.sessionForm).subscribe({
+      next: (updatedSession) => {
+        this.isUpdatingSession = false;
+        this.sessionUpdateSuccess = true;
+        this.cdr.detectChanges(); // Immediately show success message
+
+        // Update in list
+        const index = this.sessions.findIndex(s => s.id === updatedSession.id);
+        if (index !== -1) {
+          this.sessions[index] = updatedSession;
+        }
+
+        // Reset form after short delay
+        setTimeout(() => {
+          this.sessionUpdateSuccess = false;
+          this.selectedSession = null;
+          this.cdr.detectChanges();
+        }, 2000);
+      },
+      error: (err) => {
+        this.isUpdatingSession = false;
+        this.sessionUpdateError = 'Failed to update session. Please try again.';
+        this.cdr.detectChanges();
+        console.error('Error updating session:', err);
+      }
+    });
   }
 
   logout() {

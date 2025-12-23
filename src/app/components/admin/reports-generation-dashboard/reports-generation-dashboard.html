@@ -20,14 +20,14 @@
             <div class="header-actions">
                 <!-- Single Manager Report Button (Detail View) -->
                 <button class="generate-report-btn single"
-                    *ngIf="showDetailView || showVisaDetailView || showTelexDetailView"
+                    *ngIf="showDetailView || showVisaDetailView || showTelexDetailView || showAgentDetailView"
                     (click)="openEmailModal('single')" [disabled]="isLoading">
                     <i-lucide name="user" size="16"></i-lucide>
                     <span>Email This Report</span>
                 </button>
                 <!-- All Managers Report Button (Overview) -->
                 <button class="generate-report-btn"
-                    *ngIf="!showDetailView && !showVisaDetailView && !showTelexDetailView && selectedUserType !== 'DOC_PERSON'"
+                    *ngIf="!showDetailView && !showVisaDetailView && !showTelexDetailView && !showAgentDetailView && selectedUserType !== 'DOC_PERSON'"
                     (click)="openEmailModal('all')" [disabled]="isLoading">
                     <i-lucide name="users" size="16"></i-lucide>
                     <span>Email All Reports</span>
@@ -73,15 +73,7 @@
                 <p>Loading performance data...</p>
             </div>
 
-            <!-- Empty State -->
-            <div class="empty-state"
-                *ngIf="!isLoading && allManagerReports.length === 0 && !universityPersonReport && allTelexManagers.length === 0 && (selectedUserType !== 'ADMISSION_MANAGER' && selectedUserType !== 'UNIVERSITY_COORDINATOR' && selectedUserType !== 'TELEX_PERSON' && selectedUserType !== 'VISA_PERSON' && selectedUserType !== 'DOC_PERSON')">
-                <div class="empty-icon">
-                    <i-lucide name="inbox" size="48"></i-lucide>
-                </div>
-                <h3>No Data Available</h3>
-                <p>This user type is coming soon!</p>
-            </div>
+
 
             <!-- Admission Manager Dashboard Content -->
             <div class="dashboard-content"
@@ -1070,6 +1062,180 @@
                     </div>
                 </div>
             </div>
+            <!-- ============================================================================
+                 AGENT DASHBOARD
+                 ============================================================================ -->
+            <div class="dashboard-content agent-theme" *ngIf="!isLoading && selectedUserType === 'AGENT'" @fadeIn>
+
+                <!-- Detail View Header (Back Button) -->
+                <div class="detail-header" *ngIf="showAgentDetailView && selectedAgentStats"
+                    style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
+                    <button class="back-btn" (click)="backToAgentList()"
+                        style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i-lucide name="arrow-left" size="18"></i-lucide> Back
+                    </button>
+                    <h2 style="margin: 0; font-size: 1.2rem; color: white;">{{ selectedAgentStats.agentName }}
+                        <span style="font-weight: 400; font-size: 0.9rem; opacity: 0.7;">(Agent Details)</span>
+                    </h2>
+                    <button class="generate-report-btn single" (click)="openEmailModal('single')"
+                        style="margin-left: auto;">
+                        <i-lucide name="mail" size="16"></i-lucide>
+                        <span>Email Report</span>
+                    </button>
+                </div>
+
+                <!-- KPI Cards Row (Detail View) -->
+                <div class="kpi-section" *ngIf="showAgentDetailView && selectedAgentStats">
+                    <div class="kpi-grid">
+                        <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
+                            <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ selectedAgentStats.registeredStudents }}</span>
+                                <span class="kpi-label">Registered Students</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
+                            <div class="kpi-icon"><i-lucide name="send" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ selectedAgentStats.telexInitiated }}</span>
+                                <span class="kpi-label">Telex Initiated</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" [style.--accent-color]="'#10b981'">
+                            <div class="kpi-icon"><i-lucide name="check-circle" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ selectedAgentStats.paymentConfirmations }}</span>
+                                <span class="kpi-label">Payment Confirmations</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" [style.--accent-color]="'#8b5cf6'">
+                            <div class="kpi-icon"><i-lucide name="file-text" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ selectedAgentStats.docsRequested }}</span>
+                                <span class="kpi-label">Docs Requested</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card" [style.--accent-color]="'#ec4899'">
+                            <div class="kpi-icon"><i-lucide name="activity" size="22"></i-lucide></div>
+                            <div class="kpi-content">
+                                <span class="kpi-value">{{ selectedAgentStats.totalWork }}</span>
+                                <span class="kpi-label">Total Activity</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Cards (Overview) -->
+                <div class="summary-cards-row" *ngIf="!showAgentDetailView">
+                    <div class="summary-card">
+                        <div class="summary-icon students">
+                            <i-lucide name="users" size="22"></i-lucide>
+                        </div>
+                        <div class="summary-content">
+                            <span class="summary-value">{{ formatNumber(agentSummaryStats.totalRegistered) }}</span>
+                            <span class="summary-label">Total Registered</span>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon pending"> <!-- Reusing pending icon style for Telex -->
+                            <i-lucide name="send" size="22"></i-lucide>
+                        </div>
+                        <div class="summary-content">
+                            <span class="summary-value">{{ formatNumber(agentSummaryStats.totalTelexInitiated)
+                                }}</span>
+                            <span class="summary-label">Telex Initiated</span>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon verified"> <!-- Reusing verified for Payment -->
+                            <i-lucide name="check-circle" size="22"></i-lucide>
+                        </div>
+                        <div class="summary-content">
+                            <span class="summary-value">{{ formatNumber(agentSummaryStats.totalPaymentConfirmations)
+                                }}</span>
+                            <span class="summary-label">Payment Confirmed</span>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon letters"> <!-- Reusing letters for Docs -->
+                            <i-lucide name="file-text" size="22"></i-lucide>
+                        </div>
+                        <div class="summary-content">
+                            <span class="summary-value">{{ formatNumber(agentSummaryStats.totalDocsRequested)
+                                }}</span>
+                            <span class="summary-label">Docs Requested</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section (Overview & Detail) -->
+                <div class="charts-section">
+                    <!-- Bar Chart (Overview Only) -->
+                    <div class="chart-card bar-chart" *ngIf="!showAgentDetailView">
+                        <div class="chart-header">
+                            <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Top Agents by Work</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas baseChart *ngIf="agentBarChartData" [data]="agentBarChartData"
+                                [options]="barChartOptions" type="bar"></canvas>
+                        </div>
+                    </div>
+                    <!-- Activity Breakdown Donut Chart (Both) -->
+                    <div class="chart-card donut-chart">
+                        <div class="chart-header">
+                            <h3><i-lucide name="pie-chart" size="18"></i-lucide> Activity Distribution</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas baseChart *ngIf="agentPieChartData" [data]="agentPieChartData"
+                                [options]="donutChartOptions" type="doughnut"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agents List (Overview) -->
+                <div class="leaderboard-section" *ngIf="!showAgentDetailView && allAgentStats.length > 0">
+                    <div class="section-header">
+                        <h3><i-lucide name="list" size="18"></i-lucide> Agent Performance List</h3>
+                        <span class="badge">{{ allAgentStats.length }} Agents</span>
+                    </div>
+                    <div class="leaderboard-body">
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Agent Name</th>
+                                    <th>Registered</th>
+                                    <th>Telex Init</th>
+                                    <th>Payment</th>
+                                    <th>Docs Req</th>
+                                    <th>Total Work</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let agent of allAgentStats" (click)="selectAgent(agent)"
+                                    style="cursor: pointer;">
+                                    <td>
+                                        <div class="manager-info">
+                                            <div class="manager-avatar">{{ agent.agentName.charAt(0) }}</div>
+                                            <div class="manager-details">
+                                                <span class="manager-name">{{ agent.agentName }}</span>
+                                                <span class="manager-username">{{ agent.agentUsername }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ agent.registeredStudents }}</td>
+                                    <td>{{ agent.telexInitiated }}</td>
+                                    <td>{{ agent.paymentConfirmations }}</td>
+                                    <td>{{ agent.docsRequested }}</td>
+                                    <td>
+                                        <span class="trend-badge positive">{{ agent.totalWork }}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
 
@@ -1138,7 +1304,15 @@
                     <div class="preview-content">
                         <div class="preview-item">
                             <span class="preview-label">Period</span>
-                            <span class="preview-value">{{ selectedTimePeriod | titlecase }}</span>
+                            <span class="preview-value" *ngIf="selectedUserType !== 'AGENT'">{{ selectedTimePeriod |
+                                titlecase }}</span>
+                            <div class="period-select-wrapper" *ngIf="selectedUserType === 'AGENT'">
+                                <select [(ngModel)]="emailReportPeriod" class="modal-period-select">
+                                    <option value="daily">Daily</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="preview-item">
                             <span class="preview-label">Managers</span>

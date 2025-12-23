@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 // --- Interfaces ---
@@ -133,6 +133,28 @@ export class AgentService {
     getRecentActivities(username: string): Observable<DashboardActivity[]> {
         return this.http.get<DashboardActivity[]>(`${this.baseUrl}/agents/${username}/dashboard/activities`);
     }
+
+    getAgentStats(period: 'DAILY' | 'MONTHLY' | 'YEARLY'): Observable<AgentPerformanceStats[]> {
+        const params = new HttpParams().set('period', period);
+        return this.http.get<AgentPerformanceStats[]>(`${this.baseUrl}/agents/stats/all`, { params });
+    }
+
+    getSingleAgentStats(username: string, period: 'DAILY' | 'MONTHLY' | 'YEARLY'): Observable<AgentPerformanceStats> {
+        const params = new HttpParams().set('period', period);
+        return this.http.get<AgentPerformanceStats>(`${this.baseUrl}/agents/stats/${username}`, { params });
+    }
+
+    sendReport(period: string, email: string, username?: string): Observable<any> {
+        let params = new HttpParams()
+            .set('period', period)
+            .set('email', email);
+
+        if (username) {
+            params = params.set('username', username);
+        }
+
+        return this.http.get(`${this.baseUrl}/agents/reports/email`, { params, responseType: 'text' });
+    }
 }
 
 // --- Dashboard Interfaces ---
@@ -155,4 +177,15 @@ export interface DashboardActivity {
     status: string;
     updatedAt: string;
     remarks: string | null;
+}
+
+export interface AgentPerformanceStats {
+    agentName: string;
+    agentUsername: string;
+    registeredStudents: number;
+    telexInitiated: number;
+    paymentConfirmations: number;
+    docsRequested: number;
+    totalWork: number;
+    period: string;
 }

@@ -751,6 +751,45 @@
     </div>
 
     <!-- SYSTEM CONFIGURATION SECTION -->
+    <div *ngIf="activeSection === 'reports'">
+      <h2 class="section-title">
+        <i-lucide name="settings" size="28"></i-lucide> System Configuration
+      </h2>
+      <p class="section-subtitle">Manage academic sessions and global settings.</p>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading sessions...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && sessions.length === 0" class="empty-state">
+        <i-lucide name="calendar-x" size="48"></i-lucide>
+        <h3>No Sessions Found</h3>
+        <p>No academic sessions are available. Please ensure the backend is running and has session data.</p>
+      </div>
+
+      <!-- Session Cards -->
+      <div class="card-grid" *ngIf="!loading && sessions.length > 0">
+        <div class="info-card session-card" *ngFor="let session of sessions" (click)="onSessionClick(session)"
+          [class.selected]="selectedSession?.id === session.id">
+          <div class="icon"><i-lucide name="calendar" size="24"></i-lucide></div>
+          <h3>{{ session.sessionName }}</h3>
+          <p>{{ session.academicYear }}</p>
+          <div class="selected-indicator" *ngIf="selectedSession?.id === session.id">
+            <i-lucide name="check-circle" size="16"></i-lucide>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Action Button -->
+      <!-- Only show when a session is selected -->
+      <button class="fab-btn" *ngIf="selectedSession" (click)="openUpdateSessionModal()">
+        <i-lucide name="edit-2" size="24"></i-lucide>
+        <span>Update Session</span>
+      </button>
+    </div>
 
 
     <!-- NEWS MANAGEMENT SECTION -->
@@ -1988,4 +2027,47 @@
     <i-lucide name="x" size="16"></i-lucide>
     Close
   </button>
+</div>
+<!-- UPDATE SESSION MODAL -->
+<div class="modal-backdrop" *ngIf="showSessionUpdateModal" (click)="closeUpdateSessionModal()"></div>
+<div class="modal session-modal" *ngIf="showSessionUpdateModal" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <div class="modal-title-wrapper">
+      <i-lucide name="edit-2" size="24" class="modal-icon"></i-lucide>
+      <h3>Update Session</h3>
+    </div>
+    <button class="btn-icon-sm" (click)="closeUpdateSessionModal()">
+      <i-lucide name="x" size="20"></i-lucide>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label>Session Name</label>
+      <input [(ngModel)]="sessionForm.sessionName" placeholder="e.g. Winter Season">
+    </div>
+    <div class="form-group">
+      <label>Academic Year</label>
+      <input [(ngModel)]="sessionForm.academicYear" placeholder="e.g. 2024-2025">
+    </div>
+
+    <div class="error-message" *ngIf="sessionUpdateError">
+      <i-lucide name="alert-circle" size="16"></i-lucide> {{ sessionUpdateError }}
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-secondary" (click)="closeUpdateSessionModal()">Cancel</button>
+    <button class="btn-primary" [disabled]="isUpdatingSession" (click)="updateSession()">
+      <span *ngIf="!isUpdatingSession">Update</span>
+      <div *ngIf="isUpdatingSession" class="spinner button-spinner"></div>
+    </button>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL FOR SESSION -->
+<div class="modal-backdrop success-backdrop" *ngIf="sessionUpdateSuccess"></div>
+<div class="result-modal success-modal" *ngIf="sessionUpdateSuccess">
+  <div class="result-modal-icon success">
+    <i-lucide name="check-circle" size="48"></i-lucide>
+  </div>
+  <h3>Session Updated!</h3>
 </div>

@@ -180,7 +180,8 @@ import {
   PackageCheck,
   CornerUpLeft,
   // System Configuration icons
-  Infinity
+  Infinity,
+  CalendarX
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -375,6 +376,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
       Banknote,
 
       CalendarClock,
+      CalendarX,
       Download,
       ExternalLink,
       FileCheck2,

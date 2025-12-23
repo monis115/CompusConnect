@@ -44,6 +44,9 @@ interface College {
   country: string;
 }
 
+import { SessionService, Session } from '../../../services/session.service';
+
+
 @Component({
   selector: 'app-admin-dashboard-overview',
   templateUrl: './admin-dashboard-overview.html',
@@ -134,7 +137,8 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private elRef: ElementRef,
-    private zone: NgZone
+    private zone: NgZone,
+    private sessionService: SessionService
   ) { }
 
   // --- Admin Creation Workflow Methods ---
@@ -322,6 +326,8 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     if (section === 'colleges' && this.colleges.length === 0) { // Only load if not already loaded
       console.log('Loading colleges...');
       this.loadColleges();
+    } else if (section === 'reports') {
+      this.loadSessions();
     }
   }
 
@@ -1450,4 +1456,101 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
+
+  // === SESSION MANAGEMENT SYSTEM ===
+  sessions: Session[] = [];
+  selectedSession: Session | null = null;
+  showSessionUpdateModal = false;
+  isUpdatingSession = false;
+  sessionUpdateSuccess = false;
+  sessionUpdateError = '';
+
+  sessionForm: Session = {
+    id: 0,
+    sessionName: '',
+    academicYear: ''
+  };
+
+  loadSessions() {
+    this.loading = true;
+    console.log('Loading sessions...');
+    this.sessionService.getAllSessions().subscribe({
+      next: (data) => {
+        console.log('Sessions loaded:', data);
+        this.sessions = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading sessions', err);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onSessionClick(session: Session) {
+    // Toggle selection or select
+    if (this.selectedSession && this.selectedSession.id === session.id) {
+      this.selectedSession = null;
+    } else {
+      this.selectedSession = session;
+    }
+    this.cdr.detectChanges();
+  }
+
+  openUpdateSessionModal() {
+    if (!this.selectedSession) return;
+
+    // Clone the session to the form
+    this.sessionForm = { ...this.selectedSession };
+    this.showSessionUpdateModal = true;
+    this.sessionUpdateError = '';
+    this.sessionUpdateSuccess = false;
+    this.cdr.detectChanges();
+  }
+
+  closeUpdateSessionModal() {
+    this.showSessionUpdateModal = false;
+    this.cdr.detectChanges();
+  }
+
+  updateSession() {
+    if (!this.sessionForm.sessionName || !this.sessionForm.academicYear) {
+      alert('Please fill all fields');
+      return;
+    }
+
+    this.isUpdatingSession = true;
+    this.sessionService.updateSession(this.sessionForm.id, this.sessionForm).subscribe({
+      next: (updatedSession) => {
+        this.isUpdatingSession = false;
+        this.sessionUpdateSuccess = true;
+
+        // Update the list locally
+        const index = this.sessions.findIndex(s => s.id === updatedSession.id);
+        if (index !== -1) {
+          this.sessions[index] = updatedSession;
+        }
+
+        // Update selected session
+        this.selectedSession = updatedSession;
+
+        this.cdr.detectChanges();
+
+        setTimeout(() => {
+          this.showSessionUpdateModal = false;
+          this.sessionUpdateSuccess = false;
+          this.selectedSession = null; // Hide FAB
+          this.cdr.detectChanges();
+        }, 1500);
+      },
+      error: (err) => {
+        this.isUpdatingSession = false;
+        this.sessionUpdateError = 'Failed to update session';
+        console.error(err);
+        this.cdr.detectChanges();
+      }
+    });
+  }
 }

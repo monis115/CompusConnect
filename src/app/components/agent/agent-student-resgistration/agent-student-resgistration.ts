@@ -10,6 +10,13 @@ interface StudentRegistrationResponse {
   confirmationPagePath?: string;
 }
 
+// Interface for Session
+interface Session {
+  id: number;
+  sessionName: string;
+  academicYear: string;
+}
+
 // Internal interface for merging logic
 interface MergedCollegeAccess {
   college: College;
@@ -69,6 +76,11 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
   ];
   selectedIntake: string = '';
   selectedCollegeId: number | null = null;
+
+  // Session Data
+  sessions: Session[] = [];
+  selectedSessionId: number | null = null;
+  isLoadingSessions = false;
 
   // Step 2 Data
   student = {
@@ -134,6 +146,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.processCollegeAccess();
+    this.loadSessions();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -185,6 +198,34 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
 
     this.mergedAccessMap = merged;
     this.uniqueColleges = Array.from(merged.values()).map(v => v.college);
+  }
+
+  // ==================== LOAD SESSIONS ====================
+
+  loadSessions(): void {
+    this.isLoadingSessions = true;
+    this.http.get<Session[]>(`${this.baseUrl}/api/sessions`).subscribe({
+      next: (data) => {
+        console.log('Sessions loaded:', data);
+        this.sessions = data || [];
+        this.isLoadingSessions = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading sessions:', err);
+        this.sessions = [];
+        this.isLoadingSessions = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getSelectedSessionDisplay(): string {
+    const session = this.sessions.find(s => s.id === this.selectedSessionId);
+    if (session) {
+      return `${session.sessionName} (${session.academicYear})`;
+    }
+    return '';
   }
 
   // ==================== NAVIGATION ====================
@@ -314,7 +355,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
   }
 
   validateStep1(): boolean {
-    if (!this.selectedIntake) {
+    if (!this.selectedSessionId) {
       this.errorMessage = 'Please select an intake period';
       return false;
     }
@@ -481,7 +522,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     const formData = new FormData();
 
     const studentPayload = {
-      intake: this.selectedIntake,
+      intake: this.getSelectedSessionDisplay(), // Session name with academic year
       collegeIds: this.selectedCollegeId ? [this.selectedCollegeId] : [],
 
       fullName: this.student.fullName,
@@ -585,6 +626,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     this.currentStep = 1;
     this.selectedIntake = '';
     this.selectedCollegeId = null;
+    this.selectedSessionId = null;
     this.availableStates = [];
     this.filteredDistricts = [];
     this.filteredDistricts = [];

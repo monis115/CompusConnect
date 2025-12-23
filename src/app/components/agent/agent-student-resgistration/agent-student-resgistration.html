@@ -130,15 +130,23 @@
       Select Intake Period
     </h3>
 
+    <div *ngIf="isLoadingSessions" class="reg-form-info" style="margin-bottom: 1rem;">
+      Loading sessions...
+    </div>
+
+    <div *ngIf="!isLoadingSessions && sessions.length === 0" class="reg-form-info" style="margin-bottom: 1rem;">
+      No sessions available. Please contact admin.
+    </div>
+
     <div class="reg-intake-selection">
-      <div *ngFor="let intake of intakes" class="reg-intake-card" [class.selected]="selectedIntake === intake.value"
-        (click)="selectedIntake = intake.value; onIntakeChange()">
+      <div *ngFor="let session of sessions" class="reg-intake-card" [class.selected]="selectedSessionId === session.id"
+        (click)="selectedSessionId = session.id">
         <div class="reg-intake-radio">
-          <div class="reg-radio-dot" *ngIf="selectedIntake === intake.value"></div>
+          <div class="reg-radio-dot" *ngIf="selectedSessionId === session.id"></div>
         </div>
         <div class="reg-intake-info">
-          <h4>{{ intake.label }}</h4>
-          <p>Academic Year 2024-2025</p>
+          <h4>{{ session.sessionName }}</h4>
+          <p>Academic Year {{ session.academicYear }}</p>
         </div>
       </div>
     </div>
