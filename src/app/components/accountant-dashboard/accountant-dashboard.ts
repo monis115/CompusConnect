@@ -393,7 +393,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
     // Filter by payment status based on view
     if (this.activeView === 'pending') {
-      sourceList = this.students.filter(s => s.hasPaid && s.paymentStatus !== 'Received' && s.paymentStatus !== 'Not Received');
+      sourceList = this.students.filter(s =>
+        s.applicationStatus === 'TELEX_INITIATED' &&
+        s.paymentStatus !== 'Received' &&
+        s.paymentStatus !== 'Not Received'
+      );
     } else if (this.activeView === 'approved') {
       sourceList = this.students.filter(s => s.paymentStatus === 'Received');
     } else if (this.activeView === 'rejected') {
@@ -750,7 +754,9 @@ export class AccountantDashboard implements OnInit, OnDestroy {
    */
   get telexPendingStudents(): AssignedStudent[] {
     return this.students.filter(s =>
-      s.hasPaid && !this.isActionDisabled(s) && s.actionOnUser !== 'accountant'
+      s.applicationStatus === 'TELEX_INITIATED' &&
+      !this.isActionDisabled(s) &&
+      s.actionOnUser !== 'accountant'
     );
   }
 
