@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
 import { CollegeAccess, College, Location } from '../../../services/agent.service';
+import { environment } from '../../../../environments/environment';
 
 interface StudentRegistrationResponse {
   id: number;
@@ -136,7 +137,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
   registeredStudentData: StudentRegistrationResponse | null = null;
 
   // Adjust base URL if needed, matches your controller
-  private baseUrl = 'http://localhost:8080';
+  private baseUrl = environment.apiUrl + '';
   private registrationApiUrl = `${this.baseUrl}/students/add`;
 
   constructor(

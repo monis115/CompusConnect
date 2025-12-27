@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CollegeService, CollegeWithCoordinator } from '../../../services/college.service';
+import { environment } from '../../../../environments/environment';
 
 interface RoleStatus {
   roleName: string;
@@ -94,10 +95,10 @@ export class SystemConfigurationDetails implements OnInit {
 
     // API endpoints for each role type
     const endpoints = {
-      visa: 'http://localhost:8080/api/visa-man/usernames',      // Returns active only
-      telex: 'http://localhost:8080/api/telex-man/usernames',    // Returns active only
-      doc: 'http://localhost:8080/api/doc-person/all',           // Returns all, filter on frontend
-      accountant: 'http://localhost:8080/api/accountant/all'     // Returns all, filter on frontend
+      visa: environment.apiUrl + '/api/visa-man/usernames',      // Returns active only
+      telex: environment.apiUrl + '/api/telex-man/usernames',    // Returns active only
+      doc: environment.apiUrl + '/api/doc-person/all',           // Returns all, filter on frontend
+      accountant: environment.apiUrl + '/api/accountant/all'     // Returns all, filter on frontend
     };
 
     // Fetch all role counts
@@ -183,7 +184,7 @@ export class SystemConfigurationDetails implements OnInit {
     this.collegesLoading = true;
 
     // First, get all college IDs
-    this.http.get<number[]>('http://localhost:8080/api/colleges/ids')
+    this.http.get<number[]>(environment.apiUrl + '/api/colleges/ids')
       .subscribe({
         next: (collegeIds) => {
           // For each college ID, check coordinator status

@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface TelexManSummaryDTO {
   id: number;
@@ -46,7 +47,7 @@ export class TelexManagerStudentDirectory implements OnInit {
   showStudentPanel = false;
   errorMessage = '';
 
-  private apiUrl = 'http://localhost:8080/api/telex-man';
+  private apiUrl = environment.apiUrl + '/api/telex-man';
 
   constructor(
     private http: HttpClient,

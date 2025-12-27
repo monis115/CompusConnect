@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 /* ──────────────────────────────────────────────────────────────
    INTERFACES – keep them inside the service (no shared file)
@@ -69,7 +70,7 @@ export interface UploadLetterResponse {
    ────────────────────────────────────────────────────────────── */
 @Injectable({ providedIn: 'root' })
 export class ManagerDataService {
-  private baseUrl = 'http://localhost:8080/api';
+  private baseUrl = `${environment.apiUrl}/api`;
 
   constructor(private http: HttpClient) { }
 

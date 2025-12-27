@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface UniversityPersonDTO {
   id: number;
@@ -72,8 +73,8 @@ export class UpdateUniversityPerson implements OnInit {
   editForm: UpdateRequest = {};
   originalData: UniversityPersonDTO | null = null;
 
-  private apiUrl = 'http://localhost:8080/api/universityPerson';
-  private collegesUrl = 'http://localhost:8080/api/colleges';
+  private apiUrl = environment.apiUrl + '/api/universityPerson';
+  private collegesUrl = environment.apiUrl + '/api/colleges';
 
   constructor(
     private http: HttpClient,

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 // ============================================================================
 // INTERFACES
@@ -128,7 +129,7 @@ export interface CollegePerformanceDashboard {
 
 @Injectable({ providedIn: 'root' })
 export class CollegePerformanceService {
-    private apiUrl = 'http://localhost:8080/api/college-performance';
+    private apiUrl = `${environment.apiUrl}/api/college-performance`;
 
     constructor(private http: HttpClient) { }
 

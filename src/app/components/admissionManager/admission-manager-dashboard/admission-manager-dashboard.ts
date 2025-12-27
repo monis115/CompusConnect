@@ -6,6 +6,8 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { AdmissionManagerService } from '../../../services/admission-manager.service';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
+import { environment } from '../../../../environments/environment';
+import { FileService } from '../../../services/file.service';
 
 // --- Interfaces ---
 interface User {
@@ -240,7 +242,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     { value: 'intake', label: 'New Intake' },
     { value: 'general', label: 'General' }
   ];
-  private readonly NEWS_API_URL = 'http://localhost:8080/api/news';
+  private readonly NEWS_API_URL = environment.apiUrl + '/api/news';
 
   // --- Logout Confirmation Modal & Messages ---
   isLogoutModalOpen = false;
@@ -338,7 +340,8 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     private admissionService: AdmissionManagerService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private http: HttpClient
+    private http: HttpClient,
+    private fileService: FileService
   ) { }
 
   ngOnInit(): void {
@@ -808,8 +811,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   }
 
   getDocUrl(path: string | null): string {
-    if (!path) return '';
-    return `http://localhost:8080/${path}`;
+    return this.fileService.getFileUrl(path);
   }
 
   getStatusLabel(status: string | null): string {

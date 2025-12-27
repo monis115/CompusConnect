@@ -15,6 +15,8 @@ import {
   AssignedStudent
 } from '../../services/accountant.service';
 import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
+import { environment } from '../../../environments/environment';
+import { FileService } from '../../services/file.service';
 
 @Component({
   selector: 'app-accountant-dashboard',
@@ -154,7 +156,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private http: HttpClient,
-    @Inject(PaymentRequestService) private paymentRequestService: PaymentRequestService
+    @Inject(PaymentRequestService) private paymentRequestService: PaymentRequestService,
+    private fileService: FileService
   ) { }
 
   ngOnInit(): void {
@@ -636,8 +639,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // --- Helpers ---
 
   getDocUrl(path: string | null): string {
-    if (!path) return '';
-    return `http://localhost:8080/${path}`;
+    return this.fileService.getFileUrl(path);
   }
 
   formatCurrency(amount: number | null | undefined): string {
@@ -899,7 +901,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       branchAddress: this.branchAddress?.trim() || null
     };
 
-    this.http.post(`http://localhost:8080/api/visa/send-bank-details/${studentId}`, body)
+    this.http.post(`${environment.apiUrl}/api/visa/send-bank-details/${studentId}`, body)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
@@ -943,7 +945,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       receivedDate: receivedDt
     };
 
-    this.http.post(`http://localhost:8080/api/visa/confirm-payment/${studentId}`, body)
+    this.http.post(`${environment.apiUrl}/api/visa/confirm-payment/${studentId}`, body)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {

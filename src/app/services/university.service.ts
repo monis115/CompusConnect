@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface DashboardStats {
     totalStudents: number;
@@ -28,7 +29,7 @@ export interface AdmittedStudent {
     providedIn: 'root'
 })
 export class UniversityService {
-    private baseUrl = 'http://localhost:8080/api/universityPerson';
+    private baseUrl = `${environment.apiUrl}/api/universityPerson`;
 
     constructor(private http: HttpClient) { }
 

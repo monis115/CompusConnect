@@ -8,6 +8,8 @@ import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TelexApplicationService } from '../../../services/telex-application.service';
 import { TelexApplicationDTO } from '../../../models/telex-application.model';
+import { environment } from '../../../../environments/environment';
+import { FileService } from '../../../services/file.service';
 
 // --- Updated Enum based on your provided list ---
 export enum StudentStatus {
@@ -278,10 +280,11 @@ export class AgentDashboard implements OnInit {
     private http: HttpClient,
     private router: Router,
     private fb: FormBuilder,
-    private telexService: TelexApplicationService
+    private telexService: TelexApplicationService,
+    private fileService: FileService
   ) { }
 
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = environment.apiUrl + '/api';
 
   showToastMessage(message: string, type: 'success' | 'error' = 'success'): void {
     this.toastMessage = message;
@@ -389,7 +392,7 @@ export class AgentDashboard implements OnInit {
 
   // --- Fetch News ---
   fetchNews(): void {
-    this.http.get<NewsItem[]>('http://localhost:8080/api/news').subscribe({
+    this.http.get<NewsItem[]>(environment.apiUrl + '/api/news').subscribe({
       next: (news) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Normalize to start of day
@@ -949,8 +952,7 @@ export class AgentDashboard implements OnInit {
       alert('File not found');
       return;
     }
-    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    const url = `http://localhost:8080/${cleanPath}`;
+    const url = this.fileService.getFileUrl(path);
     window.open(url, '_blank');
   }
 
@@ -1337,7 +1339,7 @@ export class AgentDashboard implements OnInit {
         formData.append('type', 'visa-payment-confirmation');
 
         const uploadResponse = await this.http.post<any>(
-          'http://localhost:8080/api/file/upload',
+          environment.apiUrl + '/api/file/upload',
           formData
         ).toPromise();
 
@@ -1354,7 +1356,7 @@ export class AgentDashboard implements OnInit {
       };
 
       await this.http.post(
-        `http://localhost:8080/api/visa/submit-payment-confirmation/${this.selectedPaymentStudent.id}`,
+        `${environment.apiUrl}/api/visa/submit-payment-confirmation/${this.selectedPaymentStudent.id}`,
         body
       ).toPromise();
 

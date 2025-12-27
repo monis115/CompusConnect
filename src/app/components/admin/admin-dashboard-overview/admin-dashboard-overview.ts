@@ -45,6 +45,7 @@ interface College {
 }
 
 import { SessionService, Session } from '../../../services/session.service';
+import { environment } from '../../../../environments/environment';
 
 
 @Component({
@@ -72,7 +73,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
 
   isHeaderLoaded = false;
 
-  private apiUrl = 'http://localhost:8080/api/colleges';
+  private apiUrl = environment.apiUrl + '/api/colleges';
 
   stats: StatCard[] = [
     { title: 'Total Users', value: 1248, change: '+12%', icon: 'users', color: '#6366f1' },
@@ -188,7 +189,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     this.isSendingOtp = true;
 
     // API Call - expects text response
-    this.http.post('http://localhost:8080/api/admins/send-verification-otp', {}, { responseType: 'text' })
+    this.http.post(environment.apiUrl + '/api/admins/send-verification-otp', {}, { responseType: 'text' })
       .subscribe({
         next: (response: any) => {
           this.isSendingOtp = false;
@@ -220,7 +221,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     this.startLoadingCycle(); // Start the dynamic text loop
 
     // API Call with OTP in query params
-    this.http.post('http://localhost:8080/api/admins/verify-and-create', null, {
+    this.http.post(environment.apiUrl + '/api/admins/verify-and-create', null, {
       params: { otp: this.adminOtp }
     }).subscribe({
       next: (response: any) => {
@@ -521,7 +522,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     // I will use `this.http` since `PublicService` essentially does the same.
     // Endpoint: http://localhost:8080/api/public/track-application?query={query}
 
-    this.http.get<any>(`http://localhost:8080/api/public/track-application?query=${this.appSearchQuery}`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/api/public/track-application?query=${this.appSearchQuery}`).subscribe({
       next: (data) => {
         this.foundApplication = data;
         this.isAppSearching = false;
@@ -724,7 +725,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
       collegeId: this.coordinatorForm.collegeId
     };
 
-    this.http.post<any>('http://localhost:8080/api/universityPerson', payload).subscribe({
+    this.http.post<any>(environment.apiUrl + '/api/universityPerson', payload).subscribe({
       next: (response) => {
         this.creatingCoordinator = false;
 
@@ -821,7 +822,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     this.checkingDocPersonAvailability = true;
     this.cdr.detectChanges();
 
-    this.http.get<any>('http://localhost:8080/api/doc-person/check-availability').subscribe({
+    this.http.get<any>(environment.apiUrl + '/api/doc-person/check-availability').subscribe({
       next: (response) => {
         this.checkingDocPersonAvailability = false;
         this.docPersonCanCreate = response.canCreate;
@@ -902,7 +903,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
       status: 'Active'
     };
 
-    this.http.post<any>('http://localhost:8080/api/doc-person', payload).subscribe({
+    this.http.post<any>(environment.apiUrl + '/api/doc-person', payload).subscribe({
       next: (response) => {
         this.creatingDocPerson = false;
 
@@ -996,7 +997,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     this.checkingAccountantAvailability = true;
     this.cdr.detectChanges();
 
-    this.http.get<any>('http://localhost:8080/api/accountant/check-availability').subscribe({
+    this.http.get<any>(environment.apiUrl + '/api/accountant/check-availability').subscribe({
       next: (response) => {
         this.checkingAccountantAvailability = false;
         this.accountantCanCreate = response.canCreate;
@@ -1076,7 +1077,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
       contactNumber: this.accountantForm.contactNumber.trim()
     };
 
-    this.http.post<any>('http://localhost:8080/api/accountant', payload).subscribe({
+    this.http.post<any>(environment.apiUrl + '/api/accountant', payload).subscribe({
       next: (response) => {
         this.creatingAccountant = false;
 
@@ -1166,7 +1167,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     this.loadingTelexSummary = true;
     this.cdr.detectChanges();
 
-    this.http.get<any[]>('http://localhost:8080/api/telex-man/usernames').subscribe({
+    this.http.get<any[]>(environment.apiUrl + '/api/telex-man/usernames').subscribe({
       next: (response) => {
         this.loadingTelexSummary = false;
         this.existingTelexPersons = response || [];
@@ -1238,7 +1239,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
       contactNumber: this.telexManForm.contactNumber.trim()
     };
 
-    this.http.post<any>('http://localhost:8080/api/telex-man', payload).subscribe({
+    this.http.post<any>(environment.apiUrl + '/api/telex-man', payload).subscribe({
       next: (response) => {
         this.creatingTelexMan = false;
 
@@ -1338,7 +1339,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     this.loadingVisaUsernames = true;
     this.cdr.detectChanges();
 
-    this.http.get<any[]>('http://localhost:8080/api/visa-man/usernames').subscribe({
+    this.http.get<any[]>(environment.apiUrl + '/api/visa-man/usernames').subscribe({
       next: (response) => {
         this.loadingVisaUsernames = false;
         // API now returns objects: { username: "visa_john", studentCount: 5 }
@@ -1410,7 +1411,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
       contactNumber: this.visaManForm.contactNumber.trim()
     };
 
-    this.http.post<any>('http://localhost:8080/api/visa-man', payload).subscribe({
+    this.http.post<any>(environment.apiUrl + '/api/visa-man', payload).subscribe({
       next: (response) => {
         this.creatingVisaMan = false;
 

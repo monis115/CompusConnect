@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CollegeService, CoordinatorValidation } from './college.service';
+import { environment } from '../../environments/environment';
 
 // ============================================================================
 // REPORT INTERFACES - Performance Dashboard DTOs (Updated API Structure)
@@ -99,7 +100,7 @@ export interface CollegeReportDTO {
     providedIn: 'root'
 })
 export class AdmissionManagerService {
-    private apiBaseUrl = 'http://localhost:8080';
+    private apiBaseUrl = environment.apiUrl;
 
     constructor(
         private http: HttpClient,

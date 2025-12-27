@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { environment } from '../../../../environments/environment';
 
 interface Agent {
   id: number;
@@ -91,7 +92,7 @@ export class PendingAgents implements OnInit {
   refreshRotation = 0;
   isLoading = true;
 
-  private apiBase = 'http://localhost:8080/api';
+  private apiBase = environment.apiUrl + '/api';
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 

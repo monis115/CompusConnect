@@ -2,6 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { FileService } from '../../services/file.service';
 
 // Enhanced Student Interface with all fields
 interface Student {
@@ -133,13 +135,14 @@ export class TelexManagerDashboard implements OnInit {
   selectedStudent: Student | null = null;
 
   // API Base
-  private readonly BASE_URL = 'http://localhost:8080/api/telex';
-  private readonly DOC_BASE_URL = 'http://localhost:8080';
+  private readonly BASE_URL = environment.apiUrl + '/api/telex';
+  private readonly DOC_BASE_URL = environment.apiUrl + '';
 
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private fileService: FileService
   ) { }
 
   ngOnInit(): void {
@@ -501,10 +504,7 @@ export class TelexManagerDashboard implements OnInit {
   }
 
   getDocUrl(path: string | undefined): string {
-    if (!path) return '';
-    if (path.startsWith('http')) return path;
-    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    return `${this.DOC_BASE_URL}/${cleanPath}`;
+    return this.fileService.getFileUrl(path);
   }
 
   formatDate(dateStr: string | undefined): string {

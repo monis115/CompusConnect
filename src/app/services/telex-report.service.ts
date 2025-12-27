@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 // Interface for summary table row
 export interface TelexManStats {
@@ -71,7 +72,7 @@ export interface TelexStatsDTO {
     providedIn: 'root'
 })
 export class TelexReportService {
-    private readonly API_URL = 'http://localhost:8080/api/telex';
+    private readonly API_URL = `${environment.apiUrl}/api/telex`;
 
     constructor(private http: HttpClient) { }
 

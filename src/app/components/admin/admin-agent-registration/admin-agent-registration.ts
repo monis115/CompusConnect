@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, ViewEncapsulation } from '@angula
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface College {
   id: number;
@@ -55,9 +56,9 @@ export class AdminAgentRegistration implements OnInit {
   agentCredentials: { userId: string; password: string } | null = null;
   dataLoaded = false;
 
-  private apiUrl = 'http://localhost:8080/api/admins/agents/register';
-  private collegesUrl = 'http://localhost:8080/api/colleges';
-  private locationsUrl = 'http://localhost:8080/api/locations';
+  private apiUrl = environment.apiUrl + '/api/admins/agents/register';
+  private collegesUrl = environment.apiUrl + '/api/colleges';
+  private locationsUrl = environment.apiUrl + '/api/locations';
 
   constructor(
     private fb: FormBuilder,

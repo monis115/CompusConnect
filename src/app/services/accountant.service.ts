@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 // --- Interfaces ---
 
@@ -56,7 +57,7 @@ export interface Student {
 }
 
 export interface Accountant {
-contactNo: any;
+    contactNo: any;
     id: number;
     fullName: string;
     username: string;
@@ -140,7 +141,7 @@ export interface DashboardData {
     providedIn: 'root'
 })
 export class AccountantService {
-    private readonly API_URL = 'http://localhost:8080/api';
+    private readonly API_URL = `${environment.apiUrl}/api`;
 
     constructor(private http: HttpClient) { }
 

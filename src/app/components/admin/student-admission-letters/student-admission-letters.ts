@@ -1,6 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
+import { environment } from '../../../../environments/environment';
+import { FileService } from '../../../services/file.service';
 
 export interface StudentAdmissionDTO {
   applicationId: string;
@@ -30,7 +32,8 @@ export class StudentAdmissionLetters implements OnInit {
   constructor(
     private http: HttpClient,
     private location: Location,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private fileService: FileService
   ) { }
 
   ngOnInit() {
@@ -42,7 +45,7 @@ export class StudentAdmissionLetters implements OnInit {
     this.loadingError = false;
     this.cdr.detectChanges();
 
-    this.http.get<StudentAdmissionDTO[]>('http://localhost:8080/students/admission-letters')
+    this.http.get<StudentAdmissionDTO[]>(environment.apiUrl + '/students/admission-letters')
       .subscribe({
         next: (data) => {
           this.students = data;
@@ -65,9 +68,7 @@ export class StudentAdmissionLetters implements OnInit {
   }
 
   getFileUrl(path: string): string {
-    if (!path) return '#';
-    if (path.startsWith('http')) return path;
-    return 'http://localhost:8080/' + path;
+    return this.fileService.getFileUrl(path);
   }
 
   refreshData() {

@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { UniversityService, DashboardStats, StatusBreakdown, AdmittedStudent } from '../../services/university.service';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { environment } from '../../../environments/environment';
+import { FileService } from '../../services/file.service';
 
 // Interfaces
 interface College {
@@ -195,7 +197,8 @@ export class UniversityPersonDashboard implements OnInit {
     private http: HttpClient,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private universityService: UniversityService
+    private universityService: UniversityService,
+    private fileService: FileService
   ) { }
 
   ngOnInit() {
@@ -210,7 +213,7 @@ export class UniversityPersonDashboard implements OnInit {
     }
 
     this.isLoading.set(true);
-    const apiUrl = `http://localhost:8080/api/universityPerson/username/${username}`;
+    const apiUrl = `${environment.apiUrl}/api/universityPerson/username/${username}`;
 
     this.http.get<UniversityPerson>(apiUrl)
       .pipe(finalize(() => this.isLoading.set(false)))
@@ -463,7 +466,7 @@ export class UniversityPersonDashboard implements OnInit {
     formData.append('file', file);
     formData.append('universityPersonUsername', username);
 
-    const apiUrl = `http://localhost:8080/api/universityPerson/upload-admission-letter/${student.id}`;
+    const apiUrl = `${environment.apiUrl}/api/universityPerson/upload-admission-letter/${student.id}`;
 
     this.http.post(apiUrl, formData)
       .pipe(finalize(() => this.isUploading.set(false)))
@@ -523,7 +526,7 @@ export class UniversityPersonDashboard implements OnInit {
 
   downloadDocument(path: string, fileName: string) {
     if (!path) return;
-    const fullUrl = `http://localhost:8080/${path}`;
+    const fullUrl = this.fileService.getFileUrl(path);
     window.open(fullUrl, '_blank');
   }
 

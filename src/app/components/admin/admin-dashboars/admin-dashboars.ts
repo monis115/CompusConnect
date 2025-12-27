@@ -3,6 +3,7 @@ import { AdminAuthService } from '../../../services/admin-auth-service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 interface MenuItem {
   id: string;
@@ -153,7 +154,7 @@ export class AdminDashboars implements OnInit {
     this.isLoadingSessions = true;
     console.log('Loading sessions...');
     this.cdr.detectChanges();
-    this.http.get<any[]>('http://localhost:8080/api/sessions').subscribe({
+    this.http.get<any[]>(environment.apiUrl + '/api/sessions').subscribe({
       next: (data) => {
         console.log('Sessions loaded:', data);
         this.sessions = data || [];
@@ -185,7 +186,7 @@ export class AdminDashboars implements OnInit {
 
     this.isUpdatingSession = true;
     this.cdr.detectChanges();
-    this.http.put<any>(`http://localhost:8080/api/sessions/${this.sessionForm.id}`, this.sessionForm).subscribe({
+    this.http.put<any>(`${environment.apiUrl}/api/sessions/${this.sessionForm.id}`, this.sessionForm).subscribe({
       next: (updatedSession) => {
         this.isUpdatingSession = false;
         this.sessionUpdateSuccess = true;

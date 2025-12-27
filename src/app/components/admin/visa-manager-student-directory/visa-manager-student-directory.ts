@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface VisaManSummaryDTO {
   id: number;
@@ -46,7 +47,7 @@ export class VisaManagerStudentDirectory implements OnInit {
   showStudentPanel = false;
   errorMessage = '';
 
-  private apiUrl = 'http://localhost:8080/api/visa-man';
+  private apiUrl = environment.apiUrl + '/api/visa-man';
 
   constructor(
     private http: HttpClient,

@@ -3,6 +3,7 @@ import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface College {
   id: number;
@@ -40,7 +41,7 @@ export class AddmissionManagerRegistration implements OnInit {
   errorMessage = '';
   showCollegeDropdown = false;
 
-  private readonly API_BASE_URL = 'http://localhost:8080/api';
+  private readonly API_BASE_URL = environment.apiUrl + '/api';
 
   constructor(
     private fb: FormBuilder,

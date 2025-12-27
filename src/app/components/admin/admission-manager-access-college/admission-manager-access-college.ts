@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 interface College {
   id: number;
@@ -48,7 +49,7 @@ export class AdmissionManagerAccessCollege implements OnInit {
   showSuccessModal: boolean = false;
   errorMessage: string = '';
 
-  private apiBase = 'http://localhost:8080/api';
+  private apiBase = environment.apiUrl + '/api';
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 

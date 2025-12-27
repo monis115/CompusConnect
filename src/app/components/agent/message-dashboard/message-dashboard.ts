@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef, ViewChild, AfterViewChecked, ChangeDetec
 import { HttpClient } from '@angular/common/http';
 import { AdminAuthService } from '../../../services/admin-auth-service';
 import { AgentService, AgentData } from '../../../services/agent.service';
+import { environment } from '../../../../environments/environment';
 
 interface Student {
   id: number;
@@ -87,7 +88,7 @@ export class MessageDashboard implements OnInit, AfterViewChecked {
 
   fetchStudents(): void {
     if (!this.agentUsername) return;
-    const url = `http://localhost:8080/api/agents/${this.agentUsername}/students`;
+    const url = `${environment.apiUrl}/api/agents/${this.agentUsername}/students`;
     this.http.get<Student[]>(url).subscribe({
       next: (data) => {
         this.allStudents = data;
@@ -99,7 +100,7 @@ export class MessageDashboard implements OnInit, AfterViewChecked {
 
   fetchRecentChats(): void {
     if (!this.agentId) return;
-    const url = `http://localhost:8080/api/messages/agent/${this.agentId}`;
+    const url = `${environment.apiUrl}/api/messages/agent/${this.agentId}`;
     this.http.get<Message[]>(url).subscribe({
       next: (messages) => {
         this.processRecentChats(messages);
@@ -136,7 +137,7 @@ export class MessageDashboard implements OnInit, AfterViewChecked {
 
   fetchMessages(studentId: number): void {
     this.isLoadingMessages = true;
-    const url = `http://localhost:8080/api/messages/student/${studentId}`;
+    const url = `${environment.apiUrl}/api/messages/student/${studentId}`;
     this.http.get<Message[]>(url).subscribe({
       next: (data) => {
         this.messages = data;
@@ -162,7 +163,7 @@ export class MessageDashboard implements OnInit, AfterViewChecked {
       senderRole: 'AGENT'
     };
 
-    const url = `http://localhost:8080/api/messages/send`;
+    const url = `${environment.apiUrl}/api/messages/send`;
 
     // Optimistic update
     const tempMessage: Message = {

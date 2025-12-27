@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface NewsDTO {
     id: number;
@@ -20,7 +21,7 @@ export interface NewsDTO {
     providedIn: 'root'
 })
 export class NewsService {
-    private API_ENDPOINT = 'http://localhost:8080/api/news';
+    private API_ENDPOINT = `${environment.apiUrl}/api/news`;
 
     constructor(private http: HttpClient) { }
 

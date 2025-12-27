@@ -21,6 +21,8 @@ import {
 } from './animations';
 import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
 import { DocPersonService } from '../../services/doc-person.service';
+import { environment } from '../../../environments/environment';
+import { FileService } from '../../services/file.service';
 
 @Component({
   selector: 'app-doc-person-dashbaord',
@@ -244,9 +246,9 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // API CONFIGURATION
   // ============================================
-  private readonly API_BASE_URL = 'http://localhost:8080/api';
-  private readonly doc_url = 'http://localhost:8080';
-  private readonly API_ENDPOINT = 'http://localhost:8080/api/doc-person';
+  private readonly API_BASE_URL = environment.apiUrl + '/api';
+  private readonly doc_url = environment.apiUrl + '';
+  private readonly API_ENDPOINT = environment.apiUrl + '/api/doc-person';
 
   constructor(
     private http: HttpClient,
@@ -255,7 +257,8 @@ export class DocPersonDashbaord implements OnInit {
     private renderer: Renderer2,
     private elementRef: ElementRef,
     private paymentRequestService: PaymentRequestService,
-    private docPersonService: DocPersonService
+    private docPersonService: DocPersonService,
+    private fileService: FileService
   ) { }
 
   ngOnInit(): void {
@@ -825,11 +828,7 @@ export class DocPersonDashbaord implements OnInit {
   }
 
   getDocumentUrl(path: string | undefined): string {
-    if (!path) return '';
-    if (path.startsWith('http')) return path;
-    // Remove leading slash if present to avoid double slashes
-    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    return `http://localhost:8080/${cleanPath}`;
+    return this.fileService.getFileUrl(path);
   }
 
   isSubmitting: boolean = false;

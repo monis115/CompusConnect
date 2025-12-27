@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface VisaManDTO {
   id: number;
@@ -46,7 +47,7 @@ export class UpdateVisaManager implements OnInit {
   editForm: UpdateVisaManRequest = {};
   originalData: VisaManDTO | null = null;
 
-  private apiUrl = 'http://localhost:8080/api/visa-man';
+  private apiUrl = environment.apiUrl + '/api/visa-man';
 
   constructor(
     private http: HttpClient,

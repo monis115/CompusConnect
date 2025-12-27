@@ -2,6 +2,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Location as BrowserLocation } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 
 // --- Interfaces ---
 
@@ -89,10 +90,10 @@ export class UpdateAgentAccess implements OnInit {
   selectedCollegeToAdd: string = ''; // Stores ID as string from select
   expandedStates: { [key: string]: boolean } = {}; // key: "collegeId-stateName"
 
-  private agentsUrl = 'http://localhost:8080/api/agents/all-details';
-  private collegesUrl = 'http://localhost:8080/api/colleges';
-  private locationsUrl = 'http://localhost:8080/api/locations';
-  private updateUrlBase = 'http://localhost:8080/api/admins/agents';
+  private agentsUrl = environment.apiUrl + '/api/agents/all-details';
+  private collegesUrl = environment.apiUrl + '/api/colleges';
+  private locationsUrl = environment.apiUrl + '/api/locations';
+  private updateUrlBase = environment.apiUrl + '/api/admins/agents';
 
   constructor(
     private http: HttpClient,

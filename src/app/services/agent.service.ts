@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 // --- Interfaces ---
 
@@ -99,7 +100,7 @@ export interface AgentData {
     providedIn: 'root'
 })
 export class AgentService {
-    private baseUrl = 'http://localhost:8080/api'; // Adjust base URL if needed
+    private baseUrl = `${environment.apiUrl}/api`;
 
     constructor(private http: HttpClient) { }
 
@@ -110,7 +111,7 @@ export class AgentService {
     registerStudent(formData: FormData): Observable<any> {
         // Note: The endpoint in the requirement was /students/add, not /api/students/add
         // Adjusting to match the requirement "Base path is /students, not /api/students"
-        return this.http.post('http://localhost:8080/students/add', formData);
+        return this.http.post(`${environment.apiUrl}/students/add`, formData);
     }
 
     initiateTelex(studentId: number, passportFile: File, agentUsername: string): Observable<any> {

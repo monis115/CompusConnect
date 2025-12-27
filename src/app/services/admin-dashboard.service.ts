@@ -9,12 +9,13 @@ import {
     Alert,
     DashboardFilters
 } from '../models/admin-dashboard.models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AdminDashboardService {
-    private readonly baseUrl = 'http://localhost:8080/api/admin/dashboard';
+    private readonly baseUrl = `${environment.apiUrl}/api/admin/dashboard`;
 
     constructor(private http: HttpClient) { }
 

@@ -8,12 +8,13 @@ import {
     LogStatistics,
     ExportFormat
 } from '../models/activity-log.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ActivityLogsService {
-    private readonly baseUrl = 'http://localhost:8080/api/activity-logs';
+    private readonly baseUrl = `${environment.apiUrl}/api/activity-logs`;
 
     constructor(private http: HttpClient) { }
 

@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 
 // --- Interfaces ---
 
@@ -89,7 +90,7 @@ export class AdmissionManagerUpdate implements OnInit {
   loadManagers(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    this.http.get<Manager[]>('http://localhost:8080/api/managers/all').subscribe({
+    this.http.get<Manager[]>(environment.apiUrl + '/api/managers/all').subscribe({
       next: (data) => {
         this.managers = data;
         // Collect unique colleges (as in original file)
@@ -195,7 +196,7 @@ export class AdmissionManagerUpdate implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.http.put(`http://localhost:8080/api/managers/update/${this.selectedManager.id}`, this.updateDto).subscribe({
+    this.http.put(`${environment.apiUrl}/api/managers/update/${this.selectedManager.id}`, this.updateDto).subscribe({
       next: () => {
         // Use the DTO's full name, as it might have been what was updated
         this.successMessage = `Successfully updated profile for ${this.updateDto.fullName}`;

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ApplicationHistory {
     status: string;
@@ -22,7 +23,7 @@ export interface ApplicationStatusResponse {
 })
 export class PublicService {
 
-    private apiUrl = 'http://localhost:8080/api/public/track-application';
+    private apiUrl = `${environment.apiUrl}/api/public/track-application`;
 
     constructor(private http: HttpClient) { }
 

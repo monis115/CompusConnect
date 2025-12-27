@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface CoordinatorDTO {
   id: number;
@@ -38,7 +39,7 @@ export class UniversityWiseUniversityPerson implements OnInit {
   activeFilter: FilterType = 'all';
   searchTerm = '';
 
-  private apiUrl = 'http://localhost:8080/api/colleges';
+  private apiUrl = environment.apiUrl + '/api/colleges';
 
   constructor(
     private http: HttpClient,

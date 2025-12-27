@@ -5,6 +5,8 @@ import { AgentSummary } from '../../../models/agent-summary';
 import { Student } from '../../../models/student';
 import { Subscription, EMPTY } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
+import { FileService } from '../../../services/file.service';
 
 @Component({
   selector: 'app-student-agent-details',
@@ -36,7 +38,8 @@ export class StudentAgentDetails implements OnInit {
   constructor(
     private agentService: AgentManagerService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private fileService: FileService
   ) { }
 
   ngOnInit(): void {
@@ -124,9 +127,7 @@ export class StudentAgentDetails implements OnInit {
   }
 
   getFileUrl(path: string | undefined): string {
-    if (!path) return '#';
-    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    return `http://localhost:8080/${cleanPath}`;
+    return this.fileService.getFileUrl(path);
   }
 
   // Helper to check if file exists for button state

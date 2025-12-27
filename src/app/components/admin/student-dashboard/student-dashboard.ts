@@ -4,6 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { StudentService } from '../../../services/student.service';
 import { Student } from '../../../models/student.model';
+import { environment } from '../../../../environments/environment';
+import { FileService } from '../../../services/file.service';
 @Component({
   selector: 'app-student-dashboard',
   standalone: false,
@@ -260,14 +262,15 @@ Rare Education Team`
   ];
 
   // Backend base URL for documents
-  private readonly DOC_BASE_URL = 'http://localhost:8080/';
-  private readonly EMAIL_API_URL = 'http://localhost:8080/api/email/send';
+  private readonly DOC_BASE_URL = environment.apiUrl + '/';
+  private readonly EMAIL_API_URL = environment.apiUrl + '/api/email/send';
 
   constructor(
     private studentService: StudentService,
     private cdr: ChangeDetectorRef,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private fileService: FileService
   ) { }
 
   ngOnInit(): void {
@@ -382,13 +385,10 @@ Rare Education Team`
     return name ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'ST';
   }
 
-  // Open document in new tab at localhost:8080
+  // Open document in new tab using file serving endpoint
   openDocument(path: string | undefined): void {
     if (!path) return;
-
-    // Remove leading slash if present
-    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    const fullUrl = this.DOC_BASE_URL + cleanPath;
+    const fullUrl = this.fileService.getFileUrl(path);
     window.open(fullUrl, '_blank');
   }
 

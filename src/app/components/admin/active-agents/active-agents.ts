@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, TrackByFunction } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface College { id: number; collegeName: string; city: string; country: string; }
 interface Location { id: number; state: string; district: string; }
@@ -64,7 +65,7 @@ export class ActiveAgents implements OnInit {
     this.error = null;
     this.cdr.markForCheck();
 
-    this.http.get<Agent[]>('http://localhost:8080/api/agents/active').subscribe({
+    this.http.get<Agent[]>(environment.apiUrl + '/api/agents/active').subscribe({
       next: (data) => {
         this.agents = data;
         this.filteredAgents = [...data];

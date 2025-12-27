@@ -6,6 +6,8 @@ import { of } from 'rxjs';
 
 import { VisaService } from '../../services/visa.service';
 import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
+import { environment } from '../../../environments/environment';
+import { FileService } from '../../services/file.service';
 // ... imports
 
 // ...
@@ -127,14 +129,15 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   };
 
   // API Base URL
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = environment.apiUrl + '/api';
 
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private paymentRequestService: PaymentRequestService,
-    private visaService: VisaService
+    private visaService: VisaService,
+    private fileService: FileService
   ) { }
 
   ngOnInit(): void {
@@ -707,7 +710,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // Open passport document in new tab
   openPassportDocument(path: string | undefined): void {
     if (!path) return;
-    const url = `http://localhost:8080/${path}`;
+    const url = this.fileService.getFileUrl(path);
     window.open(url, '_blank');
   }
 

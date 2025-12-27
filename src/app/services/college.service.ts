@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 // Response interface for coordinator validation
 export interface CoordinatorValidation {
@@ -30,7 +31,7 @@ export interface CollegeWithCoordinator {
     providedIn: 'root'
 })
 export class CollegeService {
-    private baseUrl = 'http://localhost:8080';
+    private baseUrl = environment.apiUrl;
 
     constructor(private http: HttpClient) { }
 

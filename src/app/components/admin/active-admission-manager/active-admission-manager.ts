@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { trigger, transition, style, animate, query, stagger, state } from '@angular/animations';
+import { environment } from '../../../../environments/environment';
 
 // --- Strict Typing Interfaces ---
 
@@ -133,7 +134,7 @@ export class ActiveAdmissionManager implements OnInit, OnDestroy {
     this.error = null;
     this.cdr.markForCheck();
 
-    this.http.get<AdmissionManager[]>('http://localhost:8080/api/managers/with-students')
+    this.http.get<AdmissionManager[]>(environment.apiUrl + '/api/managers/with-students')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {

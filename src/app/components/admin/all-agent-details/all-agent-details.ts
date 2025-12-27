@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
 import { catchError, finalize, takeUntil } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 export interface LocationDetail {
   id: number;
@@ -76,7 +77,7 @@ export class AllAgentDetails implements OnInit, OnDestroy {
   expandedStates: Map<string, boolean> = new Map();
 
   private destroy$ = new Subject<void>();
-  private apiUrl = 'http://localhost:8080/api/agents/all-details';
+  private apiUrl = environment.apiUrl + '/api/agents/all-details';
 
   /**
    * Get filtered agents based on search query

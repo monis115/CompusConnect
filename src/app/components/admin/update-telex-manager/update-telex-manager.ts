@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 interface TelexManDTO {
   id: number;
@@ -46,7 +47,7 @@ export class UpdateTelexManager implements OnInit {
   editForm: UpdateTelexManRequest = {};
   originalData: TelexManDTO | null = null;
 
-  private apiUrl = 'http://localhost:8080/api/telex-man';
+  private apiUrl = environment.apiUrl + '/api/telex-man';
 
   constructor(
     private http: HttpClient,

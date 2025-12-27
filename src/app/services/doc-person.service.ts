@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DocPersonStats } from './doc-person-stats.model';
 import { Student } from '../components/doc-person-dashbaord/doc-person.models';
+import { environment } from '../../environments/environment';
 
 export interface DocPersonDTO {
     id: number;
@@ -32,7 +33,7 @@ export interface DocPersonWithStudentsDTO extends DocPersonDTO {
     providedIn: 'root'
 })
 export class DocPersonService {
-    private API_ENDPOINT = 'http://localhost:8080/api/doc-person';
+    private API_ENDPOINT = `${environment.apiUrl}/api/doc-person`;
 
     constructor(private http: HttpClient) { }
 

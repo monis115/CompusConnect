@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, switchMap, of, map } from 'rxjs';
 import { map as rxMap } from 'rxjs/operators'; // Alias to avoid conflict if needed
+import { environment } from '../../environments/environment';
 
 // --- Interface definitions remain the same ---
 
@@ -65,8 +66,8 @@ interface AgentDetailsResponse {
   providedIn: 'root'
 })
 export class AdminAuthService {
-  private apiUrl = 'http://localhost:8080/api/auth/login';
-  private agentsApiUrl = 'http://localhost:8080/api/agents/user';
+  private apiUrl = `${environment.apiUrl}/api/auth/login`;
+  private agentsApiUrl = `${environment.apiUrl}/api/agents/user`;
   private storageKey = 'userData';
   private fullProfileKey = 'fullUserProfile';
 
@@ -112,7 +113,7 @@ export class AdminAuthService {
           role: loginResponse.role,
           loginTime: new Date().toISOString()
         };
-        
+
         console.log('💾 Storing basic user data in sessionStorage:', userData);
         sessionStorage.setItem(this.storageKey, JSON.stringify(userData));
         sessionStorage.setItem('userRole', loginResponse.role);
@@ -130,14 +131,14 @@ export class AdminAuthService {
           console.log('🎭 Agent role detected. Fetching full profile...');
           const agentsUrl = `${this.agentsApiUrl}/${loginResponse.username}`; // Using username
           console.log('📤 Sending GET request to agents API:', agentsUrl);
-          
+
           return this.http.get<AgentDetailsResponse>(agentsUrl).pipe(
             tap({
               next: (agentProfile) => {
                 console.log('✅ Agent profile received from API:', agentProfile);
                 console.log('👤 Agent ID:', agentProfile.id);
                 console.log('📛 Agent Full Name:', agentProfile.fullName);
-                
+
                 // Store full profile in sessionStorage
                 sessionStorage.setItem(this.fullProfileKey, JSON.stringify(agentProfile));
                 console.log('💾 Full agent profile stored in sessionStorage (key: fullUserProfile)');
@@ -150,7 +151,7 @@ export class AdminAuthService {
             tap(() => console.log('🔄 Agent profile fetch completed. Returning original login response.'))
           );
         }
-        
+
         // For non-agent roles, just return the login response
         console.log('🎭 Non-agent role. Skipping full profile fetch.');
         return of(loginResponse);
