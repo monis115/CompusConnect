@@ -1,229 +1,239 @@
 <div class="update-access-container">
 
-    <!-- ========================================================= -->
-    <!-- VIEW 1: AGENT SELECTION (SEARCH) -->
-    <!-- ========================================================= -->
-    <div class="selection-view" *ngIf="!selectedAgent">
-        <div class="header-section">
-            <button class="back-btn" (click)="goBack()">
-                <i-lucide name="arrow-left" size="20"></i-lucide>
-                <span>Back to Dashboard</span>
-            </button>
-            <h1>Manage Agent Access</h1>
-            <p class="subtitle">Search and select an agent to modify their status and college privileges.</p>
-        </div>
-
-        <!-- Search Box -->
-        <div class="search-box">
-            <i-lucide name="search" class="search-icon" size="20"></i-lucide>
-            <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()"
-                placeholder="Search by name, email, or agent ID..." autofocus />
-            <div class="loader-mini" *ngIf="loading"></div>
-        </div>
-
-        <!-- Results List -->
-        <div class="results-list">
-
-            <div class="empty-state" *ngIf="!loading && filteredAgents.length === 0">
-                <i-lucide name="users" size="48" class="empty-icon"></i-lucide>
-                <h3>No Agents Found</h3>
-                <p>Try adjusting your search criteria.</p>
+  <!-- ========================================================= -->
+  <!-- VIEW 1: AGENT SELECTION (SEARCH) -->
+  <!-- ========================================================= -->
+  @if (!selectedAgent) {
+    <div class="selection-view">
+      <div class="header-section">
+        <button class="back-btn" (click)="goBack()">
+          <i-lucide name="arrow-left" size="20"></i-lucide>
+          <span>Back to Dashboard</span>
+        </button>
+        <h1>Manage Agent Access</h1>
+        <p class="subtitle">Search and select an agent to modify their status and college privileges.</p>
+      </div>
+      <!-- Search Box -->
+      <div class="search-box">
+        <i-lucide name="search" class="search-icon" size="20"></i-lucide>
+        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()"
+          placeholder="Search by name, email, or agent ID..." autofocus />
+        @if (loading) {
+          <div class="loader-mini"></div>
+        }
+      </div>
+      <!-- Results List -->
+      <div class="results-list">
+        @if (!loading && filteredAgents.length === 0) {
+          <div class="empty-state">
+            <i-lucide name="users" size="48" class="empty-icon"></i-lucide>
+            <h3>No Agents Found</h3>
+            <p>Try adjusting your search criteria.</p>
+          </div>
+        }
+        @for (agent of filteredAgents; track agent) {
+          <div class="agent-item" (click)="selectAgent(agent)">
+            <div class="agent-avatar">{{ agent.fullName.charAt(0).toUpperCase() }}</div>
+            <div class="agent-info">
+              <h3>{{ agent.fullName }}</h3>
+              <span class="meta">{{ agent.email }} • {{ agent.userId }}</span>
             </div>
-
-            <div class="agent-item" *ngFor="let agent of filteredAgents" (click)="selectAgent(agent)">
-                <div class="agent-avatar">{{ agent.fullName.charAt(0).toUpperCase() }}</div>
-                <div class="agent-info">
-                    <h3>{{ agent.fullName }}</h3>
-                    <span class="meta">{{ agent.email }} • {{ agent.userId }}</span>
-                </div>
-                <div class="agent-status" [ngClass]="agent.status.toLowerCase()">
-                    {{ agent.status }}
-                </div>
-                <i-lucide name="chevron-right" class="arrow" size="20"></i-lucide>
+            <div class="agent-status" [ngClass]="agent.status.toLowerCase()">
+              {{ agent.status }}
             </div>
-
-        </div>
+            <i-lucide name="chevron-right" class="arrow" size="20"></i-lucide>
+          </div>
+        }
+      </div>
     </div>
+  }
 
-    <!-- ========================================================= -->
-    <!-- VIEW 2: EDITING ACCESS -->
-    <!-- ========================================================= -->
-    <div class="edit-view" *ngIf="selectedAgent">
-
-        <!-- Edit Header -->
-        <div class="edit-header">
-            <button class="icon-btn" (click)="goBack()">
-                <i-lucide name="arrow-left" size="24"></i-lucide>
-            </button>
-            <div class="header-details">
-                <h2>{{ selectedAgent.fullName }}</h2>
-                <span class="id-badge">ID: {{ selectedAgent.userId }}</span>
-            </div>
-            <div class="actions">
-                <!-- Save button is in footer usually, but having one here is good too -->
-            </div>
+  <!-- ========================================================= -->
+  <!-- VIEW 2: EDITING ACCESS -->
+  <!-- ========================================================= -->
+  @if (selectedAgent) {
+    <div class="edit-view">
+      <!-- Edit Header -->
+      <div class="edit-header">
+        <button class="icon-btn" (click)="goBack()">
+          <i-lucide name="arrow-left" size="24"></i-lucide>
+        </button>
+        <div class="header-details">
+          <h2>{{ selectedAgent.fullName }}</h2>
+          <span class="id-badge">ID: {{ selectedAgent.userId }}</span>
         </div>
-
-        <div class="edit-content">
-
-            <!-- Status Card -->
-            <div class="card status-card">
-                <div class="card-header">
-                    <h3>Account Status</h3>
-                    <p>Control the agent's ability to log in and submit applications.</p>
-                </div>
-                <div class="card-body">
-                    <div class="status-selector">
-                        <label class="radio-label" [class.active]="editStatus === 'Active'">
-                            <input type="radio" name="status" [(ngModel)]="editStatus" value="Active">
-                            <span class="status-dot active"></span>
-                            Active
-                        </label>
-                        <label class="radio-label" [class.active]="editStatus === 'Pending'">
-                            <input type="radio" name="status" [(ngModel)]="editStatus" value="Pending">
-                            <span class="status-dot pending"></span>
-                            Pending
-                        </label>
-                        <label class="radio-label" [class.active]="editStatus === 'Suspended'">
-                            <input type="radio" name="status" [(ngModel)]="editStatus" value="Suspended">
-                            <span class="status-dot suspended"></span>
-                            Suspended
-                        </label>
-                        <label class="radio-label" [class.active]="editStatus === 'Inactive'">
-                            <input type="radio" name="status" [(ngModel)]="editStatus" value="Inactive">
-                            <span class="status-dot inactive"></span>
-                            Inactive
-                        </label>
-                    </div>
-                </div>
+        <div class="actions">
+          <!-- Save button is in footer usually, but having one here is good too -->
+        </div>
+      </div>
+      <div class="edit-content">
+        <!-- Status Card -->
+        <div class="card status-card">
+          <div class="card-header">
+            <h3>Account Status</h3>
+            <p>Control the agent's ability to log in and submit applications.</p>
+          </div>
+          <div class="card-body">
+            <div class="status-selector">
+              <label class="radio-label" [class.active]="editStatus === 'Active'">
+                <input type="radio" name="status" [(ngModel)]="editStatus" value="Active">
+                <span class="status-dot active"></span>
+                Active
+              </label>
+              <label class="radio-label" [class.active]="editStatus === 'Pending'">
+                <input type="radio" name="status" [(ngModel)]="editStatus" value="Pending">
+                <span class="status-dot pending"></span>
+                Pending
+              </label>
+              <label class="radio-label" [class.active]="editStatus === 'Suspended'">
+                <input type="radio" name="status" [(ngModel)]="editStatus" value="Suspended">
+                <span class="status-dot suspended"></span>
+                Suspended
+              </label>
+              <label class="radio-label" [class.active]="editStatus === 'Inactive'">
+                <input type="radio" name="status" [(ngModel)]="editStatus" value="Inactive">
+                <span class="status-dot inactive"></span>
+                Inactive
+              </label>
             </div>
-
-            <!-- College Access Card -->
-            <div class="card access-card">
-                <div class="card-header">
-                    <h3>College Privileges</h3>
-                    <p>Manage which colleges and locations this agent can access.</p>
-                </div>
-
-                <div class="add-college-bar">
-                    <select [(ngModel)]="selectedCollegeToAdd">
-                        <option value="" disabled selected>Select a college to add...</option>
-                        <option *ngFor="let col of getAvailableColleges()" [value]="col.id">
-                            {{ col.collegeName }} ({{ col.city }})
-                        </option>
-                    </select>
-                    <button class="btn-primary-small" (click)="addCollegeAccess()" [disabled]="!selectedCollegeToAdd">
-                        <i-lucide name="plus" size="16"></i-lucide> Add College
+          </div>
+        </div>
+        <!-- College Access Card -->
+        <div class="card access-card">
+          <div class="card-header">
+            <h3>College Privileges</h3>
+            <p>Manage which colleges and locations this agent can access.</p>
+          </div>
+          <div class="add-college-bar">
+            <select [(ngModel)]="selectedCollegeToAdd">
+              <option value="" disabled selected>Select a college to add...</option>
+              @for (col of getAvailableColleges(); track col) {
+                <option [value]="col.id">
+                  {{ col.collegeName }} ({{ col.city }})
+                </option>
+              }
+            </select>
+            <button class="btn-primary-small" (click)="addCollegeAccess()" [disabled]="!selectedCollegeToAdd">
+              <i-lucide name="plus" size="16"></i-lucide> Add College
+            </button>
+          </div>
+          <div class="access-list">
+            @if (editCollegeAccessList.length === 0) {
+              <div class="empty-access">
+                <p>No college privileges assigned yet.</p>
+              </div>
+            }
+            <!-- Access Item -->
+            @for (entry of editCollegeAccessList; track entry) {
+              <div class="access-item">
+                <div class="access-summary">
+                  <div class="col-name">
+                    <i-lucide name="building-2" size="20"></i-lucide>
+                    <div>
+                      <h4>{{ entry.collegeName }}</h4>
+                      <span class="city">{{ entry.city }}</span>
+                    </div>
+                  </div>
+                  <div class="access-controls">
+                    <label class="checkbox-container">
+                      <input type="checkbox" [checked]="entry.accessAllLocations"
+                        (change)="toggleAccessAllLocations(entry.collegeId)">
+                      <span class="checkmark"></span>
+                      Global Access (All India)
+                    </label>
+                    <button class="remove-btn" (click)="removeCollegeAccess(entry.collegeId)">
+                      <i-lucide name="trash-2" size="18"></i-lucide>
                     </button>
+                  </div>
                 </div>
-
-                <div class="access-list">
-                    <div class="empty-access" *ngIf="editCollegeAccessList.length === 0">
-                        <p>No college privileges assigned yet.</p>
+                <!-- Location Details (Only if not global access) -->
+                @if (!entry.accessAllLocations) {
+                  <div class="location-details">
+                    <div class="location-header">
+                      <span>Selected Locations: <strong>{{ getSelectedCount(entry.collegeId)
+                      }}</strong></span>
+                      <span class="info-text">Select specific states and districts below</span>
                     </div>
-
-                    <!-- Access Item -->
-                    <div class="access-item" *ngFor="let entry of editCollegeAccessList">
-
-                        <div class="access-summary">
-                            <div class="col-name">
-                                <i-lucide name="building-2" size="20"></i-lucide>
-                                <div>
-                                    <h4>{{ entry.collegeName }}</h4>
-                                    <span class="city">{{ entry.city }}</span>
-                                </div>
+                    <div class="states-grid">
+                      @for (state of states; track state) {
+                        <div class="state-group">
+                          <!-- State Header -->
+                          <div class="state-header" (click)="toggleStateExpansion(entry.collegeId, state)">
+                            <div class="sh-left">
+                              <i-lucide name="chevron-right" size="16" class="chevron"
+                              [class.open]="isStateExpanded(entry.collegeId, state)"></i-lucide>
+                              <span class="state-name">{{ state }}</span>
                             </div>
-
-                            <div class="access-controls">
-                                <label class="checkbox-container">
-                                    <input type="checkbox" [checked]="entry.accessAllLocations"
-                                        (change)="toggleAccessAllLocations(entry.collegeId)">
-                                    <span class="checkmark"></span>
-                                    Global Access (All India)
+                            <div class="sh-right" (click)="$event.stopPropagation()">
+                              <!-- Select All for State -->
+                              <button class="btn-link"
+                                (click)="toggleStateLocations(entry.collegeId, state)">
+                                {{ isAllStateSelected(entry.collegeId, state) ? 'Deselect All' : 'Select
+                                All' }}
+                              </button>
+                            </div>
+                          </div>
+                          <!-- Districts Grid -->
+                          @if (isStateExpanded(entry.collegeId, state)) {
+                            <div class="districts-panel">
+                              @for (loc of districtsByState[state]; track loc) {
+                                <label class="district-check"
+                                  [class.checked]="isLocationSelected(entry.collegeId, loc.id)">
+                                  <input type="checkbox"
+                                    [checked]="isLocationSelected(entry.collegeId, loc.id)"
+                                    (change)="toggleLocation(entry.collegeId, loc.id)">
+                                  <span class="d-name">{{ loc.district }}</span>
                                 </label>
-                                <button class="remove-btn" (click)="removeCollegeAccess(entry.collegeId)">
-                                    <i-lucide name="trash-2" size="18"></i-lucide>
-                                </button>
+                              }
                             </div>
+                          }
                         </div>
-
-                        <!-- Location Details (Only if not global access) -->
-                        <div class="location-details" *ngIf="!entry.accessAllLocations">
-                            <div class="location-header">
-                                <span>Selected Locations: <strong>{{ getSelectedCount(entry.collegeId)
-                                        }}</strong></span>
-                                <span class="info-text">Select specific states and districts below</span>
-                            </div>
-
-                            <div class="states-grid">
-                                <div class="state-group" *ngFor="let state of states">
-
-                                    <!-- State Header -->
-                                    <div class="state-header" (click)="toggleStateExpansion(entry.collegeId, state)">
-                                        <div class="sh-left">
-                                            <i-lucide name="chevron-right" size="16" class="chevron"
-                                                [class.open]="isStateExpanded(entry.collegeId, state)"></i-lucide>
-                                            <span class="state-name">{{ state }}</span>
-                                        </div>
-
-                                        <div class="sh-right" (click)="$event.stopPropagation()">
-                                            <!-- Select All for State -->
-                                            <button class="btn-link"
-                                                (click)="toggleStateLocations(entry.collegeId, state)">
-                                                {{ isAllStateSelected(entry.collegeId, state) ? 'Deselect All' : 'Select
-                                                All' }}
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Districts Grid -->
-                                    <div class="districts-panel" *ngIf="isStateExpanded(entry.collegeId, state)">
-                                        <label class="district-check" *ngFor="let loc of districtsByState[state]"
-                                            [class.checked]="isLocationSelected(entry.collegeId, loc.id)">
-                                            <input type="checkbox"
-                                                [checked]="isLocationSelected(entry.collegeId, loc.id)"
-                                                (change)="toggleLocation(entry.collegeId, loc.id)">
-                                            <span class="d-name">{{ loc.district }}</span>
-                                        </label>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
+                      }
                     </div>
-                </div>
-
-            </div>
-
+                  </div>
+                }
+              </div>
+            }
+          </div>
         </div>
-
-        <!-- Sticky Footer -->
-        <div class="edit-footer">
-            <div class="footer-msg">
-                <div class="message-badge error" *ngIf="error">
-                    <i-lucide name="alert-circle" size="18"></i-lucide>
-                    <span>{{ error }}</span>
-                </div>
-                <div class="message-badge success" *ngIf="successMessage">
-                    <i-lucide name="check-circle-2" size="18"></i-lucide>
-                    <span>{{ successMessage }}</span>
-                </div>
+      </div>
+      <!-- Sticky Footer -->
+      <div class="edit-footer">
+        <div class="footer-msg">
+          @if (error) {
+            <div class="message-badge error">
+              <i-lucide name="alert-circle" size="18"></i-lucide>
+              <span>{{ error }}</span>
             </div>
-
-            <div class="footer-actions">
-                <button class="btn-secondary" (click)="goBack()" [disabled]="saving">Cancel</button>
-                <button class="btn-primary" (click)="saveChanges()" [disabled]="saving">
-                    <i-lucide *ngIf="!saving" name="check" size="18"></i-lucide>
-                    <span *ngIf="!saving">Save Changes</span>
-
-                    <div *ngIf="saving" class="loader-mini"
-                        style="border-top-color: white; border-color: rgba(255,255,255,0.3); position: static; margin-right: 8px;">
-                    </div>
-                    <span *ngIf="saving">Saving...</span>
-                </button>
+          }
+          @if (successMessage) {
+            <div class="message-badge success">
+              <i-lucide name="check-circle-2" size="18"></i-lucide>
+              <span>{{ successMessage }}</span>
             </div>
+          }
         </div>
+        <div class="footer-actions">
+          <button class="btn-secondary" (click)="goBack()" [disabled]="saving">Cancel</button>
+          <button class="btn-primary" (click)="saveChanges()" [disabled]="saving">
+            @if (!saving) {
+              <i-lucide name="check" size="18"></i-lucide>
+            }
+            @if (!saving) {
+              <span>Save Changes</span>
+            }
+            @if (saving) {
+              <div class="loader-mini"
+                style="border-top-color: white; border-color: rgba(255,255,255,0.3); position: static; margin-right: 8px;">
+              </div>
+            }
+            @if (saving) {
+              <span>Saving...</span>
+            }
+          </button>
+        </div>
+      </div>
     </div>
+  }
 
 </div>

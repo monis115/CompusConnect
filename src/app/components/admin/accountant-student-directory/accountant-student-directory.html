@@ -1,152 +1,165 @@
 <div class="university-person-container">
-    <!-- Page Header -->
-    <div class="page-header">
-        <button class="back-btn" (click)="goBack()">
-            <i-lucide name="arrow-left" [size]="18"></i-lucide>
-            Back to Dashboard
-        </button>
-        <div class="header-content">
-            <div class="title-wrapper">
-                <div class="title-icon">
-                    <i-lucide name="book-open" [size]="24"></i-lucide>
-                </div>
-                <div>
-                    <h1>Accountant Directory</h1>
-                    <p>View assigned students and payment verification history</p>
-                </div>
-            </div>
-            <div class="header-stats" *ngIf="!selectedAccountant">
-                <span class="stat-pill">
-                    <i-lucide name="users" [size]="14"></i-lucide>
-                    {{ accountants.length }} Accountants
-                </span>
-            </div>
+  <!-- Page Header -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <i-lucide name="arrow-left" [size]="18"></i-lucide>
+      Back to Dashboard
+    </button>
+    <div class="header-content">
+      <div class="title-wrapper">
+        <div class="title-icon">
+          <i-lucide name="book-open" [size]="24"></i-lucide>
         </div>
+        <div>
+          <h1>Accountant Directory</h1>
+          <p>View assigned students and payment verification history</p>
+        </div>
+      </div>
+      @if (!selectedAccountant) {
+        <div class="header-stats">
+          <span class="stat-pill">
+            <i-lucide name="users" [size]="14"></i-lucide>
+            {{ accountants.length }} Accountants
+          </span>
+        </div>
+      }
     </div>
+  </div>
 
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="toast toast-error">
-        <i-lucide name="alert-circle" [size]="18"></i-lucide>
-        {{ errorMessage }}
+  <!-- Error Message -->
+  @if (errorMessage) {
+    <div class="toast toast-error">
+      <i-lucide name="alert-circle" [size]="18"></i-lucide>
+      {{ errorMessage }}
     </div>
+  }
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-container">
-        <div class="premium-loader">
-            <div class="loader-ring"></div>
-            <p>Loading directory...</p>
-        </div>
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="premium-loader">
+        <div class="loader-ring"></div>
+        <p>Loading directory...</p>
+      </div>
     </div>
+  }
 
-    <!-- Directory Grid (Folder View) -->
-    <div *ngIf="!isLoading && !selectedAccountant" class="directory-grid">
-        <div *ngFor="let acc of accountants" class="directory-card" (click)="viewStudents(acc)">
-            <div class="card-header-top">
-                <div class="avatar-lg">{{ acc.fullName?.charAt(0) || 'A' }}</div>
-                <span [class]="'status-indicator ' + getStatusClass(acc.status)"></span>
+  <!-- Directory Grid (Folder View) -->
+  @if (!isLoading && !selectedAccountant) {
+    <div class="directory-grid">
+      @for (acc of accountants; track acc) {
+        <div class="directory-card" (click)="viewStudents(acc)">
+          <div class="card-header-top">
+            <div class="avatar-lg">{{ acc.fullName?.charAt(0) || 'A' }}</div>
+            <span [class]="'status-indicator ' + getStatusClass(acc.status)"></span>
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">{{ acc.fullName }}</h3>
+            <p class="card-subtitle">&#64;{{ acc.username }}</p>
+            <div class="card-meta">
+              <div class="meta-item">
+                <i-lucide name="mail" [size]="14"></i-lucide>
+                <span>{{ acc.email }}</span>
+              </div>
+              <div class="meta-item">
+                <i-lucide name="phone" [size]="14"></i-lucide>
+                <span>{{ acc.contactNumber }}</span>
+              </div>
             </div>
-            <div class="card-content">
-                <h3 class="card-title">{{ acc.fullName }}</h3>
-                <p class="card-subtitle">&#64;{{ acc.username }}</p>
-                <div class="card-meta">
-                    <div class="meta-item">
-                        <i-lucide name="mail" [size]="14"></i-lucide>
-                        <span>{{ acc.email }}</span>
-                    </div>
-                    <div class="meta-item">
-                        <i-lucide name="phone" [size]="14"></i-lucide>
-                        <span>{{ acc.contactNumber }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer-action">
-                <span>View Students</span>
-                <i-lucide name="chevron-right" [size]="18"></i-lucide>
-            </div>
+          </div>
+          <div class="card-footer-action">
+            <span>View Students</span>
+            <i-lucide name="chevron-right" [size]="18"></i-lucide>
+          </div>
         </div>
-
-        <!-- Empty State -->
-        <div *ngIf="accountants.length === 0" class="empty-state-full">
-            <i-lucide name="users" [size]="56" class="empty-icon"></i-lucide>
-            <h3>No Accountants Found</h3>
-            <p>There are no accountants registered in the system yet.</p>
+      }
+      <!-- Empty State -->
+      @if (accountants.length === 0) {
+        <div class="empty-state-full">
+          <i-lucide name="users" [size]="56" class="empty-icon"></i-lucide>
+          <h3>No Accountants Found</h3>
+          <p>There are no accountants registered in the system yet.</p>
         </div>
+      }
     </div>
+  }
 
-    <!-- Detail View: Student Table -->
-    <div *ngIf="!isLoading && selectedAccountant && profile" class="details-view">
-
-        <!-- Back to List -->
-        <button class="back-btn" (click)="backToList()">
-            <i-lucide name="arrow-left" [size]="18"></i-lucide>
-            Back to Directory
-        </button>
-
-        <!-- Profile Summary Card -->
-        <div class="profile-summary-card">
-            <div class="profile-avatar">{{ profile.fullName?.charAt(0) || 'A' }}</div>
-            <div class="profile-info">
-                <h2>{{ profile.fullName }}</h2>
-                <p>&#64;{{ profile.username }}</p>
-            </div>
-            <div class="profile-stats">
-                <div class="stat-item">
-                    <span class="stat-value">{{ profile.studentCount || 0 }}</span>
-                    <span class="stat-label">Students</span>
-                </div>
-                <div class="stat-item">
-                    <span [class]="'stat-badge ' + getStatusClass(profile.status)">{{ profile.status }}</span>
-                    <span class="stat-label">Status</span>
-                </div>
-            </div>
+  <!-- Detail View: Student Table -->
+  @if (!isLoading && selectedAccountant && profile) {
+    <div class="details-view">
+      <!-- Back to List -->
+      <button class="back-btn" (click)="backToList()">
+        <i-lucide name="arrow-left" [size]="18"></i-lucide>
+        Back to Directory
+      </button>
+      <!-- Profile Summary Card -->
+      <div class="profile-summary-card">
+        <div class="profile-avatar">{{ profile.fullName?.charAt(0) || 'A' }}</div>
+        <div class="profile-info">
+          <h2>{{ profile.fullName }}</h2>
+          <p>&#64;{{ profile.username }}</p>
         </div>
-
-        <!-- Students Table -->
-        <div class="table-container">
-            <div class="table-header">
-                <h3>Assigned Students</h3>
-            </div>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>App ID</th>
-                        <th>Student Name</th>
-                        <th>College</th>
-                        <th>Course</th>
-                        <th>Status</th>
-                        <th>Last Interaction</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let student of students">
-                        <td class="font-medium">{{ student.applicationId }}</td>
-                        <td>{{ student.fullName }}</td>
-                        <td>{{ student.collegeName }}</td>
-                        <td>{{ student.course }}</td>
-                        <td>
-                            <span [class]="'status-pill ' + getStatusClass(student.status)">
-                                {{ student.status?.replace('_', ' ') }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="interaction-cell">
-                                <span class="interaction-date">
-                                    {{ student.lastUpdateDate ? (student.lastUpdateDate | date:'MMM d, yyyy h:mm a') :
-                                    '-' }}
-                                </span>
-                                <span class="interaction-action">
-                                    {{ student.lastUpdateAction || 'No activity' }}
-                                </span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div *ngIf="students.length === 0" class="empty-state-sm">
-                <i-lucide name="inbox" [size]="32"></i-lucide>
-                <p>No students assigned to this accountant yet.</p>
-            </div>
+        <div class="profile-stats">
+          <div class="stat-item">
+            <span class="stat-value">{{ profile.studentCount || 0 }}</span>
+            <span class="stat-label">Students</span>
+          </div>
+          <div class="stat-item">
+            <span [class]="'stat-badge ' + getStatusClass(profile.status)">{{ profile.status }}</span>
+            <span class="stat-label">Status</span>
+          </div>
         </div>
+      </div>
+      <!-- Students Table -->
+      <div class="table-container">
+        <div class="table-header">
+          <h3>Assigned Students</h3>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>App ID</th>
+              <th>Student Name</th>
+              <th>College</th>
+              <th>Course</th>
+              <th>Status</th>
+              <th>Last Interaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (student of students; track student) {
+              <tr>
+                <td class="font-medium">{{ student.applicationId }}</td>
+                <td>{{ student.fullName }}</td>
+                <td>{{ student.collegeName }}</td>
+                <td>{{ student.course }}</td>
+                <td>
+                  <span [class]="'status-pill ' + getStatusClass(student.status)">
+                    {{ student.status?.replace('_', ' ') }}
+                  </span>
+                </td>
+                <td>
+                  <div class="interaction-cell">
+                    <span class="interaction-date">
+                      {{ student.lastUpdateDate ? (student.lastUpdateDate | date:'MMM d, yyyy h:mm a') :
+                      '-' }}
+                    </span>
+                    <span class="interaction-action">
+                      {{ student.lastUpdateAction || 'No activity' }}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (students.length === 0) {
+          <div class="empty-state-sm">
+            <i-lucide name="inbox" [size]="32"></i-lucide>
+            <p>No students assigned to this accountant yet.</p>
+          </div>
+        }
+      </div>
     </div>
+  }
 </div>

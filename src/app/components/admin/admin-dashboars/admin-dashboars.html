@@ -1,37 +1,41 @@
 <div class="admin-dashboard">
   <!-- Premium Logout Overlay -->
-  <div class="logout-overlay" *ngIf="isLoggingOut">
-    <div class="logout-overlay-content">
-      <div class="logout-icon-wrapper">
-        <div class="logout-spinner-ring"></div>
-        <i-lucide name="shield-check" size="48"></i-lucide>
-      </div>
-      <h2 class="logout-title">Securing Your Session</h2>
-      <p class="logout-message">Please wait while we safely sign you out...</p>
-      <div class="logout-security-badges">
-        <span class="security-badge">
-          <i-lucide name="lock" size="14"></i-lucide>
-          Clearing Session
-        </span>
-        <span class="security-badge">
-          <i-lucide name="shield" size="14"></i-lucide>
-          Encrypting Data
-        </span>
-        <span class="security-badge">
-          <i-lucide name="check-circle" size="14"></i-lucide>
-          Secure Logout
-        </span>
+  @if (isLoggingOut) {
+    <div class="logout-overlay">
+      <div class="logout-overlay-content">
+        <div class="logout-icon-wrapper">
+          <div class="logout-spinner-ring"></div>
+          <i-lucide name="shield-check" size="48"></i-lucide>
+        </div>
+        <h2 class="logout-title">Securing Your Session</h2>
+        <p class="logout-message">Please wait while we safely sign you out...</p>
+        <div class="logout-security-badges">
+          <span class="security-badge">
+            <i-lucide name="lock" size="14"></i-lucide>
+            Clearing Session
+          </span>
+          <span class="security-badge">
+            <i-lucide name="shield" size="14"></i-lucide>
+            Encrypting Data
+          </span>
+          <span class="security-badge">
+            <i-lucide name="check-circle" size="14"></i-lucide>
+            Secure Logout
+          </span>
+        </div>
       </div>
     </div>
-  </div>
+  }
 
   <!-- Premium Spinner Overlay -->
-  <div class="system-activity-spinner-overlay" *ngIf="showSystemActivitySpinner">
-    <div class="premium-spinner-container">
-      <div class="premium-thin-spinner"></div>
-      <div class="loading-text">Loading Activity Logs...</div>
+  @if (showSystemActivitySpinner) {
+    <div class="system-activity-spinner-overlay">
+      <div class="premium-spinner-container">
+        <div class="premium-thin-spinner"></div>
+        <div class="loading-text">Loading Activity Logs...</div>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Sidebar -->
   <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
@@ -40,16 +44,22 @@
         <div class="logo-icon">
           <i-lucide name="graduation-cap" size="28"></i-lucide>
         </div>
-        <span class="logo-text" *ngIf="!sidebarCollapsed">CampusConnect</span>
+        @if (!sidebarCollapsed) {
+          <span class="logo-text">CampusConnect</span>
+        }
       </div>
     </div>
 
     <nav class="sidebar-nav">
-      <button *ngFor="let item of menuItems" class="nav-item" [class.active]="activeSection === item.id"
-        (click)="navigateTo(item.id)">
-        <i-lucide [name]="item.icon" size="20"></i-lucide>
-        <span *ngIf="!sidebarCollapsed">{{ item.label }}</span>
-      </button>
+      @for (item of menuItems; track item) {
+        <button class="nav-item" [class.active]="activeSection === item.id"
+          (click)="navigateTo(item.id)">
+          <i-lucide [name]="item.icon" size="20"></i-lucide>
+          @if (!sidebarCollapsed) {
+            <span>{{ item.label }}</span>
+          }
+        </button>
+      }
     </nav>
 
     <button class="sidebar-toggle" (click)="toggleSidebar()">
@@ -59,28 +69,32 @@
 
   <!-- Main Content -->
   <main class="main-content">
-    <header class="header" *ngIf="activeSection !== 'news-management'">
-      <h1 class="page-title">{{ pageTitle }}</h1>
-      <div class="header-right">
-        <button class="btn-icon">
-          <i-lucide name="bell" size="20"></i-lucide>
-          <span class="badge">5</span>
-        </button>
-        <div class="user-profile">
-          <div class="avatar">AD</div>
-          <span class="user-name">{{ admin?.username || 'Admin User' }}</span>
+    @if (activeSection !== 'news-management') {
+      <header class="header">
+        <h1 class="page-title">{{ pageTitle }}</h1>
+        <div class="header-right">
+          <button class="btn-icon">
+            <i-lucide name="bell" size="20"></i-lucide>
+            <span class="badge">5</span>
+          </button>
+          <div class="user-profile">
+            <div class="avatar">AD</div>
+            <span class="user-name">{{ admin?.username || 'Admin User' }}</span>
+          </div>
+          <button class="logout-btn" (click)="logout()" [disabled]="isLoggingOut">
+            <i-lucide name="log-out" size="18"></i-lucide>
+            <span>Logout</span>
+          </button>
         </div>
-        <button class="logout-btn" (click)="logout()" [disabled]="isLoggingOut">
-          <i-lucide name="log-out" size="18"></i-lucide>
-          <span>Logout</span>
-        </button>
-      </div>
-    </header>
+      </header>
+    }
 
     <!-- Render child routes here -->
-    <div class="content-area" *ngIf="!showSystemDashboard">
-      <router-outlet></router-outlet>
-    </div>
+    @if (!showSystemDashboard) {
+      <div class="content-area">
+        <router-outlet></router-outlet>
+      </div>
+    }
   </main>
 
   <!-- Premium System Configuration Floating Menu -->
@@ -136,8 +150,12 @@
     <!-- Main Floating Button -->
     <button class="sys-config-fab" (click)="toggleConfigMenu()" [class.active]="isConfigOpen">
       <div class="fab-content">
-        <i-lucide name="settings" size="24" class="fab-icon main-icon" *ngIf="!isConfigOpen"></i-lucide>
-        <i-lucide name="x" size="24" class="fab-icon close-icon" *ngIf="isConfigOpen"></i-lucide>
+        @if (!isConfigOpen) {
+          <i-lucide name="settings" size="24" class="fab-icon main-icon"></i-lucide>
+        }
+        @if (isConfigOpen) {
+          <i-lucide name="x" size="24" class="fab-icon close-icon"></i-lucide>
+        }
       </div>
       <div class="fab-ripple"></div>
     </button>
@@ -148,71 +166,88 @@
   </app-reports-generation-dashboard>
 
   <!-- SESSION MANAGEMENT MODAL -->
-  <div class="modal-backdrop" *ngIf="showSessionModal" (click)="closeSessionModal()"></div>
-  <div class="session-modal" *ngIf="showSessionModal" (click)="$event.stopPropagation()">
-    <div class="session-modal-header">
-      <div class="session-modal-title">
-        <i-lucide name="calendar" size="24"></i-lucide>
-        <h3>Session Management</h3>
-      </div>
-      <button class="close-btn" (click)="closeSessionModal()">
-        <i-lucide name="x" size="20"></i-lucide>
-      </button>
-    </div>
-
-    <div class="session-modal-body">
-      <!-- Loading State -->
-      <div *ngIf="isLoadingSessions" class="session-loading">
-        <div class="session-spinner"></div>
-        <p>Loading sessions...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div *ngIf="!isLoadingSessions && sessions.length === 0" class="session-empty">
-        <i-lucide name="calendar-x" size="48"></i-lucide>
-        <p>No sessions found. Please check backend.</p>
-      </div>
-
-      <!-- Session List -->
-      <div class="session-list" *ngIf="!isLoadingSessions && sessions.length > 0">
-        <div class="session-item" *ngFor="let session of sessions" 
-             [class.selected]="selectedSession?.id === session.id"
-             (click)="selectSession(session)">
-          <div class="session-info">
-            <h4>{{ session.sessionName }}</h4>
-            <p>{{ session.academicYear }}</p>
-          </div>
-          <i-lucide name="check-circle" size="20" *ngIf="selectedSession?.id === session.id"></i-lucide>
+  @if (showSessionModal) {
+    <div class="modal-backdrop" (click)="closeSessionModal()"></div>
+  }
+  @if (showSessionModal) {
+    <div class="session-modal" (click)="$event.stopPropagation()">
+      <div class="session-modal-header">
+        <div class="session-modal-title">
+          <i-lucide name="calendar" size="24"></i-lucide>
+          <h3>Session Management</h3>
         </div>
-      </div>
-
-      <!-- Update Form -->
-      <div class="session-update-form" *ngIf="selectedSession">
-        <h4>Update Session</h4>
-        <div class="form-group">
-          <label>Session Name</label>
-          <input [(ngModel)]="sessionForm.sessionName" placeholder="e.g. Winter 2024">
-        </div>
-        <div class="form-group">
-          <label>Academic Year</label>
-          <input [(ngModel)]="sessionForm.academicYear" placeholder="e.g. 2024-2025">
-        </div>
-
-        <div class="session-error" *ngIf="sessionUpdateError">
-          <i-lucide name="alert-circle" size="16"></i-lucide>
-          {{ sessionUpdateError }}
-        </div>
-
-        <div class="session-success" *ngIf="sessionUpdateSuccess">
-          <i-lucide name="check-circle" size="16"></i-lucide>
-          Session updated successfully!
-        </div>
-
-        <button class="update-btn" [disabled]="isUpdatingSession" (click)="updateSession()">
-          <span *ngIf="!isUpdatingSession">Update Session</span>
-          <div *ngIf="isUpdatingSession" class="btn-spinner"></div>
+        <button class="close-btn" (click)="closeSessionModal()">
+          <i-lucide name="x" size="20"></i-lucide>
         </button>
       </div>
+      <div class="session-modal-body">
+        <!-- Loading State -->
+        @if (isLoadingSessions) {
+          <div class="session-loading">
+            <div class="session-spinner"></div>
+            <p>Loading sessions...</p>
+          </div>
+        }
+        <!-- Empty State -->
+        @if (!isLoadingSessions && sessions.length === 0) {
+          <div class="session-empty">
+            <i-lucide name="calendar-x" size="48"></i-lucide>
+            <p>No sessions found. Please check backend.</p>
+          </div>
+        }
+        <!-- Session List -->
+        @if (!isLoadingSessions && sessions.length > 0) {
+          <div class="session-list">
+            @for (session of sessions; track session) {
+              <div class="session-item"
+                [class.selected]="selectedSession?.id === session.id"
+                (click)="selectSession(session)">
+                <div class="session-info">
+                  <h4>{{ session.sessionName }}</h4>
+                  <p>{{ session.academicYear }}</p>
+                </div>
+                @if (selectedSession?.id === session.id) {
+                  <i-lucide name="check-circle" size="20"></i-lucide>
+                }
+              </div>
+            }
+          </div>
+        }
+        <!-- Update Form -->
+        @if (selectedSession) {
+          <div class="session-update-form">
+            <h4>Update Session</h4>
+            <div class="form-group">
+              <label>Session Name</label>
+              <input [(ngModel)]="sessionForm.sessionName" placeholder="e.g. Winter 2024">
+            </div>
+            <div class="form-group">
+              <label>Academic Year</label>
+              <input [(ngModel)]="sessionForm.academicYear" placeholder="e.g. 2024-2025">
+            </div>
+            @if (sessionUpdateError) {
+              <div class="session-error">
+                <i-lucide name="alert-circle" size="16"></i-lucide>
+                {{ sessionUpdateError }}
+              </div>
+            }
+            @if (sessionUpdateSuccess) {
+              <div class="session-success">
+                <i-lucide name="check-circle" size="16"></i-lucide>
+                Session updated successfully!
+              </div>
+            }
+            <button class="update-btn" [disabled]="isUpdatingSession" (click)="updateSession()">
+              @if (!isUpdatingSession) {
+                <span>Update Session</span>
+              }
+              @if (isUpdatingSession) {
+                <div class="btn-spinner"></div>
+              }
+            </button>
+          </div>
+        }
+      </div>
     </div>
-  </div>
+  }
 </div>

@@ -1,556 +1,596 @@
 <!-- System Activity Logs - World-Class Audit Dashboard -->
 <div class="logs-dashboard" [class.light-theme]="!isDarkTheme" [class.compact]="viewDensity === 'compact'">
-    <!-- Ambient Background -->
-    <div class="ambient-bg">
-        <div class="grid-overlay"></div>
-        <div class="glow-orb orb-1"></div>
-        <div class="glow-orb orb-2"></div>
-        <div class="glow-orb orb-3"></div>
+  <!-- Ambient Background -->
+  <div class="ambient-bg">
+    <div class="grid-overlay"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="dashboard-container">
+
+    <!-- Header Section -->
+    <header class="dashboard-header" @fadeIn>
+      <div class="header-left">
+        <div class="header-icon-wrapper">
+          <i-lucide name="activity" [size]="28"></i-lucide>
+        </div>
+        <div class="header-content">
+          <h1>System Activity Logs</h1>
+          <p>Real-time audit trail • Enterprise monitoring</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Theme Toggle -->
+        <button class="icon-btn" (click)="toggleTheme()"
+          [title]="isDarkTheme ? 'Switch to Light' : 'Switch to Dark'">
+          <i-lucide [name]="isDarkTheme ? 'sun' : 'moon'" [size]="18"></i-lucide>
+        </button>
+
+        <!-- Density Toggle -->
+        <button class="icon-btn" (click)="toggleDensity()"
+          [title]="viewDensity === 'comfortable' ? 'Compact View' : 'Comfortable View'">
+          <i-lucide [name]="viewDensity === 'comfortable' ? 'align-justify' : 'menu'" [size]="18"></i-lucide>
+        </button>
+
+        <!-- Charts Toggle -->
+        <button class="icon-btn" [class.active]="showCharts" (click)="toggleCharts()" title="Toggle Charts">
+          <i-lucide name="bar-chart-3" [size]="18"></i-lucide>
+        </button>
+
+        <!-- Live Mode Toggle -->
+        <div class="live-toggle" [class.active]="isLiveMode">
+          <button class="toggle-btn" (click)="toggleLiveMode()">
+            <span class="live-dot" [class.pulsing]="isLiveMode"></span>
+            <span class="toggle-label">{{ isLiveMode ? 'LIVE' : 'PAUSED' }}</span>
+            <i-lucide [name]="isLiveMode ? 'radio' : 'pause'" [size]="16"></i-lucide>
+          </button>
+        </div>
+
+        <!-- Refresh Button -->
+        <button class="refresh-btn" (click)="refreshLogs()" [disabled]="isRefreshing">
+          <i-lucide name="refresh-cw" [size]="18" [class.spinning]="isRefreshing"></i-lucide>
+          <span>Refresh</span>
+        </button>
+
+        <!-- Export Button -->
+        <button class="export-btn" (click)="openExportModal()">
+          <i-lucide name="download" [size]="18"></i-lucide>
+          <span>Export</span>
+        </button>
+
+        <!-- Stats Badge -->
+        <div class="stats-badge">
+          <i-lucide name="database" [size]="16"></i-lucide>
+          <span class="stats-count">{{ totalElements }}</span>
+          <span class="stats-label">Total Events</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Search & Filter Bar -->
+    <div class="search-filter-bar" @fadeIn>
+      <!-- Search Input -->
+      <div class="search-wrapper">
+        <i-lucide name="search" [size]="18" class="search-icon"></i-lucide>
+        <input type="text" id="search-input" class="search-input"
+          placeholder="Search logs... (Press / to focus)" [value]="searchQuery"
+          (input)="onSearchInput($event)">
+        @if (searchQuery) {
+          <button class="search-clear" (click)="clearSearch()">
+            <i-lucide name="x" [size]="16"></i-lucide>
+          </button>
+        }
+        <span class="search-shortcut">/</span>
+      </div>
+
+      <!-- Filter Toggle Button -->
+      <button class="filter-toggle-btn" [class.active]="showFilters" (click)="toggleFilters()">
+        <i-lucide name="sliders-horizontal" [size]="18"></i-lucide>
+        <span>Filters</span>
+        @if (activeFiltersCount > 0) {
+          <span class="filter-badge">{{ activeFiltersCount }}</span>
+        }
+      </button>
+
+      <!-- Column Visibility -->
+      <div class="column-menu-wrapper">
+        <button class="icon-btn" (click)="toggleColumnMenu()" title="Column Visibility">
+          <i-lucide name="columns" [size]="18"></i-lucide>
+        </button>
+        @if (showColumnMenu) {
+          <div class="column-dropdown" @fadeScale>
+            <div class="dropdown-header">
+              <span>Toggle Columns</span>
+            </div>
+            <div class="dropdown-items">
+              @for (col of columns; track col) {
+                <label class="column-toggle">
+                  <input type="checkbox" [checked]="col.visible" (change)="toggleColumn(col.key)">
+                  <span>{{ col.label }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Quick Stats -->
+      @if (statistics) {
+        <div class="quick-stats">
+          <div class="stat-item">
+            <i-lucide name="calendar" [size]="14"></i-lucide>
+            <span>{{ statistics.todayLogs }} today</span>
+          </div>
+          <div class="stat-item">
+            <i-lucide name="users" [size]="14"></i-lucide>
+            <span>{{ statistics.uniqueUsers }} users</span>
+          </div>
+        </div>
+      }
     </div>
 
-    <!-- Main Container -->
-    <div class="dashboard-container">
-
-        <!-- Header Section -->
-        <header class="dashboard-header" @fadeIn>
-            <div class="header-left">
-                <div class="header-icon-wrapper">
-                    <i-lucide name="activity" [size]="28"></i-lucide>
-                </div>
-                <div class="header-content">
-                    <h1>System Activity Logs</h1>
-                    <p>Real-time audit trail • Enterprise monitoring</p>
-                </div>
+    <!-- Filter Panel -->
+    @if (showFilters) {
+      <div class="filter-panel" @slideDown>
+        <div class="filter-section">
+          <h4>Date Range</h4>
+          <div class="date-presets">
+            <button class="preset-btn" [class.active]="dateRangePreset === 'today'"
+            (click)="setDatePreset('today')">Today</button>
+            <button class="preset-btn" [class.active]="dateRangePreset === 'yesterday'"
+            (click)="setDatePreset('yesterday')">Yesterday</button>
+            <button class="preset-btn" [class.active]="dateRangePreset === '7days'"
+            (click)="setDatePreset('7days')">Last 7 Days</button>
+            <button class="preset-btn" [class.active]="dateRangePreset === '30days'"
+            (click)="setDatePreset('30days')">Last 30 Days</button>
+          </div>
+          <div class="date-inputs">
+            <div class="date-field">
+              <label>From</label>
+              <input type="date" [(ngModel)]="startDate" (change)="applyFilters()">
             </div>
-
-            <div class="header-actions">
-                <!-- Theme Toggle -->
-                <button class="icon-btn" (click)="toggleTheme()"
-                    [title]="isDarkTheme ? 'Switch to Light' : 'Switch to Dark'">
-                    <i-lucide [name]="isDarkTheme ? 'sun' : 'moon'" [size]="18"></i-lucide>
-                </button>
-
-                <!-- Density Toggle -->
-                <button class="icon-btn" (click)="toggleDensity()"
-                    [title]="viewDensity === 'comfortable' ? 'Compact View' : 'Comfortable View'">
-                    <i-lucide [name]="viewDensity === 'comfortable' ? 'align-justify' : 'menu'" [size]="18"></i-lucide>
-                </button>
-
-                <!-- Charts Toggle -->
-                <button class="icon-btn" [class.active]="showCharts" (click)="toggleCharts()" title="Toggle Charts">
-                    <i-lucide name="bar-chart-3" [size]="18"></i-lucide>
-                </button>
-
-                <!-- Live Mode Toggle -->
-                <div class="live-toggle" [class.active]="isLiveMode">
-                    <button class="toggle-btn" (click)="toggleLiveMode()">
-                        <span class="live-dot" [class.pulsing]="isLiveMode"></span>
-                        <span class="toggle-label">{{ isLiveMode ? 'LIVE' : 'PAUSED' }}</span>
-                        <i-lucide [name]="isLiveMode ? 'radio' : 'pause'" [size]="16"></i-lucide>
-                    </button>
-                </div>
-
-                <!-- Refresh Button -->
-                <button class="refresh-btn" (click)="refreshLogs()" [disabled]="isRefreshing">
-                    <i-lucide name="refresh-cw" [size]="18" [class.spinning]="isRefreshing"></i-lucide>
-                    <span>Refresh</span>
-                </button>
-
-                <!-- Export Button -->
-                <button class="export-btn" (click)="openExportModal()">
-                    <i-lucide name="download" [size]="18"></i-lucide>
-                    <span>Export</span>
-                </button>
-
-                <!-- Stats Badge -->
-                <div class="stats-badge">
-                    <i-lucide name="database" [size]="16"></i-lucide>
-                    <span class="stats-count">{{ totalElements }}</span>
-                    <span class="stats-label">Total Events</span>
-                </div>
+            <div class="date-field">
+              <label>To</label>
+              <input type="date" [(ngModel)]="endDate" (change)="applyFilters()">
             </div>
-        </header>
+          </div>
+        </div>
+        <div class="filter-section">
+          <h4>Action Types</h4>
+          <div class="action-chips">
+            @for (action of actionTypes; track action) {
+              <button class="action-chip"
+                [class.selected]="isActionSelected(action.value)" [style.--chip-color]="action.color"
+                (click)="toggleAction(action.value)">
+                {{ action.label }}
+              </button>
+            }
+          </div>
+        </div>
+        <div class="filter-section">
+          <h4>User Roles</h4>
+          <div class="role-chips">
+            @for (role of roleTypes; track role) {
+              <button class="role-chip"
+                [class.selected]="isRoleSelected(role.value)" (click)="toggleRole(role.value)">
+                {{ role.label }}
+              </button>
+            }
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button class="clear-filters-btn" (click)="clearFilters()" [disabled]="activeFiltersCount === 0">
+            <i-lucide name="x-circle" [size]="16"></i-lucide>
+            <span>Clear All Filters</span>
+          </button>
+        </div>
+      </div>
+    }
 
-        <!-- Search & Filter Bar -->
-        <div class="search-filter-bar" @fadeIn>
-            <!-- Search Input -->
-            <div class="search-wrapper">
-                <i-lucide name="search" [size]="18" class="search-icon"></i-lucide>
-                <input type="text" id="search-input" class="search-input"
-                    placeholder="Search logs... (Press / to focus)" [value]="searchQuery"
-                    (input)="onSearchInput($event)">
-                <button class="search-clear" *ngIf="searchQuery" (click)="clearSearch()">
-                    <i-lucide name="x" [size]="16"></i-lucide>
-                </button>
-                <span class="search-shortcut">/</span>
+    <!-- Charts Section -->
+    @if (showCharts && !isLoading && statistics) {
+      <div class="charts-section" @slideDown>
+        <div class="charts-grid">
+          <!-- Activity Timeline Chart -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>
+                <i-lucide name="trending-up" [size]="18"></i-lucide>
+                Activity Timeline
+              </h3>
+              <span class="chart-subtitle">Last 7 days</span>
             </div>
+            <div class="chart-body">
+              <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line">
+              </canvas>
+            </div>
+          </div>
+          <!-- Action Distribution Chart -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>
+                <i-lucide name="pie-chart" [size]="18"></i-lucide>
+                Action Distribution
+              </h3>
+              <span class="chart-subtitle">By type</span>
+            </div>
+            <div class="chart-body">
+              <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" type="doughnut">
+              </canvas>
+            </div>
+          </div>
+          <!-- Stats Cards -->
+          <div class="stats-cards">
+            <div class="stat-card">
+              <div class="stat-icon blue">
+                <i-lucide name="file-text" [size]="24"></i-lucide>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ statistics.totalLogs | number }}</span>
+                <span class="stat-label">Total Logs</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon green">
+                <i-lucide name="calendar-check" [size]="24"></i-lucide>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ statistics.todayLogs | number }}</span>
+                <span class="stat-label">Today</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple">
+                <i-lucide name="users" [size]="24"></i-lucide>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ statistics.uniqueUsers | number }}</span>
+                <span class="stat-label">Unique Users</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
 
-            <!-- Filter Toggle Button -->
-            <button class="filter-toggle-btn" [class.active]="showFilters" (click)="toggleFilters()">
-                <i-lucide name="sliders-horizontal" [size]="18"></i-lucide>
-                <span>Filters</span>
-                <span class="filter-badge" *ngIf="activeFiltersCount > 0">{{ activeFiltersCount }}</span>
+    <!-- Bulk Actions Bar -->
+    @if (selectedRows.size > 0) {
+      <div class="bulk-actions-bar" @slideDown>
+        <div class="selection-info">
+          <i-lucide name="check-square" [size]="18"></i-lucide>
+          <span>{{ selectedRows.size }} item(s) selected</span>
+        </div>
+        <div class="bulk-actions">
+          <button class="bulk-btn" (click)="openExportModal()">
+            <i-lucide name="download" [size]="16"></i-lucide>
+            <span>Export Selected</span>
+          </button>
+          <button class="bulk-btn secondary" (click)="clearSelection()">
+            <i-lucide name="x" [size]="16"></i-lucide>
+            <span>Clear Selection</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="loading-container">
+        <div class="matrix-loader">
+          <div class="loader-ring"></div>
+          <div class="loader-ring delay-1"></div>
+          <div class="loader-ring delay-2"></div>
+          <div class="loader-core">
+            <i-lucide name="shield-check" [size]="24"></i-lucide>
+          </div>
+        </div>
+        <p class="loader-text">Decrypting Activity Logs...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error && !isLoading) {
+      <div class="error-container" @fadeIn>
+        <div class="error-card">
+          <div class="error-icon">
+            <i-lucide name="alert-triangle" [size]="32"></i-lucide>
+          </div>
+          <h2>Connection Error</h2>
+          <p>{{ error }}</p>
+          <button class="retry-btn" (click)="retryLoad()">
+            <i-lucide name="refresh-cw" [size]="16"></i-lucide>
+            <span>Retry Connection</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (!isLoading && !error && logs.length === 0) {
+      <div class="empty-container" @fadeIn>
+        <div class="empty-card">
+          <div class="empty-icon">
+            <i-lucide name="inbox" [size]="48"></i-lucide>
+          </div>
+          <h2>{{ activeFiltersCount > 0 ? 'No Matching Results' : 'No Activity Detected' }}</h2>
+          <p>{{ activeFiltersCount > 0 ? 'Try adjusting your filters to find what you\'re looking for.' : 'The
+          system audit trail is empty. Activity will appear here as events occur.' }}</p>
+          @if (activeFiltersCount > 0) {
+            <button class="clear-filters-btn" (click)="clearFilters()">
+              <i-lucide name="x-circle" [size]="16"></i-lucide>
+              <span>Clear Filters</span>
             </button>
-
-            <!-- Column Visibility -->
-            <div class="column-menu-wrapper">
-                <button class="icon-btn" (click)="toggleColumnMenu()" title="Column Visibility">
-                    <i-lucide name="columns" [size]="18"></i-lucide>
-                </button>
-                <div class="column-dropdown" *ngIf="showColumnMenu" @fadeScale>
-                    <div class="dropdown-header">
-                        <span>Toggle Columns</span>
-                    </div>
-                    <div class="dropdown-items">
-                        <label class="column-toggle" *ngFor="let col of columns">
-                            <input type="checkbox" [checked]="col.visible" (change)="toggleColumn(col.key)">
-                            <span>{{ col.label }}</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="quick-stats" *ngIf="statistics">
-                <div class="stat-item">
-                    <i-lucide name="calendar" [size]="14"></i-lucide>
-                    <span>{{ statistics.todayLogs }} today</span>
-                </div>
-                <div class="stat-item">
-                    <i-lucide name="users" [size]="14"></i-lucide>
-                    <span>{{ statistics.uniqueUsers }} users</span>
-                </div>
-            </div>
+          }
         </div>
+      </div>
+    }
 
-        <!-- Filter Panel -->
-        <div class="filter-panel" *ngIf="showFilters" @slideDown>
-            <div class="filter-section">
-                <h4>Date Range</h4>
-                <div class="date-presets">
-                    <button class="preset-btn" [class.active]="dateRangePreset === 'today'"
-                        (click)="setDatePreset('today')">Today</button>
-                    <button class="preset-btn" [class.active]="dateRangePreset === 'yesterday'"
-                        (click)="setDatePreset('yesterday')">Yesterday</button>
-                    <button class="preset-btn" [class.active]="dateRangePreset === '7days'"
-                        (click)="setDatePreset('7days')">Last 7 Days</button>
-                    <button class="preset-btn" [class.active]="dateRangePreset === '30days'"
-                        (click)="setDatePreset('30days')">Last 30 Days</button>
-                </div>
-                <div class="date-inputs">
-                    <div class="date-field">
-                        <label>From</label>
-                        <input type="date" [(ngModel)]="startDate" (change)="applyFilters()">
-                    </div>
-                    <div class="date-field">
-                        <label>To</label>
-                        <input type="date" [(ngModel)]="endDate" (change)="applyFilters()">
-                    </div>
-                </div>
+    <!-- Logs Table -->
+    @if (!isLoading && !error && logs.length > 0) {
+      <div class="logs-table-wrapper">
+        <!-- Table Header -->
+        <div class="table-header" [style.grid-template-columns]="'40px ' + getGridTemplateColumns()">
+          <!-- Select All Checkbox -->
+          <div class="th-checkbox">
+            <input type="checkbox" [checked]="selectAllChecked" (change)="toggleSelectAll()">
+          </div>
+          <!-- Dynamic Columns -->
+          @for (col of columns; track col) {
+            <div [class]="'th-' + col.key" [class.sortable]="col.sortable"
+              [class.sorted]="isSorted(col.key)" [class.hidden]="!col.visible"
+              (click)="col.sortable ? toggleSort(col.key) : null">
+              <span>{{ col.label }}</span>
+              @if (col.sortable) {
+                <i-lucide [name]="getSortIcon(col.key)" [size]="14"
+                class="sort-icon"></i-lucide>
+              }
             </div>
-
-            <div class="filter-section">
-                <h4>Action Types</h4>
-                <div class="action-chips">
-                    <button class="action-chip" *ngFor="let action of actionTypes"
-                        [class.selected]="isActionSelected(action.value)" [style.--chip-color]="action.color"
-                        (click)="toggleAction(action.value)">
-                        {{ action.label }}
+          }
+        </div>
+        <!-- Table Body with Staggered Animation -->
+        <div class="table-body" [@staggeredFadeIn]="logs.length">
+          @for (log of logs; track trackByLogId(i, log); let i = $index) {
+            <!-- Log Row -->
+            <div class="log-row" [class.selected]="isRowSelected(log.id)"
+              [class.expanded]="isRowExpanded(log.id)" [class.focused]="isFocusedRow(i)"
+              [style.grid-template-columns]="'40px ' + getGridTemplateColumns()"
+              [style.--delay]="i * 0.06 + 's'">
+              <!-- Checkbox -->
+              <div class="td-checkbox">
+                <input type="checkbox" [checked]="isRowSelected(log.id)"
+                  (change)="toggleRowSelection(log.id)" (click)="$event.stopPropagation()">
+              </div>
+              <!-- Action Badge -->
+              @if (isColumnVisible('action')) {
+                <div class="td-action" (click)="toggleRowExpand(log.id)">
+                  <span class="action-badge" [ngClass]="getActionBadgeClass(log.action)">
+                    <i-lucide [name]="getActionIcon(log.action)" [size]="14"></i-lucide>
+                    <span>{{ formatActionName(log.action) }}</span>
+                  </span>
+                </div>
+              }
+              <!-- Username (Copyable) -->
+              @if (isColumnVisible('username')) {
+                <div class="td-user">
+                  <button class="copy-field"
+                    (click)="copyToClipboard(log.username, 'user-' + log.id); $event.stopPropagation()"
+                    [class.copied]="copiedField === 'user-' + log.id">
+                    <i-lucide name="user" [size]="14"></i-lucide>
+                    <span>{{ log.username }}</span>
+                    <span class="copy-tooltip">{{ copiedField === 'user-' + log.id ? 'Copied!' : 'Click to
+                    copy' }}</span>
+                  </button>
+                </div>
+              }
+              <!-- Role -->
+              @if (isColumnVisible('role')) {
+                <div class="td-role">
+                  <span class="role-tag">{{ log.role }}</span>
+                </div>
+              }
+              <!-- Entity Name -->
+              @if (isColumnVisible('entityName')) {
+                <div class="td-entity">
+                  <span class="entity-name">{{ log.entityName || '—' }}</span>
+                </div>
+              }
+              <!-- Details -->
+              @if (isColumnVisible('details')) {
+                <div class="td-details">
+                  <span class="details-text" [title]="log.details">{{ log.details || '—' }}</span>
+                </div>
+              }
+              <!-- IP Address (Copyable) -->
+              @if (isColumnVisible('ipAddress')) {
+                <div class="td-ip">
+                  <button class="copy-field ip-field"
+                    (click)="copyToClipboard(log.ipAddress, 'ip-' + log.id); $event.stopPropagation()"
+                    [class.copied]="copiedField === 'ip-' + log.id">
+                    <i-lucide name="globe" [size]="14"></i-lucide>
+                    <span>{{ log.ipAddress }}</span>
+                    <span class="copy-tooltip">{{ copiedField === 'ip-' + log.id ? 'Copied!' : 'Click to
+                    copy' }}</span>
+                  </button>
+                </div>
+              }
+              <!-- Timestamp -->
+              @if (isColumnVisible('timestamp')) {
+                <div class="td-time">
+                  <span class="time-relative">{{ getRelativeTime(log.timestamp) }}</span>
+                  <span class="time-full">{{ formatTimestamp(log.timestamp) }}</span>
+                </div>
+              }
+            </div>
+            <!-- Expanded Details Row -->
+            <div class="expanded-row" [@expandRow]="isRowExpanded(log.id) ? 'expanded' : 'collapsed'">
+              @if (isRowExpanded(log.id)) {
+                <div class="expanded-content">
+                  <div class="expanded-grid">
+                    <div class="detail-item">
+                      <span class="detail-label">Log ID</span>
+                      <span class="detail-value mono">#{{ log.id }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Full Timestamp</span>
+                      <span class="detail-value">{{ log.timestamp | date:'full' }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Action</span>
+                      <span class="detail-value">{{ log.action }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Username</span>
+                      <span class="detail-value">{{ log.username }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Role</span>
+                      <span class="detail-value">{{ log.role }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Entity</span>
+                      <span class="detail-value">{{ log.entityName || 'N/A' }}</span>
+                    </div>
+                    <div class="detail-item full-width">
+                      <span class="detail-label">Details</span>
+                      <span class="detail-value">{{ log.details || 'No additional details' }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">IP Address</span>
+                      <span class="detail-value mono">{{ log.ipAddress }}</span>
+                    </div>
+                  </div>
+                  <div class="expanded-actions">
+                    <button class="action-btn"
+                      (click)="copyToClipboard(log.username, 'expanded-user-' + log.id)">
+                      <i-lucide name="copy" [size]="14"></i-lucide>
+                      Copy Username
                     </button>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <h4>User Roles</h4>
-                <div class="role-chips">
-                    <button class="role-chip" *ngFor="let role of roleTypes"
-                        [class.selected]="isRoleSelected(role.value)" (click)="toggleRole(role.value)">
-                        {{ role.label }}
+                    <button class="action-btn"
+                      (click)="copyToClipboard(log.ipAddress, 'expanded-ip-' + log.id)">
+                      <i-lucide name="copy" [size]="14"></i-lucide>
+                      Copy IP
                     </button>
+                  </div>
                 </div>
+              }
             </div>
-
-            <div class="filter-actions">
-                <button class="clear-filters-btn" (click)="clearFilters()" [disabled]="activeFiltersCount === 0">
-                    <i-lucide name="x-circle" [size]="16"></i-lucide>
-                    <span>Clear All Filters</span>
-                </button>
-            </div>
+          }
         </div>
+      </div>
+    }
 
-        <!-- Charts Section -->
-        <div class="charts-section" *ngIf="showCharts && !isLoading && statistics" @slideDown>
-            <div class="charts-grid">
-                <!-- Activity Timeline Chart -->
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>
-                            <i-lucide name="trending-up" [size]="18"></i-lucide>
-                            Activity Timeline
-                        </h3>
-                        <span class="chart-subtitle">Last 7 days</span>
-                    </div>
-                    <div class="chart-body">
-                        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line">
-                        </canvas>
-                    </div>
-                </div>
-
-                <!-- Action Distribution Chart -->
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>
-                            <i-lucide name="pie-chart" [size]="18"></i-lucide>
-                            Action Distribution
-                        </h3>
-                        <span class="chart-subtitle">By type</span>
-                    </div>
-                    <div class="chart-body">
-                        <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" type="doughnut">
-                        </canvas>
-                    </div>
-                </div>
-
-                <!-- Stats Cards -->
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <div class="stat-icon blue">
-                            <i-lucide name="file-text" [size]="24"></i-lucide>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-value">{{ statistics.totalLogs | number }}</span>
-                            <span class="stat-label">Total Logs</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon green">
-                            <i-lucide name="calendar-check" [size]="24"></i-lucide>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-value">{{ statistics.todayLogs | number }}</span>
-                            <span class="stat-label">Today</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon purple">
-                            <i-lucide name="users" [size]="24"></i-lucide>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-value">{{ statistics.uniqueUsers | number }}</span>
-                            <span class="stat-label">Unique Users</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Pagination -->
+    @if (!isLoading && !error && totalPages > 1) {
+      <div class="pagination-wrapper" @fadeIn>
+        <div class="pagination">
+          <!-- First Page -->
+          <button class="page-btn" (click)="goToPage(0)" [disabled]="currentPage === 0" title="First Page">
+            <i-lucide name="chevrons-left" [size]="16"></i-lucide>
+          </button>
+          <!-- Previous Page -->
+          <button class="page-btn" (click)="prevPage()" [disabled]="currentPage === 0" title="Previous Page">
+            <i-lucide name="chevron-left" [size]="16"></i-lucide>
+          </button>
+          <!-- Page Numbers -->
+          <div class="page-numbers">
+            @for (page of getPageNumbers(); track page) {
+              <button class="page-num" [class.active]="page === currentPage"
+                (click)="goToPage(page)">
+                {{ page + 1 }}
+              </button>
+            }
+          </div>
+          <!-- Next Page -->
+          <button class="page-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"
+            title="Next Page">
+            <i-lucide name="chevron-right" [size]="16"></i-lucide>
+          </button>
+          <!-- Last Page -->
+          <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1"
+            title="Last Page">
+            <i-lucide name="chevrons-right" [size]="16"></i-lucide>
+          </button>
+          <!-- Page Info -->
+          <div class="page-info">
+            <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+          </div>
         </div>
+      </div>
+    }
 
-        <!-- Bulk Actions Bar -->
-        <div class="bulk-actions-bar" *ngIf="selectedRows.size > 0" @slideDown>
-            <div class="selection-info">
-                <i-lucide name="check-square" [size]="18"></i-lucide>
-                <span>{{ selectedRows.size }} item(s) selected</span>
-            </div>
-            <div class="bulk-actions">
-                <button class="bulk-btn" (click)="openExportModal()">
-                    <i-lucide name="download" [size]="16"></i-lucide>
-                    <span>Export Selected</span>
-                </button>
-                <button class="bulk-btn secondary" (click)="clearSelection()">
-                    <i-lucide name="x" [size]="16"></i-lucide>
-                    <span>Clear Selection</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Loading State -->
-        <div class="loading-container" *ngIf="isLoading">
-            <div class="matrix-loader">
-                <div class="loader-ring"></div>
-                <div class="loader-ring delay-1"></div>
-                <div class="loader-ring delay-2"></div>
-                <div class="loader-core">
-                    <i-lucide name="shield-check" [size]="24"></i-lucide>
-                </div>
-            </div>
-            <p class="loader-text">Decrypting Activity Logs...</p>
-        </div>
-
-        <!-- Error State -->
-        <div class="error-container" *ngIf="error && !isLoading" @fadeIn>
-            <div class="error-card">
-                <div class="error-icon">
-                    <i-lucide name="alert-triangle" [size]="32"></i-lucide>
-                </div>
-                <h2>Connection Error</h2>
-                <p>{{ error }}</p>
-                <button class="retry-btn" (click)="retryLoad()">
-                    <i-lucide name="refresh-cw" [size]="16"></i-lucide>
-                    <span>Retry Connection</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Empty State -->
-        <div class="empty-container" *ngIf="!isLoading && !error && logs.length === 0" @fadeIn>
-            <div class="empty-card">
-                <div class="empty-icon">
-                    <i-lucide name="inbox" [size]="48"></i-lucide>
-                </div>
-                <h2>{{ activeFiltersCount > 0 ? 'No Matching Results' : 'No Activity Detected' }}</h2>
-                <p>{{ activeFiltersCount > 0 ? 'Try adjusting your filters to find what you\'re looking for.' : 'The
-                    system audit trail is empty. Activity will appear here as events occur.' }}</p>
-                <button class="clear-filters-btn" *ngIf="activeFiltersCount > 0" (click)="clearFilters()">
-                    <i-lucide name="x-circle" [size]="16"></i-lucide>
-                    <span>Clear Filters</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Logs Table -->
-        <div class="logs-table-wrapper" *ngIf="!isLoading && !error && logs.length > 0">
-
-            <!-- Table Header -->
-            <div class="table-header" [style.grid-template-columns]="'40px ' + getGridTemplateColumns()">
-                <!-- Select All Checkbox -->
-                <div class="th-checkbox">
-                    <input type="checkbox" [checked]="selectAllChecked" (change)="toggleSelectAll()">
-                </div>
-                <!-- Dynamic Columns -->
-                <div *ngFor="let col of columns" [class]="'th-' + col.key" [class.sortable]="col.sortable"
-                    [class.sorted]="isSorted(col.key)" [class.hidden]="!col.visible"
-                    (click)="col.sortable ? toggleSort(col.key) : null">
-                    <span>{{ col.label }}</span>
-                    <i-lucide *ngIf="col.sortable" [name]="getSortIcon(col.key)" [size]="14"
-                        class="sort-icon"></i-lucide>
-                </div>
-            </div>
-
-            <!-- Table Body with Staggered Animation -->
-            <div class="table-body" [@staggeredFadeIn]="logs.length">
-                <ng-container *ngFor="let log of logs; trackBy: trackByLogId; let i = index">
-                    <!-- Log Row -->
-                    <div class="log-row" [class.selected]="isRowSelected(log.id)"
-                        [class.expanded]="isRowExpanded(log.id)" [class.focused]="isFocusedRow(i)"
-                        [style.grid-template-columns]="'40px ' + getGridTemplateColumns()"
-                        [style.--delay]="i * 0.06 + 's'">
-                        <!-- Checkbox -->
-                        <div class="td-checkbox">
-                            <input type="checkbox" [checked]="isRowSelected(log.id)"
-                                (change)="toggleRowSelection(log.id)" (click)="$event.stopPropagation()">
-                        </div>
-
-                        <!-- Action Badge -->
-                        <div class="td-action" *ngIf="isColumnVisible('action')" (click)="toggleRowExpand(log.id)">
-                            <span class="action-badge" [ngClass]="getActionBadgeClass(log.action)">
-                                <i-lucide [name]="getActionIcon(log.action)" [size]="14"></i-lucide>
-                                <span>{{ formatActionName(log.action) }}</span>
-                            </span>
-                        </div>
-
-                        <!-- Username (Copyable) -->
-                        <div class="td-user" *ngIf="isColumnVisible('username')">
-                            <button class="copy-field"
-                                (click)="copyToClipboard(log.username, 'user-' + log.id); $event.stopPropagation()"
-                                [class.copied]="copiedField === 'user-' + log.id">
-                                <i-lucide name="user" [size]="14"></i-lucide>
-                                <span>{{ log.username }}</span>
-                                <span class="copy-tooltip">{{ copiedField === 'user-' + log.id ? 'Copied!' : 'Click to
-                                    copy' }}</span>
-                            </button>
-                        </div>
-
-                        <!-- Role -->
-                        <div class="td-role" *ngIf="isColumnVisible('role')">
-                            <span class="role-tag">{{ log.role }}</span>
-                        </div>
-
-                        <!-- Entity Name -->
-                        <div class="td-entity" *ngIf="isColumnVisible('entityName')">
-                            <span class="entity-name">{{ log.entityName || '—' }}</span>
-                        </div>
-
-                        <!-- Details -->
-                        <div class="td-details" *ngIf="isColumnVisible('details')">
-                            <span class="details-text" [title]="log.details">{{ log.details || '—' }}</span>
-                        </div>
-
-                        <!-- IP Address (Copyable) -->
-                        <div class="td-ip" *ngIf="isColumnVisible('ipAddress')">
-                            <button class="copy-field ip-field"
-                                (click)="copyToClipboard(log.ipAddress, 'ip-' + log.id); $event.stopPropagation()"
-                                [class.copied]="copiedField === 'ip-' + log.id">
-                                <i-lucide name="globe" [size]="14"></i-lucide>
-                                <span>{{ log.ipAddress }}</span>
-                                <span class="copy-tooltip">{{ copiedField === 'ip-' + log.id ? 'Copied!' : 'Click to
-                                    copy' }}</span>
-                            </button>
-                        </div>
-
-                        <!-- Timestamp -->
-                        <div class="td-time" *ngIf="isColumnVisible('timestamp')">
-                            <span class="time-relative">{{ getRelativeTime(log.timestamp) }}</span>
-                            <span class="time-full">{{ formatTimestamp(log.timestamp) }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Expanded Details Row -->
-                    <div class="expanded-row" [@expandRow]="isRowExpanded(log.id) ? 'expanded' : 'collapsed'">
-                        <div class="expanded-content" *ngIf="isRowExpanded(log.id)">
-                            <div class="expanded-grid">
-                                <div class="detail-item">
-                                    <span class="detail-label">Log ID</span>
-                                    <span class="detail-value mono">#{{ log.id }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Full Timestamp</span>
-                                    <span class="detail-value">{{ log.timestamp | date:'full' }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Action</span>
-                                    <span class="detail-value">{{ log.action }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Username</span>
-                                    <span class="detail-value">{{ log.username }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Role</span>
-                                    <span class="detail-value">{{ log.role }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Entity</span>
-                                    <span class="detail-value">{{ log.entityName || 'N/A' }}</span>
-                                </div>
-                                <div class="detail-item full-width">
-                                    <span class="detail-label">Details</span>
-                                    <span class="detail-value">{{ log.details || 'No additional details' }}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">IP Address</span>
-                                    <span class="detail-value mono">{{ log.ipAddress }}</span>
-                                </div>
-                            </div>
-                            <div class="expanded-actions">
-                                <button class="action-btn"
-                                    (click)="copyToClipboard(log.username, 'expanded-user-' + log.id)">
-                                    <i-lucide name="copy" [size]="14"></i-lucide>
-                                    Copy Username
-                                </button>
-                                <button class="action-btn"
-                                    (click)="copyToClipboard(log.ipAddress, 'expanded-ip-' + log.id)">
-                                    <i-lucide name="copy" [size]="14"></i-lucide>
-                                    Copy IP
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </ng-container>
-            </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination-wrapper" *ngIf="!isLoading && !error && totalPages > 1" @fadeIn>
-            <div class="pagination">
-                <!-- First Page -->
-                <button class="page-btn" (click)="goToPage(0)" [disabled]="currentPage === 0" title="First Page">
-                    <i-lucide name="chevrons-left" [size]="16"></i-lucide>
-                </button>
-
-                <!-- Previous Page -->
-                <button class="page-btn" (click)="prevPage()" [disabled]="currentPage === 0" title="Previous Page">
-                    <i-lucide name="chevron-left" [size]="16"></i-lucide>
-                </button>
-
-                <!-- Page Numbers -->
-                <div class="page-numbers">
-                    <button *ngFor="let page of getPageNumbers()" class="page-num" [class.active]="page === currentPage"
-                        (click)="goToPage(page)">
-                        {{ page + 1 }}
-                    </button>
-                </div>
-
-                <!-- Next Page -->
-                <button class="page-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"
-                    title="Next Page">
-                    <i-lucide name="chevron-right" [size]="16"></i-lucide>
-                </button>
-
-                <!-- Last Page -->
-                <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1"
-                    title="Last Page">
-                    <i-lucide name="chevrons-right" [size]="16"></i-lucide>
-                </button>
-
-                <!-- Page Info -->
-                <div class="page-info">
-                    <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Keyboard Shortcuts Help -->
-        <div class="keyboard-help">
-            <span><kbd>/</kbd> Search</span>
-            <span><kbd>J</kbd><kbd>K</kbd> Navigate</span>
-            <span><kbd>Enter</kbd> Expand</span>
-            <span><kbd>X</kbd> Select</span>
-            <span><kbd>Esc</kbd> Close</span>
-        </div>
-
+    <!-- Keyboard Shortcuts Help -->
+    <div class="keyboard-help">
+      <span><kbd>/</kbd> Search</span>
+      <span><kbd>J</kbd><kbd>K</kbd> Navigate</span>
+      <span><kbd>Enter</kbd> Expand</span>
+      <span><kbd>X</kbd> Select</span>
+      <span><kbd>Esc</kbd> Close</span>
     </div>
 
-    <!-- Export Modal -->
-    <div class="modal-overlay" *ngIf="showExportModal" (click)="closeExportModal()" @fadeIn>
-        <div class="export-modal" (click)="$event.stopPropagation()" @fadeScale>
-            <div class="modal-header">
-                <h2>
-                    <i-lucide name="download" [size]="24"></i-lucide>
-                    Export Activity Logs
-                </h2>
-                <button class="modal-close" (click)="closeExportModal()">
-                    <i-lucide name="x" [size]="20"></i-lucide>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="export-info">
-                    {{ selectedRows.size > 0 ? 'Exporting ' + selectedRows.size + ' selected items' : 'Exporting all ' +
-                    allLogs.length + ' logs' }}
-                </p>
-                <div class="format-options">
-                    <label class="format-option" [class.selected]="exportFormat === 'csv'">
-                        <input type="radio" name="format" value="csv" [(ngModel)]="exportFormat">
-                        <div class="format-icon">
-                            <i-lucide name="file-spreadsheet" [size]="32"></i-lucide>
-                        </div>
-                        <span class="format-name">CSV</span>
-                        <span class="format-desc">Spreadsheet format</span>
-                    </label>
-                    <label class="format-option" [class.selected]="exportFormat === 'json'">
-                        <input type="radio" name="format" value="json" [(ngModel)]="exportFormat">
-                        <div class="format-icon">
-                            <i-lucide name="file-json" [size]="32"></i-lucide>
-                        </div>
-                        <span class="format-name">JSON</span>
-                        <span class="format-desc">Developer format</span>
-                    </label>
-                    <label class="format-option" [class.selected]="exportFormat === 'pdf'">
-                        <input type="radio" name="format" value="pdf" [(ngModel)]="exportFormat">
-                        <div class="format-icon">
-                            <i-lucide name="file-text" [size]="32"></i-lucide>
-                        </div>
-                        <span class="format-name">PDF</span>
-                        <span class="format-desc">Printable report</span>
-                    </label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="cancel-btn" (click)="closeExportModal()">Cancel</button>
-                <button class="export-confirm-btn" (click)="exportLogs()" [disabled]="isExporting">
-                    <i-lucide name="download" [size]="18" *ngIf="!isExporting"></i-lucide>
-                    <i-lucide name="loader-2" [size]="18" class="spinning" *ngIf="isExporting"></i-lucide>
-                    <span>{{ isExporting ? 'Exporting...' : 'Export Now' }}</span>
-                </button>
-            </div>
+  </div>
+
+  <!-- Export Modal -->
+  @if (showExportModal) {
+    <div class="modal-overlay" (click)="closeExportModal()" @fadeIn>
+      <div class="export-modal" (click)="$event.stopPropagation()" @fadeScale>
+        <div class="modal-header">
+          <h2>
+            <i-lucide name="download" [size]="24"></i-lucide>
+            Export Activity Logs
+          </h2>
+          <button class="modal-close" (click)="closeExportModal()">
+            <i-lucide name="x" [size]="20"></i-lucide>
+          </button>
         </div>
+        <div class="modal-body">
+          <p class="export-info">
+            {{ selectedRows.size > 0 ? 'Exporting ' + selectedRows.size + ' selected items' : 'Exporting all ' +
+            allLogs.length + ' logs' }}
+          </p>
+          <div class="format-options">
+            <label class="format-option" [class.selected]="exportFormat === 'csv'">
+              <input type="radio" name="format" value="csv" [(ngModel)]="exportFormat">
+              <div class="format-icon">
+                <i-lucide name="file-spreadsheet" [size]="32"></i-lucide>
+              </div>
+              <span class="format-name">CSV</span>
+              <span class="format-desc">Spreadsheet format</span>
+            </label>
+            <label class="format-option" [class.selected]="exportFormat === 'json'">
+              <input type="radio" name="format" value="json" [(ngModel)]="exportFormat">
+              <div class="format-icon">
+                <i-lucide name="file-json" [size]="32"></i-lucide>
+              </div>
+              <span class="format-name">JSON</span>
+              <span class="format-desc">Developer format</span>
+            </label>
+            <label class="format-option" [class.selected]="exportFormat === 'pdf'">
+              <input type="radio" name="format" value="pdf" [(ngModel)]="exportFormat">
+              <div class="format-icon">
+                <i-lucide name="file-text" [size]="32"></i-lucide>
+              </div>
+              <span class="format-name">PDF</span>
+              <span class="format-desc">Printable report</span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn" (click)="closeExportModal()">Cancel</button>
+          <button class="export-confirm-btn" (click)="exportLogs()" [disabled]="isExporting">
+            @if (!isExporting) {
+              <i-lucide name="download" [size]="18"></i-lucide>
+            }
+            @if (isExporting) {
+              <i-lucide name="loader-2" [size]="18" class="spinning"></i-lucide>
+            }
+            <span>{{ isExporting ? 'Exporting...' : 'Export Now' }}</span>
+          </button>
+        </div>
+      </div>
     </div>
+  }
 </div>

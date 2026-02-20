@@ -1,1341 +1,1424 @@
 <!-- Premium System Dashboard Modal -->
-<div class="modal-backdrop" *ngIf="isOpen" @fadeIn (click)="onBackdropClick($event)">
+@if (isOpen) {
+  <div class="modal-backdrop" @fadeIn (click)="onBackdropClick($event)">
     <div class="system-dashboard-modal" @modalAnimation (click)="$event.stopPropagation()">
-
-        <!-- Modal Header -->
-        <div class="modal-header">
-            <div class="header-left">
-                <button class="back-btn" *ngIf="showDetailView" (click)="backToOverview()">
-                    <i-lucide name="arrow-left" size="20"></i-lucide>
-                </button>
-                <div class="header-icon">
-                    <i-lucide name="bar-chart-3" size="24"></i-lucide>
-                </div>
-                <div class="header-text">
-                    <h1>{{ showDetailView ? selectedManagerReport?.managerName : 'Reports Generation' }}</h1>
-                    <span class="subtitle">{{ showDetailView ? 'Detailed Analytics' : 'User-wise Performance Metrics'
-                        }}</span>
-                </div>
-            </div>
-            <div class="header-actions">
-                <!-- Single Manager Report Button (Detail View) -->
-                <button class="generate-report-btn single"
-                    *ngIf="showDetailView || showVisaDetailView || showTelexDetailView || showAgentDetailView"
-                    (click)="openEmailModal('single')" [disabled]="isLoading">
-                    <i-lucide name="user" size="16"></i-lucide>
-                    <span>Email This Report</span>
-                </button>
-                <!-- All Managers Report Button (Overview) -->
-                <button class="generate-report-btn"
-                    *ngIf="!showDetailView && !showVisaDetailView && !showTelexDetailView && !showAgentDetailView && selectedUserType !== 'DOC_PERSON'"
-                    (click)="openEmailModal('all')" [disabled]="isLoading">
-                    <i-lucide name="users" size="16"></i-lucide>
-                    <span>Email All Reports</span>
-                </button>
-                <button class="close-btn" (click)="close()">
-                    <i-lucide name="x" size="20"></i-lucide>
-                </button>
-            </div>
-        </div>
-
-        <!-- User Type Tabs -->
-        <div class="user-type-tabs" *ngIf="!showDetailView">
-            <button class="type-tab" *ngFor="let type of userTypes" [class.active]="selectedUserType === type.key"
-                (click)="selectUserType(type.key)">
-                <i-lucide [name]="type.icon" size="16"></i-lucide>
-                <span>{{ type.label }}</span>
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="header-left">
+          @if (showDetailView) {
+            <button class="back-btn" (click)="backToOverview()">
+              <i-lucide name="arrow-left" size="20"></i-lucide>
             </button>
+          }
+          <div class="header-icon">
+            <i-lucide name="bar-chart-3" size="24"></i-lucide>
+          </div>
+          <div class="header-text">
+            <h1>{{ showDetailView ? selectedManagerReport?.managerName : 'Reports Generation' }}</h1>
+            <span class="subtitle">{{ showDetailView ? 'Detailed Analytics' : 'User-wise Performance Metrics'
+            }}</span>
+          </div>
         </div>
-
-        <!-- Time Period Selector -->
-        <div class="time-period-bar">
-            <div class="period-selector">
-                <button class="period-btn" *ngFor="let period of timePeriods"
-                    [class.active]="selectedTimePeriod === period.key" (click)="selectTimePeriod(period.key)">
-                    <i-lucide [name]="period.icon" size="14"></i-lucide>
-                    <span>{{ period.label }}</span>
-                </button>
-            </div>
-            <div class="refresh-indicator" *ngIf="isLoading">
-                <div class="mini-spinner"></div>
-                <span>Updating...</span>
-            </div>
+        <div class="header-actions">
+          <!-- Single Manager Report Button (Detail View) -->
+          @if (showDetailView || showVisaDetailView || showTelexDetailView || showAgentDetailView) {
+            <button class="generate-report-btn single"
+              (click)="openEmailModal('single')" [disabled]="isLoading">
+              <i-lucide name="user" size="16"></i-lucide>
+              <span>Email This Report</span>
+            </button>
+          }
+          <!-- All Managers Report Button (Overview) -->
+          @if (!showDetailView && !showVisaDetailView && !showTelexDetailView && !showAgentDetailView && selectedUserType !== 'DOC_PERSON') {
+            <button class="generate-report-btn"
+              (click)="openEmailModal('all')" [disabled]="isLoading">
+              <i-lucide name="users" size="16"></i-lucide>
+              <span>Email All Reports</span>
+            </button>
+          }
+          <button class="close-btn" (click)="close()">
+            <i-lucide name="x" size="20"></i-lucide>
+          </button>
         </div>
-
-        <!-- Modal Body -->
-        <div class="modal-body">
-            <!-- Loading State -->
-            <div class="loading-state" *ngIf="isLoading">
-                <div class="premium-loader">
-                    <div class="loader-ring"></div>
-                    <i-lucide name="bar-chart-3" size="24"></i-lucide>
-                </div>
-                <p>Loading performance data...</p>
-            </div>
-
-
-
-            <!-- Admission Manager Dashboard Content -->
-            <div class="dashboard-content"
-                *ngIf="!isLoading && allManagerReports.length > 0 && selectedUserType === 'ADMISSION_MANAGER'" @slideUp>
-
-                <!-- KPI Cards -->
-                <div class="kpi-section">
-                    <div class="kpi-grid">
-                        <div class="kpi-card" *ngFor="let kpi of kpiCards; let i = index"
-                            [style.--delay]="i * 0.1 + 's'" [style.--accent-color]="kpi.color">
-                            <div class="kpi-icon">
-                                <i-lucide [name]="kpi.icon" size="22"></i-lucide>
-                            </div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ formatNumber(kpi.value) }}</span>
-                                <span class="kpi-label">{{ kpi.label }}</span>
-                            </div>
-                            <div class="kpi-trend" [ngClass]="getTrendClass(kpi.trend)">
-                                <ng-container *ngIf="kpi.trend !== null">
-                                    <i-lucide [name]="kpi.trend >= 0 ? 'trending-up' : 'trending-down'"
-                                        size="14"></i-lucide>
-                                    <span>{{ formatTrend(kpi.trend) }}</span>
-                                </ng-container>
-                                <ng-container *ngIf="kpi.trend === null">
-                                    <i-lucide name="minus" size="14"></i-lucide>
-                                    <span>N/A</span>
-                                </ng-container>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Section -->
-                <div class="charts-section" *ngIf="selectedUserType === 'ADMISSION_MANAGER'">
-                    <!-- Activity Breakdown Donut -->
-                    <div class="chart-card donut-chart">
-                        <div class="chart-header">
-                            <h3>
-                                <i-lucide name="pie-chart" size="18"></i-lucide>
-                                Activity Breakdown
-                            </h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="donutChartData" [data]="donutChartData"
-                                [options]="donutChartOptions" type="doughnut"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Productivity Trend Bar -->
-                    <div class="chart-card bar-chart">
-                        <div class="chart-header">
-                            <h3>
-                                <i-lucide name="bar-chart-3" size="18"></i-lucide>
-                                Productivity Trend ({{ selectedTimePeriod | titlecase }})
-                            </h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="barChartData" [data]="barChartData" [options]="barChartOptions"
-                                type="bar"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Managers Leaderboard (Overview only) -->
-                <div class="leaderboard-section" *ngIf="!showDetailView && selectedUserType === 'ADMISSION_MANAGER'">
-                    <div class="section-header">
-                        <h3>
-                            <i-lucide name="trophy" size="18"></i-lucide>
-                            Manager Leaderboard
-                        </h3>
-                        <span class="badge">{{ allManagerReports.length }} managers</span>
-                    </div>
-
-                    <div class="leaderboard-list">
-                        <div class="leaderboard-item" *ngFor="let manager of allManagerReports; let i = index"
-                            [style.--delay]="i * 0.05 + 's'" (click)="selectManager(manager)">
-                            <div class="rank" [class.top-3]="i < 3">
-                                {{ i + 1 }}
-                            </div>
-                            <div class="manager-info">
-                                <div class="manager-avatar">
-                                    {{ manager.managerName.charAt(0) }}
-                                </div>
-                                <div class="manager-details">
-                                    <span class="manager-name">{{ manager.managerName }}</span>
-                                    <span class="manager-username">{{ manager.managerUsername }}</span>
-                                </div>
-                            </div>
-                            <div class="manager-stats">
-                                <div class="stat">
-                                    <span class="stat-value">{{ manager.periodStats.forwardedToUniversity }}</span>
-                                    <span class="stat-label">Forwarded</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-value">{{ manager.periodStats.admissionLettersApproved }}</span>
-                                    <span class="stat-label">Approved</span>
-                                </div>
-                                <div class="stat efficiency">
-                                    <span class="stat-value">{{ getEfficiencyScore(manager) }}%</span>
-                                    <span class="stat-label">Efficiency</span>
-                                </div>
-                            </div>
-                            <div class="progress-bar-wrapper">
-                                <div class="progress-bar" [style.width.%]="getProgressWidth(manager)"></div>
-                            </div>
-                            <div class="view-details">
-                                <i-lucide name="chevron-right" size="18"></i-lucide>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ✨ AI-Powered Insights Panel ✨ -->
-                <div class="insights-section" *ngIf="aiInsights.length > 0">
-                    <div class="section-header insights-header">
-                        <h3>
-                            <i-lucide name="sparkles" size="18"></i-lucide>
-                            AI Insights
-                            <span class="ai-badge">Powered by Analytics</span>
-                        </h3>
-                        <button class="toggle-btn" (click)="toggleInsightsPanel()">
-                            <i-lucide [name]="showInsightsPanel ? 'chevron-up' : 'chevron-down'" size="18"></i-lucide>
-                        </button>
-                    </div>
-
-                    <div class="insights-grid" *ngIf="showInsightsPanel" @slideUp>
-                        <div *ngFor="let insight of aiInsights; let i = index"
-                            [class]="getInsightCardClass(insight.type)" [style.--delay]="i * 0.1 + 's'">
-                            <div class="insight-icon-wrapper" [ngClass]="insight.type">
-                                <i-lucide [name]="insight.icon" size="20"></i-lucide>
-                            </div>
-                            <div class="insight-content">
-                                <div class="insight-header">
-                                    <span class="insight-title">{{ insight.title }}</span>
-                                    <span class="insight-metric" *ngIf="insight.metric">{{ insight.metric }}</span>
-                                </div>
-                                <p class="insight-description">{{ insight.description }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
-            </div>
-
-            <!-- ============================================================================
-                 UNIVERSITY COORDINATORS DASHBOARD (ALL UNIVERSITIES VIEW)
-                 ============================================================================ -->
-            <div class="dashboard-content university-coordinator-theme"
-                *ngIf="!isLoading && allUniversityPersonReports.length > 0 && selectedUserType === 'UNIVERSITY_COORDINATOR'"
-                @slideUp>
-
-                <!-- Summary Cards Row -->
-                <div class="summary-cards-row">
-                    <div class="summary-card">
-                        <div class="summary-icon students">
-                            <i-lucide name="users" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.totalStudents) }}</span>
-                            <span class="summary-label">Total Students</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon letters">
-                            <i-lucide name="file-text" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.lettersUploaded)
-                                }}</span>
-                            <span class="summary-label">Letters Uploaded</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon conditional">
-                            <i-lucide name="file-check" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.conditionalOffers)
-                                }}</span>
-                            <span class="summary-label">Conditional Offers</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon pending">
-                            <i-lucide name="clock" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.pendingLetters)
-                                }}</span>
-                            <span class="summary-label">Pending Letters</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Universities Table -->
-                <div class="universities-table-container">
-                    <div class="table-header">
-                        <h3>
-                            <i-lucide name="school" size="18"></i-lucide>
-                            University Performance Reports
-                        </h3>
-                        <span class="table-count">{{ allUniversityPersonReports.length }} coordinators</span>
-                    </div>
-                    <div class="table-wrapper">
-                        <table class="universities-table">
-                            <thead>
-                                <tr>
-                                    <th>University</th>
-                                    <th>Coordinator</th>
-                                    <th>Students</th>
-                                    <th>Uploaded</th>
-                                    <th>Conditional</th>
-                                    <th>Pending</th>
-                                    <th>Efficiency</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let coordinator of allUniversityPersonReports" class="table-row"
-                                    (click)="selectUniversityPerson(coordinator)">
-                                    <td class="university-name">
-                                        {{ coordinator.collegeName }}
-                                    </td>
-                                    <td class="coordinator">
-                                        <span class="coordinator-badge active">
-                                            {{ coordinator.userName }}
-                                        </span>
-                                    </td>
-                                    <td class="students">{{ formatNumber(coordinator.periodStats.totalStudents) }}</td>
-                                    <td class="uploaded">
-                                        {{ formatNumber(coordinator.periodStats.lettersUploaded) }}
-                                        <span class="trend"
-                                            *ngIf="coordinator.periodStats.lettersUploadedTrend !== null"
-                                            [ngClass]="coordinator.periodStats.lettersUploadedTrend >= 0 ? 'trend-up' : 'trend-down'">
-                                            {{ formatTrend(coordinator.periodStats.lettersUploadedTrend) }}
-                                        </span>
-                                    </td>
-                                    <td class="conditional">
-                                        {{ formatNumber(coordinator.periodStats.conditionalOffersUploaded) }}
-                                        <span class="trend"
-                                            *ngIf="coordinator.periodStats.conditionalOffersTrend !== null"
-                                            [ngClass]="coordinator.periodStats.conditionalOffersTrend >= 0 ? 'trend-up' : 'trend-down'">
-                                            {{ formatTrend(coordinator.periodStats.conditionalOffersTrend) }}
-                                        </span>
-                                    </td>
-                                    <td class="pending">{{ formatNumber(coordinator.periodStats.pendingLetters) }}</td>
-                                    <td class="efficiency-cell"
-                                        [ngClass]="getCoordinatorEfficiencyClass(coordinator.periodStats.efficiencyRate)">
-                                        {{ coordinator.periodStats.efficiencyRate }}%
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Performance Insights + Charts Section -->
-                <div class="insights-charts-row">
-                    <!-- Left: Bar Chart -->
-                    <div class="chart-card compact">
-                        <div class="chart-header">
-                            <h3>
-                                <i-lucide name="bar-chart-3" size="18"></i-lucide>
-                                University Comparison
-                            </h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="barChartData" [data]="barChartData" [options]="barChartOptions"
-                                type="bar"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Right: Performance Insights Cards -->
-                    <div class="performance-insights-panel">
-                        <!-- Top Performer Card -->
-                        <div class="insight-card-premium top-performer"
-                            *ngIf="coordinatorPerformanceInsights.topPerformer">
-                            <div class="insight-card-header">
-                                <div class="insight-icon trophy">
-                                    <i-lucide name="trophy" size="20"></i-lucide>
-                                </div>
-                                <span class="insight-badge">Top Performer</span>
-                            </div>
-                            <div class="insight-card-body">
-                                <span class="insight-main-value">{{ coordinatorPerformanceInsights.topPerformer.userName
-                                    }}</span>
-                                <span class="insight-sub-value">{{ coordinatorPerformanceInsights.bestUniversity
-                                    }}</span>
-                            </div>
-                            <div class="insight-card-footer">
-                                <span class="efficiency-tag">
-                                    {{ coordinatorPerformanceInsights.topPerformer.periodStats.efficiencyRate }}%
-                                    Efficiency
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Performance Grade Card -->
-                        <div class="insight-card-premium grade-card">
-                            <div class="insight-card-header">
-                                <div class="insight-icon grade">
-                                    <i-lucide name="award" size="20"></i-lucide>
-                                </div>
-                                <span class="insight-badge">Team Grade</span>
-                            </div>
-                            <div class="insight-card-body grade-display">
-                                <span class="grade-value"
-                                    [ngClass]="'grade-' + coordinatorPerformanceInsights.performanceGrade.toLowerCase().replace('+', '-plus')">
-                                    {{ coordinatorPerformanceInsights.performanceGrade }}
-                                </span>
-                                <span class="insight-sub-value">Avg Efficiency: {{
-                                    coordinatorPerformanceInsights.avgEfficiency }}%</span>
-                            </div>
-                            <div class="insight-card-footer">
-                                <span class="active-tag">
-                                    <i-lucide name="users" size="14"></i-lucide>
-                                    {{ coordinatorPerformanceInsights.activeCoordinators }} Active Coordinators
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Processing Rate Card -->
-                        <div class="insight-card-premium rate-card">
-                            <div class="insight-card-header">
-                                <div class="insight-icon rate">
-                                    <i-lucide name="zap" size="20"></i-lucide>
-                                </div>
-                                <span class="insight-badge">Processing Rate</span>
-                            </div>
-                            <div class="insight-card-body">
-                                <span class="insight-main-value">{{ coordinatorPerformanceInsights.processingRate
-                                    }}%</span>
-                                <span class="insight-sub-value">Students Processed</span>
-                            </div>
-                            <div class="insight-card-footer">
-                                <span class="avg-tag">
-                                    <i-lucide name="file-text" size="14"></i-lucide>
-                                    ~{{ coordinatorPerformanceInsights.avgLettersPerCoordinator }} Letters/Coordinator
-                                </span>
-                                <span class="trend-tag" *ngIf="coordinatorPerformanceInsights.completionTrend !== null"
-                                    [ngClass]="coordinatorPerformanceInsights.completionTrend >= 0 ? 'trend-up' : 'trend-down'">
-                                    <i-lucide
-                                        [name]="coordinatorPerformanceInsights.completionTrend >= 0 ? 'trending-up' : 'trending-down'"
-                                        size="14"></i-lucide>
-                                    {{ coordinatorPerformanceInsights.completionTrend >= 0 ? '+' : '' }}{{
-                                    coordinatorPerformanceInsights.completionTrend }}%
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- ============================================================================
-                     TELEX MANAGER DASHBOARD
-                     ============================================================================ -->
-            <div class="dashboard-content telex-theme"
-                *ngIf="!isLoading && allTelexManagers.length > 0 && selectedUserType === 'TELEX_PERSON' && !showTelexDetailView"
-                @slideUp>
-
-                <!-- Analytics Summary Cards -->
-                <div class="telex-analytics-section">
-                    <div class="analytics-header">
-                        <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Performance Analytics</h3>
-                    </div>
-                    <div class="analytics-kpi-grid">
-                        <div class="analytics-kpi-card">
-                            <div class="kpi-icon-mini" style="--kpi-color: #f59e0b"><i-lucide name="users"
-                                    size="18"></i-lucide></div>
-                            <div class="kpi-data">
-                                <span class="kpi-value-sm">{{ formatNumber(telexSummaryAnalytics.totalStudents)
-                                    }}</span>
-                                <span class="kpi-label-sm">Total Students</span>
-                            </div>
-                        </div>
-                        <div class="analytics-kpi-card">
-                            <div class="kpi-icon-mini" style="--kpi-color: #3b82f6"><i-lucide name="files"
-                                    size="18"></i-lucide></div>
-                            <div class="kpi-data">
-                                <span class="kpi-value-sm">{{ formatNumber(telexSummaryAnalytics.totalDocsUploaded)
-                                    }}</span>
-                                <span class="kpi-label-sm">Docs Uploaded</span>
-                            </div>
-                        </div>
-                        <div class="analytics-kpi-card highlight">
-                            <div class="kpi-icon-mini" style="--kpi-color: #10b981"><i-lucide name="file-check-2"
-                                    size="18"></i-lucide></div>
-                            <div class="kpi-data">
-                                <span class="kpi-value-sm">{{ formatNumber(telexSummaryAnalytics.totalTelexIssued)
-                                    }}</span>
-                                <span class="kpi-label-sm">Telex Issued</span>
-                            </div>
-                        </div>
-                        <div class="analytics-kpi-card">
-                            <div class="kpi-icon-mini" style="--kpi-color: #8b5cf6"><i-lucide name="target"
-                                    size="18"></i-lucide></div>
-                            <div class="kpi-data">
-                                <span class="kpi-value-sm">{{ telexSummaryAnalytics.completionRate }}%</span>
-                                <span class="kpi-label-sm">Completion Rate</span>
-                            </div>
-                        </div>
-                        <div class="analytics-kpi-card">
-                            <div class="kpi-icon-mini" style="--kpi-color: #ec4899"><i-lucide name="zap"
-                                    size="18"></i-lucide></div>
-                            <div class="kpi-data">
-                                <span class="kpi-value-sm">{{ telexSummaryAnalytics.avgEfficiency }}%</span>
-                                <span class="kpi-label-sm">Efficiency</span>
-                            </div>
-                        </div>
-                        <div class="analytics-kpi-card">
-                            <div class="kpi-icon-mini" style="--kpi-color: #22c55e"><i-lucide name="user-check"
-                                    size="18"></i-lucide></div>
-                            <div class="kpi-data">
-                                <span class="kpi-value-sm active-count">{{ telexSummaryAnalytics.activeManagers
-                                    }}</span>
-                                <span class="kpi-label-sm">Active</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Performance Insights -->
-                    <div class="telex-insights-row" *ngIf="telexSummaryAnalytics.topPerformer">
-                        <div class="insight-highlight top-performer">
-                            <i-lucide name="trophy" size="20"></i-lucide>
-                            <div class="insight-text">
-                                <span class="insight-label">Top Performer</span>
-                                <span class="insight-value">{{ telexSummaryAnalytics.topPerformer.fullName }}</span>
-                            </div>
-                            <span class="insight-badge">{{ telexSummaryAnalytics.topPerformer.telexIssued }}
-                                issued</span>
-                        </div>
-                        <div class="insight-highlight pipeline-stat">
-                            <i-lucide name="git-branch" size="20"></i-lucide>
-                            <div class="insight-text">
-                                <span class="insight-label">Pipeline Progress</span>
-                                <span class="insight-value">{{ telexSummaryAnalytics.totalSubmittedToUniversity }} →
-                                    {{
-                                    telexSummaryAnalytics.totalSubmittedToMEA }} → {{
-                                    telexSummaryAnalytics.totalTelexIssued
-                                    }}</span>
-                            </div>
-                            <span class="insight-badge">Uni → MEA → Issued</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Row -->
-                <div class="telex-charts-row">
-                    <div class="chart-card telex-comparison-chart">
-                        <div class="chart-header">
-                            <h3><i-lucide name="bar-chart" size="18"></i-lucide> Manager Comparison</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="telexManagerComparisonChartData"
-                                [data]="telexManagerComparisonChartData" [options]="barChartOptions"
-                                type="bar"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-card telex-pipeline-chart">
-                        <div class="chart-header">
-                            <h3><i-lucide name="activity" size="18"></i-lucide> Processing Pipeline</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="telexPipelineChartData" [data]="telexPipelineChartData"
-                                [options]="barChartOptions" type="bar"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TelexMan Summary Table -->
-                <div class="universities-table-container">
-                    <div class="table-header">
-                        <h3>
-                            <i-lucide name="send" size="18"></i-lucide>
-                            Telex Manager Performance
-                        </h3>
-                        <span class="table-count">{{ allTelexManagers.length }} managers</span>
-                    </div>
-                    <div class="table-wrapper">
-                        <table class="universities-table telex-table">
-                            <thead>
-                                <tr>
-                                    <th>Manager</th>
-                                    <th>Status</th>
-                                    <th>Students</th>
-                                    <th>Docs</th>
-                                    <th>To Uni</th>
-                                    <th>To MEA</th>
-                                    <th>Telex Issued</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let manager of allTelexManagers" class="table-row"
-                                    [class.top-row]="manager === telexSummaryAnalytics.topPerformer"
-                                    (click)="selectTelexManager(manager)">
-                                    <td class="manager-name-cell">
-                                        <div class="manager-avatar telex-avatar">
-                                            {{ manager.fullName.charAt(0) }}
-                                        </div>
-                                        <div class="manager-details-inline">
-                                            <span class="manager-name">{{ manager.fullName }}</span>
-                                            <span class="manager-username">{{ manager.username }}</span>
-                                        </div>
-                                        <i-lucide *ngIf="manager === telexSummaryAnalytics.topPerformer" name="trophy"
-                                            size="14" class="top-badge"></i-lucide>
-                                    </td>
-                                    <td>
-                                        <span class="status-badge"
-                                            [ngClass]="manager.status === 'Active' ? 'active' : 'inactive'">
-                                            {{ manager.status }}
-                                        </span>
-                                    </td>
-                                    <td>{{ formatNumber(manager.totalStudents) }}</td>
-                                    <td>{{ formatNumber(manager.docsUploaded) }}</td>
-                                    <td>{{ formatNumber(manager.submittedToUniversity) }}</td>
-                                    <td>{{ formatNumber(manager.submittedToMEA) }}</td>
-                                    <td class="telex-issued-cell">{{ formatNumber(manager.telexIssued) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ============================================================================
-                 TELEX MANAGER DETAIL VIEW
-                 ============================================================================ -->
-            <div class="dashboard-content telex-theme"
-                *ngIf="!isLoading && showTelexDetailView && selectedTelexManager && telexStats && selectedUserType === 'TELEX_PERSON'"
-                @slideUp>
-
-                <!-- Detail Header -->
-                <div class="detail-header-panel">
-                    <button class="back-btn-inline" (click)="backToTelexList()">
-                        <i-lucide name="arrow-left" size="18"></i-lucide>
-                        <span>Back to List</span>
-                    </button>
-                    <div class="selected-manager-info">
-                        <div class="manager-avatar telex-avatar large">
-                            {{ selectedTelexManager.fullName.charAt(0) }}
-                        </div>
-                        <div class="manager-details-inline">
-                            <span class="manager-name large">{{ selectedTelexManager.fullName }}</span>
-                            <span class="manager-username">{{ selectedTelexManager.username }}</span>
-                        </div>
-                        <span class="status-badge"
-                            [ngClass]="selectedTelexManager.status === 'Active' ? 'active' : 'inactive'">
-                            {{ selectedTelexManager.status }}
-                        </span>
-                    </div>
-                    <button class="generate-report-btn single" (click)="sendTelexReport()">
-                        <i-lucide name="mail" size="16"></i-lucide>
-                        <span>Send Report</span>
-                    </button>
-                </div>
-
-                <!-- KPI Cards Row -->
-                <div class="kpi-section">
-                    <div class="kpi-grid">
-                        <div class="kpi-card" [style.--delay]="'0s'" [style.--accent-color]="'#f59e0b'">
-                            <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ formatNumber(getTelexMetric('assigned')) }}</span>
-                                <span class="kpi-label">Assigned ({{ selectedTimePeriod | titlecase }})</span>
-                            </div>
-                            <div class="kpi-trend" [ngClass]="getTrendClass(getTelexTrend('assigned'))"
-                                *ngIf="getTelexTrend('assigned') !== null">
-                                <i-lucide
-                                    [name]="(getTelexTrend('assigned') || 0) >= 0 ? 'trending-up' : 'trending-down'"
-                                    size="14"></i-lucide>
-                                <span>{{ formatTrend(getTelexTrend('assigned')) }}</span>
-                            </div>
-                        </div>
-                        <div class="kpi-card" [style.--delay]="'0.1s'" [style.--accent-color]="'#3b82f6'">
-                            <div class="kpi-icon"><i-lucide name="building-2" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ formatNumber(getTelexMetric('submittedToUniversity'))
-                                    }}</span>
-                                <span class="kpi-label">To University ({{ selectedTimePeriod | titlecase }})</span>
-                            </div>
-                            <div class="kpi-trend" [ngClass]="getTrendClass(getTelexTrend('submittedToUniversity'))"
-                                *ngIf="getTelexTrend('submittedToUniversity') !== null">
-                                <i-lucide
-                                    [name]="(getTelexTrend('submittedToUniversity') || 0) >= 0 ? 'trending-up' : 'trending-down'"
-                                    size="14"></i-lucide>
-                                <span>{{ formatTrend(getTelexTrend('submittedToUniversity')) }}</span>
-                            </div>
-                        </div>
-                        <div class="kpi-card" [style.--delay]="'0.2s'" [style.--accent-color]="'#ec4899'">
-                            <div class="kpi-icon"><i-lucide name="landmark" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ formatNumber(getTelexMetric('submittedToMEA')) }}</span>
-                                <span class="kpi-label">To MEA ({{ selectedTimePeriod | titlecase }})</span>
-                            </div>
-                            <div class="kpi-trend" [ngClass]="getTrendClass(getTelexTrend('submittedToMEA'))"
-                                *ngIf="getTelexTrend('submittedToMEA') !== null">
-                                <i-lucide
-                                    [name]="(getTelexTrend('submittedToMEA') || 0) >= 0 ? 'trending-up' : 'trending-down'"
-                                    size="14"></i-lucide>
-                                <span>{{ formatTrend(getTelexTrend('submittedToMEA')) }}</span>
-                            </div>
-                        </div>
-                        <div class="kpi-card" [style.--delay]="'0.3s'" [style.--accent-color]="'#10b981'">
-                            <div class="kpi-icon"><i-lucide name="file-check-2" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ formatNumber(getTelexMetric('telexIssued')) }}</span>
-                                <span class="kpi-label">Telex Issued ({{ selectedTimePeriod | titlecase }})</span>
-                            </div>
-                            <div class="kpi-trend" [ngClass]="getTrendClass(getTelexTrend('telexIssued'))"
-                                *ngIf="getTelexTrend('telexIssued') !== null">
-                                <i-lucide
-                                    [name]="(getTelexTrend('telexIssued') || 0) >= 0 ? 'trending-up' : 'trending-down'"
-                                    size="14"></i-lucide>
-                                <span>{{ formatTrend(getTelexTrend('telexIssued')) }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Section -->
-                <div class="charts-section">
-                    <div class="chart-card line-chart">
-                        <div class="chart-header">
-                            <h3><i-lucide name="activity" size="18"></i-lucide> Activity Trend</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="telexActivityChartData" [data]="telexActivityChartData"
-                                [options]="lineChartOptions" type="line"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-card donut-chart">
-                        <div class="chart-header">
-                            <h3><i-lucide name="pie-chart" size="18"></i-lucide> Status Distribution ({{
-                                selectedTimePeriod
-                                | titlecase }})</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="telexDistributionChartData" [data]="telexDistributionChartData"
-                                [options]="donutChartOptions" type="doughnut"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ============================================================================
-             VISA MANAGER DASHBOARD
-             ============================================================================ -->
-            <div class="dashboard-content visa-theme" *ngIf="!isLoading && selectedUserType === 'VISA_PERSON'" @fadeIn>
-
-
-                <!-- Detail View Header (Back Button) -->
-                <div class="detail-header" *ngIf="showVisaDetailView"
-                    style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
-                    <button class="back-btn" (click)="backToVisaList()"
-                        style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <i-lucide name="arrow-left" size="18"></i-lucide> Back
-                    </button>
-                    <h2 style="margin: 0; font-size: 1.2rem; color: white;">{{ selectedVisaManager?.visaManagerName }}
-                        <span style="font-weight: 400; font-size: 0.9rem; opacity: 0.7;">(Manager Details)</span>
-                    </h2>
-                </div>
-
-                <!-- KPI Cards Row -->
-                <div class="kpi-section">
-                    <div class="kpi-grid">
-                        <!-- Assigned -->
-                        <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
-                            <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ visaStats?.totalAssignedStudents || 0 }}</span>
-                                <span class="kpi-label">Total Assigned</span>
-                            </div>
-                        </div>
-                        <!-- Payment Requested -->
-                        <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
-                            <div class="kpi-icon"><i-lucide name="credit-card" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ visaStats?.paymentRequested || 0 }}</span>
-                                <span class="kpi-label">Payment Requested</span>
-                            </div>
-                        </div>
-                        <!-- Payment Confirmed -->
-                        <div class="kpi-card" [style.--accent-color]="'#0ea5e9'">
-                            <div class="kpi-icon"><i-lucide name="check-circle" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ visaStats?.paymentConfirmed || 0 }}</span>
-                                <span class="kpi-label">Payment Confirmed</span>
-                            </div>
-                        </div>
-                        <!-- Passport Collected -->
-                        <div class="kpi-card" [style.--accent-color]="'#6366f1'">
-                            <div class="kpi-icon"><i-lucide name="book" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ visaStats?.passportCollected || 0 }}</span>
-                                <span class="kpi-label">Passport Collected</span>
-                            </div>
-                        </div>
-                        <!-- Visa Applied -->
-                        <div class="kpi-card" [style.--accent-color]="'#8b5cf6'">
-                            <div class="kpi-icon"><i-lucide name="file-text" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ visaStats?.visaApplied || 0 }}</span>
-                                <span class="kpi-label">Visa Applied</span>
-                            </div>
-                        </div>
-                        <!-- Embassy Submitted -->
-                        <div class="kpi-card" [style.--accent-color]="'#a855f7'">
-                            <div class="kpi-icon"><i-lucide name="landmark" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ visaStats?.embassySubmitted || 0 }}</span>
-                                <span class="kpi-label">Embassy Submitted</span>
-                            </div>
-                        </div>
-                        <!-- Visa Stamped -->
-                        <div class="kpi-card" [style.--accent-color]="'#10b981'">
-                            <div class="kpi-icon"><i-lucide name="stamp" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ visaStats?.visaStamped || 0 }}</span>
-                                <span class="kpi-label">Visa Stamped</span>
-                            </div>
-                        </div>
-                        <!-- Passport Returned -->
-                        <div class="kpi-card" [style.--accent-color]="'#ec4899'">
-                            <div class="kpi-icon"><i-lucide name="check-square" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ visaStats?.passportReturned || 0 }}</span>
-                                <span class="kpi-label">Passport Returned</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Section -->
-                <div class="charts-section">
-                    <!-- Funnel Chart -->
-                    <div class="chart-card bar-chart">
-                        <div class="chart-header">
-                            <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Processing Funnel</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="visaFunnelChartData" [data]="visaFunnelChartData"
-                                [options]="barChartOptions" type="bar"></canvas>
-                        </div>
-                    </div>
-                    <!-- Breakdown Chart -->
-                    <div class="chart-card donut-chart">
-                        <div class="chart-header">
-                            <h3><i-lucide name="pie-chart" size="18"></i-lucide> Action Breakdown</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="visaPieChartData" [data]="visaPieChartData"
-                                [options]="donutChartOptions" type="doughnut"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Managers List (Table) -->
-                <div class="leaderboard-section" *ngIf="!showVisaDetailView && allVisaManagers.length > 0">
-                    <div class="section-header">
-                        <h3><i-lucide name="list" size="18"></i-lucide> Visa Managers Performance</h3>
-                        <span class="badge">{{ allVisaManagers.length }} Managers</span>
-                    </div>
-                    <div class="leaderboard-body">
-                        <table class="leaderboard-table">
-                            <thead>
-                                <tr>
-                                    <th>Manager Name</th>
-                                    <th>Assigned</th>
-                                    <th>Payment Req</th>
-                                    <th>Visa Applied</th>
-                                    <th>Stamped</th>
-                                    <th>Efficiency</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let manager of allVisaManagers" (click)="selectVisaManager(manager)"
-                                    style="cursor: pointer;">
-                                    <td>
-                                        <div class="manager-info">
-                                            <div class="manager-avatar">{{ manager.visaManagerName.charAt(0) }}
-                                            </div>
-                                            <span>{{ manager.visaManagerName }}</span>
-                                        </div>
-                                    </td>
-                                    <td>{{ manager.totalAssignedStudents }}</td>
-                                    <td>{{ manager.paymentRequested }}</td>
-                                    <td>{{ manager.visaApplied }}</td>
-                                    <td>{{ manager.visaStamped }}</td>
-                                    <td>
-                                        <span class="trend-badge positive"
-                                            *ngIf="manager.efficiencyRate && manager.efficiencyRate >= 80">{{
-                                            manager.efficiencyRate }}%</span>
-                                        <span class="trend-badge neutral"
-                                            *ngIf="manager.efficiencyRate && manager.efficiencyRate >= 50 && manager.efficiencyRate < 80">{{
-                                            manager.efficiencyRate }}%</span>
-                                        <span class="trend-badge negative"
-                                            *ngIf="manager.efficiencyRate && manager.efficiencyRate < 50">{{
-                                            manager.efficiencyRate }}%</span>
-                                        <span *ngIf="!manager.efficiencyRate">N/A</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============================================================================
-                 DOC PERSON DASHBOARD
-                 ============================================================================ -->
-            <div class="dashboard-content doc-person-theme" *ngIf="!isLoading && selectedUserType === 'DOC_PERSON'"
-                @fadeIn>
-
-                <!-- Detail View Header (Back Button) -->
-                <div class="detail-header" *ngIf="showDetailView && selectedDocPerson"
-                    style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
-                    <button class="back-btn" (click)="backToOverview()"
-                        style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <i-lucide name="arrow-left" size="18"></i-lucide> Back
-                    </button>
-                    <h2 style="margin: 0; font-size: 1.2rem; color: white;">{{ selectedDocPerson.fullName }}
-                        <span style="font-weight: 400; font-size: 0.9rem; opacity: 0.7;">(Doc Manager Details)</span>
-                    </h2>
-                </div>
-
-                <!-- KPI Cards Row (Detail View) -->
-                <div class="kpi-section" *ngIf="showDetailView && docPersonStats">
-                    <div class="kpi-grid">
-                        <!-- Assigned -->
-                        <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
-                            <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ docPersonStats.totalAssignedStudents || 0 }}</span>
-                                <span class="kpi-label">Total Assigned</span>
-                            </div>
-                        </div>
-                        <!-- Docs Received -->
-                        <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
-                            <div class="kpi-icon"><i-lucide name="inbox" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ docPersonStats.documentsReceived || 0 }}</span>
-                                <span class="kpi-label">Docs Received</span>
-                            </div>
-                        </div>
-                        <!-- Docs Verified -->
-                        <div class="kpi-card" [style.--accent-color]="'#10b981'">
-                            <div class="kpi-icon"><i-lucide name="check-circle" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ docPersonStats.documentsVerified || 0 }}</span>
-                                <span class="kpi-label">Docs Verified</span>
-                            </div>
-                        </div>
-                        <!-- Docs Collected -->
-                        <div class="kpi-card" [style.--accent-color]="'#6366f1'">
-                            <div class="kpi-icon"><i-lucide name="package-check" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ docPersonStats.documentsCollected || 0 }}</span>
-                                <span class="kpi-label">Docs Collected</span>
-                            </div>
-                        </div>
-                        <!-- Docs Returned -->
-                        <div class="kpi-card" [style.--accent-color]="'#ec4899'">
-                            <div class="kpi-icon"><i-lucide name="corner-up-left" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ docPersonStats.documentsReturned || 0 }}</span>
-                                <span class="kpi-label">Docs Returned</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Summary Cards (Overview) -->
-                <div class="summary-cards-row" *ngIf="!showDetailView && docPersonSummaryStats">
-                    <div class="summary-card">
-                        <div class="summary-icon assignments">
-                            <i-lucide name="users" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalAssigned) }}</span>
-                            <span class="summary-label">Total Assigned</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon received">
-                            <i-lucide name="inbox" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalReceived) }}</span>
-                            <span class="summary-label">Docs Received</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon verified">
-                            <i-lucide name="package-check" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalVerified) }}</span>
-                            <span class="summary-label">Docs Verified</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon returned">
-                            <i-lucide name="corner-up-left" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalReturned) }}</span>
-                            <span class="summary-label">Docs Returned</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Section (Overview) -->
-                <div class="charts-section" *ngIf="!showDetailView">
-                    <!-- Manager Comparison Bar Chart -->
-                    <div class="chart-card bar-chart">
-                        <div class="chart-header">
-                            <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Manager Assignments</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="docPersonBarChartData" [data]="docPersonBarChartData"
-                                [options]="barChartOptions" type="bar"></canvas>
-                        </div>
-                    </div>
-                    <!-- Status Distribution Donut Chart -->
-                    <div class="chart-card donut-chart">
-                        <div class="chart-header">
-                            <h3><i-lucide name="pie-chart" size="18"></i-lucide> Status Overview</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="docPersonPieChartData" [data]="docPersonPieChartData"
-                                [options]="donutChartOptions" type="doughnut"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Doc Person List (Overview) -->
-                <div class="leaderboard-section" *ngIf="!showDetailView && allDocPersons.length > 0">
-                    <div class="section-header">
-                        <h3><i-lucide name="list" size="18"></i-lucide> Doc Personnel List</h3>
-                        <span class="badge">{{ allDocPersons.length }} Personnel</span>
-                    </div>
-                    <div class="leaderboard-body">
-                        <table class="leaderboard-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Contact</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let person of allDocPersons" (click)="selectDocPerson(person)"
-                                    style="cursor: pointer;">
-                                    <td>
-                                        <div class="manager-info">
-                                            <div class="manager-avatar">{{ person.fullName.charAt(0) }}</div>
-                                            <span>{{ person.fullName }}</span>
-                                        </div>
-                                    </td>
-                                    <td>{{ person.username }}</td>
-                                    <td>{{ person.email }}</td>
-                                    <td>{{ person.contactNumber }}</td>
-                                    <td>
-                                        <span class="status-badge"
-                                            [ngClass]="person.status === 'ACTIVE' ? 'active' : 'inactive'">
-                                            {{ person.status }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="view-btn"
-                                            style="background: none; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer;">
-                                            View Stats
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <!-- ============================================================================
-                 AGENT DASHBOARD
-                 ============================================================================ -->
-            <div class="dashboard-content agent-theme" *ngIf="!isLoading && selectedUserType === 'AGENT'" @fadeIn>
-
-                <!-- Detail View Header (Back Button) -->
-                <div class="detail-header" *ngIf="showAgentDetailView && selectedAgentStats"
-                    style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
-                    <button class="back-btn" (click)="backToAgentList()"
-                        style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <i-lucide name="arrow-left" size="18"></i-lucide> Back
-                    </button>
-                    <h2 style="margin: 0; font-size: 1.2rem; color: white;">{{ selectedAgentStats.agentName }}
-                        <span style="font-weight: 400; font-size: 0.9rem; opacity: 0.7;">(Agent Details)</span>
-                    </h2>
-                    <button class="generate-report-btn single" (click)="openEmailModal('single')"
-                        style="margin-left: auto;">
-                        <i-lucide name="mail" size="16"></i-lucide>
-                        <span>Email Report</span>
-                    </button>
-                </div>
-
-                <!-- KPI Cards Row (Detail View) -->
-                <div class="kpi-section" *ngIf="showAgentDetailView && selectedAgentStats">
-                    <div class="kpi-grid">
-                        <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
-                            <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ selectedAgentStats.registeredStudents }}</span>
-                                <span class="kpi-label">Registered Students</span>
-                            </div>
-                        </div>
-                        <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
-                            <div class="kpi-icon"><i-lucide name="send" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ selectedAgentStats.telexInitiated }}</span>
-                                <span class="kpi-label">Telex Initiated</span>
-                            </div>
-                        </div>
-                        <div class="kpi-card" [style.--accent-color]="'#10b981'">
-                            <div class="kpi-icon"><i-lucide name="check-circle" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ selectedAgentStats.paymentConfirmations }}</span>
-                                <span class="kpi-label">Payment Confirmations</span>
-                            </div>
-                        </div>
-                        <div class="kpi-card" [style.--accent-color]="'#8b5cf6'">
-                            <div class="kpi-icon"><i-lucide name="file-text" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ selectedAgentStats.docsRequested }}</span>
-                                <span class="kpi-label">Docs Requested</span>
-                            </div>
-                        </div>
-                        <div class="kpi-card" [style.--accent-color]="'#ec4899'">
-                            <div class="kpi-icon"><i-lucide name="activity" size="22"></i-lucide></div>
-                            <div class="kpi-content">
-                                <span class="kpi-value">{{ selectedAgentStats.totalWork }}</span>
-                                <span class="kpi-label">Total Activity</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Summary Cards (Overview) -->
-                <div class="summary-cards-row" *ngIf="!showAgentDetailView">
-                    <div class="summary-card">
-                        <div class="summary-icon students">
-                            <i-lucide name="users" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(agentSummaryStats.totalRegistered) }}</span>
-                            <span class="summary-label">Total Registered</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon pending"> <!-- Reusing pending icon style for Telex -->
-                            <i-lucide name="send" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(agentSummaryStats.totalTelexInitiated)
-                                }}</span>
-                            <span class="summary-label">Telex Initiated</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon verified"> <!-- Reusing verified for Payment -->
-                            <i-lucide name="check-circle" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(agentSummaryStats.totalPaymentConfirmations)
-                                }}</span>
-                            <span class="summary-label">Payment Confirmed</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon letters"> <!-- Reusing letters for Docs -->
-                            <i-lucide name="file-text" size="22"></i-lucide>
-                        </div>
-                        <div class="summary-content">
-                            <span class="summary-value">{{ formatNumber(agentSummaryStats.totalDocsRequested)
-                                }}</span>
-                            <span class="summary-label">Docs Requested</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Section (Overview & Detail) -->
-                <div class="charts-section">
-                    <!-- Bar Chart (Overview Only) -->
-                    <div class="chart-card bar-chart" *ngIf="!showAgentDetailView">
-                        <div class="chart-header">
-                            <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Top Agents by Work</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="agentBarChartData" [data]="agentBarChartData"
-                                [options]="barChartOptions" type="bar"></canvas>
-                        </div>
-                    </div>
-                    <!-- Activity Breakdown Donut Chart (Both) -->
-                    <div class="chart-card donut-chart">
-                        <div class="chart-header">
-                            <h3><i-lucide name="pie-chart" size="18"></i-lucide> Activity Distribution</h3>
-                        </div>
-                        <div class="chart-body">
-                            <canvas baseChart *ngIf="agentPieChartData" [data]="agentPieChartData"
-                                [options]="donutChartOptions" type="doughnut"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agents List (Overview) -->
-                <div class="leaderboard-section" *ngIf="!showAgentDetailView && allAgentStats.length > 0">
-                    <div class="section-header">
-                        <h3><i-lucide name="list" size="18"></i-lucide> Agent Performance List</h3>
-                        <span class="badge">{{ allAgentStats.length }} Agents</span>
-                    </div>
-                    <div class="leaderboard-body">
-                        <table class="leaderboard-table">
-                            <thead>
-                                <tr>
-                                    <th>Agent Name</th>
-                                    <th>Registered</th>
-                                    <th>Telex Init</th>
-                                    <th>Payment</th>
-                                    <th>Docs Req</th>
-                                    <th>Total Work</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let agent of allAgentStats" (click)="selectAgent(agent)"
-                                    style="cursor: pointer;">
-                                    <td>
-                                        <div class="manager-info">
-                                            <div class="manager-avatar">{{ agent.agentName.charAt(0) }}</div>
-                                            <div class="manager-details">
-                                                <span class="manager-name">{{ agent.agentName }}</span>
-                                                <span class="manager-username">{{ agent.agentUsername }}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ agent.registeredStudents }}</td>
-                                    <td>{{ agent.telexInitiated }}</td>
-                                    <td>{{ agent.paymentConfirmations }}</td>
-                                    <td>{{ agent.docsRequested }}</td>
-                                    <td>
-                                        <span class="trend-badge positive">{{ agent.totalWork }}</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
+      </div>
+      <!-- User Type Tabs -->
+      @if (!showDetailView) {
+        <div class="user-type-tabs">
+          @for (type of userTypes; track type) {
+            <button class="type-tab" [class.active]="selectedUserType === type.key"
+              (click)="selectUserType(type.key)">
+              <i-lucide [name]="type.icon" size="16"></i-lucide>
+              <span>{{ type.label }}</span>
+            </button>
+          }
         </div>
-
+      }
+      <!-- Time Period Selector -->
+      <div class="time-period-bar">
+        <div class="period-selector">
+          @for (period of timePeriods; track period) {
+            <button class="period-btn"
+              [class.active]="selectedTimePeriod === period.key" (click)="selectTimePeriod(period.key)">
+              <i-lucide [name]="period.icon" size="14"></i-lucide>
+              <span>{{ period.label }}</span>
+            </button>
+          }
+        </div>
+        @if (isLoading) {
+          <div class="refresh-indicator">
+            <div class="mini-spinner"></div>
+            <span>Updating...</span>
+          </div>
+        }
+      </div>
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Loading State -->
+        @if (isLoading) {
+          <div class="loading-state">
+            <div class="premium-loader">
+              <div class="loader-ring"></div>
+              <i-lucide name="bar-chart-3" size="24"></i-lucide>
+            </div>
+            <p>Loading performance data...</p>
+          </div>
+        }
+        <!-- Admission Manager Dashboard Content -->
+        @if (!isLoading && allManagerReports.length > 0 && selectedUserType === 'ADMISSION_MANAGER') {
+          <div class="dashboard-content"
+            @slideUp>
+            <!-- KPI Cards -->
+            <div class="kpi-section">
+              <div class="kpi-grid">
+                @for (kpi of kpiCards; track kpi; let i = $index) {
+                  <div class="kpi-card"
+                    [style.--delay]="i * 0.1 + 's'" [style.--accent-color]="kpi.color">
+                    <div class="kpi-icon">
+                      <i-lucide [name]="kpi.icon" size="22"></i-lucide>
+                    </div>
+                    <div class="kpi-content">
+                      <span class="kpi-value">{{ formatNumber(kpi.value) }}</span>
+                      <span class="kpi-label">{{ kpi.label }}</span>
+                    </div>
+                    <div class="kpi-trend" [ngClass]="getTrendClass(kpi.trend)">
+                      @if (kpi.trend !== null) {
+                        <i-lucide [name]="kpi.trend >= 0 ? 'trending-up' : 'trending-down'"
+                        size="14"></i-lucide>
+                        <span>{{ formatTrend(kpi.trend) }}</span>
+                      }
+                      @if (kpi.trend === null) {
+                        <i-lucide name="minus" size="14"></i-lucide>
+                        <span>N/A</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+            <!-- Charts Section -->
+            @if (selectedUserType === 'ADMISSION_MANAGER') {
+              <div class="charts-section">
+                <!-- Activity Breakdown Donut -->
+                <div class="chart-card donut-chart">
+                  <div class="chart-header">
+                    <h3>
+                      <i-lucide name="pie-chart" size="18"></i-lucide>
+                      Activity Breakdown
+                    </h3>
+                  </div>
+                  <div class="chart-body">
+                    @if (donutChartData) {
+                      <canvas baseChart [data]="donutChartData"
+                      [options]="donutChartOptions" type="doughnut"></canvas>
+                    }
+                  </div>
+                </div>
+                <!-- Productivity Trend Bar -->
+                <div class="chart-card bar-chart">
+                  <div class="chart-header">
+                    <h3>
+                      <i-lucide name="bar-chart-3" size="18"></i-lucide>
+                      Productivity Trend ({{ selectedTimePeriod | titlecase }})
+                    </h3>
+                  </div>
+                  <div class="chart-body">
+                    @if (barChartData) {
+                      <canvas baseChart [data]="barChartData" [options]="barChartOptions"
+                      type="bar"></canvas>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+            <!-- Managers Leaderboard (Overview only) -->
+            @if (!showDetailView && selectedUserType === 'ADMISSION_MANAGER') {
+              <div class="leaderboard-section">
+                <div class="section-header">
+                  <h3>
+                    <i-lucide name="trophy" size="18"></i-lucide>
+                    Manager Leaderboard
+                  </h3>
+                  <span class="badge">{{ allManagerReports.length }} managers</span>
+                </div>
+                <div class="leaderboard-list">
+                  @for (manager of allManagerReports; track manager; let i = $index) {
+                    <div class="leaderboard-item"
+                      [style.--delay]="i * 0.05 + 's'" (click)="selectManager(manager)">
+                      <div class="rank" [class.top-3]="i < 3">
+                        {{ i + 1 }}
+                      </div>
+                      <div class="manager-info">
+                        <div class="manager-avatar">
+                          {{ manager.managerName.charAt(0) }}
+                        </div>
+                        <div class="manager-details">
+                          <span class="manager-name">{{ manager.managerName }}</span>
+                          <span class="manager-username">{{ manager.managerUsername }}</span>
+                        </div>
+                      </div>
+                      <div class="manager-stats">
+                        <div class="stat">
+                          <span class="stat-value">{{ manager.periodStats.forwardedToUniversity }}</span>
+                          <span class="stat-label">Forwarded</span>
+                        </div>
+                        <div class="stat">
+                          <span class="stat-value">{{ manager.periodStats.admissionLettersApproved }}</span>
+                          <span class="stat-label">Approved</span>
+                        </div>
+                        <div class="stat efficiency">
+                          <span class="stat-value">{{ getEfficiencyScore(manager) }}%</span>
+                          <span class="stat-label">Efficiency</span>
+                        </div>
+                      </div>
+                      <div class="progress-bar-wrapper">
+                        <div class="progress-bar" [style.width.%]="getProgressWidth(manager)"></div>
+                      </div>
+                      <div class="view-details">
+                        <i-lucide name="chevron-right" size="18"></i-lucide>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            <!-- ✨ AI-Powered Insights Panel ✨ -->
+            @if (aiInsights.length > 0) {
+              <div class="insights-section">
+                <div class="section-header insights-header">
+                  <h3>
+                    <i-lucide name="sparkles" size="18"></i-lucide>
+                    AI Insights
+                    <span class="ai-badge">Powered by Analytics</span>
+                  </h3>
+                  <button class="toggle-btn" (click)="toggleInsightsPanel()">
+                    <i-lucide [name]="showInsightsPanel ? 'chevron-up' : 'chevron-down'" size="18"></i-lucide>
+                  </button>
+                </div>
+                @if (showInsightsPanel) {
+                  <div class="insights-grid" @slideUp>
+                    @for (insight of aiInsights; track insight; let i = $index) {
+                      <div
+                        [class]="getInsightCardClass(insight.type)" [style.--delay]="i * 0.1 + 's'">
+                        <div class="insight-icon-wrapper" [ngClass]="insight.type">
+                          <i-lucide [name]="insight.icon" size="20"></i-lucide>
+                        </div>
+                        <div class="insight-content">
+                          <div class="insight-header">
+                            <span class="insight-title">{{ insight.title }}</span>
+                            @if (insight.metric) {
+                              <span class="insight-metric">{{ insight.metric }}</span>
+                            }
+                          </div>
+                          <p class="insight-description">{{ insight.description }}</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+        <!-- ============================================================================
+        UNIVERSITY COORDINATORS DASHBOARD (ALL UNIVERSITIES VIEW)
+        ============================================================================ -->
+        @if (!isLoading && allUniversityPersonReports.length > 0 && selectedUserType === 'UNIVERSITY_COORDINATOR') {
+          <div class="dashboard-content university-coordinator-theme"
+            @slideUp>
+            <!-- Summary Cards Row -->
+            <div class="summary-cards-row">
+              <div class="summary-card">
+                <div class="summary-icon students">
+                  <i-lucide name="users" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.totalStudents) }}</span>
+                  <span class="summary-label">Total Students</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon letters">
+                  <i-lucide name="file-text" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.lettersUploaded)
+                  }}</span>
+                  <span class="summary-label">Letters Uploaded</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon conditional">
+                  <i-lucide name="file-check" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.conditionalOffers)
+                  }}</span>
+                  <span class="summary-label">Conditional Offers</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon pending">
+                  <i-lucide name="clock" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.pendingLetters)
+                  }}</span>
+                  <span class="summary-label">Pending Letters</span>
+                </div>
+              </div>
+            </div>
+            <!-- Universities Table -->
+            <div class="universities-table-container">
+              <div class="table-header">
+                <h3>
+                  <i-lucide name="school" size="18"></i-lucide>
+                  University Performance Reports
+                </h3>
+                <span class="table-count">{{ allUniversityPersonReports.length }} coordinators</span>
+              </div>
+              <div class="table-wrapper">
+                <table class="universities-table">
+                  <thead>
+                    <tr>
+                      <th>University</th>
+                      <th>Coordinator</th>
+                      <th>Students</th>
+                      <th>Uploaded</th>
+                      <th>Conditional</th>
+                      <th>Pending</th>
+                      <th>Efficiency</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (coordinator of allUniversityPersonReports; track coordinator) {
+                      <tr class="table-row"
+                        (click)="selectUniversityPerson(coordinator)">
+                        <td class="university-name">
+                          {{ coordinator.collegeName }}
+                        </td>
+                        <td class="coordinator">
+                          <span class="coordinator-badge active">
+                            {{ coordinator.userName }}
+                          </span>
+                        </td>
+                        <td class="students">{{ formatNumber(coordinator.periodStats.totalStudents) }}</td>
+                        <td class="uploaded">
+                          {{ formatNumber(coordinator.periodStats.lettersUploaded) }}
+                          @if (coordinator.periodStats.lettersUploadedTrend !== null) {
+                            <span class="trend"
+                              [ngClass]="coordinator.periodStats.lettersUploadedTrend >= 0 ? 'trend-up' : 'trend-down'">
+                              {{ formatTrend(coordinator.periodStats.lettersUploadedTrend) }}
+                            </span>
+                          }
+                        </td>
+                        <td class="conditional">
+                          {{ formatNumber(coordinator.periodStats.conditionalOffersUploaded) }}
+                          @if (coordinator.periodStats.conditionalOffersTrend !== null) {
+                            <span class="trend"
+                              [ngClass]="coordinator.periodStats.conditionalOffersTrend >= 0 ? 'trend-up' : 'trend-down'">
+                              {{ formatTrend(coordinator.periodStats.conditionalOffersTrend) }}
+                            </span>
+                          }
+                        </td>
+                        <td class="pending">{{ formatNumber(coordinator.periodStats.pendingLetters) }}</td>
+                        <td class="efficiency-cell"
+                          [ngClass]="getCoordinatorEfficiencyClass(coordinator.periodStats.efficiencyRate)">
+                          {{ coordinator.periodStats.efficiencyRate }}%
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- Performance Insights + Charts Section -->
+            <div class="insights-charts-row">
+              <!-- Left: Bar Chart -->
+              <div class="chart-card compact">
+                <div class="chart-header">
+                  <h3>
+                    <i-lucide name="bar-chart-3" size="18"></i-lucide>
+                    University Comparison
+                  </h3>
+                </div>
+                <div class="chart-body">
+                  @if (barChartData) {
+                    <canvas baseChart [data]="barChartData" [options]="barChartOptions"
+                    type="bar"></canvas>
+                  }
+                </div>
+              </div>
+              <!-- Right: Performance Insights Cards -->
+              <div class="performance-insights-panel">
+                <!-- Top Performer Card -->
+                @if (coordinatorPerformanceInsights.topPerformer) {
+                  <div class="insight-card-premium top-performer"
+                    >
+                    <div class="insight-card-header">
+                      <div class="insight-icon trophy">
+                        <i-lucide name="trophy" size="20"></i-lucide>
+                      </div>
+                      <span class="insight-badge">Top Performer</span>
+                    </div>
+                    <div class="insight-card-body">
+                      <span class="insight-main-value">{{ coordinatorPerformanceInsights.topPerformer.userName
+                      }}</span>
+                      <span class="insight-sub-value">{{ coordinatorPerformanceInsights.bestUniversity
+                      }}</span>
+                    </div>
+                    <div class="insight-card-footer">
+                      <span class="efficiency-tag">
+                        {{ coordinatorPerformanceInsights.topPerformer.periodStats.efficiencyRate }}%
+                        Efficiency
+                      </span>
+                    </div>
+                  </div>
+                }
+                <!-- Performance Grade Card -->
+                <div class="insight-card-premium grade-card">
+                  <div class="insight-card-header">
+                    <div class="insight-icon grade">
+                      <i-lucide name="award" size="20"></i-lucide>
+                    </div>
+                    <span class="insight-badge">Team Grade</span>
+                  </div>
+                  <div class="insight-card-body grade-display">
+                    <span class="grade-value"
+                      [ngClass]="'grade-' + coordinatorPerformanceInsights.performanceGrade.toLowerCase().replace('+', '-plus')">
+                      {{ coordinatorPerformanceInsights.performanceGrade }}
+                    </span>
+                    <span class="insight-sub-value">Avg Efficiency: {{
+                    coordinatorPerformanceInsights.avgEfficiency }}%</span>
+                  </div>
+                  <div class="insight-card-footer">
+                    <span class="active-tag">
+                      <i-lucide name="users" size="14"></i-lucide>
+                      {{ coordinatorPerformanceInsights.activeCoordinators }} Active Coordinators
+                    </span>
+                  </div>
+                </div>
+                <!-- Processing Rate Card -->
+                <div class="insight-card-premium rate-card">
+                  <div class="insight-card-header">
+                    <div class="insight-icon rate">
+                      <i-lucide name="zap" size="20"></i-lucide>
+                    </div>
+                    <span class="insight-badge">Processing Rate</span>
+                  </div>
+                  <div class="insight-card-body">
+                    <span class="insight-main-value">{{ coordinatorPerformanceInsights.processingRate
+                    }}%</span>
+                    <span class="insight-sub-value">Students Processed</span>
+                  </div>
+                  <div class="insight-card-footer">
+                    <span class="avg-tag">
+                      <i-lucide name="file-text" size="14"></i-lucide>
+                      ~{{ coordinatorPerformanceInsights.avgLettersPerCoordinator }} Letters/Coordinator
+                    </span>
+                    @if (coordinatorPerformanceInsights.completionTrend !== null) {
+                      <span class="trend-tag"
+                        [ngClass]="coordinatorPerformanceInsights.completionTrend >= 0 ? 'trend-up' : 'trend-down'">
+                        <i-lucide
+                          [name]="coordinatorPerformanceInsights.completionTrend >= 0 ? 'trending-up' : 'trending-down'"
+                        size="14"></i-lucide>
+                        {{ coordinatorPerformanceInsights.completionTrend >= 0 ? '+' : '' }}{{
+                        coordinatorPerformanceInsights.completionTrend }}%
+                      </span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+        <!-- ============================================================================
+        TELEX MANAGER DASHBOARD
+        ============================================================================ -->
+        @if (!isLoading && allTelexManagers.length > 0 && selectedUserType === 'TELEX_PERSON' && !showTelexDetailView) {
+          <div class="dashboard-content telex-theme"
+            @slideUp>
+            <!-- Analytics Summary Cards -->
+            <div class="telex-analytics-section">
+              <div class="analytics-header">
+                <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Performance Analytics</h3>
+              </div>
+              <div class="analytics-kpi-grid">
+                <div class="analytics-kpi-card">
+                  <div class="kpi-icon-mini" style="--kpi-color: #f59e0b"><i-lucide name="users"
+                  size="18"></i-lucide></div>
+                  <div class="kpi-data">
+                    <span class="kpi-value-sm">{{ formatNumber(telexSummaryAnalytics.totalStudents)
+                    }}</span>
+                    <span class="kpi-label-sm">Total Students</span>
+                  </div>
+                </div>
+                <div class="analytics-kpi-card">
+                  <div class="kpi-icon-mini" style="--kpi-color: #3b82f6"><i-lucide name="files"
+                  size="18"></i-lucide></div>
+                  <div class="kpi-data">
+                    <span class="kpi-value-sm">{{ formatNumber(telexSummaryAnalytics.totalDocsUploaded)
+                    }}</span>
+                    <span class="kpi-label-sm">Docs Uploaded</span>
+                  </div>
+                </div>
+                <div class="analytics-kpi-card highlight">
+                  <div class="kpi-icon-mini" style="--kpi-color: #10b981"><i-lucide name="file-check-2"
+                  size="18"></i-lucide></div>
+                  <div class="kpi-data">
+                    <span class="kpi-value-sm">{{ formatNumber(telexSummaryAnalytics.totalTelexIssued)
+                    }}</span>
+                    <span class="kpi-label-sm">Telex Issued</span>
+                  </div>
+                </div>
+                <div class="analytics-kpi-card">
+                  <div class="kpi-icon-mini" style="--kpi-color: #8b5cf6"><i-lucide name="target"
+                  size="18"></i-lucide></div>
+                  <div class="kpi-data">
+                    <span class="kpi-value-sm">{{ telexSummaryAnalytics.completionRate }}%</span>
+                    <span class="kpi-label-sm">Completion Rate</span>
+                  </div>
+                </div>
+                <div class="analytics-kpi-card">
+                  <div class="kpi-icon-mini" style="--kpi-color: #ec4899"><i-lucide name="zap"
+                  size="18"></i-lucide></div>
+                  <div class="kpi-data">
+                    <span class="kpi-value-sm">{{ telexSummaryAnalytics.avgEfficiency }}%</span>
+                    <span class="kpi-label-sm">Efficiency</span>
+                  </div>
+                </div>
+                <div class="analytics-kpi-card">
+                  <div class="kpi-icon-mini" style="--kpi-color: #22c55e"><i-lucide name="user-check"
+                  size="18"></i-lucide></div>
+                  <div class="kpi-data">
+                    <span class="kpi-value-sm active-count">{{ telexSummaryAnalytics.activeManagers
+                    }}</span>
+                    <span class="kpi-label-sm">Active</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Performance Insights -->
+              @if (telexSummaryAnalytics.topPerformer) {
+                <div class="telex-insights-row">
+                  <div class="insight-highlight top-performer">
+                    <i-lucide name="trophy" size="20"></i-lucide>
+                    <div class="insight-text">
+                      <span class="insight-label">Top Performer</span>
+                      <span class="insight-value">{{ telexSummaryAnalytics.topPerformer.fullName }}</span>
+                    </div>
+                    <span class="insight-badge">{{ telexSummaryAnalytics.topPerformer.telexIssued }}
+                    issued</span>
+                  </div>
+                  <div class="insight-highlight pipeline-stat">
+                    <i-lucide name="git-branch" size="20"></i-lucide>
+                    <div class="insight-text">
+                      <span class="insight-label">Pipeline Progress</span>
+                      <span class="insight-value">{{ telexSummaryAnalytics.totalSubmittedToUniversity }} →
+                        {{
+                        telexSummaryAnalytics.totalSubmittedToMEA }} → {{
+                        telexSummaryAnalytics.totalTelexIssued
+                      }}</span>
+                    </div>
+                    <span class="insight-badge">Uni → MEA → Issued</span>
+                  </div>
+                </div>
+              }
+            </div>
+            <!-- Charts Row -->
+            <div class="telex-charts-row">
+              <div class="chart-card telex-comparison-chart">
+                <div class="chart-header">
+                  <h3><i-lucide name="bar-chart" size="18"></i-lucide> Manager Comparison</h3>
+                </div>
+                <div class="chart-body">
+                  @if (telexManagerComparisonChartData) {
+                    <canvas baseChart
+                      [data]="telexManagerComparisonChartData" [options]="barChartOptions"
+                    type="bar"></canvas>
+                  }
+                </div>
+              </div>
+              <div class="chart-card telex-pipeline-chart">
+                <div class="chart-header">
+                  <h3><i-lucide name="activity" size="18"></i-lucide> Processing Pipeline</h3>
+                </div>
+                <div class="chart-body">
+                  @if (telexPipelineChartData) {
+                    <canvas baseChart [data]="telexPipelineChartData"
+                    [options]="barChartOptions" type="bar"></canvas>
+                  }
+                </div>
+              </div>
+            </div>
+            <!-- TelexMan Summary Table -->
+            <div class="universities-table-container">
+              <div class="table-header">
+                <h3>
+                  <i-lucide name="send" size="18"></i-lucide>
+                  Telex Manager Performance
+                </h3>
+                <span class="table-count">{{ allTelexManagers.length }} managers</span>
+              </div>
+              <div class="table-wrapper">
+                <table class="universities-table telex-table">
+                  <thead>
+                    <tr>
+                      <th>Manager</th>
+                      <th>Status</th>
+                      <th>Students</th>
+                      <th>Docs</th>
+                      <th>To Uni</th>
+                      <th>To MEA</th>
+                      <th>Telex Issued</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (manager of allTelexManagers; track manager) {
+                      <tr class="table-row"
+                        [class.top-row]="manager === telexSummaryAnalytics.topPerformer"
+                        (click)="selectTelexManager(manager)">
+                        <td class="manager-name-cell">
+                          <div class="manager-avatar telex-avatar">
+                            {{ manager.fullName.charAt(0) }}
+                          </div>
+                          <div class="manager-details-inline">
+                            <span class="manager-name">{{ manager.fullName }}</span>
+                            <span class="manager-username">{{ manager.username }}</span>
+                          </div>
+                          @if (manager === telexSummaryAnalytics.topPerformer) {
+                            <i-lucide name="trophy"
+                            size="14" class="top-badge"></i-lucide>
+                          }
+                        </td>
+                        <td>
+                          <span class="status-badge"
+                            [ngClass]="manager.status === 'Active' ? 'active' : 'inactive'">
+                            {{ manager.status }}
+                          </span>
+                        </td>
+                        <td>{{ formatNumber(manager.totalStudents) }}</td>
+                        <td>{{ formatNumber(manager.docsUploaded) }}</td>
+                        <td>{{ formatNumber(manager.submittedToUniversity) }}</td>
+                        <td>{{ formatNumber(manager.submittedToMEA) }}</td>
+                        <td class="telex-issued-cell">{{ formatNumber(manager.telexIssued) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        }
+        <!-- ============================================================================
+        TELEX MANAGER DETAIL VIEW
+        ============================================================================ -->
+        @if (!isLoading && showTelexDetailView && selectedTelexManager && telexStats && selectedUserType === 'TELEX_PERSON') {
+          <div class="dashboard-content telex-theme"
+            @slideUp>
+            <!-- Detail Header -->
+            <div class="detail-header-panel">
+              <button class="back-btn-inline" (click)="backToTelexList()">
+                <i-lucide name="arrow-left" size="18"></i-lucide>
+                <span>Back to List</span>
+              </button>
+              <div class="selected-manager-info">
+                <div class="manager-avatar telex-avatar large">
+                  {{ selectedTelexManager.fullName.charAt(0) }}
+                </div>
+                <div class="manager-details-inline">
+                  <span class="manager-name large">{{ selectedTelexManager.fullName }}</span>
+                  <span class="manager-username">{{ selectedTelexManager.username }}</span>
+                </div>
+                <span class="status-badge"
+                  [ngClass]="selectedTelexManager.status === 'Active' ? 'active' : 'inactive'">
+                  {{ selectedTelexManager.status }}
+                </span>
+              </div>
+              <button class="generate-report-btn single" (click)="sendTelexReport()">
+                <i-lucide name="mail" size="16"></i-lucide>
+                <span>Send Report</span>
+              </button>
+            </div>
+            <!-- KPI Cards Row -->
+            <div class="kpi-section">
+              <div class="kpi-grid">
+                <div class="kpi-card" [style.--delay]="'0s'" [style.--accent-color]="'#f59e0b'">
+                  <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ formatNumber(getTelexMetric('assigned')) }}</span>
+                    <span class="kpi-label">Assigned ({{ selectedTimePeriod | titlecase }})</span>
+                  </div>
+                  @if (getTelexTrend('assigned') !== null) {
+                    <div class="kpi-trend" [ngClass]="getTrendClass(getTelexTrend('assigned'))"
+                      >
+                      <i-lucide
+                        [name]="(getTelexTrend('assigned') || 0) >= 0 ? 'trending-up' : 'trending-down'"
+                      size="14"></i-lucide>
+                      <span>{{ formatTrend(getTelexTrend('assigned')) }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="kpi-card" [style.--delay]="'0.1s'" [style.--accent-color]="'#3b82f6'">
+                  <div class="kpi-icon"><i-lucide name="building-2" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ formatNumber(getTelexMetric('submittedToUniversity'))
+                    }}</span>
+                    <span class="kpi-label">To University ({{ selectedTimePeriod | titlecase }})</span>
+                  </div>
+                  @if (getTelexTrend('submittedToUniversity') !== null) {
+                    <div class="kpi-trend" [ngClass]="getTrendClass(getTelexTrend('submittedToUniversity'))"
+                      >
+                      <i-lucide
+                        [name]="(getTelexTrend('submittedToUniversity') || 0) >= 0 ? 'trending-up' : 'trending-down'"
+                      size="14"></i-lucide>
+                      <span>{{ formatTrend(getTelexTrend('submittedToUniversity')) }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="kpi-card" [style.--delay]="'0.2s'" [style.--accent-color]="'#ec4899'">
+                  <div class="kpi-icon"><i-lucide name="landmark" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ formatNumber(getTelexMetric('submittedToMEA')) }}</span>
+                    <span class="kpi-label">To MEA ({{ selectedTimePeriod | titlecase }})</span>
+                  </div>
+                  @if (getTelexTrend('submittedToMEA') !== null) {
+                    <div class="kpi-trend" [ngClass]="getTrendClass(getTelexTrend('submittedToMEA'))"
+                      >
+                      <i-lucide
+                        [name]="(getTelexTrend('submittedToMEA') || 0) >= 0 ? 'trending-up' : 'trending-down'"
+                      size="14"></i-lucide>
+                      <span>{{ formatTrend(getTelexTrend('submittedToMEA')) }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="kpi-card" [style.--delay]="'0.3s'" [style.--accent-color]="'#10b981'">
+                  <div class="kpi-icon"><i-lucide name="file-check-2" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ formatNumber(getTelexMetric('telexIssued')) }}</span>
+                    <span class="kpi-label">Telex Issued ({{ selectedTimePeriod | titlecase }})</span>
+                  </div>
+                  @if (getTelexTrend('telexIssued') !== null) {
+                    <div class="kpi-trend" [ngClass]="getTrendClass(getTelexTrend('telexIssued'))"
+                      >
+                      <i-lucide
+                        [name]="(getTelexTrend('telexIssued') || 0) >= 0 ? 'trending-up' : 'trending-down'"
+                      size="14"></i-lucide>
+                      <span>{{ formatTrend(getTelexTrend('telexIssued')) }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+            <!-- Charts Section -->
+            <div class="charts-section">
+              <div class="chart-card line-chart">
+                <div class="chart-header">
+                  <h3><i-lucide name="activity" size="18"></i-lucide> Activity Trend</h3>
+                </div>
+                <div class="chart-body">
+                  @if (telexActivityChartData) {
+                    <canvas baseChart [data]="telexActivityChartData"
+                    [options]="lineChartOptions" type="line"></canvas>
+                  }
+                </div>
+              </div>
+              <div class="chart-card donut-chart">
+                <div class="chart-header">
+                  <h3><i-lucide name="pie-chart" size="18"></i-lucide> Status Distribution ({{
+                  selectedTimePeriod
+                | titlecase }})</h3>
+              </div>
+              <div class="chart-body">
+                @if (telexDistributionChartData) {
+                  <canvas baseChart [data]="telexDistributionChartData"
+                  [options]="donutChartOptions" type="doughnut"></canvas>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+      <!-- ============================================================================
+      VISA MANAGER DASHBOARD
+      ============================================================================ -->
+      @if (!isLoading && selectedUserType === 'VISA_PERSON') {
+        <div class="dashboard-content visa-theme" @fadeIn>
+          <!-- Detail View Header (Back Button) -->
+          @if (showVisaDetailView) {
+            <div class="detail-header"
+              style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
+              <button class="back-btn" (click)="backToVisaList()"
+                style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <i-lucide name="arrow-left" size="18"></i-lucide> Back
+              </button>
+              <h2 style="margin: 0; font-size: 1.2rem; color: white;">{{ selectedVisaManager?.visaManagerName }}
+                <span style="font-weight: 400; font-size: 0.9rem; opacity: 0.7;">(Manager Details)</span>
+              </h2>
+            </div>
+          }
+          <!-- KPI Cards Row -->
+          <div class="kpi-section">
+            <div class="kpi-grid">
+              <!-- Assigned -->
+              <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
+                <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
+                <div class="kpi-content">
+                  <span class="kpi-value">{{ visaStats?.totalAssignedStudents || 0 }}</span>
+                  <span class="kpi-label">Total Assigned</span>
+                </div>
+              </div>
+              <!-- Payment Requested -->
+              <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
+                <div class="kpi-icon"><i-lucide name="credit-card" size="22"></i-lucide></div>
+                <div class="kpi-content">
+                  <span class="kpi-value">{{ visaStats?.paymentRequested || 0 }}</span>
+                  <span class="kpi-label">Payment Requested</span>
+                </div>
+              </div>
+              <!-- Payment Confirmed -->
+              <div class="kpi-card" [style.--accent-color]="'#0ea5e9'">
+                <div class="kpi-icon"><i-lucide name="check-circle" size="22"></i-lucide></div>
+                <div class="kpi-content">
+                  <span class="kpi-value">{{ visaStats?.paymentConfirmed || 0 }}</span>
+                  <span class="kpi-label">Payment Confirmed</span>
+                </div>
+              </div>
+              <!-- Passport Collected -->
+              <div class="kpi-card" [style.--accent-color]="'#6366f1'">
+                <div class="kpi-icon"><i-lucide name="book" size="22"></i-lucide></div>
+                <div class="kpi-content">
+                  <span class="kpi-value">{{ visaStats?.passportCollected || 0 }}</span>
+                  <span class="kpi-label">Passport Collected</span>
+                </div>
+              </div>
+              <!-- Visa Applied -->
+              <div class="kpi-card" [style.--accent-color]="'#8b5cf6'">
+                <div class="kpi-icon"><i-lucide name="file-text" size="22"></i-lucide></div>
+                <div class="kpi-content">
+                  <span class="kpi-value">{{ visaStats?.visaApplied || 0 }}</span>
+                  <span class="kpi-label">Visa Applied</span>
+                </div>
+              </div>
+              <!-- Embassy Submitted -->
+              <div class="kpi-card" [style.--accent-color]="'#a855f7'">
+                <div class="kpi-icon"><i-lucide name="landmark" size="22"></i-lucide></div>
+                <div class="kpi-content">
+                  <span class="kpi-value">{{ visaStats?.embassySubmitted || 0 }}</span>
+                  <span class="kpi-label">Embassy Submitted</span>
+                </div>
+              </div>
+              <!-- Visa Stamped -->
+              <div class="kpi-card" [style.--accent-color]="'#10b981'">
+                <div class="kpi-icon"><i-lucide name="stamp" size="22"></i-lucide></div>
+                <div class="kpi-content">
+                  <span class="kpi-value">{{ visaStats?.visaStamped || 0 }}</span>
+                  <span class="kpi-label">Visa Stamped</span>
+                </div>
+              </div>
+              <!-- Passport Returned -->
+              <div class="kpi-card" [style.--accent-color]="'#ec4899'">
+                <div class="kpi-icon"><i-lucide name="check-square" size="22"></i-lucide></div>
+                <div class="kpi-content">
+                  <span class="kpi-value">{{ visaStats?.passportReturned || 0 }}</span>
+                  <span class="kpi-label">Passport Returned</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Charts Section -->
+          <div class="charts-section">
+            <!-- Funnel Chart -->
+            <div class="chart-card bar-chart">
+              <div class="chart-header">
+                <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Processing Funnel</h3>
+              </div>
+              <div class="chart-body">
+                @if (visaFunnelChartData) {
+                  <canvas baseChart [data]="visaFunnelChartData"
+                  [options]="barChartOptions" type="bar"></canvas>
+                }
+              </div>
+            </div>
+            <!-- Breakdown Chart -->
+            <div class="chart-card donut-chart">
+              <div class="chart-header">
+                <h3><i-lucide name="pie-chart" size="18"></i-lucide> Action Breakdown</h3>
+              </div>
+              <div class="chart-body">
+                @if (visaPieChartData) {
+                  <canvas baseChart [data]="visaPieChartData"
+                  [options]="donutChartOptions" type="doughnut"></canvas>
+                }
+              </div>
+            </div>
+          </div>
+          <!-- Managers List (Table) -->
+          @if (!showVisaDetailView && allVisaManagers.length > 0) {
+            <div class="leaderboard-section">
+              <div class="section-header">
+                <h3><i-lucide name="list" size="18"></i-lucide> Visa Managers Performance</h3>
+                <span class="badge">{{ allVisaManagers.length }} Managers</span>
+              </div>
+              <div class="leaderboard-body">
+                <table class="leaderboard-table">
+                  <thead>
+                    <tr>
+                      <th>Manager Name</th>
+                      <th>Assigned</th>
+                      <th>Payment Req</th>
+                      <th>Visa Applied</th>
+                      <th>Stamped</th>
+                      <th>Efficiency</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (manager of allVisaManagers; track manager) {
+                      <tr (click)="selectVisaManager(manager)"
+                        style="cursor: pointer;">
+                        <td>
+                          <div class="manager-info">
+                            <div class="manager-avatar">{{ manager.visaManagerName.charAt(0) }}
+                            </div>
+                            <span>{{ manager.visaManagerName }}</span>
+                          </div>
+                        </td>
+                        <td>{{ manager.totalAssignedStudents }}</td>
+                        <td>{{ manager.paymentRequested }}</td>
+                        <td>{{ manager.visaApplied }}</td>
+                        <td>{{ manager.visaStamped }}</td>
+                        <td>
+                          @if (manager.efficiencyRate && manager.efficiencyRate >= 80) {
+                            <span class="trend-badge positive"
+                              >{{
+                            manager.efficiencyRate }}%</span>
+                          }
+                          @if (manager.efficiencyRate && manager.efficiencyRate >= 50 && manager.efficiencyRate < 80) {
+                            <span class="trend-badge neutral"
+                              >{{
+                            manager.efficiencyRate }}%</span>
+                          }
+                          @if (manager.efficiencyRate && manager.efficiencyRate < 50) {
+                            <span class="trend-badge negative"
+                              >{{
+                            manager.efficiencyRate }}%</span>
+                          }
+                          @if (!manager.efficiencyRate) {
+                            <span>N/A</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </div>
+      }
+      <!-- ============================================================================
+      DOC PERSON DASHBOARD
+      ============================================================================ -->
+      @if (!isLoading && selectedUserType === 'DOC_PERSON') {
+        <div class="dashboard-content doc-person-theme"
+          @fadeIn>
+          <!-- Detail View Header (Back Button) -->
+          @if (showDetailView && selectedDocPerson) {
+            <div class="detail-header"
+              style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
+              <button class="back-btn" (click)="backToOverview()"
+                style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <i-lucide name="arrow-left" size="18"></i-lucide> Back
+              </button>
+              <h2 style="margin: 0; font-size: 1.2rem; color: white;">{{ selectedDocPerson.fullName }}
+                <span style="font-weight: 400; font-size: 0.9rem; opacity: 0.7;">(Doc Manager Details)</span>
+              </h2>
+            </div>
+          }
+          <!-- KPI Cards Row (Detail View) -->
+          @if (showDetailView && docPersonStats) {
+            <div class="kpi-section">
+              <div class="kpi-grid">
+                <!-- Assigned -->
+                <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
+                  <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ docPersonStats.totalAssignedStudents || 0 }}</span>
+                    <span class="kpi-label">Total Assigned</span>
+                  </div>
+                </div>
+                <!-- Docs Received -->
+                <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
+                  <div class="kpi-icon"><i-lucide name="inbox" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ docPersonStats.documentsReceived || 0 }}</span>
+                    <span class="kpi-label">Docs Received</span>
+                  </div>
+                </div>
+                <!-- Docs Verified -->
+                <div class="kpi-card" [style.--accent-color]="'#10b981'">
+                  <div class="kpi-icon"><i-lucide name="check-circle" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ docPersonStats.documentsVerified || 0 }}</span>
+                    <span class="kpi-label">Docs Verified</span>
+                  </div>
+                </div>
+                <!-- Docs Collected -->
+                <div class="kpi-card" [style.--accent-color]="'#6366f1'">
+                  <div class="kpi-icon"><i-lucide name="package-check" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ docPersonStats.documentsCollected || 0 }}</span>
+                    <span class="kpi-label">Docs Collected</span>
+                  </div>
+                </div>
+                <!-- Docs Returned -->
+                <div class="kpi-card" [style.--accent-color]="'#ec4899'">
+                  <div class="kpi-icon"><i-lucide name="corner-up-left" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ docPersonStats.documentsReturned || 0 }}</span>
+                    <span class="kpi-label">Docs Returned</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          <!-- Summary Cards (Overview) -->
+          @if (!showDetailView && docPersonSummaryStats) {
+            <div class="summary-cards-row">
+              <div class="summary-card">
+                <div class="summary-icon assignments">
+                  <i-lucide name="users" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalAssigned) }}</span>
+                  <span class="summary-label">Total Assigned</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon received">
+                  <i-lucide name="inbox" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalReceived) }}</span>
+                  <span class="summary-label">Docs Received</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon verified">
+                  <i-lucide name="package-check" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalVerified) }}</span>
+                  <span class="summary-label">Docs Verified</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon returned">
+                  <i-lucide name="corner-up-left" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalReturned) }}</span>
+                  <span class="summary-label">Docs Returned</span>
+                </div>
+              </div>
+            </div>
+          }
+          <!-- Charts Section (Overview) -->
+          @if (!showDetailView) {
+            <div class="charts-section">
+              <!-- Manager Comparison Bar Chart -->
+              <div class="chart-card bar-chart">
+                <div class="chart-header">
+                  <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Manager Assignments</h3>
+                </div>
+                <div class="chart-body">
+                  @if (docPersonBarChartData) {
+                    <canvas baseChart [data]="docPersonBarChartData"
+                    [options]="barChartOptions" type="bar"></canvas>
+                  }
+                </div>
+              </div>
+              <!-- Status Distribution Donut Chart -->
+              <div class="chart-card donut-chart">
+                <div class="chart-header">
+                  <h3><i-lucide name="pie-chart" size="18"></i-lucide> Status Overview</h3>
+                </div>
+                <div class="chart-body">
+                  @if (docPersonPieChartData) {
+                    <canvas baseChart [data]="docPersonPieChartData"
+                    [options]="donutChartOptions" type="doughnut"></canvas>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+          <!-- Doc Person List (Overview) -->
+          @if (!showDetailView && allDocPersons.length > 0) {
+            <div class="leaderboard-section">
+              <div class="section-header">
+                <h3><i-lucide name="list" size="18"></i-lucide> Doc Personnel List</h3>
+                <span class="badge">{{ allDocPersons.length }} Personnel</span>
+              </div>
+              <div class="leaderboard-body">
+                <table class="leaderboard-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Username</th>
+                      <th>Email</th>
+                      <th>Contact</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (person of allDocPersons; track person) {
+                      <tr (click)="selectDocPerson(person)"
+                        style="cursor: pointer;">
+                        <td>
+                          <div class="manager-info">
+                            <div class="manager-avatar">{{ person.fullName.charAt(0) }}</div>
+                            <span>{{ person.fullName }}</span>
+                          </div>
+                        </td>
+                        <td>{{ person.username }}</td>
+                        <td>{{ person.email }}</td>
+                        <td>{{ person.contactNumber }}</td>
+                        <td>
+                          <span class="status-badge"
+                            [ngClass]="person.status === 'ACTIVE' ? 'active' : 'inactive'">
+                            {{ person.status }}
+                          </span>
+                        </td>
+                        <td>
+                          <button class="view-btn"
+                            style="background: none; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer;">
+                            View Stats
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </div>
+      }
+      <!-- ============================================================================
+      AGENT DASHBOARD
+      ============================================================================ -->
+      @if (!isLoading && selectedUserType === 'AGENT') {
+        <div class="dashboard-content agent-theme" @fadeIn>
+          <!-- Detail View Header (Back Button) -->
+          @if (showAgentDetailView && selectedAgentStats) {
+            <div class="detail-header"
+              style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
+              <button class="back-btn" (click)="backToAgentList()"
+                style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <i-lucide name="arrow-left" size="18"></i-lucide> Back
+              </button>
+              <h2 style="margin: 0; font-size: 1.2rem; color: white;">{{ selectedAgentStats.agentName }}
+                <span style="font-weight: 400; font-size: 0.9rem; opacity: 0.7;">(Agent Details)</span>
+              </h2>
+              <button class="generate-report-btn single" (click)="openEmailModal('single')"
+                style="margin-left: auto;">
+                <i-lucide name="mail" size="16"></i-lucide>
+                <span>Email Report</span>
+              </button>
+            </div>
+          }
+          <!-- KPI Cards Row (Detail View) -->
+          @if (showAgentDetailView && selectedAgentStats) {
+            <div class="kpi-section">
+              <div class="kpi-grid">
+                <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
+                  <div class="kpi-icon"><i-lucide name="users" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ selectedAgentStats.registeredStudents }}</span>
+                    <span class="kpi-label">Registered Students</span>
+                  </div>
+                </div>
+                <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
+                  <div class="kpi-icon"><i-lucide name="send" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ selectedAgentStats.telexInitiated }}</span>
+                    <span class="kpi-label">Telex Initiated</span>
+                  </div>
+                </div>
+                <div class="kpi-card" [style.--accent-color]="'#10b981'">
+                  <div class="kpi-icon"><i-lucide name="check-circle" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ selectedAgentStats.paymentConfirmations }}</span>
+                    <span class="kpi-label">Payment Confirmations</span>
+                  </div>
+                </div>
+                <div class="kpi-card" [style.--accent-color]="'#8b5cf6'">
+                  <div class="kpi-icon"><i-lucide name="file-text" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ selectedAgentStats.docsRequested }}</span>
+                    <span class="kpi-label">Docs Requested</span>
+                  </div>
+                </div>
+                <div class="kpi-card" [style.--accent-color]="'#ec4899'">
+                  <div class="kpi-icon"><i-lucide name="activity" size="22"></i-lucide></div>
+                  <div class="kpi-content">
+                    <span class="kpi-value">{{ selectedAgentStats.totalWork }}</span>
+                    <span class="kpi-label">Total Activity</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          <!-- Summary Cards (Overview) -->
+          @if (!showAgentDetailView) {
+            <div class="summary-cards-row">
+              <div class="summary-card">
+                <div class="summary-icon students">
+                  <i-lucide name="users" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(agentSummaryStats.totalRegistered) }}</span>
+                  <span class="summary-label">Total Registered</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon pending"> <!-- Reusing pending icon style for Telex -->
+                  <i-lucide name="send" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(agentSummaryStats.totalTelexInitiated)
+                  }}</span>
+                  <span class="summary-label">Telex Initiated</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon verified"> <!-- Reusing verified for Payment -->
+                  <i-lucide name="check-circle" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(agentSummaryStats.totalPaymentConfirmations)
+                  }}</span>
+                  <span class="summary-label">Payment Confirmed</span>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon letters"> <!-- Reusing letters for Docs -->
+                  <i-lucide name="file-text" size="22"></i-lucide>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-value">{{ formatNumber(agentSummaryStats.totalDocsRequested)
+                  }}</span>
+                  <span class="summary-label">Docs Requested</span>
+                </div>
+              </div>
+            </div>
+          }
+          <!-- Charts Section (Overview & Detail) -->
+          <div class="charts-section">
+            <!-- Bar Chart (Overview Only) -->
+            @if (!showAgentDetailView) {
+              <div class="chart-card bar-chart">
+                <div class="chart-header">
+                  <h3><i-lucide name="bar-chart-2" size="18"></i-lucide> Top Agents by Work</h3>
+                </div>
+                <div class="chart-body">
+                  @if (agentBarChartData) {
+                    <canvas baseChart [data]="agentBarChartData"
+                    [options]="barChartOptions" type="bar"></canvas>
+                  }
+                </div>
+              </div>
+            }
+            <!-- Activity Breakdown Donut Chart (Both) -->
+            <div class="chart-card donut-chart">
+              <div class="chart-header">
+                <h3><i-lucide name="pie-chart" size="18"></i-lucide> Activity Distribution</h3>
+              </div>
+              <div class="chart-body">
+                @if (agentPieChartData) {
+                  <canvas baseChart [data]="agentPieChartData"
+                  [options]="donutChartOptions" type="doughnut"></canvas>
+                }
+              </div>
+            </div>
+          </div>
+          <!-- Agents List (Overview) -->
+          @if (!showAgentDetailView && allAgentStats.length > 0) {
+            <div class="leaderboard-section">
+              <div class="section-header">
+                <h3><i-lucide name="list" size="18"></i-lucide> Agent Performance List</h3>
+                <span class="badge">{{ allAgentStats.length }} Agents</span>
+              </div>
+              <div class="leaderboard-body">
+                <table class="leaderboard-table">
+                  <thead>
+                    <tr>
+                      <th>Agent Name</th>
+                      <th>Registered</th>
+                      <th>Telex Init</th>
+                      <th>Payment</th>
+                      <th>Docs Req</th>
+                      <th>Total Work</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (agent of allAgentStats; track agent) {
+                      <tr (click)="selectAgent(agent)"
+                        style="cursor: pointer;">
+                        <td>
+                          <div class="manager-info">
+                            <div class="manager-avatar">{{ agent.agentName.charAt(0) }}</div>
+                            <div class="manager-details">
+                              <span class="manager-name">{{ agent.agentName }}</span>
+                              <span class="manager-username">{{ agent.agentUsername }}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>{{ agent.registeredStudents }}</td>
+                        <td>{{ agent.telexInitiated }}</td>
+                        <td>{{ agent.paymentConfirmations }}</td>
+                        <td>{{ agent.docsRequested }}</td>
+                        <td>
+                          <span class="trend-badge positive">{{ agent.totalWork }}</span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </div>
+      }
     </div>
+  </div>
 </div>
+}
 
 
 <!-- Email Report Modal -->
-<div class="email-modal-backdrop" *ngIf="showEmailModal" @fadeIn (click)="closeEmailModal()">
+@if (showEmailModal) {
+  <div class="email-modal-backdrop" @fadeIn (click)="closeEmailModal()">
     <div class="email-modal" @slideUp (click)="$event.stopPropagation()">
-        <!-- Modal Header -->
-        <div class="email-modal-header">
-            <div class="email-header-icon">
-                <i-lucide name="mail" size="24"></i-lucide>
-            </div>
-            <div class="email-header-text">
-                <h2>{{ emailTargetType === 'single' ? 'Send Manager Report' : 'Send All Reports' }}</h2>
-                <p>{{ selectedTimePeriod | titlecase }} performance report will be emailed</p>
-            </div>
-            <button class="email-close-btn" (click)="closeEmailModal()">
-                <i-lucide name="x" size="18"></i-lucide>
-            </button>
+      <!-- Modal Header -->
+      <div class="email-modal-header">
+        <div class="email-header-icon">
+          <i-lucide name="mail" size="24"></i-lucide>
         </div>
-
-        <!-- Modal Body -->
-        <div class="email-modal-body">
-            <!-- Loading State -->
-            <div class="email-loading-state" *ngIf="isSendingEmail">
-                <div class="email-spinner">
-                    <div class="spinner-ring"></div>
-                    <i-lucide name="send" size="24"></i-lucide>
-                </div>
-                <p>Generating and sending report...</p>
-                <span class="loading-hint">This may take a few moments</span>
+        <div class="email-header-text">
+          <h2>{{ emailTargetType === 'single' ? 'Send Manager Report' : 'Send All Reports' }}</h2>
+          <p>{{ selectedTimePeriod | titlecase }} performance report will be emailed</p>
+        </div>
+        <button class="email-close-btn" (click)="closeEmailModal()">
+          <i-lucide name="x" size="18"></i-lucide>
+        </button>
+      </div>
+      <!-- Modal Body -->
+      <div class="email-modal-body">
+        <!-- Loading State -->
+        @if (isSendingEmail) {
+          <div class="email-loading-state">
+            <div class="email-spinner">
+              <div class="spinner-ring"></div>
+              <i-lucide name="send" size="24"></i-lucide>
             </div>
-
-            <!-- Success State -->
-            <div class="email-success-state" *ngIf="emailSendSuccess && !isSendingEmail">
-                <div class="success-icon">
-                    <i-lucide name="check-circle" size="48"></i-lucide>
-                </div>
-                <h3>Report Sent Successfully!</h3>
-                <p>The performance report has been sent to <strong>{{ emailAddress }}</strong></p>
+            <p>Generating and sending report...</p>
+            <span class="loading-hint">This may take a few moments</span>
+          </div>
+        }
+        <!-- Success State -->
+        @if (emailSendSuccess && !isSendingEmail) {
+          <div class="email-success-state">
+            <div class="success-icon">
+              <i-lucide name="check-circle" size="48"></i-lucide>
             </div>
-
-            <!-- Form State -->
-            <div class="email-form" *ngIf="!isSendingEmail && !emailSendSuccess">
-                <div class="form-group">
-                    <label for="recipientEmail">
-                        <i-lucide name="at-sign" size="16"></i-lucide>
-                        Recipient Email Address
-                    </label>
-                    <input type="email" id="recipientEmail" [(ngModel)]="emailAddress"
-                        placeholder="Enter email address (e.g., admin@company.com)" [class.error]="emailSendError" />
-                    <span class="error-message" *ngIf="emailSendError">
-                        <i-lucide name="alert-circle" size="14"></i-lucide>
-                        {{ emailSendError }}
-                    </span>
-                </div>
-
-                <div class="report-preview">
-                    <div class="preview-header">
-                        <i-lucide name="file-spreadsheet" size="16"></i-lucide>
-                        <span>Report Preview</span>
+            <h3>Report Sent Successfully!</h3>
+            <p>The performance report has been sent to <strong>{{ emailAddress }}</strong></p>
+          </div>
+        }
+        <!-- Form State -->
+        @if (!isSendingEmail && !emailSendSuccess) {
+          <div class="email-form">
+            <div class="form-group">
+              <label for="recipientEmail">
+                <i-lucide name="at-sign" size="16"></i-lucide>
+                Recipient Email Address
+              </label>
+              <input type="email" id="recipientEmail" [(ngModel)]="emailAddress"
+                placeholder="Enter email address (e.g., admin@company.com)" [class.error]="emailSendError" />
+              @if (emailSendError) {
+                <span class="error-message">
+                  <i-lucide name="alert-circle" size="14"></i-lucide>
+                  {{ emailSendError }}
+                </span>
+              }
+            </div>
+            <div class="report-preview">
+              <div class="preview-header">
+                <i-lucide name="file-spreadsheet" size="16"></i-lucide>
+                <span>Report Preview</span>
+              </div>
+              <div class="preview-content">
+                <div class="preview-item">
+                  <span class="preview-label">Period</span>
+                  @if (selectedUserType !== 'AGENT') {
+                    <span class="preview-value">{{ selectedTimePeriod |
+                    titlecase }}</span>
+                  }
+                  @if (selectedUserType === 'AGENT') {
+                    <div class="period-select-wrapper">
+                      <select [(ngModel)]="emailReportPeriod" class="modal-period-select">
+                        <option value="daily">Daily</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                      </select>
                     </div>
-                    <div class="preview-content">
-                        <div class="preview-item">
-                            <span class="preview-label">Period</span>
-                            <span class="preview-value" *ngIf="selectedUserType !== 'AGENT'">{{ selectedTimePeriod |
-                                titlecase }}</span>
-                            <div class="period-select-wrapper" *ngIf="selectedUserType === 'AGENT'">
-                                <select [(ngModel)]="emailReportPeriod" class="modal-period-select">
-                                    <option value="daily">Daily</option>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="yearly">Yearly</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Managers</span>
-                            <span class="preview-value">{{ getReportPreviewName() }}</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Format</span>
-                            <span class="preview-value">Professional HTML Email</span>
-                        </div>
-                    </div>
+                  }
                 </div>
+                <div class="preview-item">
+                  <span class="preview-label">Managers</span>
+                  <span class="preview-value">{{ getReportPreviewName() }}</span>
+                </div>
+                <div class="preview-item">
+                  <span class="preview-label">Format</span>
+                  <span class="preview-value">Professional HTML Email</span>
+                </div>
+              </div>
             </div>
+          </div>
+        }
+      </div>
+      <!-- Modal Footer -->
+      @if (!isSendingEmail && !emailSendSuccess) {
+        <div class="email-modal-footer">
+          <button class="btn-cancel" (click)="closeEmailModal()">
+            Cancel
+          </button>
+          <button class="btn-send" (click)="sendReportEmail()" [disabled]="!emailAddress">
+            <i-lucide name="send" size="16"></i-lucide>
+            <span>Send Report</span>
+          </button>
         </div>
-
-        <!-- Modal Footer -->
-        <div class="email-modal-footer" *ngIf="!isSendingEmail && !emailSendSuccess">
-            <button class="btn-cancel" (click)="closeEmailModal()">
-                Cancel
-            </button>
-            <button class="btn-send" (click)="sendReportEmail()" [disabled]="!emailAddress">
-                <i-lucide name="send" size="16"></i-lucide>
-                <span>Send Report</span>
-            </button>
-        </div>
+      }
     </div>
-</div>
+  </div>
+}

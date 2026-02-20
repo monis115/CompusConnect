@@ -1,166 +1,185 @@
 <div class="directory-container">
-    <!-- Header -->
-    <div class="page-header">
-        <button class="back-btn" (click)="goBack()">
-            <i-lucide name="arrow-left" size="20"></i-lucide>
-            <span>{{ showStudentPanel ? 'Back to List' : 'Back to University' }}</span>
-        </button>
+  <!-- Header -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <i-lucide name="arrow-left" size="20"></i-lucide>
+      <span>{{ showStudentPanel ? 'Back to List' : 'Back to University' }}</span>
+    </button>
 
-        <div class="header-content">
-            <div class="title-wrapper">
-                <div class="title-icon">
-                    <i-lucide name="users" size="28"></i-lucide>
-                </div>
-                <div>
-                    <h1>{{ showStudentPanel ? selectedPerson?.userName + '\'s Students' : 'University Person Directory'
-                        }}</h1>
-                    <p>{{ showStudentPanel ? 'View students assigned to ' + selectedPerson?.collegeName : 'Select a
-                        coordinator to view their assigned students' }}</p>
-                </div>
-            </div>
-
-            <div class="header-stats" *ngIf="!isLoadingPersons && !showStudentPanel">
-                <div class="stat-pill">
-                    <i-lucide name="user-check" size="16"></i-lucide>
-                    <span>{{ universityPersons.length }} Coordinators</span>
-                </div>
-                <div class="stat-pill highlight">
-                    <i-lucide name="graduation-cap" size="16"></i-lucide>
-                    <span>{{ getTotalStudents() }} Total Students</span>
-                </div>
-            </div>
-
-            <div class="header-stats" *ngIf="showStudentPanel && selectedPerson">
-                <div class="stat-pill highlight">
-                    <i-lucide name="graduation-cap" size="16"></i-lucide>
-                    <span>{{ students.length }} Students</span>
-                </div>
-            </div>
+    <div class="header-content">
+      <div class="title-wrapper">
+        <div class="title-icon">
+          <i-lucide name="users" size="28"></i-lucide>
         </div>
+        <div>
+          <h1>{{ showStudentPanel ? selectedPerson?.userName + '\'s Students' : 'University Person Directory'
+          }}</h1>
+          <p>{{ showStudentPanel ? 'View students assigned to ' + selectedPerson?.collegeName : 'Select a
+          coordinator to view their assigned students' }}</p>
+        </div>
+      </div>
+
+      @if (!isLoadingPersons && !showStudentPanel) {
+        <div class="header-stats">
+          <div class="stat-pill">
+            <i-lucide name="user-check" size="16"></i-lucide>
+            <span>{{ universityPersons.length }} Coordinators</span>
+          </div>
+          <div class="stat-pill highlight">
+            <i-lucide name="graduation-cap" size="16"></i-lucide>
+            <span>{{ getTotalStudents() }} Total Students</span>
+          </div>
+        </div>
+      }
+
+      @if (showStudentPanel && selectedPerson) {
+        <div class="header-stats">
+          <div class="stat-pill highlight">
+            <i-lucide name="graduation-cap" size="16"></i-lucide>
+            <span>{{ students.length }} Students</span>
+          </div>
+        </div>
+      }
     </div>
+  </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
+  <!-- Main Content -->
+  <div class="main-content">
 
-        <!-- Coordinator Cards View -->
-        <div class="persons-view" *ngIf="!showStudentPanel">
-
-            <!-- Loading State -->
-            <div class="loading-container" *ngIf="isLoadingPersons">
-                <div class="premium-loader">
-                    <div class="loader-ring"></div>
-                    <p>Loading University Coordinators...</p>
+    <!-- Coordinator Cards View -->
+    @if (!showStudentPanel) {
+      <div class="persons-view">
+        <!-- Loading State -->
+        @if (isLoadingPersons) {
+          <div class="loading-container">
+            <div class="premium-loader">
+              <div class="loader-ring"></div>
+              <p>Loading University Coordinators...</p>
+            </div>
+          </div>
+        }
+        <!-- Error State -->
+        @if (errorMessage && !isLoadingPersons) {
+          <div class="error-state">
+            <i-lucide name="alert-circle" size="48"></i-lucide>
+            <h3>Something went wrong</h3>
+            <p>{{ errorMessage }}</p>
+            <button class="btn-retry" (click)="loadUniversityPersons()">
+              <i-lucide name="refresh-cw" size="16"></i-lucide>
+              Try Again
+            </button>
+          </div>
+        }
+        <!-- Empty State -->
+        @if (!isLoadingPersons && !errorMessage && universityPersons.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i-lucide name="users-x" size="64"></i-lucide>
+            </div>
+            <h3>No University Coordinators Found</h3>
+            <p>There are no University Coordinators registered in the system yet.</p>
+          </div>
+        }
+        <!-- Person Cards Grid -->
+        @if (!isLoadingPersons && universityPersons.length > 0) {
+          <div class="person-cards">
+            @for (person of universityPersons; track trackByPersonId($index, person)) {
+              <div class="person-card"
+                (click)="selectPerson(person)">
+                <div class="card-avatar">
+                  <span>{{ person.userName.charAt(0).toUpperCase() }}</span>
                 </div>
-            </div>
-
-            <!-- Error State -->
-            <div class="error-state" *ngIf="errorMessage && !isLoadingPersons">
-                <i-lucide name="alert-circle" size="48"></i-lucide>
-                <h3>Something went wrong</h3>
-                <p>{{ errorMessage }}</p>
-                <button class="btn-retry" (click)="loadUniversityPersons()">
-                    <i-lucide name="refresh-cw" size="16"></i-lucide>
-                    Try Again
-                </button>
-            </div>
-
-            <!-- Empty State -->
-            <div class="empty-state" *ngIf="!isLoadingPersons && !errorMessage && universityPersons.length === 0">
-                <div class="empty-icon">
-                    <i-lucide name="users-x" size="64"></i-lucide>
+                <div class="card-info">
+                  <h3>@{{ person.userName }}</h3>
+                  <div class="college-badge">
+                    <i-lucide name="building-2" size="14"></i-lucide>
+                    <span>{{ person.collegeName || 'Not Assigned' }}</span>
+                  </div>
                 </div>
-                <h3>No University Coordinators Found</h3>
-                <p>There are no University Coordinators registered in the system yet.</p>
-            </div>
-
-            <!-- Person Cards Grid -->
-            <div class="person-cards" *ngIf="!isLoadingPersons && universityPersons.length > 0">
-                <div class="person-card" *ngFor="let person of universityPersons; trackBy: trackByPersonId"
-                    (click)="selectPerson(person)">
-                    <div class="card-avatar">
-                        <span>{{ person.userName.charAt(0).toUpperCase() }}</span>
-                    </div>
-                    <div class="card-info">
-                        <h3>@{{ person.userName }}</h3>
-                        <div class="college-badge">
-                            <i-lucide name="building-2" size="14"></i-lucide>
-                            <span>{{ person.collegeName || 'Not Assigned' }}</span>
-                        </div>
-                    </div>
-                    <div class="card-count">
-                        <div class="count-value">{{ person.studentCount }}</div>
-                        <div class="count-label">Students</div>
-                    </div>
-                    <div class="card-arrow">
-                        <i-lucide name="chevron-right" size="20"></i-lucide>
-                    </div>
+                <div class="card-count">
+                  <div class="count-value">{{ person.studentCount }}</div>
+                  <div class="count-label">Students</div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Student Table View -->
-        <div class="students-view" *ngIf="showStudentPanel">
-
-            <!-- Loading Overlay -->
-            <div class="loading-overlay" *ngIf="isLoadingStudents">
-                <div class="spinner"></div>
-                <p>Loading students...</p>
-            </div>
-
-            <!-- Empty State -->
-            <div class="empty-state" *ngIf="!isLoadingStudents && students.length === 0">
-                <div class="empty-icon">
-                    <i-lucide name="inbox" size="64"></i-lucide>
+                <div class="card-arrow">
+                  <i-lucide name="chevron-right" size="20"></i-lucide>
                 </div>
-                <h3>No Students Assigned</h3>
-                <p>This coordinator has no students assigned yet.</p>
-            </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
 
-            <!-- Student Table -->
-            <div class="table-wrapper" *ngIf="!isLoadingStudents && students.length > 0">
-                <table class="student-table">
-                    <thead>
-                        <tr>
-                            <th>Application ID</th>
-                            <th>Student Name</th>
-                            <th>Application Status</th>
-                            <th>Admission Letter</th>
-                            <th>Last Updated</th>
-                            <th>Updated By</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let student of students; trackBy: trackByStudentId">
-                            <td>
-                                <span class="app-id">{{ student.applicationId }}</span>
-                            </td>
-                            <td>
-                                <div class="student-name">{{ student.fullName }}</div>
-                            </td>
-                            <td>
-                                <span class="status-badge" [ngClass]="getStatusClass(student.applicationStatus)">
-                                    {{ formatStatus(student.applicationStatus) }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="letter-badge"
-                                    [ngClass]="getLetterStatusClass(student.admissionLetterUploaded)">
-                                    <i-lucide
-                                        [name]="student.admissionLetterUploaded === 'Yes' ? 'check-circle' : 'x-circle'"
-                                        size="14"></i-lucide>
-                                    {{ student.admissionLetterUploaded }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="date-text">{{ formatDate(student.lastHistory?.updatedAt || null) }}</span>
-                            </td>
-                            <td>
-                                <span class="updated-by">{{ student.lastHistory?.updatedBy || '-' }}</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+    <!-- Student Table View -->
+    @if (showStudentPanel) {
+      <div class="students-view">
+        <!-- Loading Overlay -->
+        @if (isLoadingStudents) {
+          <div class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Loading students...</p>
+          </div>
+        }
+        <!-- Empty State -->
+        @if (!isLoadingStudents && students.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i-lucide name="inbox" size="64"></i-lucide>
             </div>
-        </div>
-    </div>
+            <h3>No Students Assigned</h3>
+            <p>This coordinator has no students assigned yet.</p>
+          </div>
+        }
+        <!-- Student Table -->
+        @if (!isLoadingStudents && students.length > 0) {
+          <div class="table-wrapper">
+            <table class="student-table">
+              <thead>
+                <tr>
+                  <th>Application ID</th>
+                  <th>Student Name</th>
+                  <th>Application Status</th>
+                  <th>Admission Letter</th>
+                  <th>Last Updated</th>
+                  <th>Updated By</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (student of students; track trackByStudentId($index, student)) {
+                  <tr>
+                    <td>
+                      <span class="app-id">{{ student.applicationId }}</span>
+                    </td>
+                    <td>
+                      <div class="student-name">{{ student.fullName }}</div>
+                    </td>
+                    <td>
+                      <span class="status-badge" [ngClass]="getStatusClass(student.applicationStatus)">
+                        {{ formatStatus(student.applicationStatus) }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="letter-badge"
+                        [ngClass]="getLetterStatusClass(student.admissionLetterUploaded)">
+                        <i-lucide
+                          [name]="student.admissionLetterUploaded === 'Yes' ? 'check-circle' : 'x-circle'"
+                        size="14"></i-lucide>
+                        {{ student.admissionLetterUploaded }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="date-text">{{ formatDate(student.lastHistory?.updatedAt || null) }}</span>
+                    </td>
+                    <td>
+                      <span class="updated-by">{{ student.lastHistory?.updatedBy || '-' }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  </div>
 </div>

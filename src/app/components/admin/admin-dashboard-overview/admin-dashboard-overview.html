@@ -3,2071 +3,2257 @@
   <div class="content-area" [class.loading]="isContentLoading">
 
     <!-- DASHBOARD OVERVIEW -->
-    <div *ngIf="activeSection === 'overview'">
-      <h2 class="section-title">
-        <i-lucide name="layout-dashboard" size="28"></i-lucide>
-        Dashboard Overview
-      </h2>
-      <p class="section-subtitle">Welcome back! Select a module to manage your campus operations.</p>
-    </div>
+    @if (activeSection === 'overview') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="layout-dashboard" size="28"></i-lucide>
+          Dashboard Overview
+        </h2>
+        <p class="section-subtitle">Welcome back! Select a module to manage your campus operations.</p>
+      </div>
+    }
 
     <!-- STUDENTS SECTION -->
-    <div *ngIf="activeSection === 'students'">
-      <h2 class="section-title">
-        <i-lucide name="graduation-cap" size="28"></i-lucide> Student Management
-      </h2>
-      <p class="section-subtitle">Manage student lifecycle from registration to admission.</p>
-
-      <div class="card-grid">
-        <!-- New Students - Coming Soon -->
-        <div class="info-card coming-soon-card">
-          <div class="lock-overlay">
-            <i-lucide name="lock" size="32"></i-lucide>
-            <span class="coming-soon-text">Coming Soon</span>
-            <p class="coming-soon-desc">Comprehensive applicant onboarding with digital verification</p>
+    @if (activeSection === 'students') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="graduation-cap" size="28"></i-lucide> Student Management
+        </h2>
+        <p class="section-subtitle">Manage student lifecycle from registration to admission.</p>
+        <div class="card-grid">
+          <!-- New Students - Coming Soon -->
+          <div class="info-card coming-soon-card">
+            <div class="lock-overlay">
+              <i-lucide name="lock" size="32"></i-lucide>
+              <span class="coming-soon-text">Coming Soon</span>
+              <p class="coming-soon-desc">Comprehensive applicant onboarding with digital verification</p>
+            </div>
+            <div class="card-content-blur">
+              <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
+              <h3>New Students</h3>
+              <p>Onboard & register new applicants</p>
+            </div>
           </div>
-          <div class="card-content-blur">
-            <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
-            <h3>New Students</h3>
-            <p>Onboard & register new applicants</p>
+          <!-- Registration - Coming Soon -->
+          <div class="info-card coming-soon-card">
+            <div class="lock-overlay">
+              <i-lucide name="lock" size="32"></i-lucide>
+              <span class="coming-soon-text">Coming Soon</span>
+              <p class="coming-soon-desc">Here ,will put some intresting directory that will help to manage students</p>
+            </div>
+            <div class="card-content-blur">
+              <div class="icon"><i-lucide name="file-text" size="24"></i-lucide></div>
+              <h3>Registration</h3>
+              <p>Online registration portal</p>
+            </div>
           </div>
-        </div>
-
-        <!-- Registration - Coming Soon -->
-        <div class="info-card coming-soon-card">
-          <div class="lock-overlay">
-            <i-lucide name="lock" size="32"></i-lucide>
-            <span class="coming-soon-text">Coming Soon</span>
-            <p class="coming-soon-desc">Here ,will put some intresting directory that will help to manage students</p>
+          <div class="info-card" (click)="openAppSearch()">
+            <div class="icon"><i-lucide name="search" size="24"></i-lucide></div>
+            <h3>Application Status</h3>
+            <p>Track progress in real-time</p>
           </div>
-          <div class="card-content-blur">
-            <div class="icon"><i-lucide name="file-text" size="24"></i-lucide></div>
-            <h3>Registration</h3>
-            <p>Online registration portal</p>
+          <div class="info-card" (click)="navigateTo('student-admission-letters')">
+            <div class="icon"><i-lucide name="mail" size="24"></i-lucide></div>
+            <h3>Admission Letter</h3>
+            <p>University Admission Letter</p>
           </div>
-        </div>
-
-        <div class="info-card" (click)="openAppSearch()">
-          <div class="icon"><i-lucide name="search" size="24"></i-lucide></div>
-          <h3>Application Status</h3>
-          <p>Track progress in real-time</p>
-        </div>
-
-        <div class="info-card" (click)="navigateTo('student-admission-letters')">
-          <div class="icon"><i-lucide name="mail" size="24"></i-lucide></div>
-          <h3>Admission Letter</h3>
-          <p>University Admission Letter</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('student-dashboard')">
-          <div class="icon"><i-lucide name="layout-dashboard" size="24"></i-lucide></div>
-          <h3>Student Dashboard</h3>
-          <p>Portal overview & analytics</p>
+          <div class="info-card" (click)="navigateTo('student-dashboard')">
+            <div class="icon"><i-lucide name="layout-dashboard" size="24"></i-lucide></div>
+            <h3>Student Dashboard</h3>
+            <p>Portal overview & analytics</p>
+          </div>
         </div>
       </div>
-
-
-    </div>
+    }
 
     <!-- AGENTS SECTION -->
-    <div *ngIf="activeSection === 'agents'">
-      <h2 class="section-title">
-        <i-lucide name="users" size="28"></i-lucide> Agent Management
-      </h2>
-      <p class="section-subtitle">Oversee education agents and their performance.</p>
-
-      <div class="card-grid">
-        <div class="info-card" (click)="navigateTo('agent-registration')">
-          <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
-          <h3>Agent Registration</h3>
-          <p>Onboard new education agents</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('active-agents')">
-          <div class="icon"><i-lucide name="check-circle" size="24"></i-lucide></div>
-          <h3>Active Agents</h3>
-          <p>College and Location Access</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('student-agent-details')">
-          <div class="icon"><i-lucide name="database" size="24"></i-lucide></div>
-          <h3>Student Details</h3>
-          <p>View students assigned to agents</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('pending-agents')">
-          <div class="icon"><i-lucide name="alert-circle" size="24"></i-lucide></div>
-          <h3>Approval Pending</h3>
-          <p>Awaiting admin review</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('update-agent-access')">
-          <div class="icon"><i-lucide name="shield-check" size="24"></i-lucide></div>
-          <h3>Manage Agent</h3>
-          <p>Manage Access of Agents</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('all-agent-details')">
-          <div class="icon"><i-lucide name="list" size="24"></i-lucide></div>
-          <h3>All Agents</h3>
-          <p>Complete directory</p>
-        </div>
-
-        <div class="info-card filler-card">
-          <div class="icon"><i-lucide name="info" size="24"></i-lucide></div>
-          <h3>Quick Stats</h3>
-          <p>Real-time access to all agent-related modules and management tools.</p>
+    @if (activeSection === 'agents') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="users" size="28"></i-lucide> Agent Management
+        </h2>
+        <p class="section-subtitle">Oversee education agents and their performance.</p>
+        <div class="card-grid">
+          <div class="info-card" (click)="navigateTo('agent-registration')">
+            <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
+            <h3>Agent Registration</h3>
+            <p>Onboard new education agents</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('active-agents')">
+            <div class="icon"><i-lucide name="check-circle" size="24"></i-lucide></div>
+            <h3>Active Agents</h3>
+            <p>College and Location Access</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('student-agent-details')">
+            <div class="icon"><i-lucide name="database" size="24"></i-lucide></div>
+            <h3>Student Details</h3>
+            <p>View students assigned to agents</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('pending-agents')">
+            <div class="icon"><i-lucide name="alert-circle" size="24"></i-lucide></div>
+            <h3>Approval Pending</h3>
+            <p>Awaiting admin review</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('update-agent-access')">
+            <div class="icon"><i-lucide name="shield-check" size="24"></i-lucide></div>
+            <h3>Manage Agent</h3>
+            <p>Manage Access of Agents</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('all-agent-details')">
+            <div class="icon"><i-lucide name="list" size="24"></i-lucide></div>
+            <h3>All Agents</h3>
+            <p>Complete directory</p>
+          </div>
+          <div class="info-card filler-card">
+            <div class="icon"><i-lucide name="info" size="24"></i-lucide></div>
+            <h3>Quick Stats</h3>
+            <p>Real-time access to all agent-related modules and management tools.</p>
+          </div>
         </div>
       </div>
-
-
-    </div>
+    }
 
     <!-- Section Removed: VISA MANAGERS -->
 
     <!-- ADMISSION MANAGERS SECTION -->
-    <div *ngIf="activeSection === 'admission-managers'">
-      <h2 class="section-title">
-        <i-lucide name="building" size="28"></i-lucide> Admission Managers
-      </h2>
-      <p class="section-subtitle">Oversee college admissions and applications.</p>
-
-      <div class="card-grid">
-        <div class="info-card" (click)="navigateTo('addmission-manager-registration')">
-          <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
-          <h3>Registration</h3>
-          <p>Add new Admission Manager</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('admission-manager-access')">
-          <div class="icon"><i-lucide name="key" size="24"></i-lucide></div>
-          <h3>Access College</h3>
-          <p>Assign colleges</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('active-admission-manager')">
-          <div class="icon"><i-lucide name="check-circle" size="24"></i-lucide></div>
-          <h3>Active Managers</h3>
-          <p>Operational</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('update-admission-manager-details')">
-          <div class="icon"><i-lucide name="edit-3" size="24"></i-lucide></div>
-          <h3>Update Details</h3>
-          <p>Manage Manager Profiles</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('pending-am')">
-          <div class="icon"><i-lucide name="alert-circle" size="24"></i-lucide></div>
-          <h3>Pending Approval</h3>
-          <p>Awaiting review</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('all-am')">
-          <div class="icon"><i-lucide name="list" size="24"></i-lucide></div>
-          <h3>All Managers</h3>
-          <p>Complete list</p>
+    @if (activeSection === 'admission-managers') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="building" size="28"></i-lucide> Admission Managers
+        </h2>
+        <p class="section-subtitle">Oversee college admissions and applications.</p>
+        <div class="card-grid">
+          <div class="info-card" (click)="navigateTo('addmission-manager-registration')">
+            <div class="icon"><i-lucide name="user-plus" size="24"></i-lucide></div>
+            <h3>Registration</h3>
+            <p>Add new Admission Manager</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('admission-manager-access')">
+            <div class="icon"><i-lucide name="key" size="24"></i-lucide></div>
+            <h3>Access College</h3>
+            <p>Assign colleges</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('active-admission-manager')">
+            <div class="icon"><i-lucide name="check-circle" size="24"></i-lucide></div>
+            <h3>Active Managers</h3>
+            <p>Operational</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('update-admission-manager-details')">
+            <div class="icon"><i-lucide name="edit-3" size="24"></i-lucide></div>
+            <h3>Update Details</h3>
+            <p>Manage Manager Profiles</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('pending-am')">
+            <div class="icon"><i-lucide name="alert-circle" size="24"></i-lucide></div>
+            <h3>Pending Approval</h3>
+            <p>Awaiting review</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('all-am')">
+            <div class="icon"><i-lucide name="list" size="24"></i-lucide></div>
+            <h3>All Managers</h3>
+            <p>Complete list</p>
+          </div>
         </div>
       </div>
-
-
-    </div>
+    }
 
     <!-- COLLEGES SECTION -->
-    <div *ngIf="activeSection === 'colleges'">
-      <h2 class="section-title">
-        <i-lucide name="university" size="28"></i-lucide> Colleges
-      </h2>
-      <p class="section-subtitle">Manage partner institutions and locations.</p>
-
-      <div class="success-message" *ngIf="showSuccessMessage">
-        <i-lucide name="check-circle" size="20"></i-lucide>
-        <span>{{ successMessage }}</span>
-      </div>
-
-      <div class="action-bar">
-        <button class="btn-primary" (click)="openAddModal()">
-          <i-lucide name="plus" size="18"></i-lucide> Add College
-        </button>
-        <div class="search-bar">
-          <input type="text" placeholder="Search college..." [(ngModel)]="searchTerm" (input)="searchCollege()"
-            class="search-input">
-          <button class="btn-icon-sm" (click)="searchCollege()">
-            <i-lucide name="search" size="16"></i-lucide>
+    @if (activeSection === 'colleges') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="university" size="28"></i-lucide> Colleges
+        </h2>
+        <p class="section-subtitle">Manage partner institutions and locations.</p>
+        @if (showSuccessMessage) {
+          <div class="success-message">
+            <i-lucide name="check-circle" size="20"></i-lucide>
+            <span>{{ successMessage }}</span>
+          </div>
+        }
+        <div class="action-bar">
+          <button class="btn-primary" (click)="openAddModal()">
+            <i-lucide name="plus" size="18"></i-lucide> Add College
           </button>
+          <div class="search-bar">
+            <input type="text" placeholder="Search college..." [(ngModel)]="searchTerm" (input)="searchCollege()"
+              class="search-input">
+            <button class="btn-icon-sm" (click)="searchCollege()">
+              <i-lucide name="search" size="16"></i-lucide>
+            </button>
+          </div>
         </div>
+        @if (loading) {
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading colleges...</p>
+          </div>
+        }
+        @if (error) {
+          <div class="error-message">
+            <i-lucide name="alert-circle" size="20"></i-lucide>
+            <span>{{ error }}</span>
+          </div>
+        }
+        @if (!loading && !error) {
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>College Name</th>
+                  <th>Location</th>
+                  <th>Country</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (college of filteredColleges; track college; let i = $index) {
+                  <tr>
+                    <td><strong>{{ college.collegeName }}</strong></td>
+                    <td>{{ college.city }}</td>
+                    <td>{{ college.country }}</td>
+                    <td>
+                      <button class="btn-icon-sm btn-delete" title="Delete" (click)="deleteCollege(college.id)">
+                        <i-lucide name="trash-2" size="16"></i-lucide>
+                      </button>
+                    </td>
+                  </tr>
+                }
+                @if (filteredColleges.length === 0) {
+                  <tr>
+                    <td colspan="4" class="empty-state">
+                      <i-lucide name="folder-open" size="48"></i-lucide>
+                      <p>No colleges found</p>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
       </div>
-
-      <div *ngIf="loading" class="loading-spinner">
-        <div class="spinner"></div>
-        <p>Loading colleges...</p>
-      </div>
-
-      <div *ngIf="error" class="error-message">
-        <i-lucide name="alert-circle" size="20"></i-lucide>
-        <span>{{ error }}</span>
-      </div>
-
-      <div class="table-container" *ngIf="!loading && !error">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>College Name</th>
-              <th>Location</th>
-              <th>Country</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let college of filteredColleges; let i = index">
-              <td><strong>{{ college.collegeName }}</strong></td>
-              <td>{{ college.city }}</td>
-              <td>{{ college.country }}</td>
-              <td>
-                <button class="btn-icon-sm btn-delete" title="Delete" (click)="deleteCollege(college.id)">
-                  <i-lucide name="trash-2" size="16"></i-lucide>
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="filteredColleges.length === 0">
-              <td colspan="4" class="empty-state">
-                <i-lucide name="folder-open" size="48"></i-lucide>
-                <p>No colleges found</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    }
 
     <!-- MODAL FOR ADDING COLLEGE -->
-    <div class="modal-backdrop" *ngIf="showAddModal" (click)="closeModal()"></div>
-    <div class="modal" *ngIf="showAddModal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title-wrapper">
-          <i-lucide name="plus-circle" size="24" class="modal-icon"></i-lucide>
-          <h3>Add New College</h3>
+    @if (showAddModal) {
+      <div class="modal-backdrop" (click)="closeModal()"></div>
+    }
+    @if (showAddModal) {
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <i-lucide name="plus-circle" size="24" class="modal-icon"></i-lucide>
+            <h3>Add New College</h3>
+          </div>
+          <button class="btn-icon-sm" (click)="closeModal()">
+            <i-lucide name="x" size="20"></i-lucide>
+          </button>
         </div>
-        <button class="btn-icon-sm" (click)="closeModal()">
-          <i-lucide name="x" size="20"></i-lucide>
-        </button>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>
+              <i-lucide name="building" size="16"></i-lucide>
+              College Name
+            </label>
+            <input [(ngModel)]="newCollege.collegeName" placeholder="e.g. Tashkent Medical College">
+          </div>
+          <div class="form-group">
+            <label>
+              <i-lucide name="map-pin" size="16"></i-lucide>
+              City
+            </label>
+            <input [(ngModel)]="newCollege.city" placeholder="e.g. Tashkent">
+          </div>
+          <div class="form-group">
+            <label>
+              <i-lucide name="flag" size="16"></i-lucide>
+              Country
+            </label>
+            <input [(ngModel)]="newCollege.country" placeholder="e.g. Uzbekistan">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeModal()">
+            <i-lucide name="x" size="16"></i-lucide>
+            Cancel
+          </button>
+          <button class="btn-primary" [disabled]="isAdding" (click)="addCollege()">
+            @if (!isAdding) {
+              <i-lucide name="check" size="16"></i-lucide>
+            }
+            @if (!isAdding) {
+              <span>Add College</span>
+            }
+            @if (isAdding) {
+              <div class="spinner button-spinner"
+              style="width: 1.25rem; height: 1.25rem; border-width: 2px; margin: 0;"></div>
+            }
+          </button>
+        </div>
       </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>
-            <i-lucide name="building" size="16"></i-lucide>
-            College Name
-          </label>
-          <input [(ngModel)]="newCollege.collegeName" placeholder="e.g. Tashkent Medical College">
-        </div>
-        <div class="form-group">
-          <label>
-            <i-lucide name="map-pin" size="16"></i-lucide>
-            City
-          </label>
-          <input [(ngModel)]="newCollege.city" placeholder="e.g. Tashkent">
-        </div>
-        <div class="form-group">
-          <label>
-            <i-lucide name="flag" size="16"></i-lucide>
-            Country
-          </label>
-          <input [(ngModel)]="newCollege.country" placeholder="e.g. Uzbekistan">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="closeModal()">
-          <i-lucide name="x" size="16"></i-lucide>
-          Cancel
-        </button>
-        <button class="btn-primary" [disabled]="isAdding" (click)="addCollege()">
-          <i-lucide *ngIf="!isAdding" name="check" size="16"></i-lucide>
-          <span *ngIf="!isAdding">Add College</span>
-          <div *ngIf="isAdding" class="spinner button-spinner"
-            style="width: 1.25rem; height: 1.25rem; border-width: 2px; margin: 0;"></div>
-        </button>
-      </div>
-    </div>
+    }
 
     <!-- USER MANAGEMENT SECTION -->
-    <div *ngIf="activeSection === 'users'">
-      <h2 class="section-title">
-        <i-lucide name="shield" size="28"></i-lucide> User Management
-      </h2>
-      <p class="section-subtitle">Create and manage user roles with specific permissions.</p>
-
-      <!-- Role Tooltip Message -->
-      <div class="role-tooltip-message" *ngIf="showRoleTooltip">
-        <i-lucide name="info" size="18"></i-lucide>
-        <span>{{ roleTooltipMessage }}</span>
-      </div>
-
-      <div class="user-roles-grid">
-        <!-- Agent Card -->
-        <div class="user-role-card agent-card">
-          <div class="role-icon-wrapper">
-            <div class="role-icon">
-              <i-lucide name="briefcase" size="24"></i-lucide>
+    @if (activeSection === 'users') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="shield" size="28"></i-lucide> User Management
+        </h2>
+        <p class="section-subtitle">Create and manage user roles with specific permissions.</p>
+        <!-- Role Tooltip Message -->
+        @if (showRoleTooltip) {
+          <div class="role-tooltip-message">
+            <i-lucide name="info" size="18"></i-lucide>
+            <span>{{ roleTooltipMessage }}</span>
+          </div>
+        }
+        <div class="user-roles-grid">
+          <!-- Agent Card -->
+          <div class="user-role-card agent-card">
+            <div class="role-icon-wrapper">
+              <div class="role-icon">
+                <i-lucide name="briefcase" size="24"></i-lucide>
+              </div>
+              <div class="role-badge">Field</div>
             </div>
-            <div class="role-badge">Field</div>
+            <h3 class="role-title">Agent</h3>
+            <p class="role-description">Education consultants managing student applications.</p>
+            <button class="role-action-btn" (click)="showRoleMessage('agent')">
+              <i-lucide name="plus" size="16"></i-lucide> Create Agent
+            </button>
           </div>
-          <h3 class="role-title">Agent</h3>
-          <p class="role-description">Education consultants managing student applications.</p>
-
-          <button class="role-action-btn" (click)="showRoleMessage('agent')">
-            <i-lucide name="plus" size="16"></i-lucide> Create Agent
-          </button>
-        </div>
-
-        <!-- Admission Manager Card -->
-        <div class="user-role-card admission-card">
-          <div class="role-icon-wrapper">
-            <div class="role-icon">
-              <i-lucide name="user-check" size="24"></i-lucide>
+          <!-- Admission Manager Card -->
+          <div class="user-role-card admission-card">
+            <div class="role-icon-wrapper">
+              <div class="role-icon">
+                <i-lucide name="user-check" size="24"></i-lucide>
+              </div>
+              <div class="role-badge">Core</div>
             </div>
-            <div class="role-badge">Core</div>
+            <h3 class="role-title">Admission Manager</h3>
+            <p class="role-description">Oversee workflows & university coordination.</p>
+            <button class="role-action-btn" (click)="showRoleMessage('admission')">
+              <i-lucide name="plus" size="16"></i-lucide> Create Manager
+            </button>
           </div>
-          <h3 class="role-title">Admission Manager</h3>
-          <p class="role-description">Oversee workflows & university coordination.</p>
-
-          <button class="role-action-btn" (click)="showRoleMessage('admission')">
-            <i-lucide name="plus" size="16"></i-lucide> Create Manager
-          </button>
-        </div>
-
-        <!-- University Coordinator Card -->
-        <div class="user-role-card university-card">
-          <div class="role-icon-wrapper">
-            <div class="role-icon">
-              <i-lucide name="building-2" size="24"></i-lucide>
+          <!-- University Coordinator Card -->
+          <div class="user-role-card university-card">
+            <div class="role-icon-wrapper">
+              <div class="role-icon">
+                <i-lucide name="building-2" size="24"></i-lucide>
+              </div>
+              <div class="role-badge">Partner</div>
             </div>
-            <div class="role-badge">Partner</div>
+            <h3 class="role-title">Uni Coordinator</h3>
+            <p class="role-description">Verify documents & issue admissions.</p>
+            <button class="role-action-btn" (click)="openCoordinatorModal()">
+              <i-lucide name="plus" size="16"></i-lucide> Create Coord
+            </button>
           </div>
-          <h3 class="role-title">Uni Coordinator</h3>
-          <p class="role-description">Verify documents & issue admissions.</p>
-
-          <button class="role-action-btn" (click)="openCoordinatorModal()">
-            <i-lucide name="plus" size="16"></i-lucide> Create Coord
-          </button>
-        </div>
-
-        <!-- Doc Person Card -->
-        <div class="user-role-card doc-card">
-          <div class="role-icon-wrapper">
-            <div class="role-icon">
-              <i-lucide name="file-check" size="24"></i-lucide>
+          <!-- Doc Person Card -->
+          <div class="user-role-card doc-card">
+            <div class="role-icon-wrapper">
+              <div class="role-icon">
+                <i-lucide name="file-check" size="24"></i-lucide>
+              </div>
+              <div class="role-badge">Docs</div>
             </div>
-            <div class="role-badge">Docs</div>
+            <h3 class="role-title">Doc Person</h3>
+            <p class="role-description">Verify & attest documents for compliance.</p>
+            <button class="role-action-btn" (click)="openDocPersonModal()">
+              <i-lucide name="plus" size="16"></i-lucide> Create Doc Person
+            </button>
           </div>
-          <h3 class="role-title">Doc Person</h3>
-          <p class="role-description">Verify & attest documents for compliance.</p>
-
-          <button class="role-action-btn" (click)="openDocPersonModal()">
-            <i-lucide name="plus" size="16"></i-lucide> Create Doc Person
-          </button>
-        </div>
-
-        <!-- Accountant Card -->
-        <div class="user-role-card accountant-card">
-          <div class="role-icon-wrapper">
-            <div class="role-icon">
-              <i-lucide name="calculator" size="24"></i-lucide>
+          <!-- Accountant Card -->
+          <div class="user-role-card accountant-card">
+            <div class="role-icon-wrapper">
+              <div class="role-icon">
+                <i-lucide name="calculator" size="24"></i-lucide>
+              </div>
+              <div class="role-badge">Finance</div>
             </div>
-            <div class="role-badge">Finance</div>
+            <h3 class="role-title">Accountant</h3>
+            <p class="role-description">Manage transactions & confirm fees.</p>
+            <button class="role-action-btn" (click)="openAccountantModal()">
+              <i-lucide name="plus" size="16"></i-lucide> Create Accountant
+            </button>
           </div>
-          <h3 class="role-title">Accountant</h3>
-          <p class="role-description">Manage transactions & confirm fees.</p>
-
-          <button class="role-action-btn" (click)="openAccountantModal()">
-            <i-lucide name="plus" size="16"></i-lucide> Create Accountant
-          </button>
-        </div>
-
-        <!-- Telex Man Card -->
-        <div class="user-role-card telex-card">
-          <div class="role-icon-wrapper">
-            <div class="role-icon">
-              <i-lucide name="send" size="24"></i-lucide>
+          <!-- Telex Man Card -->
+          <div class="user-role-card telex-card">
+            <div class="role-icon-wrapper">
+              <div class="role-icon">
+                <i-lucide name="send" size="24"></i-lucide>
+              </div>
+              <div class="role-badge">Comms</div>
             </div>
-            <div class="role-badge">Comms</div>
+            <h3 class="role-title">Telex Man</h3>
+            <p class="role-description">Handle telex applications & MEA coords.</p>
+            <button class="role-action-btn" (click)="openTelexManModal()">
+              <i-lucide name="plus" size="16"></i-lucide> Create Telex Man
+            </button>
           </div>
-          <h3 class="role-title">Telex Man</h3>
-          <p class="role-description">Handle telex applications & MEA coords.</p>
-
-          <button class="role-action-btn" (click)="openTelexManModal()">
-            <i-lucide name="plus" size="16"></i-lucide> Create Telex Man
-          </button>
-        </div>
-
-        <!-- Visa Man Card -->
-        <div class="user-role-card visa-card">
-          <div class="role-icon-wrapper">
-            <div class="role-icon">
-              <i-lucide name="plane" size="24"></i-lucide>
+          <!-- Visa Man Card -->
+          <div class="user-role-card visa-card">
+            <div class="role-icon-wrapper">
+              <div class="role-icon">
+                <i-lucide name="plane" size="24"></i-lucide>
+              </div>
+              <div class="role-badge">Travel</div>
             </div>
-            <div class="role-badge">Travel</div>
+            <h3 class="role-title">Visa Man</h3>
+            <p class="role-description">Embassy coordination & visa stamping.</p>
+            <button class="role-action-btn" (click)="openVisaManModal()">
+              <i-lucide name="plus" size="16"></i-lucide> Create Visa Man
+            </button>
           </div>
-          <h3 class="role-title">Visa Man</h3>
-          <p class="role-description">Embassy coordination & visa stamping.</p>
-
-          <button class="role-action-btn" (click)="openVisaManModal()">
-            <i-lucide name="plus" size="16"></i-lucide> Create Visa Man
-          </button>
-        </div>
-
-        <!-- Custom User Card - DISABLED / UNDER DEVELOPMENT -->
-        <div class="user-role-card custom-card disabled-card">
-          <div class="development-overlay">
-            <i-lucide name="construction" size="24"></i-lucide>
-            <span>Under Development</span>
-          </div>
-          <div class="role-icon-wrapper">
-            <div class="role-icon">
-              <i-lucide name="settings" size="24"></i-lucide>
+          <!-- Custom User Card - DISABLED / UNDER DEVELOPMENT -->
+          <div class="user-role-card custom-card disabled-card">
+            <div class="development-overlay">
+              <i-lucide name="construction" size="24"></i-lucide>
+              <span>Under Development</span>
             </div>
-            <div class="role-badge">Flex</div>
-          </div>
-          <h3 class="role-title">Custom User</h3>
-          <p class="role-description">Detailed custom permissions access.</p>
-
-          <button class="role-action-btn" disabled>
-            <i-lucide name="loader" size="16"></i-lucide> Coming Soon
-          </button>
-        </div>
-
-        <!-- Admin Card -->
-        <div class="user-role-card admin-card">
-          <div class="role-icon-wrapper">
-            <div class="role-icon">
-              <i-lucide name="crown" size="24"></i-lucide>
+            <div class="role-icon-wrapper">
+              <div class="role-icon">
+                <i-lucide name="settings" size="24"></i-lucide>
+              </div>
+              <div class="role-badge">Flex</div>
             </div>
-            <div class="role-badge premium-badge" style="background: var(--accent-gold); color: white;">Super</div>
+            <h3 class="role-title">Custom User</h3>
+            <p class="role-description">Detailed custom permissions access.</p>
+            <button class="role-action-btn" disabled>
+              <i-lucide name="loader" size="16"></i-lucide> Coming Soon
+            </button>
           </div>
-          <h3 class="role-title">Admin</h3>
-          <p class="role-description">Full system administrative access.</p>
-
-          <button class="role-action-btn admin-btn" (click)="openAdminModal()">
-            <i-lucide name="plus" size="16"></i-lucide> Create Admin
-          </button>
+          <!-- Admin Card -->
+          <div class="user-role-card admin-card">
+            <div class="role-icon-wrapper">
+              <div class="role-icon">
+                <i-lucide name="crown" size="24"></i-lucide>
+              </div>
+              <div class="role-badge premium-badge" style="background: var(--accent-gold); color: white;">Super</div>
+            </div>
+            <h3 class="role-title">Admin</h3>
+            <p class="role-description">Full system administrative access.</p>
+            <button class="role-action-btn admin-btn" (click)="openAdminModal()">
+              <i-lucide name="plus" size="16"></i-lucide> Create Admin
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- TELEX SECTION -->
-    <div *ngIf="activeSection === 'telex'">
-      <h2 class="section-title">
-        <i-lucide name="send" size="28"></i-lucide> Telex Management
-      </h2>
-      <p class="section-subtitle">Manage Telex Man users and access their directory.</p>
-
-      <div class="telex-cards-grid">
-        <!-- Manage Telex Man Card -->
-        <div class="telex-feature-card manage-card" (click)="navigateTo('manage-telex-man')">
-          <div class="card-glow"></div>
-          <div class="card-inner">
-            <div class="card-icon-container">
-              <div class="icon-ring">
-                <i-lucide name="settings" size="32"></i-lucide>
+    @if (activeSection === 'telex') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="send" size="28"></i-lucide> Telex Management
+        </h2>
+        <p class="section-subtitle">Manage Telex Man users and access their directory.</p>
+        <div class="telex-cards-grid">
+          <!-- Manage Telex Man Card -->
+          <div class="telex-feature-card manage-card" (click)="navigateTo('manage-telex-man')">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-icon-container">
+                <div class="icon-ring">
+                  <i-lucide name="settings" size="32"></i-lucide>
+                </div>
+                <div class="icon-badge">
+                  <i-lucide name="shield-check" size="14"></i-lucide>
+                </div>
               </div>
-              <div class="icon-badge">
-                <i-lucide name="shield-check" size="14"></i-lucide>
+              <div class="card-content">
+                <h3>Manage Telex Man</h3>
+                <p>Update access permissions, assign roles, and configure Telex Man settings.</p>
+                <div class="card-features">
+                  <span class="feature-tag">
+                    <i-lucide name="key" size="12"></i-lucide> Access Control
+                  </span>
+                  <span class="feature-tag">
+                    <i-lucide name="user-cog" size="12"></i-lucide> Role Management
+                  </span>
+                </div>
               </div>
-            </div>
-            <div class="card-content">
-              <h3>Manage Telex Man</h3>
-              <p>Update access permissions, assign roles, and configure Telex Man settings.</p>
-              <div class="card-features">
-                <span class="feature-tag">
-                  <i-lucide name="key" size="12"></i-lucide> Access Control
-                </span>
-                <span class="feature-tag">
-                  <i-lucide name="user-cog" size="12"></i-lucide> Role Management
-                </span>
+              <div class="card-action">
+                <span>Manage Access</span>
+                <i-lucide name="arrow-right" size="18"></i-lucide>
               </div>
-            </div>
-            <div class="card-action">
-              <span>Manage Access</span>
-              <i-lucide name="arrow-right" size="18"></i-lucide>
             </div>
           </div>
-        </div>
-
-        <!-- Telex Man Directory Card -->
-        <div class="telex-feature-card directory-card" (click)="navigateTo('telex-man-directory')">
-          <div class="card-glow"></div>
-          <div class="card-inner">
-            <div class="card-icon-container">
-              <div class="icon-ring">
-                <i-lucide name="users" size="32"></i-lucide>
+          <!-- Telex Man Directory Card -->
+          <div class="telex-feature-card directory-card" (click)="navigateTo('telex-man-directory')">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-icon-container">
+                <div class="icon-ring">
+                  <i-lucide name="users" size="32"></i-lucide>
+                </div>
+                <div class="icon-badge">
+                  <i-lucide name="database" size="14"></i-lucide>
+                </div>
               </div>
-              <div class="icon-badge">
-                <i-lucide name="database" size="14"></i-lucide>
+              <div class="card-content">
+                <h3>Telex Man Directory</h3>
+                <p>View all Telex Man details with associated student information and activity.</p>
+                <div class="card-features">
+                  <span class="feature-tag">
+                    <i-lucide name="list" size="12"></i-lucide> Full Directory
+                  </span>
+                  <span class="feature-tag">
+                    <i-lucide name="graduation-cap" size="12"></i-lucide> Student Details
+                  </span>
+                </div>
               </div>
-            </div>
-            <div class="card-content">
-              <h3>Telex Man Directory</h3>
-              <p>View all Telex Man details with associated student information and activity.</p>
-              <div class="card-features">
-                <span class="feature-tag">
-                  <i-lucide name="list" size="12"></i-lucide> Full Directory
-                </span>
-                <span class="feature-tag">
-                  <i-lucide name="graduation-cap" size="12"></i-lucide> Student Details
-                </span>
+              <div class="card-action">
+                <span>View Directory</span>
+                <i-lucide name="arrow-right" size="18"></i-lucide>
               </div>
-            </div>
-            <div class="card-action">
-              <span>View Directory</span>
-              <i-lucide name="arrow-right" size="18"></i-lucide>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- VISA SECTION -->
-    <div *ngIf="activeSection === 'visa'">
-      <h2 class="section-title">
-        <i-lucide name="plane" size="28"></i-lucide> Visa Management
-      </h2>
-      <p class="section-subtitle">Manage Visa Man users and access their directory.</p>
-
-      <div class="visa-cards-grid">
-        <!-- Manage VISA Man Card -->
-        <div class="visa-feature-card manage-card" (click)="navigateTo('manage-visa-man')">
-          <div class="card-glow"></div>
-          <div class="card-inner">
-            <div class="card-icon-container">
-              <div class="icon-ring">
-                <i-lucide name="settings" size="32"></i-lucide>
+    @if (activeSection === 'visa') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="plane" size="28"></i-lucide> Visa Management
+        </h2>
+        <p class="section-subtitle">Manage Visa Man users and access their directory.</p>
+        <div class="visa-cards-grid">
+          <!-- Manage VISA Man Card -->
+          <div class="visa-feature-card manage-card" (click)="navigateTo('manage-visa-man')">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-icon-container">
+                <div class="icon-ring">
+                  <i-lucide name="settings" size="32"></i-lucide>
+                </div>
+                <div class="icon-badge">
+                  <i-lucide name="shield-check" size="14"></i-lucide>
+                </div>
               </div>
-              <div class="icon-badge">
-                <i-lucide name="shield-check" size="14"></i-lucide>
+              <div class="card-content">
+                <h3>Manage VISA Man</h3>
+                <p>Update access permissions, assign roles, and configure VISA Man settings.</p>
+                <div class="card-features">
+                  <span class="feature-tag">
+                    <i-lucide name="key" size="12"></i-lucide> Access Control
+                  </span>
+                  <span class="feature-tag">
+                    <i-lucide name="user-cog" size="12"></i-lucide> Role Management
+                  </span>
+                </div>
               </div>
-            </div>
-            <div class="card-content">
-              <h3>Manage VISA Man</h3>
-              <p>Update access permissions, assign roles, and configure VISA Man settings.</p>
-              <div class="card-features">
-                <span class="feature-tag">
-                  <i-lucide name="key" size="12"></i-lucide> Access Control
-                </span>
-                <span class="feature-tag">
-                  <i-lucide name="user-cog" size="12"></i-lucide> Role Management
-                </span>
+              <div class="card-action">
+                <span>Manage Access</span>
+                <i-lucide name="arrow-right" size="18"></i-lucide>
               </div>
-            </div>
-            <div class="card-action">
-              <span>Manage Access</span>
-              <i-lucide name="arrow-right" size="18"></i-lucide>
             </div>
           </div>
-        </div>
-
-        <!-- Visa Man Directory Card -->
-        <div class="visa-feature-card directory-card" (click)="navigateTo('visa-man-directory')">
-          <div class="card-glow"></div>
-          <div class="card-inner">
-            <div class="card-icon-container">
-              <div class="icon-ring">
-                <i-lucide name="users" size="32"></i-lucide>
+          <!-- Visa Man Directory Card -->
+          <div class="visa-feature-card directory-card" (click)="navigateTo('visa-man-directory')">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-icon-container">
+                <div class="icon-ring">
+                  <i-lucide name="users" size="32"></i-lucide>
+                </div>
+                <div class="icon-badge">
+                  <i-lucide name="database" size="14"></i-lucide>
+                </div>
               </div>
-              <div class="icon-badge">
-                <i-lucide name="database" size="14"></i-lucide>
+              <div class="card-content">
+                <h3>Visa Man Directory</h3>
+                <p>View all Visa Man details with associated student information and activity.</p>
+                <div class="card-features">
+                  <span class="feature-tag">
+                    <i-lucide name="list" size="12"></i-lucide> Full Directory
+                  </span>
+                  <span class="feature-tag">
+                    <i-lucide name="graduation-cap" size="12"></i-lucide> Student Details
+                  </span>
+                </div>
               </div>
-            </div>
-            <div class="card-content">
-              <h3>Visa Man Directory</h3>
-              <p>View all Visa Man details with associated student information and activity.</p>
-              <div class="card-features">
-                <span class="feature-tag">
-                  <i-lucide name="list" size="12"></i-lucide> Full Directory
-                </span>
-                <span class="feature-tag">
-                  <i-lucide name="graduation-cap" size="12"></i-lucide> Student Details
-                </span>
+              <div class="card-action">
+                <span>View Directory</span>
+                <i-lucide name="arrow-right" size="18"></i-lucide>
               </div>
-            </div>
-            <div class="card-action">
-              <span>View Directory</span>
-              <i-lucide name="arrow-right" size="18"></i-lucide>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- UNIVERSITY COORDINATORS SECTION -->
-    <div *ngIf="activeSection === 'university-coordinators'">
-      <h2 class="section-title">
-        <i-lucide name="building-2" size="28"></i-lucide> University Coordinators
-      </h2>
-      <p class="section-subtitle">Manage University Coordinators, view students, and monitor college assignments.</p>
-
-      <div class="university-cards-grid">
-        <!-- Manage University Person Card -->
-        <div class="university-feature-card manage-card" (click)="navigateTo('manage-university-person')">
-          <div class="card-glow"></div>
-          <div class="card-inner">
-            <div class="card-icon-container">
-              <div class="icon-ring">
-                <i-lucide name="settings" size="32"></i-lucide>
+    @if (activeSection === 'university-coordinators') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="building-2" size="28"></i-lucide> University Coordinators
+        </h2>
+        <p class="section-subtitle">Manage University Coordinators, view students, and monitor college assignments.</p>
+        <div class="university-cards-grid">
+          <!-- Manage University Person Card -->
+          <div class="university-feature-card manage-card" (click)="navigateTo('manage-university-person')">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-icon-container">
+                <div class="icon-ring">
+                  <i-lucide name="settings" size="32"></i-lucide>
+                </div>
+                <div class="icon-badge">
+                  <i-lucide name="shield-check" size="14"></i-lucide>
+                </div>
               </div>
-              <div class="icon-badge">
-                <i-lucide name="shield-check" size="14"></i-lucide>
+              <div class="card-content">
+                <h3>Manage University Person</h3>
+                <p>Update access, assign colleges, and configure University Coordinator settings.</p>
+                <div class="card-features">
+                  <span class="feature-tag">
+                    <i-lucide name="key" size="12"></i-lucide> Access Control
+                  </span>
+                  <span class="feature-tag">
+                    <i-lucide name="university" size="12"></i-lucide> College Assignment
+                  </span>
+                </div>
               </div>
-            </div>
-            <div class="card-content">
-              <h3>Manage University Person</h3>
-              <p>Update access, assign colleges, and configure University Coordinator settings.</p>
-              <div class="card-features">
-                <span class="feature-tag">
-                  <i-lucide name="key" size="12"></i-lucide> Access Control
-                </span>
-                <span class="feature-tag">
-                  <i-lucide name="university" size="12"></i-lucide> College Assignment
-                </span>
+              <div class="card-action">
+                <span>Manage Access</span>
+                <i-lucide name="arrow-right" size="18"></i-lucide>
               </div>
-            </div>
-            <div class="card-action">
-              <span>Manage Access</span>
-              <i-lucide name="arrow-right" size="18"></i-lucide>
             </div>
           </div>
-        </div>
-
-        <!-- University Person Student Directory Card -->
-        <div class="university-feature-card directory-card" (click)="navigateTo('university-person-directory')">
-          <div class="card-glow"></div>
-          <div class="card-inner">
-            <div class="card-icon-container">
-              <div class="icon-ring">
-                <i-lucide name="users" size="32"></i-lucide>
+          <!-- University Person Student Directory Card -->
+          <div class="university-feature-card directory-card" (click)="navigateTo('university-person-directory')">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-icon-container">
+                <div class="icon-ring">
+                  <i-lucide name="users" size="32"></i-lucide>
+                </div>
+                <div class="icon-badge">
+                  <i-lucide name="database" size="14"></i-lucide>
+                </div>
               </div>
-              <div class="icon-badge">
-                <i-lucide name="database" size="14"></i-lucide>
+              <div class="card-content">
+                <h3>Student Directory</h3>
+                <p>View all students grouped by University Person with admission status and history.</p>
+                <div class="card-features">
+                  <span class="feature-tag">
+                    <i-lucide name="graduation-cap" size="12"></i-lucide> Students List
+                  </span>
+                  <span class="feature-tag">
+                    <i-lucide name="file-check" size="12"></i-lucide> Admission Status
+                  </span>
+                </div>
               </div>
-            </div>
-            <div class="card-content">
-              <h3>Student Directory</h3>
-              <p>View all students grouped by University Person with admission status and history.</p>
-              <div class="card-features">
-                <span class="feature-tag">
-                  <i-lucide name="graduation-cap" size="12"></i-lucide> Students List
-                </span>
-                <span class="feature-tag">
-                  <i-lucide name="file-check" size="12"></i-lucide> Admission Status
-                </span>
+              <div class="card-action">
+                <span>View Directory</span>
+                <i-lucide name="arrow-right" size="18"></i-lucide>
               </div>
-            </div>
-            <div class="card-action">
-              <span>View Directory</span>
-              <i-lucide name="arrow-right" size="18"></i-lucide>
             </div>
           </div>
-        </div>
-
-        <!-- University-wise Coordinator Card -->
-        <div class="university-feature-card university-wise-card" (click)="navigateTo('university-wise-coordinator')">
-          <div class="card-glow"></div>
-          <div class="card-inner">
-            <div class="card-icon-container">
-              <div class="icon-ring">
-                <i-lucide name="building" size="32"></i-lucide>
+          <!-- University-wise Coordinator Card -->
+          <div class="university-feature-card university-wise-card" (click)="navigateTo('university-wise-coordinator')">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-icon-container">
+                <div class="icon-ring">
+                  <i-lucide name="building" size="32"></i-lucide>
+                </div>
+                <div class="icon-badge">
+                  <i-lucide name="map-pin" size="14"></i-lucide>
+                </div>
               </div>
-              <div class="icon-badge">
-                <i-lucide name="map-pin" size="14"></i-lucide>
+              <div class="card-content">
+                <h3>University-wise Coordinators</h3>
+                <p>View coordinators organized by university with assigned students and metrics.</p>
+                <div class="card-features">
+                  <span class="feature-tag">
+                    <i-lucide name="layout-grid" size="12"></i-lucide> By University
+                  </span>
+                  <span class="feature-tag">
+                    <i-lucide name="bar-chart-2" size="12"></i-lucide> Analytics
+                  </span>
+                </div>
               </div>
-            </div>
-            <div class="card-content">
-              <h3>University-wise Coordinators</h3>
-              <p>View coordinators organized by university with assigned students and metrics.</p>
-              <div class="card-features">
-                <span class="feature-tag">
-                  <i-lucide name="layout-grid" size="12"></i-lucide> By University
-                </span>
-                <span class="feature-tag">
-                  <i-lucide name="bar-chart-2" size="12"></i-lucide> Analytics
-                </span>
+              <div class="card-action">
+                <span>View by University</span>
+                <i-lucide name="arrow-right" size="18"></i-lucide>
               </div>
-            </div>
-            <div class="card-action">
-              <span>View by University</span>
-              <i-lucide name="arrow-right" size="18"></i-lucide>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    }
 
 
     <!-- DOC PERSON SECTION -->
-    <div *ngIf="activeSection === 'doc-person'">
-      <h2 class="section-title">
-        <i-lucide name="file-check" size="28"></i-lucide> Doc Person Management
-      </h2>
-      <p class="section-subtitle">Manage Document Verification Staff and access directory.</p>
-
-      <div class="card-grid">
-        <div class="info-card" (click)="navigateTo('manage-doc-person')">
-          <div class="icon"><i-lucide name="user-cog" size="24"></i-lucide></div>
-          <h3>Manage Doc Person</h3>
-          <p>Update Doc Person details & access</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('doc-person-student-directory')">
-          <div class="icon"><i-lucide name="folder-open" size="24"></i-lucide></div>
-          <h3>Student Directory</h3>
-          <p>View students for verification</p>
+    @if (activeSection === 'doc-person') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="file-check" size="28"></i-lucide> Doc Person Management
+        </h2>
+        <p class="section-subtitle">Manage Document Verification Staff and access directory.</p>
+        <div class="card-grid">
+          <div class="info-card" (click)="navigateTo('manage-doc-person')">
+            <div class="icon"><i-lucide name="user-cog" size="24"></i-lucide></div>
+            <h3>Manage Doc Person</h3>
+            <p>Update Doc Person details & access</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('doc-person-student-directory')">
+            <div class="icon"><i-lucide name="folder-open" size="24"></i-lucide></div>
+            <h3>Student Directory</h3>
+            <p>View students for verification</p>
+          </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- ACCOUNTANT SECTION -->
-    <div *ngIf="activeSection === 'account'">
-      <h2 class="section-title">
-        <i-lucide name="calculator" size="28"></i-lucide> Accountant Management
-      </h2>
-      <p class="section-subtitle">Manage Accountants and financial records access.</p>
-
-      <div class="card-grid">
-        <div class="info-card" (click)="navigateTo('manage-accountant')">
-          <div class="icon"><i-lucide name="calculator" size="24"></i-lucide></div>
-          <h3>Manage Accountant</h3>
-          <p>Update Accountant details & access</p>
-        </div>
-        <div class="info-card" (click)="navigateTo('accountant-student-directory')">
-          <div class="icon"><i-lucide name="list" size="24"></i-lucide></div>
-          <h3>Student Directory</h3>
-          <p>View students for payment verification</p>
+    @if (activeSection === 'account') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="calculator" size="28"></i-lucide> Accountant Management
+        </h2>
+        <p class="section-subtitle">Manage Accountants and financial records access.</p>
+        <div class="card-grid">
+          <div class="info-card" (click)="navigateTo('manage-accountant')">
+            <div class="icon"><i-lucide name="calculator" size="24"></i-lucide></div>
+            <h3>Manage Accountant</h3>
+            <p>Update Accountant details & access</p>
+          </div>
+          <div class="info-card" (click)="navigateTo('accountant-student-directory')">
+            <div class="icon"><i-lucide name="list" size="24"></i-lucide></div>
+            <h3>Student Directory</h3>
+            <p>View students for payment verification</p>
+          </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- PLACEHOLDER SECTIONS -->
     <!-- PAYMENTS SECTION (Placeholder) -->
-    <div *ngIf="activeSection === 'payments'">
-      <h2 class="section-title">
-        <i-lucide [name]="currentSectionIcon" size="28"></i-lucide> {{ pageTitle }}
-      </h2>
-      <p class="section-subtitle">Coming Soon</p>
-
-      <div class="section-placeholder"
-        style="text-align: center; padding: 4rem; background: white; border-radius: 1rem; border: 1px dashed var(--border-light);">
-        <div class="placeholder-icon" style="color: var(--border-light); margin-bottom: 1.5rem;">
-          <i-lucide [name]="currentSectionIcon" size="64"></i-lucide>
+    @if (activeSection === 'payments') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide [name]="currentSectionIcon" size="28"></i-lucide> {{ pageTitle }}
+        </h2>
+        <p class="section-subtitle">Coming Soon</p>
+        <div class="section-placeholder"
+          style="text-align: center; padding: 4rem; background: white; border-radius: 1rem; border: 1px dashed var(--border-light);">
+          <div class="placeholder-icon" style="color: var(--border-light); margin-bottom: 1.5rem;">
+            <i-lucide [name]="currentSectionIcon" size="64"></i-lucide>
+          </div>
+          <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">This will be implemented later.</p>
+          <button class="btn-primary">Notify Me When Ready</button>
         </div>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">This will be implemented later.</p>
-        <button class="btn-primary">Notify Me When Ready</button>
       </div>
-    </div>
+    }
 
     <!-- SYSTEM CONFIGURATION SECTION -->
-    <div *ngIf="activeSection === 'reports'">
-      <h2 class="section-title">
-        <i-lucide name="settings" size="28"></i-lucide> System Configuration
-      </h2>
-      <p class="section-subtitle">Manage academic sessions and global settings.</p>
-
-      <!-- Loading State -->
-      <div *ngIf="loading" class="loading-state">
-        <div class="spinner"></div>
-        <p>Loading sessions...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div *ngIf="!loading && sessions.length === 0" class="empty-state">
-        <i-lucide name="calendar-x" size="48"></i-lucide>
-        <h3>No Sessions Found</h3>
-        <p>No academic sessions are available. Please ensure the backend is running and has session data.</p>
-      </div>
-
-      <!-- Session Cards -->
-      <div class="card-grid" *ngIf="!loading && sessions.length > 0">
-        <div class="info-card session-card" *ngFor="let session of sessions" (click)="onSessionClick(session)"
-          [class.selected]="selectedSession?.id === session.id">
-          <div class="icon"><i-lucide name="calendar" size="24"></i-lucide></div>
-          <h3>{{ session.sessionName }}</h3>
-          <p>{{ session.academicYear }}</p>
-          <div class="selected-indicator" *ngIf="selectedSession?.id === session.id">
-            <i-lucide name="check-circle" size="16"></i-lucide>
+    @if (activeSection === 'reports') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="settings" size="28"></i-lucide> System Configuration
+        </h2>
+        <p class="section-subtitle">Manage academic sessions and global settings.</p>
+        <!-- Loading State -->
+        @if (loading) {
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading sessions...</p>
           </div>
-        </div>
+        }
+        <!-- Empty State -->
+        @if (!loading && sessions.length === 0) {
+          <div class="empty-state">
+            <i-lucide name="calendar-x" size="48"></i-lucide>
+            <h3>No Sessions Found</h3>
+            <p>No academic sessions are available. Please ensure the backend is running and has session data.</p>
+          </div>
+        }
+        <!-- Session Cards -->
+        @if (!loading && sessions.length > 0) {
+          <div class="card-grid">
+            @for (session of sessions; track session) {
+              <div class="info-card session-card" (click)="onSessionClick(session)"
+                [class.selected]="selectedSession?.id === session.id">
+                <div class="icon"><i-lucide name="calendar" size="24"></i-lucide></div>
+                <h3>{{ session.sessionName }}</h3>
+                <p>{{ session.academicYear }}</p>
+                @if (selectedSession?.id === session.id) {
+                  <div class="selected-indicator">
+                    <i-lucide name="check-circle" size="16"></i-lucide>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+        <!-- Floating Action Button -->
+        <!-- Only show when a session is selected -->
+        @if (selectedSession) {
+          <button class="fab-btn" (click)="openUpdateSessionModal()">
+            <i-lucide name="edit-2" size="24"></i-lucide>
+            <span>Update Session</span>
+          </button>
+        }
       </div>
-
-      <!-- Floating Action Button -->
-      <!-- Only show when a session is selected -->
-      <button class="fab-btn" *ngIf="selectedSession" (click)="openUpdateSessionModal()">
-        <i-lucide name="edit-2" size="24"></i-lucide>
-        <span>Update Session</span>
-      </button>
-    </div>
+    }
 
 
     <!-- NEWS MANAGEMENT SECTION -->
-    <div *ngIf="activeSection === 'news-management'">
-      <h2 class="section-title">
-        <i-lucide name="file-text" size="28"></i-lucide> News Management
-      </h2>
-      <p class="section-subtitle">Manage news and announcements for users</p>
-
-      <div class="card-grid">
-        <div class="info-card" (click)="navigateTo('news-dashboard')">
-          <div class="icon"><i-lucide name="file-text" size="24"></i-lucide></div>
-          <h3>News Dashboard</h3>
-          <p>Create, edit & manage news</p>
+    @if (activeSection === 'news-management') {
+      <div>
+        <h2 class="section-title">
+          <i-lucide name="file-text" size="28"></i-lucide> News Management
+        </h2>
+        <p class="section-subtitle">Manage news and announcements for users</p>
+        <div class="card-grid">
+          <div class="info-card" (click)="navigateTo('news-dashboard')">
+            <div class="icon"><i-lucide name="file-text" size="24"></i-lucide></div>
+            <h3>News Dashboard</h3>
+            <p>Create, edit & manage news</p>
+          </div>
         </div>
       </div>
-    </div>
+    }
 
-    <div *ngIf="!isValidSection()">
-      <h2>Section Not Found</h2>
-      <p>Please select a valid module from the sidebar.</p>
-    </div>
+    @if (!isValidSection()) {
+      <div>
+        <h2>Section Not Found</h2>
+        <p>Please select a valid module from the sidebar.</p>
+      </div>
+    }
 
 
     <!-- APPLICATION TRACKER SEARCH MODAL -->
-    <div class="app-search-overlay" *ngIf="showAppSearchModal" (click)="closeAppSearch()">
-      <div class="app-search-container" (click)="$event.stopPropagation()">
-        <button class="close-search-btn" (click)="closeAppSearch()">
-          <i-lucide name="x" size="24"></i-lucide>
-        </button>
-
-        <div class="search-header">
-          <div class="brand-pill">
-            <i-lucide name="graduation-cap" size="16"></i-lucide>
-            <span>Application Tracker</span>
-          </div>
-          <h2>Track Student Status</h2>
-          <p>Enter Application ID or Registered Email to verify progress.</p>
-        </div>
-
-        <div class="search-input-wrapper">
-          <i-lucide name="search" class="search-icon" size="20"></i-lucide>
-          <input type="text" [(ngModel)]="appSearchQuery" (keyup.enter)="searchApplication()"
-            placeholder="e.g. 241212001 or student@example.com" [disabled]="isAppSearching">
-          <button class="search-action-btn" (click)="searchApplication()"
-            [disabled]="isAppSearching || !appSearchQuery">
-            <span *ngIf="!isAppSearching">Track</span>
-            <div *ngIf="isAppSearching" class="spinner-sm"></div>
+    @if (showAppSearchModal) {
+      <div class="app-search-overlay" (click)="closeAppSearch()">
+        <div class="app-search-container" (click)="$event.stopPropagation()">
+          <button class="close-search-btn" (click)="closeAppSearch()">
+            <i-lucide name="x" size="24"></i-lucide>
           </button>
-        </div>
-
-        <!-- RESULTS AREA -->
-        <div class="search-results-area" *ngIf="foundApplication || appSearchError">
-
-          <!-- Error State -->
-          <div class="error-state" *ngIf="appSearchError">
-            <i-lucide name="alert-circle" size="32"></i-lucide>
-            <p>{{ appSearchError }}</p>
-          </div>
-
-          <!-- Success State -->
-          <div class="result-card" *ngIf="foundApplication">
-            <div class="result-header">
-              <div>
-                <h3>{{ foundApplication.fullName }}</h3>
-                <span class="result-id">#{{ foundApplication.applicationId }}</span>
-              </div>
-              <div class="status-badge" [ngClass]="getAppStatusColor(foundApplication.currentStatus)">
-                <i-lucide name="check-circle" size="16"
-                  *ngIf="foundApplication.currentStatus === 'VISA_STAMPED'"></i-lucide>
-                <i-lucide name="clock" size="16" *ngIf="foundApplication.currentStatus !== 'VISA_STAMPED'"></i-lucide>
-                <span>{{ formatAppStatus(foundApplication.currentStatus) }}</span>
-              </div>
+          <div class="search-header">
+            <div class="brand-pill">
+              <i-lucide name="graduation-cap" size="16"></i-lucide>
+              <span>Application Tracker</span>
             </div>
-
-            <div class="timeline-wrapper">
-              <h4>Timeline History</h4>
-              <div class="timeline">
-                <div class="timeline-item" *ngFor="let event of foundApplication.history; let first = first">
-                  <div class="timeline-marker" [class.active]="first"></div>
-                  <div class="timeline-content">
-                    <div class="t-header">
-                      <span class="t-status">{{ formatAppStatus(event.status) }}</span>
-                      <span class="t-date">{{ event.updatedAt | date:'mediumDate' }}</span>
+            <h2>Track Student Status</h2>
+            <p>Enter Application ID or Registered Email to verify progress.</p>
+          </div>
+          <div class="search-input-wrapper">
+            <i-lucide name="search" class="search-icon" size="20"></i-lucide>
+            <input type="text" [(ngModel)]="appSearchQuery" (keyup.enter)="searchApplication()"
+              placeholder="e.g. 241212001 or student@example.com" [disabled]="isAppSearching">
+            <button class="search-action-btn" (click)="searchApplication()"
+              [disabled]="isAppSearching || !appSearchQuery">
+              @if (!isAppSearching) {
+                <span>Track</span>
+              }
+              @if (isAppSearching) {
+                <div class="spinner-sm"></div>
+              }
+            </button>
+          </div>
+          <!-- RESULTS AREA -->
+          @if (foundApplication || appSearchError) {
+            <div class="search-results-area">
+              <!-- Error State -->
+              @if (appSearchError) {
+                <div class="error-state">
+                  <i-lucide name="alert-circle" size="32"></i-lucide>
+                  <p>{{ appSearchError }}</p>
+                </div>
+              }
+              <!-- Success State -->
+              @if (foundApplication) {
+                <div class="result-card">
+                  <div class="result-header">
+                    <div>
+                      <h3>{{ foundApplication.fullName }}</h3>
+                      <span class="result-id">#{{ foundApplication.applicationId }}</span>
                     </div>
-                    <p class="t-meta">Updated by {{ event.updatedBy }}</p>
-                    <p class="t-note" *ngIf="event.remarks">"{{ event.remarks }}"</p>
+                    <div class="status-badge" [ngClass]="getAppStatusColor(foundApplication.currentStatus)">
+                      @if (foundApplication.currentStatus === 'VISA_STAMPED') {
+                        <i-lucide name="check-circle" size="16"
+                        ></i-lucide>
+                      }
+                      @if (foundApplication.currentStatus !== 'VISA_STAMPED') {
+                        <i-lucide name="clock" size="16"></i-lucide>
+                      }
+                      <span>{{ formatAppStatus(foundApplication.currentStatus) }}</span>
+                    </div>
+                  </div>
+                  <div class="timeline-wrapper">
+                    <h4>Timeline History</h4>
+                    <div class="timeline">
+                      @for (event of foundApplication.history; track event; let first = $first) {
+                        <div class="timeline-item">
+                          <div class="timeline-marker" [class.active]="first"></div>
+                          <div class="timeline-content">
+                            <div class="t-header">
+                              <span class="t-status">{{ formatAppStatus(event.status) }}</span>
+                              <span class="t-date">{{ event.updatedAt | date:'mediumDate' }}</span>
+                            </div>
+                            <p class="t-meta">Updated by {{ event.updatedBy }}</p>
+                            @if (event.remarks) {
+                              <p class="t-note">"{{ event.remarks }}"</p>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  <div class="result-footer">
+                    Last Updated: {{ foundApplication.lastUpdated | date:'medium' }}
                   </div>
                 </div>
-              </div>
+              }
             </div>
-
-            <div class="result-footer">
-              Last Updated: {{ foundApplication.lastUpdated | date:'medium' }}
-            </div>
-          </div>
-
+          }
         </div>
       </div>
-    </div>
+    }
 
     <!-- UNIVERSITY COORDINATOR CREATION MODAL -->
-    <div class="modal-backdrop" *ngIf="showCoordinatorModal" (click)="closeCoordinatorModal()"></div>
-    <div class="modal coordinator-modal" *ngIf="showCoordinatorModal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title-wrapper">
-          <i-lucide name="building-2" size="24" class="modal-icon"></i-lucide>
-          <h3>Create University Coordinator</h3>
+    @if (showCoordinatorModal) {
+      <div class="modal-backdrop" (click)="closeCoordinatorModal()"></div>
+    }
+    @if (showCoordinatorModal) {
+      <div class="modal coordinator-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <i-lucide name="building-2" size="24" class="modal-icon"></i-lucide>
+            <h3>Create University Coordinator</h3>
+          </div>
+          <button class="btn-icon-sm" (click)="closeCoordinatorModal()">
+            <i-lucide name="x" size="20"></i-lucide>
+          </button>
         </div>
-        <button class="btn-icon-sm" (click)="closeCoordinatorModal()">
-          <i-lucide name="x" size="20"></i-lucide>
+        <div class="modal-body" [class.form-disabled]="coordinatorFormDisabled">
+          <!-- Loading Overlay for Creation -->
+          @if (creatingCoordinator) {
+            <div class="creation-loading-overlay">
+              <div class="creation-spinner"></div>
+              <p>Creating University Coordinator...</p>
+            </div>
+          }
+          <!-- College Selection -->
+          <div class="form-group">
+            <label>
+              <i-lucide name="university" size="16"></i-lucide>
+              Select College
+            </label>
+            <select [(ngModel)]="coordinatorForm.collegeId" (change)="onCollegeSelect()" [disabled]="loading">
+              <option [value]="0" disabled>-- Select a College --</option>
+              @for (college of colleges; track college) {
+                <option [value]="college.id">
+                  {{ college.collegeName }} ({{ college.city }}, {{ college.country }})
+                </option>
+              }
+            </select>
+            @if (coordinatorForm.collegeId > 0) {
+              <div class="availability-indicator">
+                @if (checkingAvailability) {
+                  <div class="checking-availability">
+                    <div class="mini-spinner"></div>
+                    <span>Checking availability...</span>
+                  </div>
+                }
+                @if (!checkingAvailability && coordinatorAvailable) {
+                  <div class="available-badge">
+                    <i-lucide name="check-circle" size="16"></i-lucide>
+                    <span>Available for University Coordinator</span>
+                  </div>
+                }
+                @if (!checkingAvailability && coordinatorFormDisabled && existingCoordinator) {
+                  <div class="unavailable-badge"
+                    >
+                    <i-lucide name="alert-triangle" size="16"></i-lucide>
+                    <span>Coordinator already exists: {{ existingCoordinator.userName }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+          <!-- Disabled Form Warning -->
+          @if (coordinatorFormDisabled && existingCoordinator) {
+            <div class="form-disabled-warning">
+              <i-lucide name="lock" size="20"></i-lucide>
+              <div>
+                <strong>Cannot Create Coordinator</strong>
+                <p>First delete the existing University Coordinator for this college, then you can create a new one.</p>
+              </div>
+            </div>
+          }
+          <!-- Form Fields -->
+          <div class="form-group">
+            <label>
+              <i-lucide name="user" size="16"></i-lucide>
+              Username
+            </label>
+            <input type="text" [(ngModel)]="coordinatorForm.userName" placeholder="e.g. UE12345"
+              [disabled]="coordinatorFormDisabled || !coordinatorAvailable">
+          </div>
+          <div class="form-group">
+            <label>
+              <i-lucide name="lock" size="16"></i-lucide>
+              Password
+            </label>
+            <input type="password" [(ngModel)]="coordinatorForm.password"
+              placeholder="Min 8 chars with letters, digits, special chars"
+              [disabled]="coordinatorFormDisabled || !coordinatorAvailable">
+          </div>
+          <div class="form-group">
+            <label>
+              <i-lucide name="lock" size="16"></i-lucide>
+              Confirm Password
+            </label>
+            <input type="password" [(ngModel)]="coordinatorForm.confirmPassword" placeholder="Re-enter password"
+              [disabled]="coordinatorFormDisabled || !coordinatorAvailable">
+          </div>
+          <!-- Password Validation Errors -->
+          @if (passwordErrors.length > 0) {
+            <div class="validation-errors">
+              @for (error of passwordErrors; track error) {
+                <div class="error-item">
+                  <i-lucide name="x-circle" size="14"></i-lucide>
+                  <span>{{ error }}</span>
+                </div>
+              }
+            </div>
+          }
+          <!-- Password Requirements Info -->
+          @if (coordinatorAvailable && !coordinatorFormDisabled) {
+            <div class="password-requirements">
+              <p><strong>Password Requirements:</strong></p>
+              <ul>
+                <li>At least 8 characters</li>
+                <li>Contains letters (A-Z, a-z)</li>
+                <li>Contains digits (0-9)</li>
+                <li>Contains special characters (!@#$%^&*)</li>
+              </ul>
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeCoordinatorModal()">
+            <i-lucide name="x" size="16"></i-lucide>
+            Cancel
+          </button>
+          <button class="btn-primary" [disabled]="!isFormValid() || creatingCoordinator"
+            (click)="createUniversityCoordinator()">
+            @if (!creatingCoordinator) {
+              <i-lucide name="plus" size="16"></i-lucide>
+            }
+            @if (!creatingCoordinator) {
+              <span>Create Coordinator</span>
+            }
+            @if (creatingCoordinator) {
+              <div class="spinner button-spinner"></div>
+            }
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- SUCCESS MODAL -->
+    @if (showCoordinatorSuccess) {
+      <div class="modal-backdrop success-backdrop" (click)="closeSuccessModal()"></div>
+    }
+    @if (showCoordinatorSuccess) {
+      <div class="result-modal success-modal" (click)="$event.stopPropagation()">
+        <div class="result-modal-icon success">
+          <i-lucide name="check-circle" size="48"></i-lucide>
+        </div>
+        <h3>Coordinator Created Successfully!</h3>
+        <div class="result-details">
+          <div class="detail-row">
+            <span class="detail-label">Username:</span>
+            <span class="detail-value">{{ createdCoordinatorInfo?.userName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">College:</span>
+            <span class="detail-value">{{ createdCoordinatorInfo?.collegeName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Role:</span>
+            <span class="detail-value">University Coordinator</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value status-active">Active</span>
+          </div>
+        </div>
+        <button class="btn-primary success-btn" (click)="closeSuccessModal()">
+          <i-lucide name="check" size="16"></i-lucide>
+          Done
         </button>
       </div>
+    }
 
-      <div class="modal-body" [class.form-disabled]="coordinatorFormDisabled">
-        <!-- Loading Overlay for Creation -->
-        <div class="creation-loading-overlay" *ngIf="creatingCoordinator">
-          <div class="creation-spinner"></div>
-          <p>Creating University Coordinator...</p>
+    <!-- ERROR MODAL -->
+    @if (showCoordinatorError) {
+      <div class="modal-backdrop error-backdrop" (click)="closeErrorModal()"></div>
+    }
+    @if (showCoordinatorError) {
+      <div class="result-modal error-modal" (click)="$event.stopPropagation()">
+        <div class="result-modal-icon error">
+          <i-lucide name="x-circle" size="48"></i-lucide>
         </div>
+        <h3>Creation Failed</h3>
+        <p class="error-message-text">{{ coordinatorErrorMessage }}</p>
+        <button class="btn-secondary error-close-btn" (click)="closeErrorModal()">
+          <i-lucide name="x" size="16"></i-lucide>
+          Close
+        </button>
+      </div>
+    }
 
-        <!-- College Selection -->
-        <div class="form-group">
-          <label>
-            <i-lucide name="university" size="16"></i-lucide>
-            Select College
-          </label>
-          <select [(ngModel)]="coordinatorForm.collegeId" (change)="onCollegeSelect()" [disabled]="loading">
-            <option [value]="0" disabled>-- Select a College --</option>
-            <option *ngFor="let college of colleges" [value]="college.id">
-              {{ college.collegeName }} ({{ college.city }}, {{ college.country }})
-            </option>
-          </select>
-          <div class="availability-indicator" *ngIf="coordinatorForm.collegeId > 0">
-            <div class="checking-availability" *ngIf="checkingAvailability">
+    <!-- DOC PERSON CREATION MODAL -->
+    @if (showDocPersonModal) {
+      <div class="modal-backdrop" (click)="closeDocPersonModal()"></div>
+    }
+    @if (showDocPersonModal) {
+      <div class="modal doc-person-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <i-lucide name="file-check" size="24" class="modal-icon"></i-lucide>
+            <h3>Create Doc Person</h3>
+          </div>
+          <button class="btn-icon-sm" (click)="closeDocPersonModal()">
+            <i-lucide name="x" size="20"></i-lucide>
+          </button>
+        </div>
+        <div class="modal-body" [class.form-disabled]="docPersonFormDisabled">
+          <!-- Loading Overlay for Creation -->
+          @if (creatingDocPerson) {
+            <div class="creation-loading-overlay">
+              <div class="creation-spinner"></div>
+              <p>Creating Doc Person...</p>
+            </div>
+          }
+          <!-- Availability Check Loader -->
+          @if (checkingDocPersonAvailability) {
+            <div class="availability-check-loading">
               <div class="mini-spinner"></div>
               <span>Checking availability...</span>
             </div>
-            <div class="available-badge" *ngIf="!checkingAvailability && coordinatorAvailable">
-              <i-lucide name="check-circle" size="16"></i-lucide>
-              <span>Available for University Coordinator</span>
+          }
+          <!-- Doc Person Policy Info -->
+          @if (!checkingDocPersonAvailability) {
+            <div class="policy-info-box">
+              <div class="policy-header">
+                <i-lucide name="shield-alert" size="18"></i-lucide>
+                <span>Important Policy</span>
+              </div>
+              <p class="policy-text">
+                This application allows <strong>only one active Doc Person</strong> at a time.
+                The Doc Person is responsible for document verification, attestation, and compliance across all student
+                applications.
+              </p>
+              <div class="policy-tips">
+                <div class="tip-item">
+                  <i-lucide name="lightbulb" size="14"></i-lucide>
+                  <span>To replace an existing Doc Person, first deactivate the current one.</span>
+                </div>
+                <div class="tip-item">
+                  <i-lucide name="clock" size="14"></i-lucide>
+                  <span>Inactive Doc Persons are preserved for audit and history purposes.</span>
+                </div>
+              </div>
             </div>
-            <div class="unavailable-badge"
-              *ngIf="!checkingAvailability && coordinatorFormDisabled && existingCoordinator">
-              <i-lucide name="alert-triangle" size="16"></i-lucide>
-              <span>Coordinator already exists: {{ existingCoordinator.userName }}</span>
+          }
+          <!-- Availability Status -->
+          @if (!checkingDocPersonAvailability && availabilityMessage) {
+            <div class="availability-status">
+              @if (docPersonCanCreate && existingDocPersons.length === 0) {
+                <div class="available-badge">
+                  <i-lucide name="check-circle" size="16"></i-lucide>
+                  <span>{{ availabilityMessage }}</span>
+                </div>
+              }
+              @if (docPersonCanCreate && existingDocPersons.length > 0) {
+                <div class="info-badge">
+                  <i-lucide name="info" size="16"></i-lucide>
+                  <span>{{ availabilityMessage }}</span>
+                </div>
+              }
+              @if (!docPersonCanCreate) {
+                <div class="unavailable-badge">
+                  <i-lucide name="alert-triangle" size="16"></i-lucide>
+                  <span>{{ availabilityMessage }}</span>
+                </div>
+              }
             </div>
-          </div>
-        </div>
-
-        <!-- Disabled Form Warning -->
-        <div class="form-disabled-warning" *ngIf="coordinatorFormDisabled && existingCoordinator">
-          <i-lucide name="lock" size="20"></i-lucide>
-          <div>
-            <strong>Cannot Create Coordinator</strong>
-            <p>First delete the existing University Coordinator for this college, then you can create a new one.</p>
-          </div>
-        </div>
-
-        <!-- Form Fields -->
-        <div class="form-group">
-          <label>
-            <i-lucide name="user" size="16"></i-lucide>
-            Username
-          </label>
-          <input type="text" [(ngModel)]="coordinatorForm.userName" placeholder="e.g. UE12345"
-            [disabled]="coordinatorFormDisabled || !coordinatorAvailable">
-        </div>
-
-        <div class="form-group">
-          <label>
-            <i-lucide name="lock" size="16"></i-lucide>
-            Password
-          </label>
-          <input type="password" [(ngModel)]="coordinatorForm.password"
-            placeholder="Min 8 chars with letters, digits, special chars"
-            [disabled]="coordinatorFormDisabled || !coordinatorAvailable">
-        </div>
-
-        <div class="form-group">
-          <label>
-            <i-lucide name="lock" size="16"></i-lucide>
-            Confirm Password
-          </label>
-          <input type="password" [(ngModel)]="coordinatorForm.confirmPassword" placeholder="Re-enter password"
-            [disabled]="coordinatorFormDisabled || !coordinatorAvailable">
-        </div>
-
-        <!-- Password Validation Errors -->
-        <div class="validation-errors" *ngIf="passwordErrors.length > 0">
-          <div class="error-item" *ngFor="let error of passwordErrors">
-            <i-lucide name="x-circle" size="14"></i-lucide>
-            <span>{{ error }}</span>
-          </div>
-        </div>
-
-        <!-- Password Requirements Info -->
-        <div class="password-requirements" *ngIf="coordinatorAvailable && !coordinatorFormDisabled">
-          <p><strong>Password Requirements:</strong></p>
-          <ul>
-            <li>At least 8 characters</li>
-            <li>Contains letters (A-Z, a-z)</li>
-            <li>Contains digits (0-9)</li>
-            <li>Contains special characters (!@#$%^&*)</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="closeCoordinatorModal()">
-          <i-lucide name="x" size="16"></i-lucide>
-          Cancel
-        </button>
-        <button class="btn-primary" [disabled]="!isFormValid() || creatingCoordinator"
-          (click)="createUniversityCoordinator()">
-          <i-lucide *ngIf="!creatingCoordinator" name="plus" size="16"></i-lucide>
-          <span *ngIf="!creatingCoordinator">Create Coordinator</span>
-          <div *ngIf="creatingCoordinator" class="spinner button-spinner"></div>
-        </button>
-      </div>
-    </div>
-
-    <!-- SUCCESS MODAL -->
-    <div class="modal-backdrop success-backdrop" *ngIf="showCoordinatorSuccess" (click)="closeSuccessModal()"></div>
-    <div class="result-modal success-modal" *ngIf="showCoordinatorSuccess" (click)="$event.stopPropagation()">
-      <div class="result-modal-icon success">
-        <i-lucide name="check-circle" size="48"></i-lucide>
-      </div>
-      <h3>Coordinator Created Successfully!</h3>
-      <div class="result-details">
-        <div class="detail-row">
-          <span class="detail-label">Username:</span>
-          <span class="detail-value">{{ createdCoordinatorInfo?.userName }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">College:</span>
-          <span class="detail-value">{{ createdCoordinatorInfo?.collegeName }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Role:</span>
-          <span class="detail-value">University Coordinator</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Status:</span>
-          <span class="detail-value status-active">Active</span>
-        </div>
-      </div>
-      <button class="btn-primary success-btn" (click)="closeSuccessModal()">
-        <i-lucide name="check" size="16"></i-lucide>
-        Done
-      </button>
-    </div>
-
-    <!-- ERROR MODAL -->
-    <div class="modal-backdrop error-backdrop" *ngIf="showCoordinatorError" (click)="closeErrorModal()"></div>
-    <div class="result-modal error-modal" *ngIf="showCoordinatorError" (click)="$event.stopPropagation()">
-      <div class="result-modal-icon error">
-        <i-lucide name="x-circle" size="48"></i-lucide>
-      </div>
-      <h3>Creation Failed</h3>
-      <p class="error-message-text">{{ coordinatorErrorMessage }}</p>
-      <button class="btn-secondary error-close-btn" (click)="closeErrorModal()">
-        <i-lucide name="x" size="16"></i-lucide>
-        Close
-      </button>
-    </div>
-
-    <!-- DOC PERSON CREATION MODAL -->
-    <div class="modal-backdrop" *ngIf="showDocPersonModal" (click)="closeDocPersonModal()"></div>
-    <div class="modal doc-person-modal" *ngIf="showDocPersonModal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title-wrapper">
-          <i-lucide name="file-check" size="24" class="modal-icon"></i-lucide>
-          <h3>Create Doc Person</h3>
-        </div>
-        <button class="btn-icon-sm" (click)="closeDocPersonModal()">
-          <i-lucide name="x" size="20"></i-lucide>
-        </button>
-      </div>
-
-      <div class="modal-body" [class.form-disabled]="docPersonFormDisabled">
-        <!-- Loading Overlay for Creation -->
-        <div class="creation-loading-overlay" *ngIf="creatingDocPerson">
-          <div class="creation-spinner"></div>
-          <p>Creating Doc Person...</p>
-        </div>
-
-        <!-- Availability Check Loader -->
-        <div class="availability-check-loading" *ngIf="checkingDocPersonAvailability">
-          <div class="mini-spinner"></div>
-          <span>Checking availability...</span>
-        </div>
-
-        <!-- Doc Person Policy Info -->
-        <div class="policy-info-box" *ngIf="!checkingDocPersonAvailability">
-          <div class="policy-header">
-            <i-lucide name="shield-alert" size="18"></i-lucide>
-            <span>Important Policy</span>
-          </div>
-          <p class="policy-text">
-            This application allows <strong>only one active Doc Person</strong> at a time.
-            The Doc Person is responsible for document verification, attestation, and compliance across all student
-            applications.
-          </p>
-          <div class="policy-tips">
-            <div class="tip-item">
-              <i-lucide name="lightbulb" size="14"></i-lucide>
-              <span>To replace an existing Doc Person, first deactivate the current one.</span>
+          }
+          <!-- Existing Doc Persons List -->
+          @if (existingDocPersons.length > 0) {
+            <div class="existing-users-list">
+              <p class="existing-users-title">Existing Doc Persons:</p>
+              @for (dp of existingDocPersons; track dp) {
+                <div class="existing-user-item">
+                  <div class="user-info">
+                    <i-lucide name="user" size="16"></i-lucide>
+                    <span class="user-name">{{ dp.fullName }}</span>
+                    <span class="user-username">({{ dp.username }})</span>
+                  </div>
+                  <span class="user-status" [class.active]="dp.status === 'Active'"
+                    [class.inactive]="dp.status === 'Inactive'">
+                    {{ dp.status }}
+                  </span>
+                </div>
+              }
             </div>
-            <div class="tip-item">
-              <i-lucide name="clock" size="14"></i-lucide>
-              <span>Inactive Doc Persons are preserved for audit and history purposes.</span>
+          }
+          <!-- Disabled Form Warning -->
+          @if (docPersonFormDisabled && !docPersonCanCreate) {
+            <div class="form-disabled-warning">
+              <i-lucide name="lock" size="20"></i-lucide>
+              <div>
+                <strong>Cannot Create Doc Person</strong>
+                <p>An active Doc Person already exists. First deactivate or delete the existing one, then you can create a
+                new one.</p>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Availability Status -->
-        <div class="availability-status" *ngIf="!checkingDocPersonAvailability && availabilityMessage">
-          <div class="available-badge" *ngIf="docPersonCanCreate && existingDocPersons.length === 0">
-            <i-lucide name="check-circle" size="16"></i-lucide>
-            <span>{{ availabilityMessage }}</span>
-          </div>
-          <div class="info-badge" *ngIf="docPersonCanCreate && existingDocPersons.length > 0">
-            <i-lucide name="info" size="16"></i-lucide>
-            <span>{{ availabilityMessage }}</span>
-          </div>
-          <div class="unavailable-badge" *ngIf="!docPersonCanCreate">
-            <i-lucide name="alert-triangle" size="16"></i-lucide>
-            <span>{{ availabilityMessage }}</span>
-          </div>
-        </div>
-
-        <!-- Existing Doc Persons List -->
-        <div class="existing-users-list" *ngIf="existingDocPersons.length > 0">
-          <p class="existing-users-title">Existing Doc Persons:</p>
-          <div class="existing-user-item" *ngFor="let dp of existingDocPersons">
-            <div class="user-info">
-              <i-lucide name="user" size="16"></i-lucide>
-              <span class="user-name">{{ dp.fullName }}</span>
-              <span class="user-username">({{ dp.username }})</span>
-            </div>
-            <span class="user-status" [class.active]="dp.status === 'Active'"
-              [class.inactive]="dp.status === 'Inactive'">
-              {{ dp.status }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Disabled Form Warning -->
-        <div class="form-disabled-warning" *ngIf="docPersonFormDisabled && !docPersonCanCreate">
-          <i-lucide name="lock" size="20"></i-lucide>
-          <div>
-            <strong>Cannot Create Doc Person</strong>
-            <p>An active Doc Person already exists. First deactivate or delete the existing one, then you can create a
-              new one.</p>
-          </div>
-        </div>
-
-        <!-- Form Fields -->
-        <div class="form-group">
-          <label>
-            <i-lucide name="user" size="16"></i-lucide>
-            Username
-          </label>
-          <input type="text" [(ngModel)]="docPersonForm.username" placeholder="e.g. DOC_001"
-            [disabled]="docPersonFormDisabled || !docPersonCanCreate">
-        </div>
-
-        <div class="form-row">
+          }
+          <!-- Form Fields -->
           <div class="form-group">
             <label>
-              <i-lucide name="user-circle" size="16"></i-lucide>
-              Full Name
+              <i-lucide name="user" size="16"></i-lucide>
+              Username
             </label>
-            <input type="text" [(ngModel)]="docPersonForm.fullName" placeholder="e.g. Dr. Stephen Strange"
+            <input type="text" [(ngModel)]="docPersonForm.username" placeholder="e.g. DOC_001"
               [disabled]="docPersonFormDisabled || !docPersonCanCreate">
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <i-lucide name="user-circle" size="16"></i-lucide>
+                Full Name
+              </label>
+              <input type="text" [(ngModel)]="docPersonForm.fullName" placeholder="e.g. Dr. Stephen Strange"
+                [disabled]="docPersonFormDisabled || !docPersonCanCreate">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half">
+              <label>
+                <i-lucide name="mail" size="16"></i-lucide>
+                Email
+              </label>
+              <input type="email" [(ngModel)]="docPersonForm.email" placeholder="e.g. doc@example.com"
+                [disabled]="docPersonFormDisabled || !docPersonCanCreate">
+            </div>
+            <div class="form-group half">
+              <label>
+                <i-lucide name="phone" size="16"></i-lucide>
+                Contact Number
+              </label>
+              <input type="tel" [(ngModel)]="docPersonForm.contactNumber" placeholder="e.g. 9998887774"
+                [disabled]="docPersonFormDisabled || !docPersonCanCreate">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half">
+              <label>
+                <i-lucide name="lock" size="16"></i-lucide>
+                Password
+              </label>
+              <input type="password" [(ngModel)]="docPersonForm.password" placeholder="Min 8 chars"
+                [disabled]="docPersonFormDisabled || !docPersonCanCreate">
+            </div>
+            <div class="form-group half">
+              <label>
+                <i-lucide name="lock" size="16"></i-lucide>
+                Confirm Password
+              </label>
+              <input type="password" [(ngModel)]="docPersonForm.confirmPassword" placeholder="Re-enter password"
+                [disabled]="docPersonFormDisabled || !docPersonCanCreate">
+            </div>
+          </div>
+          <!-- Password Validation Errors -->
+          @if (docPersonPasswordErrors.length > 0) {
+            <div class="validation-errors">
+              @for (error of docPersonPasswordErrors; track error) {
+                <div class="error-item">
+                  <i-lucide name="x-circle" size="14"></i-lucide>
+                  <span>{{ error }}</span>
+                </div>
+              }
+            </div>
+          }
+          <!-- Password Requirements Info -->
+          @if (docPersonCanCreate && !docPersonFormDisabled) {
+            <div class="password-requirements">
+              <p><strong>Password Requirements:</strong></p>
+              <ul>
+                <li>At least 8 characters</li>
+                <li>Contains letters (A-Z, a-z)</li>
+                <li>Contains digits (0-9)</li>
+                <li>Contains special characters (!@#$%^&*)</li>
+              </ul>
+            </div>
+          }
         </div>
-
-        <div class="form-row">
-          <div class="form-group half">
-            <label>
-              <i-lucide name="mail" size="16"></i-lucide>
-              Email
-            </label>
-            <input type="email" [(ngModel)]="docPersonForm.email" placeholder="e.g. doc@example.com"
-              [disabled]="docPersonFormDisabled || !docPersonCanCreate">
-          </div>
-          <div class="form-group half">
-            <label>
-              <i-lucide name="phone" size="16"></i-lucide>
-              Contact Number
-            </label>
-            <input type="tel" [(ngModel)]="docPersonForm.contactNumber" placeholder="e.g. 9998887774"
-              [disabled]="docPersonFormDisabled || !docPersonCanCreate">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group half">
-            <label>
-              <i-lucide name="lock" size="16"></i-lucide>
-              Password
-            </label>
-            <input type="password" [(ngModel)]="docPersonForm.password" placeholder="Min 8 chars"
-              [disabled]="docPersonFormDisabled || !docPersonCanCreate">
-          </div>
-          <div class="form-group half">
-            <label>
-              <i-lucide name="lock" size="16"></i-lucide>
-              Confirm Password
-            </label>
-            <input type="password" [(ngModel)]="docPersonForm.confirmPassword" placeholder="Re-enter password"
-              [disabled]="docPersonFormDisabled || !docPersonCanCreate">
-          </div>
-        </div>
-
-        <!-- Password Validation Errors -->
-        <div class="validation-errors" *ngIf="docPersonPasswordErrors.length > 0">
-          <div class="error-item" *ngFor="let error of docPersonPasswordErrors">
-            <i-lucide name="x-circle" size="14"></i-lucide>
-            <span>{{ error }}</span>
-          </div>
-        </div>
-
-        <!-- Password Requirements Info -->
-        <div class="password-requirements" *ngIf="docPersonCanCreate && !docPersonFormDisabled">
-          <p><strong>Password Requirements:</strong></p>
-          <ul>
-            <li>At least 8 characters</li>
-            <li>Contains letters (A-Z, a-z)</li>
-            <li>Contains digits (0-9)</li>
-            <li>Contains special characters (!@#$%^&*)</li>
-          </ul>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeDocPersonModal()">
+            <i-lucide name="x" size="16"></i-lucide>
+            Cancel
+          </button>
+          <button class="btn-primary" [disabled]="!isDocPersonFormValid() || creatingDocPerson"
+            (click)="createDocPerson()">
+            @if (!creatingDocPerson) {
+              <i-lucide name="plus" size="16"></i-lucide>
+            }
+            @if (!creatingDocPerson) {
+              <span>Create Doc Person</span>
+            }
+            @if (creatingDocPerson) {
+              <div class="spinner button-spinner"></div>
+            }
+          </button>
         </div>
       </div>
-
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="closeDocPersonModal()">
-          <i-lucide name="x" size="16"></i-lucide>
-          Cancel
-        </button>
-        <button class="btn-primary" [disabled]="!isDocPersonFormValid() || creatingDocPerson"
-          (click)="createDocPerson()">
-          <i-lucide *ngIf="!creatingDocPerson" name="plus" size="16"></i-lucide>
-          <span *ngIf="!creatingDocPerson">Create Doc Person</span>
-          <div *ngIf="creatingDocPerson" class="spinner button-spinner"></div>
-        </button>
-      </div>
-    </div>
+    }
 
     <!-- DOC PERSON SUCCESS MODAL -->
-    <div class="modal-backdrop success-backdrop" *ngIf="showDocPersonSuccess" (click)="closeDocPersonSuccessModal()">
-    </div>
-    <div class="result-modal success-modal" *ngIf="showDocPersonSuccess" (click)="$event.stopPropagation()">
-      <div class="result-modal-icon success">
-        <i-lucide name="check-circle" size="48"></i-lucide>
+    @if (showDocPersonSuccess) {
+      <div class="modal-backdrop success-backdrop" (click)="closeDocPersonSuccessModal()">
       </div>
-      <h3>Doc Person Created Successfully!</h3>
-      <div class="result-details">
-        <div class="detail-row">
-          <span class="detail-label">Username:</span>
-          <span class="detail-value">{{ createdDocPersonInfo?.username }}</span>
+    }
+    @if (showDocPersonSuccess) {
+      <div class="result-modal success-modal" (click)="$event.stopPropagation()">
+        <div class="result-modal-icon success">
+          <i-lucide name="check-circle" size="48"></i-lucide>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Full Name:</span>
-          <span class="detail-value">{{ createdDocPersonInfo?.fullName }}</span>
+        <h3>Doc Person Created Successfully!</h3>
+        <div class="result-details">
+          <div class="detail-row">
+            <span class="detail-label">Username:</span>
+            <span class="detail-value">{{ createdDocPersonInfo?.username }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Full Name:</span>
+            <span class="detail-value">{{ createdDocPersonInfo?.fullName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Role:</span>
+            <span class="detail-value">Doc Person</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value status-active">Active</span>
+          </div>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Role:</span>
-          <span class="detail-value">Doc Person</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Status:</span>
-          <span class="detail-value status-active">Active</span>
-        </div>
+        <button class="btn-primary success-btn" (click)="closeDocPersonSuccessModal()">
+          <i-lucide name="check" size="16"></i-lucide>
+          Done
+        </button>
       </div>
-      <button class="btn-primary success-btn" (click)="closeDocPersonSuccessModal()">
-        <i-lucide name="check" size="16"></i-lucide>
-        Done
-      </button>
-    </div>
+    }
 
     <!-- DOC PERSON ERROR MODAL -->
-    <div class="modal-backdrop error-backdrop" *ngIf="showDocPersonError" (click)="closeDocPersonErrorModal()"></div>
-    <div class="result-modal error-modal" *ngIf="showDocPersonError" (click)="$event.stopPropagation()">
-      <div class="result-modal-icon error">
-        <i-lucide name="x-circle" size="48"></i-lucide>
+    @if (showDocPersonError) {
+      <div class="modal-backdrop error-backdrop" (click)="closeDocPersonErrorModal()"></div>
+    }
+    @if (showDocPersonError) {
+      <div class="result-modal error-modal" (click)="$event.stopPropagation()">
+        <div class="result-modal-icon error">
+          <i-lucide name="x-circle" size="48"></i-lucide>
+        </div>
+        <h3>Creation Failed</h3>
+        <p class="error-message-text">{{ docPersonErrorMessage }}</p>
+        <button class="btn-secondary error-close-btn" (click)="closeDocPersonErrorModal()">
+          <i-lucide name="x" size="16"></i-lucide>
+          Close
+        </button>
       </div>
-      <h3>Creation Failed</h3>
-      <p class="error-message-text">{{ docPersonErrorMessage }}</p>
-      <button class="btn-secondary error-close-btn" (click)="closeDocPersonErrorModal()">
-        <i-lucide name="x" size="16"></i-lucide>
-        Close
-      </button>
-    </div>
+    }
 
     <!-- ACCOUNTANT CREATION MODAL -->
-    <div class="modal-backdrop" *ngIf="showAccountantModal" (click)="closeAccountantModal()"></div>
-    <div class="modal accountant-modal" *ngIf="showAccountantModal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title-wrapper">
-          <i-lucide name="calculator" size="24" class="modal-icon"></i-lucide>
-          <h3>Create Accountant</h3>
-        </div>
-        <button class="btn-icon-sm" (click)="closeAccountantModal()">
-          <i-lucide name="x" size="20"></i-lucide>
-        </button>
-      </div>
-
-      <div class="modal-body" [class.form-disabled]="accountantFormDisabled">
-        <!-- Loading Overlay for Creation -->
-        <div class="creation-loading-overlay" *ngIf="creatingAccountant">
-          <div class="creation-spinner"></div>
-          <p>Creating Accountant...</p>
-        </div>
-
-        <!-- Availability Check Loader -->
-        <div class="availability-check-loading" *ngIf="checkingAccountantAvailability">
-          <div class="mini-spinner"></div>
-          <span>Checking availability...</span>
-        </div>
-
-        <!-- Accountant Policy Info -->
-        <div class="policy-info-box accountant-policy" *ngIf="!checkingAccountantAvailability">
-          <div class="policy-header">
-            <i-lucide name="shield-alert" size="18"></i-lucide>
-            <span>Important Policy</span>
+    @if (showAccountantModal) {
+      <div class="modal-backdrop" (click)="closeAccountantModal()"></div>
+    }
+    @if (showAccountantModal) {
+      <div class="modal accountant-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <i-lucide name="calculator" size="24" class="modal-icon"></i-lucide>
+            <h3>Create Accountant</h3>
           </div>
-          <p class="policy-text">
-            This application allows <strong>only one active Accountant</strong> at a time.
-            The Accountant handles all financial transactions, fee confirmations, and payment verifications.
-          </p>
-          <div class="policy-tips">
-            <div class="tip-item">
-              <i-lucide name="lightbulb" size="14"></i-lucide>
-              <span>To replace an existing Accountant, first deactivate the current one.</span>
+          <button class="btn-icon-sm" (click)="closeAccountantModal()">
+            <i-lucide name="x" size="20"></i-lucide>
+          </button>
+        </div>
+        <div class="modal-body" [class.form-disabled]="accountantFormDisabled">
+          <!-- Loading Overlay for Creation -->
+          @if (creatingAccountant) {
+            <div class="creation-loading-overlay">
+              <div class="creation-spinner"></div>
+              <p>Creating Accountant...</p>
             </div>
-            <div class="tip-item">
-              <i-lucide name="clock" size="14"></i-lucide>
-              <span>Transaction history remains intact for audit trails.</span>
+          }
+          <!-- Availability Check Loader -->
+          @if (checkingAccountantAvailability) {
+            <div class="availability-check-loading">
+              <div class="mini-spinner"></div>
+              <span>Checking availability...</span>
             </div>
-          </div>
-        </div>
-
-        <!-- Availability Status -->
-        <div class="availability-status" *ngIf="!checkingAccountantAvailability && accountantAvailabilityMessage">
-          <div class="available-badge" *ngIf="accountantCanCreate && existingAccountants.length === 0">
-            <i-lucide name="check-circle" size="16"></i-lucide>
-            <span>{{ accountantAvailabilityMessage }}</span>
-          </div>
-          <div class="info-badge" *ngIf="accountantCanCreate && existingAccountants.length > 0">
-            <i-lucide name="info" size="16"></i-lucide>
-            <span>{{ accountantAvailabilityMessage }}</span>
-          </div>
-          <div class="unavailable-badge" *ngIf="!accountantCanCreate">
-            <i-lucide name="alert-triangle" size="16"></i-lucide>
-            <span>{{ accountantAvailabilityMessage }}</span>
-          </div>
-        </div>
-
-        <!-- Existing Accountants List -->
-        <div class="existing-users-list" *ngIf="existingAccountants.length > 0">
-          <p class="existing-users-title">Existing Accountants:</p>
-          <div class="existing-user-item" *ngFor="let acc of existingAccountants">
-            <div class="user-info">
-              <i-lucide name="user" size="16"></i-lucide>
-              <span class="user-name">{{ acc.fullName }}</span>
-              <span class="user-username">({{ acc.username }})</span>
+          }
+          <!-- Accountant Policy Info -->
+          @if (!checkingAccountantAvailability) {
+            <div class="policy-info-box accountant-policy">
+              <div class="policy-header">
+                <i-lucide name="shield-alert" size="18"></i-lucide>
+                <span>Important Policy</span>
+              </div>
+              <p class="policy-text">
+                This application allows <strong>only one active Accountant</strong> at a time.
+                The Accountant handles all financial transactions, fee confirmations, and payment verifications.
+              </p>
+              <div class="policy-tips">
+                <div class="tip-item">
+                  <i-lucide name="lightbulb" size="14"></i-lucide>
+                  <span>To replace an existing Accountant, first deactivate the current one.</span>
+                </div>
+                <div class="tip-item">
+                  <i-lucide name="clock" size="14"></i-lucide>
+                  <span>Transaction history remains intact for audit trails.</span>
+                </div>
+              </div>
             </div>
-            <span class="user-status" [class.active]="acc.status === 'Active'"
-              [class.inactive]="acc.status === 'Inactive'">
-              {{ acc.status }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Disabled Form Warning -->
-        <div class="form-disabled-warning" *ngIf="accountantFormDisabled && !accountantCanCreate">
-          <i-lucide name="lock" size="20"></i-lucide>
-          <div>
-            <strong>Cannot Create Accountant</strong>
-            <p>An active Accountant already exists. First deactivate or delete the existing one, then you can create a
-              new one.</p>
-          </div>
-        </div>
-
-        <!-- Form Fields -->
-        <div class="form-group">
-          <label>
-            <i-lucide name="user" size="16"></i-lucide>
-            Username
-          </label>
-          <input type="text" [(ngModel)]="accountantForm.username" placeholder="e.g. acc_john"
-            [disabled]="accountantFormDisabled || !accountantCanCreate">
-        </div>
-
-        <div class="form-row">
+          }
+          <!-- Availability Status -->
+          @if (!checkingAccountantAvailability && accountantAvailabilityMessage) {
+            <div class="availability-status">
+              @if (accountantCanCreate && existingAccountants.length === 0) {
+                <div class="available-badge">
+                  <i-lucide name="check-circle" size="16"></i-lucide>
+                  <span>{{ accountantAvailabilityMessage }}</span>
+                </div>
+              }
+              @if (accountantCanCreate && existingAccountants.length > 0) {
+                <div class="info-badge">
+                  <i-lucide name="info" size="16"></i-lucide>
+                  <span>{{ accountantAvailabilityMessage }}</span>
+                </div>
+              }
+              @if (!accountantCanCreate) {
+                <div class="unavailable-badge">
+                  <i-lucide name="alert-triangle" size="16"></i-lucide>
+                  <span>{{ accountantAvailabilityMessage }}</span>
+                </div>
+              }
+            </div>
+          }
+          <!-- Existing Accountants List -->
+          @if (existingAccountants.length > 0) {
+            <div class="existing-users-list">
+              <p class="existing-users-title">Existing Accountants:</p>
+              @for (acc of existingAccountants; track acc) {
+                <div class="existing-user-item">
+                  <div class="user-info">
+                    <i-lucide name="user" size="16"></i-lucide>
+                    <span class="user-name">{{ acc.fullName }}</span>
+                    <span class="user-username">({{ acc.username }})</span>
+                  </div>
+                  <span class="user-status" [class.active]="acc.status === 'Active'"
+                    [class.inactive]="acc.status === 'Inactive'">
+                    {{ acc.status }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+          <!-- Disabled Form Warning -->
+          @if (accountantFormDisabled && !accountantCanCreate) {
+            <div class="form-disabled-warning">
+              <i-lucide name="lock" size="20"></i-lucide>
+              <div>
+                <strong>Cannot Create Accountant</strong>
+                <p>An active Accountant already exists. First deactivate or delete the existing one, then you can create a
+                new one.</p>
+              </div>
+            </div>
+          }
+          <!-- Form Fields -->
           <div class="form-group">
             <label>
-              <i-lucide name="user-circle" size="16"></i-lucide>
-              Full Name
+              <i-lucide name="user" size="16"></i-lucide>
+              Username
             </label>
-            <input type="text" [(ngModel)]="accountantForm.fullName" placeholder="e.g. John Doe"
+            <input type="text" [(ngModel)]="accountantForm.username" placeholder="e.g. acc_john"
               [disabled]="accountantFormDisabled || !accountantCanCreate">
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <i-lucide name="user-circle" size="16"></i-lucide>
+                Full Name
+              </label>
+              <input type="text" [(ngModel)]="accountantForm.fullName" placeholder="e.g. John Doe"
+                [disabled]="accountantFormDisabled || !accountantCanCreate">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half">
+              <label>
+                <i-lucide name="mail" size="16"></i-lucide>
+                Email
+              </label>
+              <input type="email" [(ngModel)]="accountantForm.email" placeholder="e.g. john@example.com"
+                [disabled]="accountantFormDisabled || !accountantCanCreate">
+            </div>
+            <div class="form-group half">
+              <label>
+                <i-lucide name="phone" size="16"></i-lucide>
+                Contact Number
+              </label>
+              <input type="tel" [(ngModel)]="accountantForm.contactNumber" placeholder="e.g. 9876543210"
+                [disabled]="accountantFormDisabled || !accountantCanCreate">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half">
+              <label>
+                <i-lucide name="lock" size="16"></i-lucide>
+                Password
+              </label>
+              <input type="password" [(ngModel)]="accountantForm.password" placeholder="Min 8 chars"
+                [disabled]="accountantFormDisabled || !accountantCanCreate">
+            </div>
+            <div class="form-group half">
+              <label>
+                <i-lucide name="lock" size="16"></i-lucide>
+                Confirm Password
+              </label>
+              <input type="password" [(ngModel)]="accountantForm.confirmPassword" placeholder="Re-enter password"
+                [disabled]="accountantFormDisabled || !accountantCanCreate">
+            </div>
+          </div>
+          <!-- Password Validation Errors -->
+          @if (accountantPasswordErrors.length > 0) {
+            <div class="validation-errors">
+              @for (error of accountantPasswordErrors; track error) {
+                <div class="error-item">
+                  <i-lucide name="x-circle" size="14"></i-lucide>
+                  <span>{{ error }}</span>
+                </div>
+              }
+            </div>
+          }
+          <!-- Password Requirements Info -->
+          @if (accountantCanCreate && !accountantFormDisabled) {
+            <div class="password-requirements">
+              <p><strong>Password Requirements:</strong></p>
+              <ul>
+                <li>At least 8 characters</li>
+                <li>Contains letters (A-Z, a-z)</li>
+                <li>Contains digits (0-9)</li>
+                <li>Contains special characters (!@#$%^&*)</li>
+              </ul>
+            </div>
+          }
         </div>
-
-        <div class="form-row">
-          <div class="form-group half">
-            <label>
-              <i-lucide name="mail" size="16"></i-lucide>
-              Email
-            </label>
-            <input type="email" [(ngModel)]="accountantForm.email" placeholder="e.g. john@example.com"
-              [disabled]="accountantFormDisabled || !accountantCanCreate">
-          </div>
-          <div class="form-group half">
-            <label>
-              <i-lucide name="phone" size="16"></i-lucide>
-              Contact Number
-            </label>
-            <input type="tel" [(ngModel)]="accountantForm.contactNumber" placeholder="e.g. 9876543210"
-              [disabled]="accountantFormDisabled || !accountantCanCreate">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group half">
-            <label>
-              <i-lucide name="lock" size="16"></i-lucide>
-              Password
-            </label>
-            <input type="password" [(ngModel)]="accountantForm.password" placeholder="Min 8 chars"
-              [disabled]="accountantFormDisabled || !accountantCanCreate">
-          </div>
-          <div class="form-group half">
-            <label>
-              <i-lucide name="lock" size="16"></i-lucide>
-              Confirm Password
-            </label>
-            <input type="password" [(ngModel)]="accountantForm.confirmPassword" placeholder="Re-enter password"
-              [disabled]="accountantFormDisabled || !accountantCanCreate">
-          </div>
-        </div>
-
-        <!-- Password Validation Errors -->
-        <div class="validation-errors" *ngIf="accountantPasswordErrors.length > 0">
-          <div class="error-item" *ngFor="let error of accountantPasswordErrors">
-            <i-lucide name="x-circle" size="14"></i-lucide>
-            <span>{{ error }}</span>
-          </div>
-        </div>
-
-        <!-- Password Requirements Info -->
-        <div class="password-requirements" *ngIf="accountantCanCreate && !accountantFormDisabled">
-          <p><strong>Password Requirements:</strong></p>
-          <ul>
-            <li>At least 8 characters</li>
-            <li>Contains letters (A-Z, a-z)</li>
-            <li>Contains digits (0-9)</li>
-            <li>Contains special characters (!@#$%^&*)</li>
-          </ul>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeAccountantModal()">
+            <i-lucide name="x" size="16"></i-lucide>
+            Cancel
+          </button>
+          <button class="btn-primary" [disabled]="!isAccountantFormValid() || creatingAccountant"
+            (click)="createAccountant()">
+            @if (!creatingAccountant) {
+              <i-lucide name="plus" size="16"></i-lucide>
+            }
+            @if (!creatingAccountant) {
+              <span>Create Accountant</span>
+            }
+            @if (creatingAccountant) {
+              <div class="spinner button-spinner"></div>
+            }
+          </button>
         </div>
       </div>
-
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="closeAccountantModal()">
-          <i-lucide name="x" size="16"></i-lucide>
-          Cancel
-        </button>
-        <button class="btn-primary" [disabled]="!isAccountantFormValid() || creatingAccountant"
-          (click)="createAccountant()">
-          <i-lucide *ngIf="!creatingAccountant" name="plus" size="16"></i-lucide>
-          <span *ngIf="!creatingAccountant">Create Accountant</span>
-          <div *ngIf="creatingAccountant" class="spinner button-spinner"></div>
-        </button>
-      </div>
-    </div>
+    }
 
     <!-- ACCOUNTANT SUCCESS MODAL -->
-    <div class="modal-backdrop success-backdrop" *ngIf="showAccountantSuccess" (click)="closeAccountantSuccessModal()">
-    </div>
-    <div class="result-modal success-modal" *ngIf="showAccountantSuccess" (click)="$event.stopPropagation()">
-      <div class="result-modal-icon success">
-        <i-lucide name="check-circle" size="48"></i-lucide>
+    @if (showAccountantSuccess) {
+      <div class="modal-backdrop success-backdrop" (click)="closeAccountantSuccessModal()">
       </div>
-      <h3>Accountant Created Successfully!</h3>
-      <div class="result-details">
-        <div class="detail-row">
-          <span class="detail-label">Username:</span>
-          <span class="detail-value">{{ createdAccountantInfo?.username }}</span>
+    }
+    @if (showAccountantSuccess) {
+      <div class="result-modal success-modal" (click)="$event.stopPropagation()">
+        <div class="result-modal-icon success">
+          <i-lucide name="check-circle" size="48"></i-lucide>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Full Name:</span>
-          <span class="detail-value">{{ createdAccountantInfo?.fullName }}</span>
+        <h3>Accountant Created Successfully!</h3>
+        <div class="result-details">
+          <div class="detail-row">
+            <span class="detail-label">Username:</span>
+            <span class="detail-value">{{ createdAccountantInfo?.username }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Full Name:</span>
+            <span class="detail-value">{{ createdAccountantInfo?.fullName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Role:</span>
+            <span class="detail-value">Accountant</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value status-active">Active</span>
+          </div>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Role:</span>
-          <span class="detail-value">Accountant</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Status:</span>
-          <span class="detail-value status-active">Active</span>
-        </div>
+        <button class="btn-primary success-btn" (click)="closeAccountantSuccessModal()">
+          <i-lucide name="check" size="16"></i-lucide>
+          Done
+        </button>
       </div>
-      <button class="btn-primary success-btn" (click)="closeAccountantSuccessModal()">
-        <i-lucide name="check" size="16"></i-lucide>
-        Done
-      </button>
-    </div>
+    }
 
     <!-- ACCOUNTANT ERROR MODAL -->
-    <div class="modal-backdrop error-backdrop" *ngIf="showAccountantError" (click)="closeAccountantErrorModal()"></div>
-    <div class="result-modal error-modal" *ngIf="showAccountantError" (click)="$event.stopPropagation()">
-      <div class="result-modal-icon error">
-        <i-lucide name="x-circle" size="48"></i-lucide>
+    @if (showAccountantError) {
+      <div class="modal-backdrop error-backdrop" (click)="closeAccountantErrorModal()"></div>
+    }
+    @if (showAccountantError) {
+      <div class="result-modal error-modal" (click)="$event.stopPropagation()">
+        <div class="result-modal-icon error">
+          <i-lucide name="x-circle" size="48"></i-lucide>
+        </div>
+        <h3>Creation Failed</h3>
+        <p class="error-message-text">{{ accountantErrorMessage }}</p>
+        <button class="btn-secondary error-close-btn" (click)="closeAccountantErrorModal()">
+          <i-lucide name="x" size="16"></i-lucide>
+          Close
+        </button>
       </div>
-      <h3>Creation Failed</h3>
-      <p class="error-message-text">{{ accountantErrorMessage }}</p>
-      <button class="btn-secondary error-close-btn" (click)="closeAccountantErrorModal()">
-        <i-lucide name="x" size="16"></i-lucide>
-        Close
-      </button>
-    </div>
+    }
 
     <!-- TELEX MAN CREATION MODAL -->
-    <div class="modal-backdrop" *ngIf="showTelexManModal" (click)="closeTelexManModal()"></div>
-    <div class="modal telex-man-modal" *ngIf="showTelexManModal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title-wrapper">
-          <i-lucide name="send" size="24" class="modal-icon"></i-lucide>
-          <h3>Create Telex Man</h3>
-        </div>
-        <button class="btn-icon-sm" (click)="closeTelexManModal()">
-          <i-lucide name="x" size="20"></i-lucide>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <!-- Loading Overlay for Creation -->
-        <div class="creation-loading-overlay" *ngIf="creatingTelexMan">
-          <div class="creation-spinner"></div>
-          <p>Creating Telex Man...</p>
-        </div>
-
-        <!-- Summary Loading -->
-        <div class="availability-check-loading" *ngIf="loadingTelexSummary">
-          <div class="mini-spinner"></div>
-          <span>Loading existing Telex personnel...</span>
-        </div>
-
-        <!-- Telex Man Policy Info - Allows Multiple -->
-        <div class="policy-info-box telex-policy" *ngIf="!loadingTelexSummary">
-          <div class="policy-header">
-            <i-lucide name="users" size="18"></i-lucide>
-            <span>Team Configuration</span>
+    @if (showTelexManModal) {
+      <div class="modal-backdrop" (click)="closeTelexManModal()"></div>
+    }
+    @if (showTelexManModal) {
+      <div class="modal telex-man-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <i-lucide name="send" size="24" class="modal-icon"></i-lucide>
+            <h3>Create Telex Man</h3>
           </div>
-          <p class="policy-text">
-            You can create <strong>multiple Telex person</strong> for your organization.
-            Each Telex Man handles telex applications, MEA coordination, and telex issuance assigned .
-          </p>
-          <div class="policy-tips">
-            <div class="tip-item">
-              <i-lucide name="lightbulb" size="14"></i-lucide>
-              <span>Multiple active Telex personnel can work simultaneously.</span>
+          <button class="btn-icon-sm" (click)="closeTelexManModal()">
+            <i-lucide name="x" size="20"></i-lucide>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Loading Overlay for Creation -->
+          @if (creatingTelexMan) {
+            <div class="creation-loading-overlay">
+              <div class="creation-spinner"></div>
+              <p>Creating Telex Man...</p>
             </div>
-            <div class="tip-item">
-              <i-lucide name="clock" size="14"></i-lucide>
-              <span>Deactivate personnel when they leave to preserve history.</span>
+          }
+          <!-- Summary Loading -->
+          @if (loadingTelexSummary) {
+            <div class="availability-check-loading">
+              <div class="mini-spinner"></div>
+              <span>Loading existing Telex personnel...</span>
             </div>
-          </div>
-        </div>
-
-        <!-- Warning if Active Telex Man Exists -->
-        <div class="active-warning-box" *ngIf="!loadingTelexSummary && hasActiveTelexMan">
-          <i-lucide name="alert-circle" size="20"></i-lucide>
-          <div>
-            <strong>Active Telex Person Exist</strong>
-            <p>System already has active Telex personnel. You may still add more if needed for your team.</p>
-          </div>
-        </div>
-
-        <!-- Existing Telex Persons List -->
-        <div class="existing-users-list" *ngIf="!loadingTelexSummary && existingTelexPersons.length > 0">
-          <p class="existing-users-title">Current Telex Personnel ({{ existingTelexPersons.length }}):</p>
-          <div class="existing-user-item" *ngFor="let telex of existingTelexPersons">
-            <div class="user-info">
-              <i-lucide name="user" size="16"></i-lucide>
-              <span class="user-name">{{ telex.username }}</span>
+          }
+          <!-- Telex Man Policy Info - Allows Multiple -->
+          @if (!loadingTelexSummary) {
+            <div class="policy-info-box telex-policy">
+              <div class="policy-header">
+                <i-lucide name="users" size="18"></i-lucide>
+                <span>Team Configuration</span>
+              </div>
+              <p class="policy-text">
+                You can create <strong>multiple Telex person</strong> for your organization.
+                Each Telex Man handles telex applications, MEA coordination, and telex issuance assigned .
+              </p>
+              <div class="policy-tips">
+                <div class="tip-item">
+                  <i-lucide name="lightbulb" size="14"></i-lucide>
+                  <span>Multiple active Telex personnel can work simultaneously.</span>
+                </div>
+                <div class="tip-item">
+                  <i-lucide name="clock" size="14"></i-lucide>
+                  <span>Deactivate personnel when they leave to preserve history.</span>
+                </div>
+              </div>
             </div>
-            <div class="user-meta">
-              <span class="student-count-badge">
-                <i-lucide name="users" size="12"></i-lucide>
-                {{ telex.studentCount }} Students
-              </span>
-              <span class="user-status active">Active</span>
+          }
+          <!-- Warning if Active Telex Man Exists -->
+          @if (!loadingTelexSummary && hasActiveTelexMan) {
+            <div class="active-warning-box">
+              <i-lucide name="alert-circle" size="20"></i-lucide>
+              <div>
+                <strong>Active Telex Person Exist</strong>
+                <p>System already has active Telex personnel. You may still add more if needed for your team.</p>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <!-- No Existing Message -->
-        <div class="no-existing-message" *ngIf="!loadingTelexSummary && existingTelexPersons.length === 0">
-          <i-lucide name="user-plus" size="20"></i-lucide>
-          <span>No Telex personnel exist yet. Create your first one!</span>
-        </div>
-
-        <!-- Form Fields -->
-        <div class="form-group">
-          <label>
-            <i-lucide name="user" size="16"></i-lucide>
-            Username
-          </label>
-          <input type="text" [(ngModel)]="telexManForm.username" placeholder="e.g. telex_john">
-        </div>
-
-        <div class="form-row">
+          }
+          <!-- Existing Telex Persons List -->
+          @if (!loadingTelexSummary && existingTelexPersons.length > 0) {
+            <div class="existing-users-list">
+              <p class="existing-users-title">Current Telex Personnel ({{ existingTelexPersons.length }}):</p>
+              @for (telex of existingTelexPersons; track telex) {
+                <div class="existing-user-item">
+                  <div class="user-info">
+                    <i-lucide name="user" size="16"></i-lucide>
+                    <span class="user-name">{{ telex.username }}</span>
+                  </div>
+                  <div class="user-meta">
+                    <span class="student-count-badge">
+                      <i-lucide name="users" size="12"></i-lucide>
+                      {{ telex.studentCount }} Students
+                    </span>
+                    <span class="user-status active">Active</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          <!-- No Existing Message -->
+          @if (!loadingTelexSummary && existingTelexPersons.length === 0) {
+            <div class="no-existing-message">
+              <i-lucide name="user-plus" size="20"></i-lucide>
+              <span>No Telex personnel exist yet. Create your first one!</span>
+            </div>
+          }
+          <!-- Form Fields -->
           <div class="form-group">
             <label>
-              <i-lucide name="user-circle" size="16"></i-lucide>
-              Full Name
+              <i-lucide name="user" size="16"></i-lucide>
+              Username
             </label>
-            <input type="text" [(ngModel)]="telexManForm.fullName" placeholder="e.g. John Doe">
+            <input type="text" [(ngModel)]="telexManForm.username" placeholder="e.g. telex_john">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <i-lucide name="user-circle" size="16"></i-lucide>
+                Full Name
+              </label>
+              <input type="text" [(ngModel)]="telexManForm.fullName" placeholder="e.g. John Doe">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half">
+              <label>
+                <i-lucide name="mail" size="16"></i-lucide>
+                Email
+              </label>
+              <input type="email" [(ngModel)]="telexManForm.email" placeholder="e.g. john@example.com">
+            </div>
+            <div class="form-group half">
+              <label>
+                <i-lucide name="phone" size="16"></i-lucide>
+                Contact Number
+              </label>
+              <input type="tel" [(ngModel)]="telexManForm.contactNumber" placeholder="e.g. 9876543210">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half">
+              <label>
+                <i-lucide name="lock" size="16"></i-lucide>
+                Password
+              </label>
+              <input type="password" [(ngModel)]="telexManForm.password" placeholder="Min 8 chars">
+            </div>
+            <div class="form-group half">
+              <label>
+                <i-lucide name="lock" size="16"></i-lucide>
+                Confirm Password
+              </label>
+              <input type="password" [(ngModel)]="telexManForm.confirmPassword" placeholder="Re-enter password">
+            </div>
+          </div>
+          <!-- Password Validation Errors -->
+          @if (telexManPasswordErrors.length > 0) {
+            <div class="validation-errors">
+              @for (error of telexManPasswordErrors; track error) {
+                <div class="error-item">
+                  <i-lucide name="x-circle" size="14"></i-lucide>
+                  <span>{{ error }}</span>
+                </div>
+              }
+            </div>
+          }
+          <!-- Password Requirements Info -->
+          <div class="password-requirements">
+            <p><strong>Password Requirements:</strong></p>
+            <ul>
+              <li>At least 8 characters</li>
+              <li>Contains letters (A-Z, a-z)</li>
+              <li>Contains digits (0-9)</li>
+              <li>Contains special characters (!@#$%^&*)</li>
+            </ul>
           </div>
         </div>
-
-        <div class="form-row">
-          <div class="form-group half">
-            <label>
-              <i-lucide name="mail" size="16"></i-lucide>
-              Email
-            </label>
-            <input type="email" [(ngModel)]="telexManForm.email" placeholder="e.g. john@example.com">
-          </div>
-          <div class="form-group half">
-            <label>
-              <i-lucide name="phone" size="16"></i-lucide>
-              Contact Number
-            </label>
-            <input type="tel" [(ngModel)]="telexManForm.contactNumber" placeholder="e.g. 9876543210">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group half">
-            <label>
-              <i-lucide name="lock" size="16"></i-lucide>
-              Password
-            </label>
-            <input type="password" [(ngModel)]="telexManForm.password" placeholder="Min 8 chars">
-          </div>
-          <div class="form-group half">
-            <label>
-              <i-lucide name="lock" size="16"></i-lucide>
-              Confirm Password
-            </label>
-            <input type="password" [(ngModel)]="telexManForm.confirmPassword" placeholder="Re-enter password">
-          </div>
-        </div>
-
-        <!-- Password Validation Errors -->
-        <div class="validation-errors" *ngIf="telexManPasswordErrors.length > 0">
-          <div class="error-item" *ngFor="let error of telexManPasswordErrors">
-            <i-lucide name="x-circle" size="14"></i-lucide>
-            <span>{{ error }}</span>
-          </div>
-        </div>
-
-        <!-- Password Requirements Info -->
-        <div class="password-requirements">
-          <p><strong>Password Requirements:</strong></p>
-          <ul>
-            <li>At least 8 characters</li>
-            <li>Contains letters (A-Z, a-z)</li>
-            <li>Contains digits (0-9)</li>
-            <li>Contains special characters (!@#$%^&*)</li>
-          </ul>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeTelexManModal()">
+            <i-lucide name="x" size="16"></i-lucide>
+            Cancel
+          </button>
+          <button class="btn-primary" [disabled]="!isTelexManFormValid() || creatingTelexMan" (click)="createTelexMan()">
+            @if (!creatingTelexMan) {
+              <i-lucide name="plus" size="16"></i-lucide>
+            }
+            @if (!creatingTelexMan) {
+              <span>Create Telex Man</span>
+            }
+            @if (creatingTelexMan) {
+              <div class="spinner button-spinner"></div>
+            }
+          </button>
         </div>
       </div>
-
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="closeTelexManModal()">
-          <i-lucide name="x" size="16"></i-lucide>
-          Cancel
-        </button>
-        <button class="btn-primary" [disabled]="!isTelexManFormValid() || creatingTelexMan" (click)="createTelexMan()">
-          <i-lucide *ngIf="!creatingTelexMan" name="plus" size="16"></i-lucide>
-          <span *ngIf="!creatingTelexMan">Create Telex Man</span>
-          <div *ngIf="creatingTelexMan" class="spinner button-spinner"></div>
-        </button>
-      </div>
-    </div>
+    }
 
     <!-- TELEX MAN SUCCESS MODAL -->
-    <div class="modal-backdrop success-backdrop" *ngIf="showTelexManSuccess" (click)="closeTelexManSuccessModal()">
-    </div>
-    <div class="result-modal success-modal" *ngIf="showTelexManSuccess" (click)="$event.stopPropagation()">
-      <div class="result-modal-icon success">
-        <i-lucide name="check-circle" size="48"></i-lucide>
+    @if (showTelexManSuccess) {
+      <div class="modal-backdrop success-backdrop" (click)="closeTelexManSuccessModal()">
       </div>
-      <h3>Telex Man Created Successfully!</h3>
-      <div class="result-details">
-        <div class="detail-row">
-          <span class="detail-label">Username:</span>
-          <span class="detail-value">{{ createdTelexManInfo?.username }}</span>
+    }
+    @if (showTelexManSuccess) {
+      <div class="result-modal success-modal" (click)="$event.stopPropagation()">
+        <div class="result-modal-icon success">
+          <i-lucide name="check-circle" size="48"></i-lucide>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Full Name:</span>
-          <span class="detail-value">{{ createdTelexManInfo?.fullName }}</span>
+        <h3>Telex Man Created Successfully!</h3>
+        <div class="result-details">
+          <div class="detail-row">
+            <span class="detail-label">Username:</span>
+            <span class="detail-value">{{ createdTelexManInfo?.username }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Full Name:</span>
+            <span class="detail-value">{{ createdTelexManInfo?.fullName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Role:</span>
+            <span class="detail-value">Telex Man</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value status-active">Active</span>
+          </div>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Role:</span>
-          <span class="detail-value">Telex Man</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Status:</span>
-          <span class="detail-value status-active">Active</span>
-        </div>
+        <button class="btn-primary success-btn" (click)="closeTelexManSuccessModal()">
+          <i-lucide name="check" size="16"></i-lucide>
+          Done
+        </button>
       </div>
-      <button class="btn-primary success-btn" (click)="closeTelexManSuccessModal()">
-        <i-lucide name="check" size="16"></i-lucide>
-        Done
-      </button>
-    </div>
+    }
 
     <!-- TELEX MAN ERROR MODAL -->
-    <div class="modal-backdrop error-backdrop" *ngIf="showTelexManError" (click)="closeTelexManErrorModal()"></div>
-    <div class="result-modal error-modal" *ngIf="showTelexManError" (click)="$event.stopPropagation()">
-      <div class="result-modal-icon error">
-        <i-lucide name="x-circle" size="48"></i-lucide>
+    @if (showTelexManError) {
+      <div class="modal-backdrop error-backdrop" (click)="closeTelexManErrorModal()"></div>
+    }
+    @if (showTelexManError) {
+      <div class="result-modal error-modal" (click)="$event.stopPropagation()">
+        <div class="result-modal-icon error">
+          <i-lucide name="x-circle" size="48"></i-lucide>
+        </div>
+        <h3>Creation Failed</h3>
+        <p class="error-message-text">{{ telexManErrorMessage }}</p>
+        <button class="btn-secondary error-close-btn" (click)="closeTelexManErrorModal()">
+          <i-lucide name="x" size="16"></i-lucide>
+          Close
+        </button>
       </div>
-      <h3>Creation Failed</h3>
-      <p class="error-message-text">{{ telexManErrorMessage }}</p>
-      <button class="btn-secondary error-close-btn" (click)="closeTelexManErrorModal()">
-        <i-lucide name="x" size="16"></i-lucide>
-        Close
-      </button>
-    </div>
+    }
 
     <!-- VISA MAN CREATION MODAL -->
-    <div class="modal-backdrop" *ngIf="showVisaManModal" (click)="closeVisaManModal()"></div>
-    <div class="modal visa-man-modal" *ngIf="showVisaManModal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title-wrapper">
-          <i-lucide name="plane" size="24" class="modal-icon"></i-lucide>
-          <h3>Create Visa Man</h3>
+    @if (showVisaManModal) {
+      <div class="modal-backdrop" (click)="closeVisaManModal()"></div>
+    }
+    @if (showVisaManModal) {
+      <div class="modal visa-man-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <i-lucide name="plane" size="24" class="modal-icon"></i-lucide>
+            <h3>Create Visa Man</h3>
+          </div>
+          <button class="btn-icon-sm" (click)="closeVisaManModal()">
+            <i-lucide name="x" size="20"></i-lucide>
+          </button>
         </div>
-        <button class="btn-icon-sm" (click)="closeVisaManModal()">
-          <i-lucide name="x" size="20"></i-lucide>
-        </button>
+        <div class="modal-body">
+          <!-- Loading Overlay for Creation -->
+          @if (creatingVisaMan) {
+            <div class="creation-loading-overlay">
+              <div class="creation-spinner"></div>
+              <p>Creating Visa Man...</p>
+            </div>
+          }
+          <!-- Usernames Loading -->
+          @if (loadingVisaUsernames) {
+            <div class="availability-check-loading">
+              <div class="mini-spinner"></div>
+              <span>Loading existing Visa personnel...</span>
+            </div>
+          }
+          <!-- Visa Man Policy Info - Allows Multiple -->
+          @if (!loadingVisaUsernames) {
+            <div class="policy-info-box visa-policy">
+              <div class="policy-header">
+                <i-lucide name="users" size="18"></i-lucide>
+                <span>Team Configuration</span>
+              </div>
+              <p class="policy-text">
+                You can create <strong>multiple Visa personnel</strong> for your organization.
+                Each Visa Man handles embassy coordination, visa applications submission, and stamping.
+              </p>
+              <div class="policy-tips">
+                <div class="tip-item">
+                  <i-lucide name="lightbulb" size="14"></i-lucide>
+                  <span>Multiple active Visa personnel can process applications simultaneously.</span>
+                </div>
+                <div class="tip-item">
+                  <i-lucide name="clock" size="14"></i-lucide>
+                  <span>Visa processing history is preserved for compliance and audit.</span>
+                </div>
+              </div>
+            </div>
+          }
+          <!-- Info if Active Visa Man Exists -->
+          @if (!loadingVisaUsernames && hasActiveVisaMan) {
+            <div class="active-info-box">
+              <i-lucide name="info" size="20"></i-lucide>
+              <div>
+                <strong>Active Visa Personnel Exist</strong>
+                <p>System already has active Visa personnel. You may still add more to scale your operations.</p>
+              </div>
+            </div>
+          }
+          <!-- Existing Visa Persons List -->
+          @if (!loadingVisaUsernames && activeVisaPersons.length > 0) {
+            <div class="existing-users-list">
+              <p class="existing-users-title">Current Active Visa Personnel ({{ activeVisaPersons.length }}):</p>
+              @for (person of activeVisaPersons; track person) {
+                <div class="existing-user-item">
+                  <div class="user-info">
+                    <i-lucide name="user" size="16"></i-lucide>
+                    <span class="user-name">{{ person.username }}</span>
+                  </div>
+                  <div class="user-meta">
+                    <span class="student-count-badge">
+                      <i-lucide name="users" size="12"></i-lucide>
+                      {{ person.studentCount }} Students
+                    </span>
+                    <span class="user-status active">Active</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          <!-- No Existing Message -->
+          <!-- No Existing Message -->
+          @if (!loadingVisaUsernames) {
+            <div class="form-grid"
+              style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+              <div class="form-group">
+                <label>Username</label>
+                <input [(ngModel)]="visaManForm.username" placeholder="e.g. visa_john" [disabled]="creatingVisaMan">
+              </div>
+              <div class="form-group">
+                <label>Full Name</label>
+                <input [(ngModel)]="visaManForm.fullName" placeholder="e.g. John Doe" [disabled]="creatingVisaMan">
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input [(ngModel)]="visaManForm.email" placeholder="john@example.com" [disabled]="creatingVisaMan">
+              </div>
+              <div class="form-group">
+                <label>Contact Number</label>
+                <input [(ngModel)]="visaManForm.contactNumber" placeholder="9876543210" [disabled]="creatingVisaMan">
+              </div>
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" [(ngModel)]="visaManForm.password" placeholder="••••••••"
+                  [disabled]="creatingVisaMan">
+              </div>
+              <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" [(ngModel)]="visaManForm.confirmPassword" placeholder="••••••••"
+                  [disabled]="creatingVisaMan">
+              </div>
+            </div>
+          }
+          @if (visaManPasswordErrors.length > 0) {
+            <div class="error-box" style="margin-top: 1rem;">
+              @for (error of visaManPasswordErrors; track error) {
+                <p style="color: #ef4444; font-size: 0.85rem; margin: 0.25rem 0;">
+                  • {{ error }}
+                </p>
+              }
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeVisaManModal()">Cancel</button>
+          <button class="btn-primary" [disabled]="!isVisaManFormValid() || creatingVisaMan" (click)="createVisaMan()">
+            @if (!creatingVisaMan) {
+              <i-lucide name="plus" size="16"></i-lucide>
+            }
+            @if (!creatingVisaMan) {
+              <span>Create Visa Man</span>
+            }
+            @if (creatingVisaMan) {
+              <div class="spinner button-spinner"></div>
+            }
+          </button>
+        </div>
       </div>
-
-      <div class="modal-body">
-        <!-- Loading Overlay for Creation -->
-        <div class="creation-loading-overlay" *ngIf="creatingVisaMan">
-          <div class="creation-spinner"></div>
-          <p>Creating Visa Man...</p>
-        </div>
-
-        <!-- Usernames Loading -->
-        <div class="availability-check-loading" *ngIf="loadingVisaUsernames">
-          <div class="mini-spinner"></div>
-          <span>Loading existing Visa personnel...</span>
-        </div>
-
-        <!-- Visa Man Policy Info - Allows Multiple -->
-        <div class="policy-info-box visa-policy" *ngIf="!loadingVisaUsernames">
-          <div class="policy-header">
-            <i-lucide name="users" size="18"></i-lucide>
-            <span>Team Configuration</span>
-          </div>
-          <p class="policy-text">
-            You can create <strong>multiple Visa personnel</strong> for your organization.
-            Each Visa Man handles embassy coordination, visa applications submission, and stamping.
-          </p>
-          <div class="policy-tips">
-            <div class="tip-item">
-              <i-lucide name="lightbulb" size="14"></i-lucide>
-              <span>Multiple active Visa personnel can process applications simultaneously.</span>
-            </div>
-            <div class="tip-item">
-              <i-lucide name="clock" size="14"></i-lucide>
-              <span>Visa processing history is preserved for compliance and audit.</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Info if Active Visa Man Exists -->
-        <div class="active-info-box" *ngIf="!loadingVisaUsernames && hasActiveVisaMan">
-          <i-lucide name="info" size="20"></i-lucide>
-          <div>
-            <strong>Active Visa Personnel Exist</strong>
-            <p>System already has active Visa personnel. You may still add more to scale your operations.</p>
-          </div>
-        </div>
-
-        <!-- Existing Visa Persons List -->
-        <div class="existing-users-list" *ngIf="!loadingVisaUsernames && activeVisaPersons.length > 0">
-          <p class="existing-users-title">Current Active Visa Personnel ({{ activeVisaPersons.length }}):</p>
-          <div class="existing-user-item" *ngFor="let person of activeVisaPersons">
-            <div class="user-info">
-              <i-lucide name="user" size="16"></i-lucide>
-              <span class="user-name">{{ person.username }}</span>
-            </div>
-            <div class="user-meta">
-              <span class="student-count-badge">
-                <i-lucide name="users" size="12"></i-lucide>
-                {{ person.studentCount }} Students
-              </span>
-              <span class="user-status active">Active</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- No Existing Message -->
-        <!-- No Existing Message -->
-        <div class="form-grid" *ngIf="!loadingVisaUsernames"
-          style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
-
-          <div class="form-group">
-            <label>Username</label>
-            <input [(ngModel)]="visaManForm.username" placeholder="e.g. visa_john" [disabled]="creatingVisaMan">
-          </div>
-
-          <div class="form-group">
-            <label>Full Name</label>
-            <input [(ngModel)]="visaManForm.fullName" placeholder="e.g. John Doe" [disabled]="creatingVisaMan">
-          </div>
-
-          <div class="form-group">
-            <label>Email</label>
-            <input [(ngModel)]="visaManForm.email" placeholder="john@example.com" [disabled]="creatingVisaMan">
-          </div>
-
-          <div class="form-group">
-            <label>Contact Number</label>
-            <input [(ngModel)]="visaManForm.contactNumber" placeholder="9876543210" [disabled]="creatingVisaMan">
-          </div>
-
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" [(ngModel)]="visaManForm.password" placeholder="••••••••"
-              [disabled]="creatingVisaMan">
-          </div>
-
-          <div class="form-group">
-            <label>Confirm Password</label>
-            <input type="password" [(ngModel)]="visaManForm.confirmPassword" placeholder="••••••••"
-              [disabled]="creatingVisaMan">
-          </div>
-        </div>
-
-        <div *ngIf="visaManPasswordErrors.length > 0" class="error-box" style="margin-top: 1rem;">
-          <p *ngFor="let error of visaManPasswordErrors" style="color: #ef4444; font-size: 0.85rem; margin: 0.25rem 0;">
-            • {{ error }}
-          </p>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="closeVisaManModal()">Cancel</button>
-        <button class="btn-primary" [disabled]="!isVisaManFormValid() || creatingVisaMan" (click)="createVisaMan()">
-          <i-lucide *ngIf="!creatingVisaMan" name="plus" size="16"></i-lucide>
-          <span *ngIf="!creatingVisaMan">Create Visa Man</span>
-          <div *ngIf="creatingVisaMan" class="spinner button-spinner"></div>
-        </button>
-      </div>
-    </div>
+    }
 
     <!-- VISA MAN SUCCESS MODAL -->
-    <div class="modal-backdrop" *ngIf="showVisaManSuccess" (click)="closeVisaManSuccessModal()"></div>
-    <div class="result-modal success-modal" *ngIf="showVisaManSuccess" (click)="$event.stopPropagation()">
-      <div class="result-modal-icon success">
-        <i-lucide name="check-circle" size="48"></i-lucide>
-      </div>
-      <h3>Visa Man Created!</h3>
-      <p class="success-message-text">The new Visa personnel has been successfully added to the system.</p>
-
-      <div class="created-user-details" *ngIf="createdVisaManInfo">
-        <div class="detail-row">
-          <span class="detail-label">Username:</span>
-          <span class="detail-value">{{ createdVisaManInfo?.username }}</span>
+    @if (showVisaManSuccess) {
+      <div class="modal-backdrop" (click)="closeVisaManSuccessModal()"></div>
+    }
+    @if (showVisaManSuccess) {
+      <div class="result-modal success-modal" (click)="$event.stopPropagation()">
+        <div class="result-modal-icon success">
+          <i-lucide name="check-circle" size="48"></i-lucide>
         </div>
-        <div class="detail-row">
-          <span class="detail-label">Full Name:</span>
-          <span class="detail-value">{{ createdVisaManInfo?.fullName }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Role:</span>
-          <span class="detail-value">Visa Man</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Status:</span>
-          <span class="detail-value status-active">Active</span>
-        </div>
-      </div>
-      <button class="btn-primary success-btn" (click)="closeVisaManSuccessModal()">
-        <i-lucide name="check" size="16"></i-lucide>
-        Done
-      </button>
-    </div>
-
-    <!-- ADMIN CREATION MODAL (Multi-Step Workflow) -->
-    <div class="modal-backdrop" *ngIf="showAdminModal" (click)="closeAdminModal()"></div>
-    <div class="modal admin-modal" *ngIf="showAdminModal" (click)="$event.stopPropagation()">
-
-      <!-- HEADER -->
-      <div class="modal-header admin-header-bg">
-        <div class="modal-title-wrapper">
-          <i-lucide name="shield-check" size="24" class="modal-icon"></i-lucide>
-          <h3>Create New Administrator</h3>
-        </div>
-        <!-- Only show close button in non-success steps or allow closing at the end -->
-        <button class="btn-icon-sm" (click)="closeAdminModal()" *ngIf="adminCreationStep !== 'success'">
-          <i-lucide name="x" size="20"></i-lucide>
+        <h3>Visa Man Created!</h3>
+        <p class="success-message-text">The new Visa personnel has been successfully added to the system.</p>
+        @if (createdVisaManInfo) {
+          <div class="created-user-details">
+            <div class="detail-row">
+              <span class="detail-label">Username:</span>
+              <span class="detail-value">{{ createdVisaManInfo?.username }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Full Name:</span>
+              <span class="detail-value">{{ createdVisaManInfo?.fullName }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Role:</span>
+              <span class="detail-value">Visa Man</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Status:</span>
+              <span class="detail-value status-active">Active</span>
+            </div>
+          </div>
+        }
+        <button class="btn-primary success-btn" (click)="closeVisaManSuccessModal()">
+          <i-lucide name="check" size="16"></i-lucide>
+          Done
         </button>
       </div>
+    }
 
-      <!-- BODY CONTENT SWITCHER -->
-      <div class="modal-body">
-
-        <!-- GLOBAL LOADING OVERLAY (Covers all steps when active) -->
-        <div class="creation-loading-overlay" *ngIf="isSendingOtp || isVerifyingOtp">
-          <div class="creation-spinner"></div>
-          <p *ngIf="isSendingOtp">Sending OTP...</p>
-          <p *ngIf="isVerifyingOtp">{{ loadingMessage }}</p>
+    <!-- ADMIN CREATION MODAL (Multi-Step Workflow) -->
+    @if (showAdminModal) {
+      <div class="modal-backdrop" (click)="closeAdminModal()"></div>
+    }
+    @if (showAdminModal) {
+      <div class="modal admin-modal" (click)="$event.stopPropagation()">
+        <!-- HEADER -->
+        <div class="modal-header admin-header-bg">
+          <div class="modal-title-wrapper">
+            <i-lucide name="shield-check" size="24" class="modal-icon"></i-lucide>
+            <h3>Create New Administrator</h3>
+          </div>
+          <!-- Only show close button in non-success steps or allow closing at the end -->
+          @if (adminCreationStep !== 'success') {
+            <button class="btn-icon-sm" (click)="closeAdminModal()">
+              <i-lucide name="x" size="20"></i-lucide>
+            </button>
+          }
         </div>
-
-        <div [ngSwitch]="adminCreationStep">
-
-          <!-- STEP 1: POLICY & IDENTIFICATION -->
-          <div *ngSwitchCase="'policy'">
-            <div class="info-box admin-info-box">
-              <div class="info-icon"><i-lucide name="alert-triangle" size="20"></i-lucide></div>
-              <div class="info-content">
-                <h4>Authorization Protocol</h4>
-                <p>Administrator privileges are critical. By proceeding, you acknowledge responsibilities regarding:
-                </p>
-              </div>
+        <!-- BODY CONTENT SWITCHER -->
+        <div class="modal-body">
+          <!-- GLOBAL LOADING OVERLAY (Covers all steps when active) -->
+          @if (isSendingOtp || isVerifyingOtp) {
+            <div class="creation-loading-overlay">
+              <div class="creation-spinner"></div>
+              @if (isSendingOtp) {
+                <p>Sending OTP...</p>
+              }
+              @if (isVerifyingOtp) {
+                <p>{{ loadingMessage }}</p>
+              }
             </div>
-
-            <ul class="admin-policy-list">
-              <li *ngFor="let policy of adminPolicies">
-                <div class="policy-dot"></div>
-                <span>{{policy}}</span>
-              </li>
-            </ul>
-
+          }
+          <div>
+            @switch (adminCreationStep) {
+              <!-- STEP 1: POLICY & IDENTIFICATION -->
+              @case ('policy') {
+                <div>
+                  <div class="info-box admin-info-box">
+                    <div class="info-icon"><i-lucide name="alert-triangle" size="20"></i-lucide></div>
+                    <div class="info-content">
+                      <h4>Authorization Protocol</h4>
+                      <p>Administrator privileges are critical. By proceeding, you acknowledge responsibilities regarding:
+                      </p>
+                    </div>
+                  </div>
+                  <ul class="admin-policy-list">
+                    @for (policy of adminPolicies; track policy) {
+                      <li>
+                        <div class="policy-dot"></div>
+                        <span>{{policy}}</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+              <!-- STEP 2: OTP VERIFICATION -->
+              @case ('otp') {
+                <div class="otp-step-container">
+                  <div class="otp-icon-wrapper">
+                    <i-lucide name="lock" size="40"></i-lucide>
+                  </div>
+                  <h3>Security Verification</h3>
+                  <p>An OTP has been sent to your Super Admin device. Please enter it below to authorize this action.</p>
+                  <div class="form-group" style="text-align: center;">
+                    <input type="text" [(ngModel)]="adminOtp" class="otp-input" placeholder="Enter OTP" maxlength="6"
+                      style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; width: 60%; margin: 0 auto;">
+                  </div>
+                </div>
+              }
+              <!-- STEP 3: SUCCESS & CREDENTIALS -->
+              @case ('success') {
+                <div class="success-step-container">
+                  <div class="success-icon-large">
+                    <i-lucide name="check-circle" size="50"></i-lucide>
+                  </div>
+                  <h3>Administrator Created Successfully</h3>
+                  <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    User ID and password has been sent to email <strong>Admin Email</strong>.
+                  </p>
+                  <p class="warning-text">
+                    <i-lucide name="eye" size="14"></i-lucide>
+                    These credentials will only be shown once. Copy them immediately.
+                  </p>
+                  @if (generatedCredentials) {
+                    <div class="credentials-box">
+                      <div class="credential-row">
+                        <span class="label">User ID:</span>
+                        <span class="value">{{ generatedCredentials.userId }}</span>
+                      </div>
+                      <div class="credential-row">
+                        <span class="label">Password:</span>
+                        <span class="value mono">{{ generatedCredentials.password }}</span>
+                      </div>
+                      <button class="btn-icon-copy" (click)="copyCredentials()" title="Copy to Clipboard">
+                        <i-lucide name="copy" size="18"></i-lucide> Copy
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            }
           </div>
-
-          <!-- STEP 2: OTP VERIFICATION -->
-          <div *ngSwitchCase="'otp'" class="otp-step-container">
-            <div class="otp-icon-wrapper">
-              <i-lucide name="lock" size="40"></i-lucide>
-            </div>
-            <h3>Security Verification</h3>
-            <p>An OTP has been sent to your Super Admin device. Please enter it below to authorize this action.</p>
-
-            <div class="form-group" style="text-align: center;">
-              <input type="text" [(ngModel)]="adminOtp" class="otp-input" placeholder="Enter OTP" maxlength="6"
-                style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; width: 60%; margin: 0 auto;">
-            </div>
-          </div>
-
-          <!-- STEP 3: SUCCESS & CREDENTIALS -->
-          <div *ngSwitchCase="'success'" class="success-step-container">
-            <div class="success-icon-large">
-              <i-lucide name="check-circle" size="50"></i-lucide>
-            </div>
-            <h3>Administrator Created Successfully</h3>
-            <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
-              User ID and password has been sent to email <strong>Admin Email</strong>.
-            </p>
-            <p class="warning-text">
-              <i-lucide name="eye" size="14"></i-lucide>
-              These credentials will only be shown once. Copy them immediately.
-            </p>
-
-            <div class="credentials-box" *ngIf="generatedCredentials">
-              <div class="credential-row">
-                <span class="label">User ID:</span>
-                <span class="value">{{ generatedCredentials.userId }}</span>
-              </div>
-              <div class="credential-row">
-                <span class="label">Password:</span>
-                <span class="value mono">{{ generatedCredentials.password }}</span>
-              </div>
-              <button class="btn-icon-copy" (click)="copyCredentials()" title="Copy to Clipboard">
-                <i-lucide name="copy" size="18"></i-lucide> Copy
+        </div>
+        <!-- FOOTER ACTIONS -->
+        <div class="modal-footer">
+          @switch (adminCreationStep) {
+            <!-- Step 1 Actions -->
+            @case ('policy') {
+              <button class="btn-secondary" (click)="closeAdminModal()">Cancel</button>
+              <button class="btn-primary admin-create-btn" [disabled]="isSendingOtp" (click)="goToOtpStep()">
+                Proceed & Verify
               </button>
-            </div>
-          </div>
-
+            }
+            <!-- Step 2 Actions -->
+            @case ('otp') {
+              <button class="btn-secondary" (click)="adminCreationStep = 'policy'" [disabled]="isVerifyingOtp">Back</button>
+              <button class="btn-primary admin-create-btn" [disabled]="!adminOtp || isVerifyingOtp"
+                (click)="verifyOtpAndCreate()">
+                Verify & Create
+              </button>
+            }
+            <!-- Step 3 Actions -->
+            @case ('success') {
+              <button class="btn-primary full-width" (click)="closeAdminModal()">Done</button>
+            }
+          }
         </div>
       </div>
-
-      <!-- FOOTER ACTIONS -->
-      <div class="modal-footer" [ngSwitch]="adminCreationStep">
-
-        <!-- Step 1 Actions -->
-        <ng-container *ngSwitchCase="'policy'">
-          <button class="btn-secondary" (click)="closeAdminModal()">Cancel</button>
-          <button class="btn-primary admin-create-btn" [disabled]="isSendingOtp" (click)="goToOtpStep()">
-            Proceed & Verify
-          </button>
-        </ng-container>
-
-        <!-- Step 2 Actions -->
-        <ng-container *ngSwitchCase="'otp'">
-          <button class="btn-secondary" (click)="adminCreationStep = 'policy'" [disabled]="isVerifyingOtp">Back</button>
-          <button class="btn-primary admin-create-btn" [disabled]="!adminOtp || isVerifyingOtp"
-            (click)="verifyOtpAndCreate()">
-            Verify & Create
-          </button>
-        </ng-container>
-
-        <!-- Step 3 Actions -->
-        <ng-container *ngSwitchCase="'success'">
-          <button class="btn-primary full-width" (click)="closeAdminModal()">Done</button>
-        </ng-container>
-
-      </div>
-    </div>
+    }
   </div>
 </div>
 
 <!-- VISA MAN ERROR MODAL -->
-<div class="modal-backdrop error-backdrop" *ngIf="showVisaManError" (click)="closeVisaManErrorModal()"></div>
-<div class="result-modal error-modal" *ngIf="showVisaManError" (click)="$event.stopPropagation()">
-  <div class="result-modal-icon error">
-    <i-lucide name="x-circle" size="48"></i-lucide>
+@if (showVisaManError) {
+  <div class="modal-backdrop error-backdrop" (click)="closeVisaManErrorModal()"></div>
+}
+@if (showVisaManError) {
+  <div class="result-modal error-modal" (click)="$event.stopPropagation()">
+    <div class="result-modal-icon error">
+      <i-lucide name="x-circle" size="48"></i-lucide>
+    </div>
+    <h3>Creation Failed</h3>
+    <p class="error-message-text">{{ visaManErrorMessage }}</p>
+    <button class="btn-secondary error-close-btn" (click)="closeVisaManErrorModal()">
+      <i-lucide name="x" size="16"></i-lucide>
+      Close
+    </button>
   </div>
-  <h3>Creation Failed</h3>
-  <p class="error-message-text">{{ visaManErrorMessage }}</p>
-  <button class="btn-secondary error-close-btn" (click)="closeVisaManErrorModal()">
-    <i-lucide name="x" size="16"></i-lucide>
-    Close
-  </button>
-</div>
+}
 <!-- UPDATE SESSION MODAL -->
-<div class="modal-backdrop" *ngIf="showSessionUpdateModal" (click)="closeUpdateSessionModal()"></div>
-<div class="modal session-modal" *ngIf="showSessionUpdateModal" (click)="$event.stopPropagation()">
-  <div class="modal-header">
-    <div class="modal-title-wrapper">
-      <i-lucide name="edit-2" size="24" class="modal-icon"></i-lucide>
-      <h3>Update Session</h3>
+@if (showSessionUpdateModal) {
+  <div class="modal-backdrop" (click)="closeUpdateSessionModal()"></div>
+}
+@if (showSessionUpdateModal) {
+  <div class="modal session-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-wrapper">
+        <i-lucide name="edit-2" size="24" class="modal-icon"></i-lucide>
+        <h3>Update Session</h3>
+      </div>
+      <button class="btn-icon-sm" (click)="closeUpdateSessionModal()">
+        <i-lucide name="x" size="20"></i-lucide>
+      </button>
     </div>
-    <button class="btn-icon-sm" (click)="closeUpdateSessionModal()">
-      <i-lucide name="x" size="20"></i-lucide>
-    </button>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Session Name</label>
+        <input [(ngModel)]="sessionForm.sessionName" placeholder="e.g. Winter Season">
+      </div>
+      <div class="form-group">
+        <label>Academic Year</label>
+        <input [(ngModel)]="sessionForm.academicYear" placeholder="e.g. 2024-2025">
+      </div>
+      @if (sessionUpdateError) {
+        <div class="error-message">
+          <i-lucide name="alert-circle" size="16"></i-lucide> {{ sessionUpdateError }}
+        </div>
+      }
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeUpdateSessionModal()">Cancel</button>
+      <button class="btn-primary" [disabled]="isUpdatingSession" (click)="updateSession()">
+        @if (!isUpdatingSession) {
+          <span>Update</span>
+        }
+        @if (isUpdatingSession) {
+          <div class="spinner button-spinner"></div>
+        }
+      </button>
+    </div>
   </div>
-  <div class="modal-body">
-    <div class="form-group">
-      <label>Session Name</label>
-      <input [(ngModel)]="sessionForm.sessionName" placeholder="e.g. Winter Season">
-    </div>
-    <div class="form-group">
-      <label>Academic Year</label>
-      <input [(ngModel)]="sessionForm.academicYear" placeholder="e.g. 2024-2025">
-    </div>
-
-    <div class="error-message" *ngIf="sessionUpdateError">
-      <i-lucide name="alert-circle" size="16"></i-lucide> {{ sessionUpdateError }}
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn-secondary" (click)="closeUpdateSessionModal()">Cancel</button>
-    <button class="btn-primary" [disabled]="isUpdatingSession" (click)="updateSession()">
-      <span *ngIf="!isUpdatingSession">Update</span>
-      <div *ngIf="isUpdatingSession" class="spinner button-spinner"></div>
-    </button>
-  </div>
-</div>
+}
 
 <!-- SUCCESS MODAL FOR SESSION -->
-<div class="modal-backdrop success-backdrop" *ngIf="sessionUpdateSuccess"></div>
-<div class="result-modal success-modal" *ngIf="sessionUpdateSuccess">
-  <div class="result-modal-icon success">
-    <i-lucide name="check-circle" size="48"></i-lucide>
+@if (sessionUpdateSuccess) {
+  <div class="modal-backdrop success-backdrop"></div>
+}
+@if (sessionUpdateSuccess) {
+  <div class="result-modal success-modal">
+    <div class="result-modal-icon success">
+      <i-lucide name="check-circle" size="48"></i-lucide>
+    </div>
+    <h3>Session Updated!</h3>
   </div>
-  <h3>Session Updated!</h3>
-</div>
+}

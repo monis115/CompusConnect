@@ -1,747 +1,822 @@
 <div class="dashboard-container">
 
-    <!-- LOADING OVERLAY -->
-    <div *ngIf="loading" class="loading-overlay">
-        <div class="spinner-container">
-            <div class="spinner-ring"></div>
-            <div class="spinner-ring"></div>
-            <div class="spinner-ring"></div>
+  <!-- LOADING OVERLAY -->
+  @if (loading) {
+    <div class="loading-overlay">
+      <div class="spinner-container">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <p class="loading-text">Loading Dashboard...</p>
+    </div>
+  }
+
+  <!-- SUCCESS MODAL -->
+  @if (showSuccessModal) {
+    <div class="modal-backdrop" (click)="closeSuccessModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="success-icon">
+          <i class="fas fa-check"></i>
         </div>
-        <p class="loading-text">Loading Dashboard...</p>
+        <h3>{{ successTitle }}</h3>
+        <p>{{ successMessage }}</p>
+        <button class="modal-close-btn" (click)="closeSuccessModal()">
+          <i class="fas fa-check"></i> Continue
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- CONFIRMATION MODAL -->
+  @if (showConfirmModal) {
+    <div class="modal-backdrop" (click)="closeConfirmModal()">
+      <div class="modal-content confirm-content" (click)="$event.stopPropagation()">
+        <div class="confirm-icon">
+          <i class="fas fa-question"></i>
+        </div>
+        <h3>{{ confirmTitle }}</h3>
+        <p>{{ confirmMessage }}</p>
+        <div class="modal-actions">
+          <button class="modal-cancel-btn" (click)="closeConfirmModal()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button class="modal-confirm-btn" (click)="confirmAction()">
+            <i class="fas fa-check"></i> Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- PROCESSING OVERLAY (Per-Action) -->
+  @if (processingId !== null) {
+    <div class="loading-overlay">
+      <div class="spinner-container">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <p class="loading-text">Processing Action...</p>
+    </div>
+  }
+
+  <!-- PREMIUM LOGOUT OVERLAY -->
+  @if (isLoggingOut) {
+    <div class="logout-overlay">
+      <div class="logout-content">
+        <!-- Glowing orb spinner -->
+        <div class="logout-orb">
+          <div class="orb-core"></div>
+          <div class="orb-ring orb-ring-1"></div>
+          <div class="orb-ring orb-ring-2"></div>
+          <div class="orb-ring orb-ring-3"></div>
+          <div class="orb-particles">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <!-- Logout icon -->
+        <div class="logout-icon">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <!-- Messages -->
+        <h2 class="logout-title">Signing Out</h2>
+        <p class="logout-message">Thank you for your dedication today!</p>
+        <p class="logout-subtext">See you soon, {{ currentUsername }} </p>
+        <!-- Progress bar -->
+        <div class="logout-progress">
+          <div class="logout-progress-bar"></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">📨</div>
+        <span class="logo-text">Telex<span>Manager</span></span>
+      </div>
     </div>
 
-    <!-- SUCCESS MODAL -->
-    <div *ngIf="showSuccessModal" class="modal-backdrop" (click)="closeSuccessModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="success-icon">
-                <i class="fas fa-check"></i>
-            </div>
-            <h3>{{ successTitle }}</h3>
-            <p>{{ successMessage }}</p>
-            <button class="modal-close-btn" (click)="closeSuccessModal()">
-                <i class="fas fa-check"></i> Continue
-            </button>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main Menu</div>
+
+      <div class="nav-item" [class.active]="activeTab === 'dashboard'" (click)="activeTab = 'dashboard'">
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      </div>
+
+      <div class="nav-item" [class.active]="activeTab === 'actions'" (click)="activeTab = 'actions'">
+        <i class="fas fa-bolt"></i>
+        <span>Action Required</span>
+        @if (actionRequiredStudents.length > 0) {
+          <span class="nav-badge">{{ actionRequiredStudents.length
+          }}</span>
+        }
+      </div>
+
+      <div class="nav-item" [class.active]="activeTab === 'pipeline'" (click)="activeTab = 'pipeline'">
+        <i class="fas fa-clock"></i>
+        <span>In Pipeline</span>
+        @if (pipelineStudents.length > 0) {
+          <span class="nav-badge">{{ pipelineStudents.length }}</span>
+        }
+      </div>
+
+      <div class="nav-item" [class.active]="activeTab === 'visa'" (click)="activeTab = 'visa'">
+        <i class="fas fa-stamp"></i>
+        <span>Visa Stamped</span>
+      </div>
+
+      <div class="nav-section-title">Records</div>
+
+      <div class="nav-item" [class.active]="activeTab === 'records'" (click)="activeTab = 'records'">
+        <i class="fas fa-folder-open"></i>
+        <span>All Students</span>
+      </div>
+
+      <div class="nav-item" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">
+        <i class="fas fa-user-circle"></i>
+        <span>My Profile</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile" (click)="activeTab = 'profile'">
+        <div class="user-avatar">{{ getInitials(profileData?.fullName || currentUsername) }}</div>
+        <div class="user-info">
+          <div class="user-name">{{ profileData?.fullName || currentUsername }}</div>
+          <div class="user-role">Telex Manager</div>
         </div>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
     </div>
+  </aside>
 
-    <!-- CONFIRMATION MODAL -->
-    <div *ngIf="showConfirmModal" class="modal-backdrop" (click)="closeConfirmModal()">
-        <div class="modal-content confirm-content" (click)="$event.stopPropagation()">
-            <div class="confirm-icon">
-                <i class="fas fa-question"></i>
-            </div>
-            <h3>{{ confirmTitle }}</h3>
-            <p>{{ confirmMessage }}</p>
-            <div class="modal-actions">
-                <button class="modal-cancel-btn" (click)="closeConfirmModal()">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-                <button class="modal-confirm-btn" (click)="confirmAction()">
-                    <i class="fas fa-check"></i> Confirm
-                </button>
-            </div>
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <div class="header-left">
+        <h1>
+          @if (activeTab === 'dashboard') {
+            <i class="fas fa-th-large"></i>
+          }
+          @if (activeTab === 'actions') {
+            <i class="fas fa-bolt"></i>
+          }
+          @if (activeTab === 'pipeline') {
+            <i class="fas fa-clock"></i>
+          }
+          @if (activeTab === 'visa') {
+            <i class="fas fa-stamp"></i>
+          }
+          @if (activeTab === 'records') {
+            <i class="fas fa-folder-open"></i>
+          }
+          @if (activeTab === 'profile') {
+            <i class="fas fa-user-circle"></i>
+          }
+          {{ getTabTitle() }}
+        </h1>
+        <p>Welcome back, {{ currentUsername }}</p>
+      </div>
+      <div class="header-right">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearch()">
         </div>
+        <button class="icon-btn" title="Refresh Data" (click)="refreshData()">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT BODY -->
+    <div class="content-body">
+
+      <!-- DASHBOARD VIEW -->
+      @if (activeTab === 'dashboard' && !loading) {
+        <div class="fade-in">
+          <!-- Stats Row -->
+          <div class="stats-row">
+            <div class="stat-card cyan" (click)="activeTab = 'actions'">
+              <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+              <h3>Pending Actions</h3>
+              <p class="count">{{ actionRequiredStudents.length }}</p>
+            </div>
+            <div class="stat-card violet" (click)="activeTab = 'pipeline'">
+              <div class="stat-icon"><i class="fas fa-clock"></i></div>
+              <h3>In Pipeline</h3>
+              <p class="count">{{ pipelineStudents.length }}</p>
+            </div>
+            <div class="stat-card emerald" (click)="activeTab = 'visa'">
+              <div class="stat-icon"><i class="fas fa-stamp"></i></div>
+              <h3>Visa Stamped</h3>
+              <p class="count">{{ visaStampedStudents.length }}</p>
+            </div>
+            <div class="stat-card amber" (click)="activeTab = 'records'">
+              <div class="stat-icon"><i class="fas fa-users"></i></div>
+              <h3>Total Students</h3>
+              <p class="count">{{ students.length }}</p>
+            </div>
+          </div>
+          <!-- Quick Actions -->
+          <div class="section-header">
+            <div class="section-title">
+              <h2><i class="fas fa-bolt"></i> Recent Action Items</h2>
+              @if (actionRequiredStudents.length > 0) {
+                <span class="count-badge">{{
+                actionRequiredStudents.length }} Pending</span>
+              }
+            </div>
+          </div>
+          <!-- Show first 3 action required students -->
+          @if (actionRequiredStudents.length > 0) {
+            <div class="cards-grid">
+              @for (student of actionRequiredStudents.slice(0, 3); track student) {
+                <ng-container
+                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: true }"></ng-container>
+              }
+            </div>
+          }
+          @if (actionRequiredStudents.length === 0) {
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+              <h3>All Caught Up!</h3>
+              <p>No pending actions right now. Great job!</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ACTIONS VIEW -->
+      @if (activeTab === 'actions' && !loading) {
+        <div class="fade-in">
+          <div class="section-header">
+            <div class="section-title">
+              <h2><i class="fas fa-bolt"></i> Action Required</h2>
+              <span class="count-badge">{{ getFilteredActionStudents().length }} Students</span>
+            </div>
+          </div>
+          @if (getFilteredActionStudents().length > 0) {
+            <div class="cards-grid">
+              @for (student of getFilteredActionStudents(); track student) {
+                <ng-container
+                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: true }"></ng-container>
+              }
+            </div>
+          }
+          @if (getFilteredActionStudents().length === 0) {
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+              <h3>All Caught Up!</h3>
+              <p>No pending actions. Excellent work!</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- PIPELINE VIEW -->
+      @if (activeTab === 'pipeline' && !loading) {
+        <div class="fade-in">
+          <div class="section-header">
+            <div class="section-title">
+              <h2><i class="fas fa-clock"></i> In Pipeline</h2>
+              <span class="count-badge">{{ getFilteredPipelineStudents().length }} Students</span>
+            </div>
+          </div>
+          @if (getFilteredPipelineStudents().length > 0) {
+            <div class="cards-grid">
+              @for (student of getFilteredPipelineStudents(); track student) {
+                <ng-container
+                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
+              }
+            </div>
+          }
+          @if (getFilteredPipelineStudents().length === 0) {
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+              <h3>Pipeline Empty</h3>
+              <p>No students in processing pipeline.</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- VISA STAMPED VIEW -->
+      @if (activeTab === 'visa' && !loading) {
+        <div class="fade-in">
+          <div class="section-header">
+            <div class="section-title">
+              <h2><i class="fas fa-stamp"></i> Visa Stamped</h2>
+              <span class="count-badge">{{ getFilteredVisaStudents().length }} Completed</span>
+            </div>
+          </div>
+          @if (getFilteredVisaStudents().length > 0) {
+            <div class="cards-grid">
+              @for (student of getFilteredVisaStudents(); track student) {
+                <ng-container
+                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
+              }
+            </div>
+          }
+          @if (getFilteredVisaStudents().length === 0) {
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-passport"></i></div>
+              <h3>No Completed Visas</h3>
+              <p>Visa stamped students will appear here.</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ALL RECORDS VIEW -->
+      @if (activeTab === 'records' && !loading) {
+        <div class="fade-in">
+          <div class="section-header">
+            <div class="section-title">
+              <h2><i class="fas fa-folder-open"></i> All Students</h2>
+              <span class="count-badge">{{ getFilteredAllStudents().length }} Records</span>
+            </div>
+          </div>
+          @if (getFilteredAllStudents().length > 0) {
+            <div class="cards-grid">
+              @for (student of getFilteredAllStudents(); track student) {
+                <ng-container
+                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
+              }
+            </div>
+          }
+          @if (getFilteredAllStudents().length === 0) {
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-search"></i></div>
+              <h3>No Results</h3>
+              <p>No students match your search criteria.</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- PROFILE VIEW -->
+      @if (activeTab === 'profile' && !loading) {
+        <div class="fade-in">
+          @if (profileData) {
+            <div class="profile-container">
+              <div class="profile-card">
+                <div class="profile-header">
+                  <div class="profile-avatar">{{ getInitials(profileData.fullName) }}</div>
+                  <h2 class="profile-name">{{ profileData.fullName }}</h2>
+                  <p class="profile-role">Telex Manager</p>
+                </div>
+                <div class="profile-body">
+                  <div class="profile-row">
+                    <span class="profile-label"><i class="fas fa-user"></i> Username</span>
+                    <span class="profile-value">{{ profileData.username }}</span>
+                  </div>
+                  <div class="profile-row">
+                    <span class="profile-label"><i class="fas fa-envelope"></i> Email</span>
+                    <span class="profile-value">{{ profileData.email }}</span>
+                  </div>
+                  <div class="profile-row">
+                    <span class="profile-label"><i class="fas fa-phone"></i> Contact</span>
+                    <span class="profile-value">{{ profileData.contactNumber || 'N/A' }}</span>
+                  </div>
+                  <div class="profile-row">
+                    <span class="profile-label"><i class="fas fa-shield-alt"></i> Role</span>
+                    <span class="profile-value">{{ profileData.role }}</span>
+                  </div>
+                  <div class="profile-row">
+                    <span class="profile-label"><i class="fas fa-circle"></i> Status</span>
+                    <span class="profile-value active">{{ profileData.status || 'ACTIVE' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fas fa-user-slash"></i></div>
+              <h3>Profile Unavailable</h3>
+              <p>Unable to load profile information.</p>
+            </div>
+          }
+        </div>
+      }
+
     </div>
-
-    <!-- PROCESSING OVERLAY (Per-Action) -->
-    <div *ngIf="processingId !== null" class="loading-overlay">
-        <div class="spinner-container">
-            <div class="spinner-ring"></div>
-            <div class="spinner-ring"></div>
-            <div class="spinner-ring"></div>
-        </div>
-        <p class="loading-text">Processing Action...</p>
-    </div>
-
-    <!-- PREMIUM LOGOUT OVERLAY -->
-    <div *ngIf="isLoggingOut" class="logout-overlay">
-        <div class="logout-content">
-            <!-- Glowing orb spinner -->
-            <div class="logout-orb">
-                <div class="orb-core"></div>
-                <div class="orb-ring orb-ring-1"></div>
-                <div class="orb-ring orb-ring-2"></div>
-                <div class="orb-ring orb-ring-3"></div>
-                <div class="orb-particles">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
-            </div>
-            <!-- Logout icon -->
-            <div class="logout-icon">
-                <i class="fas fa-sign-out-alt"></i>
-            </div>
-            <!-- Messages -->
-            <h2 class="logout-title">Signing Out</h2>
-            <p class="logout-message">Thank you for your dedication today!</p>
-            <p class="logout-subtext">See you soon, {{ currentUsername }} </p>
-            <!-- Progress bar -->
-            <div class="logout-progress">
-                <div class="logout-progress-bar"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <div class="logo-icon">📨</div>
-                <span class="logo-text">Telex<span>Manager</span></span>
-            </div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="nav-section-title">Main Menu</div>
-
-            <div class="nav-item" [class.active]="activeTab === 'dashboard'" (click)="activeTab = 'dashboard'">
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
-            </div>
-
-            <div class="nav-item" [class.active]="activeTab === 'actions'" (click)="activeTab = 'actions'">
-                <i class="fas fa-bolt"></i>
-                <span>Action Required</span>
-                <span class="nav-badge" *ngIf="actionRequiredStudents.length > 0">{{ actionRequiredStudents.length
-                    }}</span>
-            </div>
-
-            <div class="nav-item" [class.active]="activeTab === 'pipeline'" (click)="activeTab = 'pipeline'">
-                <i class="fas fa-clock"></i>
-                <span>In Pipeline</span>
-                <span class="nav-badge" *ngIf="pipelineStudents.length > 0">{{ pipelineStudents.length }}</span>
-            </div>
-
-            <div class="nav-item" [class.active]="activeTab === 'visa'" (click)="activeTab = 'visa'">
-                <i class="fas fa-stamp"></i>
-                <span>Visa Stamped</span>
-            </div>
-
-            <div class="nav-section-title">Records</div>
-
-            <div class="nav-item" [class.active]="activeTab === 'records'" (click)="activeTab = 'records'">
-                <i class="fas fa-folder-open"></i>
-                <span>All Students</span>
-            </div>
-
-            <div class="nav-item" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">
-                <i class="fas fa-user-circle"></i>
-                <span>My Profile</span>
-            </div>
-        </nav>
-
-        <div class="sidebar-footer">
-            <div class="user-profile" (click)="activeTab = 'profile'">
-                <div class="user-avatar">{{ getInitials(profileData?.fullName || currentUsername) }}</div>
-                <div class="user-info">
-                    <div class="user-name">{{ profileData?.fullName || currentUsername }}</div>
-                    <div class="user-role">Telex Manager</div>
-                </div>
-            </div>
-            <button class="logout-btn" (click)="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </button>
-        </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-
-        <!-- TOP HEADER -->
-        <header class="top-header">
-            <div class="header-left">
-                <h1>
-                    <i *ngIf="activeTab === 'dashboard'" class="fas fa-th-large"></i>
-                    <i *ngIf="activeTab === 'actions'" class="fas fa-bolt"></i>
-                    <i *ngIf="activeTab === 'pipeline'" class="fas fa-clock"></i>
-                    <i *ngIf="activeTab === 'visa'" class="fas fa-stamp"></i>
-                    <i *ngIf="activeTab === 'records'" class="fas fa-folder-open"></i>
-                    <i *ngIf="activeTab === 'profile'" class="fas fa-user-circle"></i>
-                    {{ getTabTitle() }}
-                </h1>
-                <p>Welcome back, {{ currentUsername }}</p>
-            </div>
-            <div class="header-right">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery"
-                        (ngModelChange)="onSearch()">
-                </div>
-                <button class="icon-btn" title="Refresh Data" (click)="refreshData()">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- CONTENT BODY -->
-        <div class="content-body">
-
-            <!-- DASHBOARD VIEW -->
-            <div *ngIf="activeTab === 'dashboard' && !loading" class="fade-in">
-
-                <!-- Stats Row -->
-                <div class="stats-row">
-                    <div class="stat-card cyan" (click)="activeTab = 'actions'">
-                        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
-                        <h3>Pending Actions</h3>
-                        <p class="count">{{ actionRequiredStudents.length }}</p>
-                    </div>
-                    <div class="stat-card violet" (click)="activeTab = 'pipeline'">
-                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                        <h3>In Pipeline</h3>
-                        <p class="count">{{ pipelineStudents.length }}</p>
-                    </div>
-                    <div class="stat-card emerald" (click)="activeTab = 'visa'">
-                        <div class="stat-icon"><i class="fas fa-stamp"></i></div>
-                        <h3>Visa Stamped</h3>
-                        <p class="count">{{ visaStampedStudents.length }}</p>
-                    </div>
-                    <div class="stat-card amber" (click)="activeTab = 'records'">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <h3>Total Students</h3>
-                        <p class="count">{{ students.length }}</p>
-                    </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="section-header">
-                    <div class="section-title">
-                        <h2><i class="fas fa-bolt"></i> Recent Action Items</h2>
-                        <span class="count-badge" *ngIf="actionRequiredStudents.length > 0">{{
-                            actionRequiredStudents.length }} Pending</span>
-                    </div>
-                </div>
-
-                <!-- Show first 3 action required students -->
-                <div class="cards-grid" *ngIf="actionRequiredStudents.length > 0">
-                    <ng-container *ngFor="let student of actionRequiredStudents.slice(0, 3)">
-                        <ng-container
-                            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: true }"></ng-container>
-                    </ng-container>
-                </div>
-
-                <div class="empty-state" *ngIf="actionRequiredStudents.length === 0">
-                    <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
-                    <h3>All Caught Up!</h3>
-                    <p>No pending actions right now. Great job!</p>
-                </div>
-            </div>
-
-            <!-- ACTIONS VIEW -->
-            <div *ngIf="activeTab === 'actions' && !loading" class="fade-in">
-                <div class="section-header">
-                    <div class="section-title">
-                        <h2><i class="fas fa-bolt"></i> Action Required</h2>
-                        <span class="count-badge">{{ getFilteredActionStudents().length }} Students</span>
-                    </div>
-                </div>
-
-                <div class="cards-grid" *ngIf="getFilteredActionStudents().length > 0">
-                    <ng-container *ngFor="let student of getFilteredActionStudents()">
-                        <ng-container
-                            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: true }"></ng-container>
-                    </ng-container>
-                </div>
-
-                <div class="empty-state" *ngIf="getFilteredActionStudents().length === 0">
-                    <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
-                    <h3>All Caught Up!</h3>
-                    <p>No pending actions. Excellent work!</p>
-                </div>
-            </div>
-
-            <!-- PIPELINE VIEW -->
-            <div *ngIf="activeTab === 'pipeline' && !loading" class="fade-in">
-                <div class="section-header">
-                    <div class="section-title">
-                        <h2><i class="fas fa-clock"></i> In Pipeline</h2>
-                        <span class="count-badge">{{ getFilteredPipelineStudents().length }} Students</span>
-                    </div>
-                </div>
-
-                <div class="cards-grid" *ngIf="getFilteredPipelineStudents().length > 0">
-                    <ng-container *ngFor="let student of getFilteredPipelineStudents()">
-                        <ng-container
-                            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
-                    </ng-container>
-                </div>
-
-                <div class="empty-state" *ngIf="getFilteredPipelineStudents().length === 0">
-                    <div class="empty-icon"><i class="fas fa-inbox"></i></div>
-                    <h3>Pipeline Empty</h3>
-                    <p>No students in processing pipeline.</p>
-                </div>
-            </div>
-
-            <!-- VISA STAMPED VIEW -->
-            <div *ngIf="activeTab === 'visa' && !loading" class="fade-in">
-                <div class="section-header">
-                    <div class="section-title">
-                        <h2><i class="fas fa-stamp"></i> Visa Stamped</h2>
-                        <span class="count-badge">{{ getFilteredVisaStudents().length }} Completed</span>
-                    </div>
-                </div>
-
-                <div class="cards-grid" *ngIf="getFilteredVisaStudents().length > 0">
-                    <ng-container *ngFor="let student of getFilteredVisaStudents()">
-                        <ng-container
-                            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
-                    </ng-container>
-                </div>
-
-                <div class="empty-state" *ngIf="getFilteredVisaStudents().length === 0">
-                    <div class="empty-icon"><i class="fas fa-passport"></i></div>
-                    <h3>No Completed Visas</h3>
-                    <p>Visa stamped students will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ALL RECORDS VIEW -->
-            <div *ngIf="activeTab === 'records' && !loading" class="fade-in">
-                <div class="section-header">
-                    <div class="section-title">
-                        <h2><i class="fas fa-folder-open"></i> All Students</h2>
-                        <span class="count-badge">{{ getFilteredAllStudents().length }} Records</span>
-                    </div>
-                </div>
-
-                <div class="cards-grid" *ngIf="getFilteredAllStudents().length > 0">
-                    <ng-container *ngFor="let student of getFilteredAllStudents()">
-                        <ng-container
-                            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
-                    </ng-container>
-                </div>
-
-                <div class="empty-state" *ngIf="getFilteredAllStudents().length === 0">
-                    <div class="empty-icon"><i class="fas fa-search"></i></div>
-                    <h3>No Results</h3>
-                    <p>No students match your search criteria.</p>
-                </div>
-            </div>
-
-            <!-- PROFILE VIEW -->
-            <div *ngIf="activeTab === 'profile' && !loading" class="fade-in">
-                <div class="profile-container" *ngIf="profileData; else noProfile">
-                    <div class="profile-card">
-                        <div class="profile-header">
-                            <div class="profile-avatar">{{ getInitials(profileData.fullName) }}</div>
-                            <h2 class="profile-name">{{ profileData.fullName }}</h2>
-                            <p class="profile-role">Telex Manager</p>
-                        </div>
-                        <div class="profile-body">
-                            <div class="profile-row">
-                                <span class="profile-label"><i class="fas fa-user"></i> Username</span>
-                                <span class="profile-value">{{ profileData.username }}</span>
-                            </div>
-                            <div class="profile-row">
-                                <span class="profile-label"><i class="fas fa-envelope"></i> Email</span>
-                                <span class="profile-value">{{ profileData.email }}</span>
-                            </div>
-                            <div class="profile-row">
-                                <span class="profile-label"><i class="fas fa-phone"></i> Contact</span>
-                                <span class="profile-value">{{ profileData.contactNumber || 'N/A' }}</span>
-                            </div>
-                            <div class="profile-row">
-                                <span class="profile-label"><i class="fas fa-shield-alt"></i> Role</span>
-                                <span class="profile-value">{{ profileData.role }}</span>
-                            </div>
-                            <div class="profile-row">
-                                <span class="profile-label"><i class="fas fa-circle"></i> Status</span>
-                                <span class="profile-value active">{{ profileData.status || 'ACTIVE' }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <ng-template #noProfile>
-                    <div class="empty-state">
-                        <div class="empty-icon"><i class="fas fa-user-slash"></i></div>
-                        <h3>Profile Unavailable</h3>
-                        <p>Unable to load profile information.</p>
-                    </div>
-                </ng-template>
-            </div>
-
-        </div>
-    </main>
+  </main>
 </div>
 
 <!-- STUDENT LIST ROW TEMPLATE -->
 <ng-template #studentCardTemplate let-student let-showActions="showActions">
-    <div class="student-row" [class.processing]="processingId === student.id">
+  <div class="student-row" [class.processing]="processingId === student.id">
 
-        <!-- Main Row Content -->
-        <div class="row-content">
-            <!-- Student Name -->
-            <div class="row-cell name-cell">
-                <span class="student-name">{{ student.fullName }}</span>
-            </div>
+    <!-- Main Row Content -->
+    <div class="row-content">
+      <!-- Student Name -->
+      <div class="row-cell name-cell">
+        <span class="student-name">{{ student.fullName }}</span>
+      </div>
 
-            <!-- Application ID -->
-            <div class="row-cell id-cell">
-                <span class="app-id">{{ student.applicationId }}</span>
-            </div>
+      <!-- Application ID -->
+      <div class="row-cell id-cell">
+        <span class="app-id">{{ student.applicationId }}</span>
+      </div>
 
-            <!-- Application Status -->
-            <div class="row-cell status-cell">
-                <span class="status-badge" [ngClass]="getStatusClass(student.applicationStatus)">
-                    {{ formatStatus(student.applicationStatus) }}
-                </span>
-            </div>
+      <!-- Application Status -->
+      <div class="row-cell status-cell">
+        <span class="status-badge" [ngClass]="getStatusClass(student.applicationStatus)">
+          {{ formatStatus(student.applicationStatus) }}
+        </span>
+      </div>
 
-            <!-- Telex Number (Highlighted) -->
-            <div class="row-cell telex-cell">
-                <span *ngIf="student.telexNumber" class="telex-number">
-                    <i class="fas fa-certificate"></i> {{ student.telexNumber }}
-                </span>
-                <span *ngIf="!student.telexNumber" class="no-telex">-</span>
-            </div>
+      <!-- Telex Number (Highlighted) -->
+      <div class="row-cell telex-cell">
+        @if (student.telexNumber) {
+          <span class="telex-number">
+            <i class="fas fa-certificate"></i> {{ student.telexNumber }}
+          </span>
+        }
+        @if (!student.telexNumber) {
+          <span class="no-telex">-</span>
+        }
+      </div>
 
-            <!-- Actions -->
-            <div class="row-cell actions-cell">
-                <!-- View Details Button -->
-                <button class="icon-btn view-btn" (click)="openDetailsModal(student)" title="View All Details">
-                    <i class="fas fa-eye"></i>
-                </button>
+      <!-- Actions -->
+      <div class="row-cell actions-cell">
+        <!-- View Details Button -->
+        <button class="icon-btn view-btn" (click)="openDetailsModal(student)" title="View All Details">
+          <i class="fas fa-eye"></i>
+        </button>
 
-                <!-- Workflow Action Buttons (inline) -->
-                <ng-container *ngIf="showActions && student.action">
-                    <!-- UPLOAD_TELEX_DOCS -->
-                    <ng-container *ngIf="student.action === 'UPLOAD_TELEX_DOCS'">
-                        <label class="icon-btn upload-btn" title="Upload Documents">
-                            <i class="fas fa-upload"></i>
-                            <input type="file" multiple (change)="onFileSelected($event, student.id)" hidden>
-                        </label>
-                        <button class="action-btn" (click)="handleUploadDocs(student)"
-                            [disabled]="processingId === student.id || !selectedFiles[student.id]?.length">
-                            <span *ngIf="processingId !== student.id">Submit</span>
-                            <span *ngIf="processingId === student.id"><i class="fas fa-spinner fa-spin"></i></span>
-                        </button>
-                    </ng-container>
-
-                    <!-- SUBMIT_TELEX_TO_UNIVERSITY -->
-                    <button *ngIf="student.action === 'SUBMIT_TELEX_TO_UNIVERSITY'" class="action-btn university-btn"
-                        (click)="handleSubmitToUniversity(student)" [disabled]="processingId === student.id">
-                        <i class="fas fa-university"></i>
-                        <span *ngIf="processingId !== student.id">To University</span>
-                        <span *ngIf="processingId === student.id"><i class="fas fa-spinner fa-spin"></i></span>
-                    </button>
-
-                    <!-- SUBMIT_TELEX_TO_MEA -->
-                    <button *ngIf="student.action === 'SUBMIT_TELEX_TO_MEA'" class="action-btn mea-btn"
-                        (click)="handleSubmitToMEA(student)" [disabled]="processingId === student.id">
-                        <i class="fas fa-building"></i>
-                        <span *ngIf="processingId !== student.id">To MEA</span>
-                        <span *ngIf="processingId === student.id"><i class="fas fa-spinner fa-spin"></i></span>
-                    </button>
-
-                    <!-- NEED_TO_ISSUE_TELEX -->
-                    <ng-container *ngIf="student.action === 'NEED_TO_ISSUE_TELEX'">
-                        <input type="text" class="inline-input" placeholder="TX-XXXXX"
-                            [(ngModel)]="telexInputs[student.id]" [disabled]="processingId === student.id">
-                        <button class="action-btn issue-btn" (click)="handleIssueTelex(student)"
-                            [disabled]="processingId === student.id || !telexInputs[student.id]">
-                            <i class="fas fa-check"></i>
-                            <span *ngIf="processingId !== student.id">Issue</span>
-                            <span *ngIf="processingId === student.id"><i class="fas fa-spinner fa-spin"></i></span>
-                        </button>
-                    </ng-container>
-                </ng-container>
-            </div>
-        </div>
-
-        <!-- Files selected indicator -->
-        <div class="files-indicator" *ngIf="selectedFiles[student.id]?.length">
-            <i class="fas fa-paperclip"></i> {{ getFileNames(student.id) }}
-        </div>
+        <!-- Workflow Action Buttons (inline) -->
+        @if (showActions && student.action) {
+          <!-- UPLOAD_TELEX_DOCS -->
+          @if (student.action === 'UPLOAD_TELEX_DOCS') {
+            <label class="icon-btn upload-btn" title="Upload Documents">
+              <i class="fas fa-upload"></i>
+              <input type="file" multiple (change)="onFileSelected($event, student.id)" hidden>
+            </label>
+            <button class="action-btn" (click)="handleUploadDocs(student)"
+              [disabled]="processingId === student.id || !selectedFiles[student.id]?.length">
+              @if (processingId !== student.id) {
+                <span>Submit</span>
+              }
+              @if (processingId === student.id) {
+                <span><i class="fas fa-spinner fa-spin"></i></span>
+              }
+            </button>
+          }
+          <!-- SUBMIT_TELEX_TO_UNIVERSITY -->
+          @if (student.action === 'SUBMIT_TELEX_TO_UNIVERSITY') {
+            <button class="action-btn university-btn"
+              (click)="handleSubmitToUniversity(student)" [disabled]="processingId === student.id">
+              <i class="fas fa-university"></i>
+              @if (processingId !== student.id) {
+                <span>To University</span>
+              }
+              @if (processingId === student.id) {
+                <span><i class="fas fa-spinner fa-spin"></i></span>
+              }
+            </button>
+          }
+          <!-- SUBMIT_TELEX_TO_MEA -->
+          @if (student.action === 'SUBMIT_TELEX_TO_MEA') {
+            <button class="action-btn mea-btn"
+              (click)="handleSubmitToMEA(student)" [disabled]="processingId === student.id">
+              <i class="fas fa-building"></i>
+              @if (processingId !== student.id) {
+                <span>To MEA</span>
+              }
+              @if (processingId === student.id) {
+                <span><i class="fas fa-spinner fa-spin"></i></span>
+              }
+            </button>
+          }
+          <!-- NEED_TO_ISSUE_TELEX -->
+          @if (student.action === 'NEED_TO_ISSUE_TELEX') {
+            <input type="text" class="inline-input" placeholder="TX-XXXXX"
+              [(ngModel)]="telexInputs[student.id]" [disabled]="processingId === student.id">
+            <button class="action-btn issue-btn" (click)="handleIssueTelex(student)"
+              [disabled]="processingId === student.id || !telexInputs[student.id]">
+              <i class="fas fa-check"></i>
+              @if (processingId !== student.id) {
+                <span>Issue</span>
+              }
+              @if (processingId === student.id) {
+                <span><i class="fas fa-spinner fa-spin"></i></span>
+              }
+            </button>
+          }
+        }
+      </div>
     </div>
+
+    <!-- Files selected indicator -->
+    @if (selectedFiles[student.id]?.length) {
+      <div class="files-indicator">
+        <i class="fas fa-paperclip"></i> {{ getFileNames(student.id) }}
+      </div>
+    }
+  </div>
 </ng-template>
 
 <!-- STUDENT DETAILS MODAL -->
-<div class="modal-overlay" *ngIf="selectedStudent" (click)="closeDetailsModal()">
+@if (selectedStudent) {
+  <div class="modal-overlay" (click)="closeDetailsModal()">
     <div class="details-modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h2><i class="fas fa-user"></i> {{ selectedStudent.fullName }}</h2>
-            <button class="close-btn" (click)="closeDetailsModal()"><i class="fas fa-times"></i></button>
-        </div>
-
-        <div class="modal-body">
-            <!-- Quick Info Section -->
-            <div class="detail-section">
-                <h3><i class="fas fa-info-circle"></i> Basic Info</h3>
-                <div class="detail-grid">
-                    <div class="detail-item"><label>Application ID</label><span>{{ selectedStudent.applicationId
-                            }}</span></div>
-                    <div class="detail-item"><label>Status</label><span class="status-badge"
-                            [ngClass]="getStatusClass(selectedStudent.applicationStatus)">{{
-                            formatStatus(selectedStudent.applicationStatus) }}</span></div>
-                    <div class="detail-item"><label>Email</label><span>{{ selectedStudent.email || 'N/A' }}</span></div>
-                    <div class="detail-item"><label>Contact</label><span>{{ selectedStudent.contactNo || 'N/A' }}</span>
-                    </div>
-                    <div class="detail-item"><label>Applied For</label><span>{{ selectedStudent.appliedFor || 'N/A'
-                            }}</span></div>
-                    <div class="detail-item"><label>Intake</label><span>{{ selectedStudent.intake || 'N/A' }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Personal Details Section -->
-            <div class="detail-section">
-                <h3><i class="fas fa-user-circle"></i> Personal Details</h3>
-                <div class="detail-grid">
-                    <div class="detail-item"><label>Date of Birth</label><span>{{ formatDate(selectedStudent.dob)
-                            }}</span></div>
-                    <div class="detail-item"><label>Age</label><span>{{ selectedStudent.age || 'N/A' }}</span></div>
-                    <div class="detail-item"><label>Sex</label><span>{{ selectedStudent.sex || 'N/A' }}</span></div>
-                    <div class="detail-item"><label>Father's Name</label><span>{{ selectedStudent.fathersName || 'N/A'
-                            }}</span></div>
-                    <div class="detail-item"><label>Mother's Name</label><span>{{ selectedStudent.mothersName || 'N/A'
-                            }}</span></div>
-                    <div class="detail-item"><label>Marital Status</label><span>{{ selectedStudent.maritalStatus ||
-                            'N/A' }}</span></div>
-                    <div class="detail-item"><label>Citizenship</label><span>{{ selectedStudent.citizenship || 'N/A'
-                            }}</span></div>
-                    <div class="detail-item"><label>Address</label><span>{{ selectedStudent.address || 'N/A' }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Passport & Visa Section -->
-            <div class="detail-section">
-                <h3><i class="fas fa-passport"></i> Passport & Visa</h3>
-                <div class="detail-grid">
-                    <div class="detail-item"><label>Passport No</label><span>{{ selectedStudent.passportNo || 'N/A'
-                            }}</span></div>
-                    <div class="detail-item"><label>Passport Type</label><span>{{ selectedStudent.passportType || 'N/A'
-                            }}</span></div>
-                    <div class="detail-item"><label>Issued By</label><span>{{ selectedStudent.passportIssuedBy || 'N/A'
-                            }}</span></div>
-                    <div class="detail-item"><label>Issue Date</label><span>{{
-                            formatDate(selectedStudent.passportIssueDate) }}</span></div>
-                    <div class="detail-item"><label>Expiry Date</label><span>{{
-                            formatDate(selectedStudent.passportExpirationDate) }}</span></div>
-                    <div class="detail-item"><label>Place of Birth</label><span>{{ selectedStudent.placeOfBirth || 'N/A'
-                            }}</span></div>
-                    <div class="detail-item"><label>Country of Birth</label><span>{{ selectedStudent.countryOfBirth ||
-                            'N/A' }}</span></div>
-                </div>
-            </div>
-
-            <!-- TELEX FORM INFORMATION (Highlighted) -->
-            <div class="detail-section telex-highlight">
-                <h3><i class="fas fa-id-badge"></i> Telex Form Information</h3>
-
-                <!-- Visa Images -->
-                <div class="image-row">
-                    <div class="image-card" *ngIf="selectedStudent.visaPhotoPath">
-                        <label>Visa Photo</label>
-                        <img [src]="getDocUrl(selectedStudent.visaPhotoPath)" alt="Visa Photo"
-                            (error)="onImageError($event)">
-                        <a [href]="getDocUrl(selectedStudent.visaPhotoPath)" target="_blank" download
-                            class="download-link">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-                    <div class="image-card" *ngIf="selectedStudent.visaPassportCopyPath">
-                        <label>Passport Copy</label>
-                        <img [src]="getDocUrl(selectedStudent.visaPassportCopyPath)" alt="Passport Copy"
-                            (error)="onImageError($event)">
-                        <a [href]="getDocUrl(selectedStudent.visaPassportCopyPath)" target="_blank" download
-                            class="download-link">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>
-                    <!-- Placeholder when no images -->
-                    <div class="image-card no-image-placeholder"
-                        *ngIf="!selectedStudent.visaPhotoPath && !selectedStudent.visaPassportCopyPath">
-                        <label>Visa Documents</label>
-                        <div class="no-image-box">
-                            <i class="fas fa-image"></i>
-                            <span>No visa documents uploaded yet</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Copyable Fields - Personal Info -->
-                <div class="copyable-grid">
-                    <div class="copy-field">
-                        <label>Surname</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.surname || 'Not Set' }}</span>
-                            <button class="copy-icon" (click)="copyField(selectedStudent.surname, 'surname')"
-                                [class.copied]="copiedField === 'surname'">
-                                <i [class]="copiedField === 'surname' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>First Name</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.firstName || 'Not Set' }}</span>
-                            <button class="copy-icon" (click)="copyField(selectedStudent.firstName, 'firstName')"
-                                [class.copied]="copiedField === 'firstName'">
-                                <i [class]="copiedField === 'firstName' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Middle Name</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.middleName || 'Not Set' }}</span>
-                            <button class="copy-icon" (click)="copyField(selectedStudent.middleName, 'middleName')"
-                                [class.copied]="copiedField === 'middleName'">
-                                <i [class]="copiedField === 'middleName' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Sex</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.sex || 'Not Set' }}</span>
-                            <button class="copy-icon" (click)="copyField(selectedStudent.sex, 'sex')"
-                                [class.copied]="copiedField === 'sex'">
-                                <i [class]="copiedField === 'sex' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Country of Birth</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.countryOfBirth || 'Not Set' }}</span>
-                            <button class="copy-icon"
-                                (click)="copyField(selectedStudent.countryOfBirth, 'countryOfBirth')"
-                                [class.copied]="copiedField === 'countryOfBirth'">
-                                <i [class]="copiedField === 'countryOfBirth' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Place of Birth</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.placeOfBirth || 'Not Set' }}</span>
-                            <button class="copy-icon" (click)="copyField(selectedStudent.placeOfBirth, 'placeOfBirth')"
-                                [class.copied]="copiedField === 'placeOfBirth'">
-                                <i [class]="copiedField === 'placeOfBirth' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Marital Status</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.maritalStatus || 'Not Set' }}</span>
-                            <button class="copy-icon"
-                                (click)="copyField(selectedStudent.maritalStatus, 'maritalStatus')"
-                                [class.copied]="copiedField === 'maritalStatus'">
-                                <i [class]="copiedField === 'maritalStatus' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Citizenship</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.citizenship || 'Not Set' }}</span>
-                            <button class="copy-icon" (click)="copyField(selectedStudent.citizenship, 'citizenship')"
-                                [class.copied]="copiedField === 'citizenship'">
-                                <i [class]="copiedField === 'citizenship' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Previous Citizenship</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.previousCitizenship || 'Not Set' }}</span>
-                            <button class="copy-icon"
-                                (click)="copyField(selectedStudent.previousCitizenship, 'previousCitizenship')"
-                                [class.copied]="copiedField === 'previousCitizenship'">
-                                <i [class]="copiedField === 'previousCitizenship' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Passport Details Section -->
-                <h4 class="subsection-title"><i class="fas fa-passport"></i> Passport Details</h4>
-                <div class="copyable-grid">
-                    <div class="copy-field">
-                        <label>Passport Type</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.passportType || 'Not Set' }}</span>
-                            <button class="copy-icon" (click)="copyField(selectedStudent.passportType, 'passportType')"
-                                [class.copied]="copiedField === 'passportType'">
-                                <i [class]="copiedField === 'passportType' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Passport Issued By</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.passportIssuedBy || 'Not Set' }}</span>
-                            <button class="copy-icon"
-                                (click)="copyField(selectedStudent.passportIssuedBy, 'passportIssuedBy')"
-                                [class.copied]="copiedField === 'passportIssuedBy'">
-                                <i [class]="copiedField === 'passportIssuedBy' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Passport Issue Date</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.passportIssueDate || 'Not Set' }}</span>
-                            <button class="copy-icon"
-                                (click)="copyField(selectedStudent.passportIssueDate, 'passportIssueDate')"
-                                [class.copied]="copiedField === 'passportIssueDate'">
-                                <i [class]="copiedField === 'passportIssueDate' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="copy-field">
-                        <label>Passport Expiration Date</label>
-                        <div class="copy-value">
-                            <span>{{ selectedStudent.passportExpirationDate || 'Not Set' }}</span>
-                            <button class="copy-icon"
-                                (click)="copyField(selectedStudent.passportExpirationDate, 'passportExpirationDate')"
-                                [class.copied]="copiedField === 'passportExpirationDate'">
-                                <i
-                                    [class]="copiedField === 'passportExpirationDate' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Copy All Button -->
-                <button class="copy-all-btn" (click)="copyAllTelexFormFields(selectedStudent)"
-                    [class.copied]="copiedField === 'all'">
-                    <i [class]="copiedField === 'all' ? 'fas fa-check' : 'fas fa-copy'"></i>
-                    {{ copiedField === 'all' ? 'Copied!' : 'Copy All Fields' }}
-                </button>
-            </div>
-
-            <!-- Academic Section -->
-            <div class="detail-section">
-                <h3><i class="fas fa-graduation-cap"></i> Academic</h3>
-                <div class="detail-grid">
-                    <div class="detail-item"><label>12th Marks</label><span>{{ selectedStudent.class12thMarks || 'N/A'
-                            }}</span></div>
-                    <div class="detail-item"><label>12th Year</label><span>{{ selectedStudent.class12thPassingYear ||
-                            'N/A' }}</span></div>
-                    <div class="detail-item" *ngIf="selectedStudent.hasGivenNEET"><label>NEET Score</label><span>{{
-                            selectedStudent.neetScore || 'N/A' }}</span></div>
-                </div>
-            </div>
-
-            <!-- Telex Status Section -->
-            <div class="detail-section" *ngIf="selectedStudent.telexNumber">
-                <h3><i class="fas fa-certificate"></i> Telex Status</h3>
-                <div class="detail-grid">
-                    <div class="detail-item"><label>Telex Number</label><span class="telex-highlight-value">{{
-                            selectedStudent.telexNumber }}</span></div>
-                    <div class="detail-item"><label>Issue Date</label><span>{{
-                            formatDate(selectedStudent.telexIssueDate) }}</span></div>
-                    <div class="detail-item" *ngIf="selectedStudent.telexPaymentAmount"><label>Payment</label><span>{{
-                            selectedStudent.telexPaymentAmount }}</span></div>
-                </div>
-            </div>
-        </div>
-    </div>
+      <div class="modal-header">
+        <h2><i class="fas fa-user"></i> {{ selectedStudent.fullName }}</h2>
+        <button class="close-btn" (click)="closeDetailsModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <!-- Quick Info Section -->
+        <div class="detail-section">
+          <h3><i class="fas fa-info-circle"></i> Basic Info</h3>
+          <div class="detail-grid">
+            <div class="detail-item"><label>Application ID</label><span>{{ selectedStudent.applicationId
+          }}</span></div>
+          <div class="detail-item"><label>Status</label><span class="status-badge"
+          [ngClass]="getStatusClass(selectedStudent.applicationStatus)">{{
+        formatStatus(selectedStudent.applicationStatus) }}</span></div>
+        <div class="detail-item"><label>Email</label><span>{{ selectedStudent.email || 'N/A' }}</span></div>
+        <div class="detail-item"><label>Contact</label><span>{{ selectedStudent.contactNo || 'N/A' }}</span>
+      </div>
+      <div class="detail-item"><label>Applied For</label><span>{{ selectedStudent.appliedFor || 'N/A'
+    }}</span></div>
+    <div class="detail-item"><label>Intake</label><span>{{ selectedStudent.intake || 'N/A' }}</span>
+  </div>
 </div>
+</div>
+<!-- Personal Details Section -->
+<div class="detail-section">
+  <h3><i class="fas fa-user-circle"></i> Personal Details</h3>
+  <div class="detail-grid">
+    <div class="detail-item"><label>Date of Birth</label><span>{{ formatDate(selectedStudent.dob)
+  }}</span></div>
+  <div class="detail-item"><label>Age</label><span>{{ selectedStudent.age || 'N/A' }}</span></div>
+  <div class="detail-item"><label>Sex</label><span>{{ selectedStudent.sex || 'N/A' }}</span></div>
+  <div class="detail-item"><label>Father's Name</label><span>{{ selectedStudent.fathersName || 'N/A'
+}}</span></div>
+<div class="detail-item"><label>Mother's Name</label><span>{{ selectedStudent.mothersName || 'N/A'
+}}</span></div>
+<div class="detail-item"><label>Marital Status</label><span>{{ selectedStudent.maritalStatus ||
+'N/A' }}</span></div>
+<div class="detail-item"><label>Citizenship</label><span>{{ selectedStudent.citizenship || 'N/A'
+}}</span></div>
+<div class="detail-item"><label>Address</label><span>{{ selectedStudent.address || 'N/A' }}</span>
+</div>
+</div>
+</div>
+<!-- Passport & Visa Section -->
+<div class="detail-section">
+  <h3><i class="fas fa-passport"></i> Passport & Visa</h3>
+  <div class="detail-grid">
+    <div class="detail-item"><label>Passport No</label><span>{{ selectedStudent.passportNo || 'N/A'
+  }}</span></div>
+  <div class="detail-item"><label>Passport Type</label><span>{{ selectedStudent.passportType || 'N/A'
+}}</span></div>
+<div class="detail-item"><label>Issued By</label><span>{{ selectedStudent.passportIssuedBy || 'N/A'
+}}</span></div>
+<div class="detail-item"><label>Issue Date</label><span>{{
+formatDate(selectedStudent.passportIssueDate) }}</span></div>
+<div class="detail-item"><label>Expiry Date</label><span>{{
+formatDate(selectedStudent.passportExpirationDate) }}</span></div>
+<div class="detail-item"><label>Place of Birth</label><span>{{ selectedStudent.placeOfBirth || 'N/A'
+}}</span></div>
+<div class="detail-item"><label>Country of Birth</label><span>{{ selectedStudent.countryOfBirth ||
+'N/A' }}</span></div>
+</div>
+</div>
+<!-- TELEX FORM INFORMATION (Highlighted) -->
+<div class="detail-section telex-highlight">
+  <h3><i class="fas fa-id-badge"></i> Telex Form Information</h3>
+  <!-- Visa Images -->
+  <div class="image-row">
+    @if (selectedStudent.visaPhotoPath) {
+      <div class="image-card">
+        <label>Visa Photo</label>
+        <img [src]="getDocUrl(selectedStudent.visaPhotoPath)" alt="Visa Photo"
+          (error)="onImageError($event)">
+        <a [href]="getDocUrl(selectedStudent.visaPhotoPath)" target="_blank" download
+          class="download-link">
+          <i class="fas fa-download"></i> Download
+        </a>
+      </div>
+    }
+    @if (selectedStudent.visaPassportCopyPath) {
+      <div class="image-card">
+        <label>Passport Copy</label>
+        <img [src]="getDocUrl(selectedStudent.visaPassportCopyPath)" alt="Passport Copy"
+          (error)="onImageError($event)">
+        <a [href]="getDocUrl(selectedStudent.visaPassportCopyPath)" target="_blank" download
+          class="download-link">
+          <i class="fas fa-download"></i> Download
+        </a>
+      </div>
+    }
+    <!-- Placeholder when no images -->
+    @if (!selectedStudent.visaPhotoPath && !selectedStudent.visaPassportCopyPath) {
+      <div class="image-card no-image-placeholder"
+        >
+        <label>Visa Documents</label>
+        <div class="no-image-box">
+          <i class="fas fa-image"></i>
+          <span>No visa documents uploaded yet</span>
+        </div>
+      </div>
+    }
+  </div>
+  <!-- Copyable Fields - Personal Info -->
+  <div class="copyable-grid">
+    <div class="copy-field">
+      <label>Surname</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.surname || 'Not Set' }}</span>
+        <button class="copy-icon" (click)="copyField(selectedStudent.surname, 'surname')"
+          [class.copied]="copiedField === 'surname'">
+          <i [class]="copiedField === 'surname' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>First Name</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.firstName || 'Not Set' }}</span>
+        <button class="copy-icon" (click)="copyField(selectedStudent.firstName, 'firstName')"
+          [class.copied]="copiedField === 'firstName'">
+          <i [class]="copiedField === 'firstName' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Middle Name</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.middleName || 'Not Set' }}</span>
+        <button class="copy-icon" (click)="copyField(selectedStudent.middleName, 'middleName')"
+          [class.copied]="copiedField === 'middleName'">
+          <i [class]="copiedField === 'middleName' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Sex</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.sex || 'Not Set' }}</span>
+        <button class="copy-icon" (click)="copyField(selectedStudent.sex, 'sex')"
+          [class.copied]="copiedField === 'sex'">
+          <i [class]="copiedField === 'sex' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Country of Birth</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.countryOfBirth || 'Not Set' }}</span>
+        <button class="copy-icon"
+          (click)="copyField(selectedStudent.countryOfBirth, 'countryOfBirth')"
+          [class.copied]="copiedField === 'countryOfBirth'">
+          <i [class]="copiedField === 'countryOfBirth' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Place of Birth</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.placeOfBirth || 'Not Set' }}</span>
+        <button class="copy-icon" (click)="copyField(selectedStudent.placeOfBirth, 'placeOfBirth')"
+          [class.copied]="copiedField === 'placeOfBirth'">
+          <i [class]="copiedField === 'placeOfBirth' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Marital Status</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.maritalStatus || 'Not Set' }}</span>
+        <button class="copy-icon"
+          (click)="copyField(selectedStudent.maritalStatus, 'maritalStatus')"
+          [class.copied]="copiedField === 'maritalStatus'">
+          <i [class]="copiedField === 'maritalStatus' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Citizenship</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.citizenship || 'Not Set' }}</span>
+        <button class="copy-icon" (click)="copyField(selectedStudent.citizenship, 'citizenship')"
+          [class.copied]="copiedField === 'citizenship'">
+          <i [class]="copiedField === 'citizenship' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Previous Citizenship</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.previousCitizenship || 'Not Set' }}</span>
+        <button class="copy-icon"
+          (click)="copyField(selectedStudent.previousCitizenship, 'previousCitizenship')"
+          [class.copied]="copiedField === 'previousCitizenship'">
+          <i [class]="copiedField === 'previousCitizenship' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Passport Details Section -->
+  <h4 class="subsection-title"><i class="fas fa-passport"></i> Passport Details</h4>
+  <div class="copyable-grid">
+    <div class="copy-field">
+      <label>Passport Type</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.passportType || 'Not Set' }}</span>
+        <button class="copy-icon" (click)="copyField(selectedStudent.passportType, 'passportType')"
+          [class.copied]="copiedField === 'passportType'">
+          <i [class]="copiedField === 'passportType' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Passport Issued By</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.passportIssuedBy || 'Not Set' }}</span>
+        <button class="copy-icon"
+          (click)="copyField(selectedStudent.passportIssuedBy, 'passportIssuedBy')"
+          [class.copied]="copiedField === 'passportIssuedBy'">
+          <i [class]="copiedField === 'passportIssuedBy' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Passport Issue Date</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.passportIssueDate || 'Not Set' }}</span>
+        <button class="copy-icon"
+          (click)="copyField(selectedStudent.passportIssueDate, 'passportIssueDate')"
+          [class.copied]="copiedField === 'passportIssueDate'">
+          <i [class]="copiedField === 'passportIssueDate' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+    <div class="copy-field">
+      <label>Passport Expiration Date</label>
+      <div class="copy-value">
+        <span>{{ selectedStudent.passportExpirationDate || 'Not Set' }}</span>
+        <button class="copy-icon"
+          (click)="copyField(selectedStudent.passportExpirationDate, 'passportExpirationDate')"
+          [class.copied]="copiedField === 'passportExpirationDate'">
+          <i
+          [class]="copiedField === 'passportExpirationDate' ? 'fas fa-check' : 'fas fa-copy'"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Copy All Button -->
+  <button class="copy-all-btn" (click)="copyAllTelexFormFields(selectedStudent)"
+    [class.copied]="copiedField === 'all'">
+    <i [class]="copiedField === 'all' ? 'fas fa-check' : 'fas fa-copy'"></i>
+    {{ copiedField === 'all' ? 'Copied!' : 'Copy All Fields' }}
+  </button>
+</div>
+<!-- Academic Section -->
+<div class="detail-section">
+  <h3><i class="fas fa-graduation-cap"></i> Academic</h3>
+  <div class="detail-grid">
+    <div class="detail-item"><label>12th Marks</label><span>{{ selectedStudent.class12thMarks || 'N/A'
+  }}</span></div>
+  <div class="detail-item"><label>12th Year</label><span>{{ selectedStudent.class12thPassingYear ||
+'N/A' }}</span></div>
+@if (selectedStudent.hasGivenNEET) {
+  <div class="detail-item"><label>NEET Score</label><span>{{
+selectedStudent.neetScore || 'N/A' }}</span></div>
+}
+</div>
+</div>
+<!-- Telex Status Section -->
+@if (selectedStudent.telexNumber) {
+  <div class="detail-section">
+    <h3><i class="fas fa-certificate"></i> Telex Status</h3>
+    <div class="detail-grid">
+      <div class="detail-item"><label>Telex Number</label><span class="telex-highlight-value">{{
+    selectedStudent.telexNumber }}</span></div>
+    <div class="detail-item"><label>Issue Date</label><span>{{
+  formatDate(selectedStudent.telexIssueDate) }}</span></div>
+  @if (selectedStudent.telexPaymentAmount) {
+    <div class="detail-item"><label>Payment</label><span>{{
+  selectedStudent.telexPaymentAmount }}</span></div>
+}
+</div>
+</div>
+}
+</div>
+</div>
+</div>
+}

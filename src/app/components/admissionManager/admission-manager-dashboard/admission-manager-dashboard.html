@@ -1,14 +1,18 @@
 <div class="dashboard-wrapper">
   <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <button class="sidebar-toggle" (click)="toggleSidebar()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        *ngIf="!isSidebarCollapsed">
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        *ngIf="isSidebarCollapsed">
-        <polyline points="9 18 15 12 9 6"></polyline>
-      </svg>
+      @if (!isSidebarCollapsed) {
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          >
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      }
+      @if (isSidebarCollapsed) {
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          >
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      }
     </button>
     <div class="sidebar-header">
       <div class="brand">
@@ -18,13 +22,17 @@
             <path d="M6 12v5c3 3 9 3 12 0v-5" />
           </svg>
         </div>
-        <span class="brand-name" *ngIf="!isSidebarCollapsed">CampusConnect</span>
+        @if (!isSidebarCollapsed) {
+          <span class="brand-name">CampusConnect</span>
+        }
       </div>
     </div>
 
     <div class="sidebar-content">
       <nav class="nav-menu">
-        <div class="nav-label" *ngIf="!isSidebarCollapsed">Overview</div>
+        @if (!isSidebarCollapsed) {
+          <div class="nav-label">Overview</div>
+        }
         <a class="nav-link" [class.active]="activeView === 'dashboard'" (click)="switchView('dashboard')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7"></rect>
@@ -32,10 +40,14 @@
             <rect x="14" y="14" width="7" height="7"></rect>
             <rect x="3" y="14" width="7" height="7"></rect>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">Dashboard</span>
+          @if (!isSidebarCollapsed) {
+            <span>Dashboard</span>
+          }
         </a>
 
-        <div class="nav-label" style="margin-top: 20px;" *ngIf="!isSidebarCollapsed">Workflow</div>
+        @if (!isSidebarCollapsed) {
+          <div class="nav-label" style="margin-top: 20px;">Workflow</div>
+        }
         <a class="nav-link" [class.active]="activeView === 'actions-required'" (click)="switchView('actions-required')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -43,8 +55,12 @@
             <line x1="8" y1="2" x2="8" y2="6"></line>
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">Actions Required</span>
-          <span class="nav-badge warning" *ngIf="actionRequiredStudents.length">{{actionRequiredStudents.length}}</span>
+          @if (!isSidebarCollapsed) {
+            <span>Actions Required</span>
+          }
+          @if (actionRequiredStudents.length) {
+            <span class="nav-badge warning">{{actionRequiredStudents.length}}</span>
+          }
         </a>
 
         <a class="nav-link" [class.active]="activeView === 'pending-university'"
@@ -53,8 +69,12 @@
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">Pending University</span>
-          <span class="nav-badge" *ngIf="pendingUniversityStudents.length">{{pendingUniversityStudents.length}}</span>
+          @if (!isSidebarCollapsed) {
+            <span>Pending University</span>
+          }
+          @if (pendingUniversityStudents.length) {
+            <span class="nav-badge">{{pendingUniversityStudents.length}}</span>
+          }
         </a>
 
         <a class="nav-link" [class.active]="activeView === 'processing'" (click)="switchView('processing')">
@@ -65,8 +85,12 @@
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">In Processing</span>
-          <span class="nav-badge" *ngIf="processingStudents.length">{{processingStudents.length}}</span>
+          @if (!isSidebarCollapsed) {
+            <span>In Processing</span>
+          }
+          @if (processingStudents.length) {
+            <span class="nav-badge">{{processingStudents.length}}</span>
+          }
         </a>
 
         <a class="nav-link" [class.active]="activeView === 'completed'" (click)="switchView('completed')">
@@ -74,10 +98,14 @@
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">All Students</span>
+          @if (!isSidebarCollapsed) {
+            <span>All Students</span>
+          }
         </a>
 
-        <div class="nav-label" style="margin-top: 20px;" *ngIf="!isSidebarCollapsed">Management</div>
+        @if (!isSidebarCollapsed) {
+          <div class="nav-label" style="margin-top: 20px;">Management</div>
+        }
 
         <a class="nav-link" [class.active]="activeView === 'reports'" (click)="switchView('reports')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -86,15 +114,21 @@
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">Reports</span>
+          @if (!isSidebarCollapsed) {
+            <span>Reports</span>
+          }
         </a>
 
         <a class="nav-link" [class.active]="activeView === 'messages'" (click)="switchView('messages')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">Messages</span>
-          <span class="nav-badge" *ngIf="getMessagesCount() > 0">{{ getMessagesCount() }}</span>
+          @if (!isSidebarCollapsed) {
+            <span>Messages</span>
+          }
+          @if (getMessagesCount() > 0) {
+            <span class="nav-badge">{{ getMessagesCount() }}</span>
+          }
         </a>
 
         <a class="nav-link" [class.active]="activeView === 'payment'" (click)="switchView('payment')">
@@ -102,7 +136,9 @@
             <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
             <line x1="1" y1="10" x2="23" y2="10"></line>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">Payment</span>
+          @if (!isSidebarCollapsed) {
+            <span>Payment</span>
+          }
         </a>
 
         <a class="nav-link" [class.active]="activeView === 'news'" (click)="switchView('news')">
@@ -112,7 +148,9 @@
             <line x1="7" y1="11" x2="17" y2="11"></line>
             <line x1="7" y1="15" x2="12" y2="15"></line>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">News Management</span>
+          @if (!isSidebarCollapsed) {
+            <span>News Management</span>
+          }
         </a>
 
         <a class="nav-link" [class.active]="activeView === 'profile'" (click)="switchView('profile')">
@@ -120,528 +158,584 @@
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
           </svg>
-          <span *ngIf="!isSidebarCollapsed">Profile</span>
+          @if (!isSidebarCollapsed) {
+            <span>Profile</span>
+          }
         </a>
       </nav>
     </div>
 
-    <div class="sidebar-footer" *ngIf="!isSidebarCollapsed">
-      <div class="user-profile" *ngIf="managerData">
-        <div class="user-avatar">
-          {{managerData.fullName.charAt(0)}}
-        </div>
-        <div class="user-details">
-          <span class="user-name">{{managerData.fullName}}</span>
-          <span class="user-role">Admission Manager</span>
-        </div>
+    @if (!isSidebarCollapsed) {
+      <div class="sidebar-footer">
+        @if (managerData) {
+          <div class="user-profile">
+            <div class="user-avatar">
+              {{managerData.fullName.charAt(0)}}
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{managerData.fullName}}</span>
+              <span class="user-role">Admission Manager</span>
+            </div>
+          </div>
+        }
+        <button class="logout-btn" (click)="logout()" title="Logout">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
       </div>
-      <button class="logout-btn" (click)="logout()" title="Logout">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
-        </svg>
-      </button>
-    </div>
+    }
   </aside>
 
   <main class="main-content">
 
     <header class="top-bar">
       <div class="page-title">
-        <h1 *ngIf="activeView === 'dashboard'">Dashboard Overview</h1>
-        <h1 *ngIf="activeView === 'actions-required'">Actions Required</h1>
-        <h1 *ngIf="activeView === 'pending-university'">Pending Response</h1>
-        <h1 *ngIf="activeView === 'processing'">In Processing</h1>
-        <h1 *ngIf="activeView === 'completed'">All Students</h1>
-        <h1 *ngIf="activeView === 'reports'">Reports</h1>
-        <h1 *ngIf="activeView === 'payment'">Payments</h1>
-        <h1 *ngIf="activeView === 'profile'">My Profile</h1>
-        <h1 *ngIf="activeView === 'messages'">Messages</h1>
-        <h1 *ngIf="activeView === 'news'">News Management</h1>
+        @if (activeView === 'dashboard') {
+          <h1>Dashboard Overview</h1>
+        }
+        @if (activeView === 'actions-required') {
+          <h1>Actions Required</h1>
+        }
+        @if (activeView === 'pending-university') {
+          <h1>Pending Response</h1>
+        }
+        @if (activeView === 'processing') {
+          <h1>In Processing</h1>
+        }
+        @if (activeView === 'completed') {
+          <h1>All Students</h1>
+        }
+        @if (activeView === 'reports') {
+          <h1>Reports</h1>
+        }
+        @if (activeView === 'payment') {
+          <h1>Payments</h1>
+        }
+        @if (activeView === 'profile') {
+          <h1>My Profile</h1>
+        }
+        @if (activeView === 'messages') {
+          <h1>Messages</h1>
+        }
+        @if (activeView === 'news') {
+          <h1>News Management</h1>
+        }
         <p>Manage your student pipeline & workflow</p>
       </div>
 
-      <div class="search-wrapper" *ngIf="activeView !== 'dashboard'">
-        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input type="text" placeholder="Search by Name, Passport, or Email..." [(ngModel)]="searchTerm"
-          (input)="filterStudents()">
-      </div>
+      @if (activeView !== 'dashboard') {
+        <div class="search-wrapper">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" placeholder="Search by Name, Passport, or Email..." [(ngModel)]="searchTerm"
+            (input)="filterStudents()">
+        </div>
+      }
     </header>
 
     <div class="content-body">
 
       <!-- Premium Loading State (Shows on initial load AND refresh) -->
-      <div class="premium-loading-overlay" *ngIf="isLoading || isRefreshing">
-        <div class="loading-backdrop"></div>
-        <div class="loading-content">
-          <div class="multi-ring-loader">
-            <div class="ring ring-outer"></div>
-            <div class="ring ring-middle"></div>
-            <div class="ring ring-inner"></div>
-            <div class="loader-core">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                <path d="M6 12v5c3 3 9 3 12 0v-5" />
-              </svg>
-            </div>
-          </div>
-          <div class="loading-text">
-            <h3>{{ isRefreshing ? 'Refreshing Data' : 'Loading Dashboard' }}</h3>
-            <p>{{ isRefreshing ? 'Syncing latest updates...' : 'Fetching your data...' }}</p>
-          </div>
-          <div class="loading-progress">
-            <div class="progress-bar"></div>
-          </div>
-        </div>
-        <div class="floating-particles">
-          <span></span><span></span><span></span><span></span><span></span>
-        </div>
-      </div>
-
-      <div class="dashboard-view" *ngIf="!isLoading && activeView === 'dashboard' && dashboardStats" [@fadeIn]>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon blue">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value">{{dashboardStats.totalStudents}}</span>
-              <span class="stat-label">Total Students</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon green">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="12" y1="18" x2="12" y2="12"></line>
-                <line x1="9" y1="15" x2="15" y2="15"></line>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value">{{dashboardStats.newApplications}}</span>
-              <span class="stat-label">New Applications</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon amber">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value">{{dashboardStats.pendingUniversityAction}}</span>
-              <span class="stat-label">Pending University</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon purple">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value">{{dashboardStats.admissionLettersGenerated}}</span>
-              <span class="stat-label">Admission Letters</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="dashboard-grid">
-          <div class="chart-card main-chart">
-            <div class="card-header">
-              <h3>Workflow Pipeline</h3>
-            </div>
-            <div class="chart-container">
-              <canvas baseChart [data]="pipelineChartData" [options]="pipelineChartOptions" [type]="pipelineChartType">
-              </canvas>
-            </div>
-          </div>
-
-          <div class="chart-card side-chart">
-            <div class="card-header">
-              <h3>Status Distribution</h3>
-            </div>
-            <div class="chart-container doughnut">
-              <canvas baseChart [data]="distributionChartData" [options]="distributionChartOptions"
-                [type]="distributionChartType">
-              </canvas>
-            </div>
-          </div>
-        </div>
-
-        <div class="activity-card full-width">
-          <div class="card-header">
-            <h3>Recent Student Activity</h3>
-          </div>
-          <div class="activity-list">
-            <div class="activity-item" *ngFor="let student of dashboardStats.recentStudents"
-              (click)="onRecentStudentClick(student.id)" style="cursor: pointer;">
-              <div class="activity-avatar" [style.background-color]="getAvatarColor(student.fullName)">
-                {{student.fullName.charAt(0)}}
-              </div>
-              <div class="activity-details">
-                <span class="activity-name">{{student.fullName}}</span>
-                <span class="activity-email">{{student.email}}</span>
-              </div>
-              <div class="activity-status">
-                <span class="status-pill" [ngClass]="getStatusClass(student.applicationStatus)">
-                  {{getStatusLabel(student.applicationStatus)}}
-                </span>
-              </div>
-              <span class="activity-time">{{student.updatedAt | date:'mediumDate'}}</span>
-              <button class="btn-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
-            </div>
-
-            <div class="empty-activity" *ngIf="dashboardStats.recentStudents.length === 0">
-              No recent activity found.
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="list-view-container"
-        *ngIf="!isLoading && activeView !== 'dashboard' && activeView !== 'messages' && activeView !== 'profile' && activeView !== 'reports' && activeView !== 'payment' && activeView !== 'news'">
-
-        <div class="empty-state" *ngIf="filteredList.length === 0">
-          <div class="empty-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-              stroke-dasharray="4 4">
-              <circle cx="12" cy="12" r="10"></circle>
-            </svg>
-          </div>
-          <h3>No students found</h3>
-          <p>There are no students matching your criteria in this section.</p>
-        </div>
-
-        <div class="table-card" *ngIf="filteredList.length > 0" [@fadeIn]>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Applicant</th>
-                <th>Passport / ID</th>
-                <th>Academic Info</th>
-                <th>Status</th>
-                <th>Next Step</th>
-                <th class="text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let student of filteredList">
-                <td>
-                  <div class="student-profile">
-                    <div class="table-avatar" [style.background-color]="getAvatarColor(student.fullName)">
-                      {{student.fullName.charAt(0)}}
-                    </div>
-                    <div class="student-meta">
-                      <span class="name">{{student.fullName}}</span>
-                      <span class="email">{{student.email}}</span>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <div class="id-info">
-                    <span class="passport">{{student.passportNo || 'N/A'}}</span>
-                    <span class="sub-text" *ngIf="student.passportValidTill">Exp: {{student.passportValidTill}}</span>
-                  </div>
-                </td>
-                <td>
-                  <div class="academic-info">
-                    <span class="course">{{student.appliedFor}}</span>
-                    <span class="sub-text">{{student.college?.collegeName || 'No College Assigned'}}</span>
-                  </div>
-                </td>
-                <td>
-                  <span class="status-pill" [ngClass]="getStatusClass(student.applicationStatus)">
-                    {{getStatusLabel(student.applicationStatus)}}
-                  </span>
-                </td>
-                <td>
-                  <span class="text-action" *ngIf="student.action">
-                    {{student.action.replace('_', ' ')}}
-                  </span>
-                  <span class="sub-text" *ngIf="!student.action">-</span>
-                </td>
-                <td class="text-right">
-                  <div class="action-group">
-                    <button class="btn-icon" (click)="selectStudent(student)" title="View Full Profile">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-
-                    <ng-container *ngIf="activeView === 'actions-required'">
-                      <button class="btn-primary btn-sm" *ngIf="student.action === 'FORWARD_TO_UNI'"
-                        (click)="initiateForwardToUniversity(student)">
-                        Forward
-                      </button>
-
-                      <button class="btn-success btn-sm" *ngIf="student.action === 'APPROVE_ADMISSION_LETTER'"
-                        (click)="initiateApproveLetter(student)">
-                        Approve
-                      </button>
-
-                      <button class="btn-assign btn-sm" *ngIf="student.action === 'ASSIGN_TELEX_MAN'"
-                        (click)="initiateAssignManager(student, 'telex')">
-                        Assign Telex
-                      </button>
-
-                      <button class="btn-assign btn-sm" *ngIf="student.action === 'ASSIGN_TO_VISA_MAN'"
-                        (click)="initiateAssignManager(student, 'visa')">
-                        Assign Visa
-                      </button>
-                    </ng-container>
-
-                    <a class="btn-outline btn-sm" *ngIf="student.admissionLetterPathInternal"
-                      [href]="getDocUrl(student.admissionLetterPathInternal)" target="_blank">
-                      Letter
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-
-      <!-- Profile View -->
-      <div class="profile-view-container" *ngIf="!isLoading && activeView === 'profile' && managerData" [@fadeIn]>
-        <div class="profile-card-large">
-          <div class="profile-header-bg"></div>
-          <div class="profile-content">
-            <div class="profile-avatar-large">
-              {{managerData.fullName.charAt(0)}}
-            </div>
-            <div class="profile-info-main">
-              <h2>{{managerData.fullName}}</h2>
-              <span class="role-badge">Admission Manager</span>
-            </div>
-
-            <div class="profile-details-grid">
-              <div class="detail-item">
-                <label>Username</label>
-                <span>{{managerData.username}}</span>
-              </div>
-              <div class="detail-item">
-                <label>Role ID</label>
-                <span>#{{managerData.id}}</span>
-              </div>
-              <div class="detail-item">
-                <label>Status</label>
-                <span class="status-active">Active</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Messages View -->
-      <!-- Premium Messages Loading Spinner -->
-      <div class="messages-loading-overlay" *ngIf="!isLoading && activeView === 'messages' && isLoadingMessages"
-        [@fadeIn]>
-        <div class="messages-loading-content">
-          <div class="messages-spinner"></div>
-          <p>Loading chats...</p>
-        </div>
-      </div>
-
-      <div class="message-view-container" *ngIf="!isLoading && activeView === 'messages' && !isLoadingMessages">
-        <app-message-dashboard-admission-manager></app-message-dashboard-admission-manager>
-      </div>
-
-      <!-- Placeholder Views for Reports & Payment -->
-      <div class="placeholder-view" *ngIf="!isLoading && (activeView === 'reports' || activeView === 'payment')"
-        [@fadeIn]>
-        <div class="placeholder-content">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-            stroke-dasharray="4 4">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-          <h3>Coming Soon</h3>
-          <p>This module is currently under development.</p>
-        </div>
-      </div>
-
-      <!-- News Management View -->
-      <div class="news-management-container" *ngIf="!isLoading && activeView === 'news'" [@fadeIn]>
-
-        <!-- News Loading State -->
-        <div class="news-loading-overlay" *ngIf="isLoadingNews">
-          <div class="news-loading-spinner"></div>
-          <p>Loading news...</p>
-        </div>
-
-        <!-- News Header with Create Button -->
-        <div class="news-header-bar" *ngIf="!isLoadingNews">
-          <div class="news-stats-row">
-            <div class="news-stat-card">
-              <div class="news-stat-icon total">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
-                  <line x1="7" y1="7" x2="17" y2="7"></line>
-                  <line x1="7" y1="11" x2="17" y2="11"></line>
+      @if (isLoading || isRefreshing) {
+        <div class="premium-loading-overlay">
+          <div class="loading-backdrop"></div>
+          <div class="loading-content">
+            <div class="multi-ring-loader">
+              <div class="ring ring-outer"></div>
+              <div class="ring ring-middle"></div>
+              <div class="ring ring-inner"></div>
+              <div class="loader-core">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                  <path d="M6 12v5c3 3 9 3 12 0v-5" />
                 </svg>
               </div>
-              <div class="news-stat-info">
-                <span class="news-stat-value">{{ getNewsStats().total }}</span>
-                <span class="news-stat-label">Total News</span>
+            </div>
+            <div class="loading-text">
+              <h3>{{ isRefreshing ? 'Refreshing Data' : 'Loading Dashboard' }}</h3>
+              <p>{{ isRefreshing ? 'Syncing latest updates...' : 'Fetching your data...' }}</p>
+            </div>
+            <div class="loading-progress">
+              <div class="progress-bar"></div>
+            </div>
+          </div>
+          <div class="floating-particles">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+      }
+
+      @if (!isLoading && activeView === 'dashboard' && dashboardStats) {
+        <div class="dashboard-view" [@fadeIn]>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon blue">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">{{dashboardStats.totalStudents}}</span>
+                <span class="stat-label">Total Students</span>
               </div>
             </div>
-
-            <div class="news-stat-card">
-              <div class="news-stat-icon active">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="stat-card">
+              <div class="stat-icon green">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">{{dashboardStats.newApplications}}</span>
+                <span class="stat-label">New Applications</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon amber">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">{{dashboardStats.pendingUniversityAction}}</span>
+                <span class="stat-label">Pending University</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                   <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
               </div>
-              <div class="news-stat-info">
-                <span class="news-stat-value">{{ getNewsStats().active }}</span>
-                <span class="news-stat-label">Active Now</span>
-              </div>
-            </div>
-
-            <div class="news-stat-card">
-              <div class="news-stat-icon agents">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="8.5" cy="7" r="4"></circle>
-                  <line x1="20" y1="8" x2="20" y2="14"></line>
-                  <line x1="23" y1="11" x2="17" y2="11"></line>
-                </svg>
-              </div>
-              <div class="news-stat-info">
-                <span class="news-stat-value">{{ getNewsStats().forAgents }}</span>
-                <span class="news-stat-label">For Agents</span>
-              </div>
-            </div>
-
-            <div class="news-stat-card">
-              <div class="news-stat-icon students">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                  <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                </svg>
-              </div>
-              <div class="news-stat-info">
-                <span class="news-stat-value">{{ getNewsStats().forStudents }}</span>
-                <span class="news-stat-label">For Students</span>
+              <div class="stat-info">
+                <span class="stat-value">{{dashboardStats.admissionLettersGenerated}}</span>
+                <span class="stat-label">Admission Letters</span>
               </div>
             </div>
           </div>
-
-          <button class="btn-create-news" (click)="openCreateNewsModal()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Create News
-          </button>
-        </div>
-
-        <!-- Empty State -->
-        <div class="news-empty-state" *ngIf="!isLoadingNews && newsList.length === 0">
-          <div class="news-empty-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-              <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
-              <line x1="7" y1="7" x2="17" y2="7"></line>
-              <line x1="7" y1="11" x2="17" y2="11"></line>
-              <line x1="7" y1="15" x2="12" y2="15"></line>
-            </svg>
+          <div class="dashboard-grid">
+            <div class="chart-card main-chart">
+              <div class="card-header">
+                <h3>Workflow Pipeline</h3>
+              </div>
+              <div class="chart-container">
+                <canvas baseChart [data]="pipelineChartData" [options]="pipelineChartOptions" [type]="pipelineChartType">
+                </canvas>
+              </div>
+            </div>
+            <div class="chart-card side-chart">
+              <div class="card-header">
+                <h3>Status Distribution</h3>
+              </div>
+              <div class="chart-container doughnut">
+                <canvas baseChart [data]="distributionChartData" [options]="distributionChartOptions"
+                  [type]="distributionChartType">
+                </canvas>
+              </div>
+            </div>
           </div>
-          <h3>No News Created Yet</h3>
-          <p>Start creating news to keep your agents and students informed.</p>
-          <button class="btn-primary" (click)="openCreateNewsModal()">Create Your First News</button>
+          <div class="activity-card full-width">
+            <div class="card-header">
+              <h3>Recent Student Activity</h3>
+            </div>
+            <div class="activity-list">
+              @for (student of dashboardStats.recentStudents; track student) {
+                <div class="activity-item"
+                  (click)="onRecentStudentClick(student.id)" style="cursor: pointer;">
+                  <div class="activity-avatar" [style.background-color]="getAvatarColor(student.fullName)">
+                    {{student.fullName.charAt(0)}}
+                  </div>
+                  <div class="activity-details">
+                    <span class="activity-name">{{student.fullName}}</span>
+                    <span class="activity-email">{{student.email}}</span>
+                  </div>
+                  <div class="activity-status">
+                    <span class="status-pill" [ngClass]="getStatusClass(student.applicationStatus)">
+                      {{getStatusLabel(student.applicationStatus)}}
+                    </span>
+                  </div>
+                  <span class="activity-time">{{student.updatedAt | date:'mediumDate'}}</span>
+                  <button class="btn-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </button>
+                </div>
+              }
+              @if (dashboardStats.recentStudents.length === 0) {
+                <div class="empty-activity">
+                  No recent activity found.
+                </div>
+              }
+            </div>
+          </div>
         </div>
+      }
+      @if (!isLoading && activeView !== 'dashboard' && activeView !== 'messages' && activeView !== 'profile' && activeView !== 'reports' && activeView !== 'payment' && activeView !== 'news') {
+        <div class="list-view-container"
+          >
+          @if (filteredList.length === 0) {
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                  stroke-dasharray="4 4">
+                  <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+              </div>
+              <h3>No students found</h3>
+              <p>There are no students matching your criteria in this section.</p>
+            </div>
+          }
+          @if (filteredList.length > 0) {
+            <div class="table-card" [@fadeIn]>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Applicant</th>
+                    <th>Passport / ID</th>
+                    <th>Academic Info</th>
+                    <th>Status</th>
+                    <th>Next Step</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (student of filteredList; track student) {
+                    <tr>
+                      <td>
+                        <div class="student-profile">
+                          <div class="table-avatar" [style.background-color]="getAvatarColor(student.fullName)">
+                            {{student.fullName.charAt(0)}}
+                          </div>
+                          <div class="student-meta">
+                            <span class="name">{{student.fullName}}</span>
+                            <span class="email">{{student.email}}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="id-info">
+                          <span class="passport">{{student.passportNo || 'N/A'}}</span>
+                          @if (student.passportValidTill) {
+                            <span class="sub-text">Exp: {{student.passportValidTill}}</span>
+                          }
+                        </div>
+                      </td>
+                      <td>
+                        <div class="academic-info">
+                          <span class="course">{{student.appliedFor}}</span>
+                          <span class="sub-text">{{student.college?.collegeName || 'No College Assigned'}}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="status-pill" [ngClass]="getStatusClass(student.applicationStatus)">
+                          {{getStatusLabel(student.applicationStatus)}}
+                        </span>
+                      </td>
+                      <td>
+                        @if (student.action) {
+                          <span class="text-action">
+                            {{student.action.replace('_', ' ')}}
+                          </span>
+                        }
+                        @if (!student.action) {
+                          <span class="sub-text">-</span>
+                        }
+                      </td>
+                      <td class="text-right">
+                        <div class="action-group">
+                          <button class="btn-icon" (click)="selectStudent(student)" title="View Full Profile">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                              stroke-width="2">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                              <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                          </button>
+                          @if (activeView === 'actions-required') {
+                            @if (student.action === 'FORWARD_TO_UNI') {
+                              <button class="btn-primary btn-sm"
+                                (click)="initiateForwardToUniversity(student)">
+                                Forward
+                              </button>
+                            }
+                            @if (student.action === 'APPROVE_ADMISSION_LETTER') {
+                              <button class="btn-success btn-sm"
+                                (click)="initiateApproveLetter(student)">
+                                Approve
+                              </button>
+                            }
+                            @if (student.action === 'ASSIGN_TELEX_MAN') {
+                              <button class="btn-assign btn-sm"
+                                (click)="initiateAssignManager(student, 'telex')">
+                                Assign Telex
+                              </button>
+                            }
+                            @if (student.action === 'ASSIGN_TO_VISA_MAN') {
+                              <button class="btn-assign btn-sm"
+                                (click)="initiateAssignManager(student, 'visa')">
+                                Assign Visa
+                              </button>
+                            }
+                          }
+                          @if (student.admissionLetterPathInternal) {
+                            <a class="btn-outline btn-sm"
+                              [href]="getDocUrl(student.admissionLetterPathInternal)" target="_blank">
+                              Letter
+                            </a>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
 
-        <!-- News Table -->
-        <div class="news-table-card" *ngIf="!isLoadingNews && newsList.length > 0">
-          <table class="news-data-table">
-            <thead>
-              <tr>
-                <th>Heading</th>
-                <th>Audience</th>
-                <th>Date Range</th>
-                <th>Tag</th>
-                <th>Status</th>
-                <th class="text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let news of newsList">
-                <td>
-                  <div class="news-heading-cell">
-                    <span class="news-heading-text">{{ news.heading }}</span>
-                    <span class="news-content-preview">{{ news.content | slice:0:50 }}{{ (news.content &&
-                      news.content.length > 50) ? '...' : '' }}</span>
-                  </div>
-                </td>
-                <td>
-                  <span class="audience-badge" [ngClass]="getForUserClass(news.forUser)">
-                    {{ getForUserLabel(news.forUser) }}
-                  </span>
-                </td>
-                <td>
-                  <div class="news-date-range">
-                    <span class="date-from">{{ formatNewsDate(news.activeFrom) }}</span>
-                    <span class="date-separator">→</span>
-                    <span class="date-to">{{ formatNewsDate(news.tillDate) }}</span>
-                  </div>
-                </td>
-                <td>
-                  <span class="news-tag-badge">{{ getTagLabel(news.tag) }}</span>
-                </td>
-                <td>
-                  <span class="news-status-badge" [ngClass]="isNewsActive(news) ? 'status-active' : 'status-inactive'">
-                    {{ isNewsActive(news) ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-                <td class="text-right">
-                  <div class="news-action-group">
-                    <button class="btn-icon-edit" (click)="openEditNewsModal(news)" title="Edit">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                    </button>
-                    <button class="btn-icon-delete" (click)="openDeleteConfirmModal(news.id!)" title="Delete">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+      <!-- Profile View -->
+      @if (!isLoading && activeView === 'profile' && managerData) {
+        <div class="profile-view-container" [@fadeIn]>
+          <div class="profile-card-large">
+            <div class="profile-header-bg"></div>
+            <div class="profile-content">
+              <div class="profile-avatar-large">
+                {{managerData.fullName.charAt(0)}}
+              </div>
+              <div class="profile-info-main">
+                <h2>{{managerData.fullName}}</h2>
+                <span class="role-badge">Admission Manager</span>
+              </div>
+              <div class="profile-details-grid">
+                <div class="detail-item">
+                  <label>Username</label>
+                  <span>{{managerData.username}}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Role ID</label>
+                  <span>#{{managerData.id}}</span>
+                </div>
+                <div class="detail-item">
+                  <label>Status</label>
+                  <span class="status-active">Active</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      }
+
+      <!-- Messages View -->
+      <!-- Premium Messages Loading Spinner -->
+      @if (!isLoading && activeView === 'messages' && isLoadingMessages) {
+        <div class="messages-loading-overlay"
+          [@fadeIn]>
+          <div class="messages-loading-content">
+            <div class="messages-spinner"></div>
+            <p>Loading chats...</p>
+          </div>
+        </div>
+      }
+
+      @if (!isLoading && activeView === 'messages' && !isLoadingMessages) {
+        <div class="message-view-container">
+          <app-message-dashboard-admission-manager></app-message-dashboard-admission-manager>
+        </div>
+      }
+
+      <!-- Placeholder Views for Reports & Payment -->
+      @if (!isLoading && (activeView === 'reports' || activeView === 'payment')) {
+        <div class="placeholder-view"
+          [@fadeIn]>
+          <div class="placeholder-content">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+              stroke-dasharray="4 4">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <h3>Coming Soon</h3>
+            <p>This module is currently under development.</p>
+          </div>
+        </div>
+      }
+
+      <!-- News Management View -->
+      @if (!isLoading && activeView === 'news') {
+        <div class="news-management-container" [@fadeIn]>
+          <!-- News Loading State -->
+          @if (isLoadingNews) {
+            <div class="news-loading-overlay">
+              <div class="news-loading-spinner"></div>
+              <p>Loading news...</p>
+            </div>
+          }
+          <!-- News Header with Create Button -->
+          @if (!isLoadingNews) {
+            <div class="news-header-bar">
+              <div class="news-stats-row">
+                <div class="news-stat-card">
+                  <div class="news-stat-icon total">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
+                      <line x1="7" y1="7" x2="17" y2="7"></line>
+                      <line x1="7" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                  </div>
+                  <div class="news-stat-info">
+                    <span class="news-stat-value">{{ getNewsStats().total }}</span>
+                    <span class="news-stat-label">Total News</span>
+                  </div>
+                </div>
+                <div class="news-stat-card">
+                  <div class="news-stat-icon active">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                  </div>
+                  <div class="news-stat-info">
+                    <span class="news-stat-value">{{ getNewsStats().active }}</span>
+                    <span class="news-stat-label">Active Now</span>
+                  </div>
+                </div>
+                <div class="news-stat-card">
+                  <div class="news-stat-icon agents">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="8.5" cy="7" r="4"></circle>
+                      <line x1="20" y1="8" x2="20" y2="14"></line>
+                      <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                  </div>
+                  <div class="news-stat-info">
+                    <span class="news-stat-value">{{ getNewsStats().forAgents }}</span>
+                    <span class="news-stat-label">For Agents</span>
+                  </div>
+                </div>
+                <div class="news-stat-card">
+                  <div class="news-stat-icon students">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                      <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                    </svg>
+                  </div>
+                  <div class="news-stat-info">
+                    <span class="news-stat-value">{{ getNewsStats().forStudents }}</span>
+                    <span class="news-stat-label">For Students</span>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-create-news" (click)="openCreateNewsModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Create News
+              </button>
+            </div>
+          }
+          <!-- Empty State -->
+          @if (!isLoadingNews && newsList.length === 0) {
+            <div class="news-empty-state">
+              <div class="news-empty-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
+                  <line x1="7" y1="7" x2="17" y2="7"></line>
+                  <line x1="7" y1="11" x2="17" y2="11"></line>
+                  <line x1="7" y1="15" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <h3>No News Created Yet</h3>
+              <p>Start creating news to keep your agents and students informed.</p>
+              <button class="btn-primary" (click)="openCreateNewsModal()">Create Your First News</button>
+            </div>
+          }
+          <!-- News Table -->
+          @if (!isLoadingNews && newsList.length > 0) {
+            <div class="news-table-card">
+              <table class="news-data-table">
+                <thead>
+                  <tr>
+                    <th>Heading</th>
+                    <th>Audience</th>
+                    <th>Date Range</th>
+                    <th>Tag</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (news of newsList; track news) {
+                    <tr>
+                      <td>
+                        <div class="news-heading-cell">
+                          <span class="news-heading-text">{{ news.heading }}</span>
+                          <span class="news-content-preview">{{ news.content | slice:0:50 }}{{ (news.content &&
+                          news.content.length > 50) ? '...' : '' }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="audience-badge" [ngClass]="getForUserClass(news.forUser)">
+                          {{ getForUserLabel(news.forUser) }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="news-date-range">
+                          <span class="date-from">{{ formatNewsDate(news.activeFrom) }}</span>
+                          <span class="date-separator">→</span>
+                          <span class="date-to">{{ formatNewsDate(news.tillDate) }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="news-tag-badge">{{ getTagLabel(news.tag) }}</span>
+                      </td>
+                      <td>
+                        <span class="news-status-badge" [ngClass]="isNewsActive(news) ? 'status-active' : 'status-inactive'">
+                          {{ isNewsActive(news) ? 'Active' : 'Inactive' }}
+                        </span>
+                      </td>
+                      <td class="text-right">
+                        <div class="news-action-group">
+                          <button class="btn-icon-edit" (click)="openEditNewsModal(news)" title="Edit">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                              stroke-width="2">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                          </button>
+                          <button class="btn-icon-delete" (click)="openDeleteConfirmModal(news.id!)" title="Delete">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                              stroke-width="2">
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
 
     </div>
 
@@ -649,21 +743,25 @@
     <button class="floating-fullscreen-btn" [class.active]="isFullscreen" (click)="toggleFullscreen()"
       [title]="isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'">
       <!-- Expand Icon (when not fullscreen) -->
-      <svg *ngIf="!isFullscreen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 3 21 3 21 9"></polyline>
-        <polyline points="9 21 3 21 3 15"></polyline>
-        <line x1="21" y1="3" x2="14" y2="10"></line>
-        <line x1="3" y1="21" x2="10" y2="14"></line>
-      </svg>
+      @if (!isFullscreen) {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <polyline points="9 21 3 21 3 15"></polyline>
+          <line x1="21" y1="3" x2="14" y2="10"></line>
+          <line x1="3" y1="21" x2="10" y2="14"></line>
+        </svg>
+      }
       <!-- Compress Icon (when fullscreen) -->
-      <svg *ngIf="isFullscreen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="4 14 10 14 10 20"></polyline>
-        <polyline points="20 10 14 10 14 4"></polyline>
-        <line x1="14" y1="10" x2="21" y2="3"></line>
-        <line x1="3" y1="21" x2="10" y2="14"></line>
-      </svg>
+      @if (isFullscreen) {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 14 10 14 10 20"></polyline>
+          <polyline points="20 10 14 10 14 4"></polyline>
+          <line x1="14" y1="10" x2="21" y2="3"></line>
+          <line x1="3" y1="21" x2="10" y2="14"></line>
+        </svg>
+      }
     </button>
 
     <button class="floating-refresh-btn" [class.spinning]="isRefreshing" (click)="refreshData()" title="Refresh Data">
@@ -677,44 +775,43 @@
   </main>
 
 
-  <div class="modal-backdrop" *ngIf="showStudentDetail" (click)="closeStudentDetail()">
-    <div class="modal-panel" (click)="$event.stopPropagation()" [@fadeIn]>
-      <div class="modal-header">
-        <div>
-          <h2>Applicant Profile</h2>
-          <p class="modal-subtitle">Student ID: #{{selectedStudent?.id}}</p>
+  @if (showStudentDetail) {
+    <div class="modal-backdrop" (click)="closeStudentDetail()">
+      <div class="modal-panel" (click)="$event.stopPropagation()" [@fadeIn]>
+        <div class="modal-header">
+          <div>
+            <h2>Applicant Profile</h2>
+            <p class="modal-subtitle">Student ID: #{{selectedStudent?.id}}</p>
+          </div>
+          <button class="close-btn" (click)="closeStudentDetail()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
-        <button class="close-btn" (click)="closeStudentDetail()">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-
-      <div class="modal-scroll-content" *ngIf="selectedStudent">
-        <div class="detail-grid">
-
-          <div class="detail-card">
-            <div class="card-header">
-              <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              <h3>Personal Info</h3>
-            </div>
-            <div class="info-list">
-              <div class="info-item"><label>Full Name</label><span>{{selectedStudent.fullName || 'N/A'}}</span></div>
-              <div class="info-item"><label>Email</label><span>{{selectedStudent.email || 'N/A'}}</span></div>
-              <div class="info-item"><label>DOB</label><span>{{selectedStudent.dob}} ({{selectedStudent.age}}
-                  yrs)</span></div>
-              <div class="info-item"><label>Contact</label><span>{{selectedStudent.contactNo || 'N/A'}}</span></div>
-              <div class="info-item" style="grid-column: span 2"><label>Address</label><span>{{selectedStudent.address
-                  || 'N/A'}}</span></div>
+        @if (selectedStudent) {
+          <div class="modal-scroll-content">
+            <div class="detail-grid">
+              <div class="detail-card">
+                <div class="card-header">
+                  <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <h3>Personal Info</h3>
+                </div>
+                <div class="info-list">
+                  <div class="info-item"><label>Full Name</label><span>{{selectedStudent.fullName || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Email</label><span>{{selectedStudent.email || 'N/A'}}</span></div>
+                  <div class="info-item"><label>DOB</label><span>{{selectedStudent.dob}} ({{selectedStudent.age}}
+                yrs)</span></div>
+                <div class="info-item"><label>Contact</label><span>{{selectedStudent.contactNo || 'N/A'}}</span></div>
+                <div class="info-item" style="grid-column: span 2"><label>Address</label><span>{{selectedStudent.address
+              || 'N/A'}}</span></div>
             </div>
           </div>
-
           <div class="detail-card">
             <div class="card-header">
               <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -728,228 +825,268 @@
               <div class="info-item"><label>Father</label><span>{{selectedStudent.fathersName || 'N/A'}}</span></div>
               <div class="info-item"><label>Mother</label><span>{{selectedStudent.mothersName || 'N/A'}}</span></div>
               <div class="info-item"><label>Emergency</label><span>{{selectedStudent.emergencyContactNo ||
-                  'N/A'}}</span></div>
-              <div class="info-item"><label>Relation</label><span>{{selectedStudent.emergencyRelation || 'N/A'}}</span>
-              </div>
-            </div>
+            'N/A'}}</span></div>
+            <div class="info-item"><label>Relation</label><span>{{selectedStudent.emergencyRelation || 'N/A'}}</span>
           </div>
-
-          <div class="detail-card">
-            <div class="card-header">
-              <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-              </svg>
-              <h3>Academic & Course</h3>
-            </div>
-            <div class="info-list">
-              <div class="info-item"><label>Applied For</label><span>{{selectedStudent.appliedFor}}
-                  ({{selectedStudent.intake}})</span></div>
-              <div class="info-item"><label>College</label><span>{{selectedStudent.college?.collegeName ||
-                  'N/A'}}</span></div>
-              <div class="info-item"><label>12th Board</label><span>{{selectedStudent.baords}}
-                  ({{selectedStudent.class12thPassingYear}})</span></div>
-              <div class="info-item"><label>Marks</label><span>{{selectedStudent.class12thMarks}} /
-                  {{selectedStudent.maxMarks}}</span></div>
-            </div>
-          </div>
-
-          <div class="detail-card">
-            <div class="card-header">
-              <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-              </svg>
-              <h3>Identification</h3>
-            </div>
-            <div class="info-list">
-              <div class="info-item"><label>Passport</label><span>{{selectedStudent.passportNo || 'N/A'}}</span></div>
-              <div class="info-item"><label>Valid Till</label><span>{{selectedStudent.passportValidTill ||
-                  'N/A'}}</span></div>
-              <div class="info-item"><label>Adhaar</label><span>{{selectedStudent.adhaarCardNo || 'N/A'}}</span></div>
-            </div>
-          </div>
-
-          <div class="detail-card full-width">
-            <div class="card-header">
-              <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-              <h3>Assigned Staff</h3>
-            </div>
-            <div class="info-list">
-              <div class="info-item"><label>Telex Manager</label><span>{{selectedStudent.telexMan?.fullName || 'Not
-                  Assigned'}}</span></div>
-              <div class="info-item"><label>Visa Manager</label><span>{{selectedStudent.visaMan?.fullName || 'Not
-                  Assigned'}}</span></div>
-              <div class="info-item"><label>Telex No</label><span>{{selectedStudent.telexNumber || 'Pending'}}</span>
-              </div>
-              <div class="info-item"><label>Payment</label><span>{{selectedStudent.paymentStatus || 'N/A'}}</span></div>
-            </div>
-          </div>
-
-          <div class="detail-card full-width">
-            <div class="card-header">
-              <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-              <h3>Documents</h3>
-            </div>
-            <div class="document-grid">
-              <!-- Basic Documents -->
-              <a *ngIf="selectedStudent.passportPath" [href]="getDocUrl(selectedStudent.passportPath)" target="_blank"
-                class="doc-tile">
-                <div class="doc-name">Passport</div>
-              </a>
-              <a *ngIf="selectedStudent.markseetPath" [href]="getDocUrl(selectedStudent.markseetPath)" target="_blank"
-                class="doc-tile">
-                <div class="doc-name">12th Marksheet</div>
-              </a>
-              <a *ngIf="selectedStudent.adhaarPath" [href]="getDocUrl(selectedStudent.adhaarPath)" target="_blank"
-                class="doc-tile">
-                <div class="doc-name">Aadhaar</div>
-              </a>
-              <a *ngIf="selectedStudent.profileImagePath" [href]="getDocUrl(selectedStudent.profileImagePath)"
-                target="_blank" class="doc-tile">
-                <div class="doc-name">Profile Photo</div>
-              </a>
-              <a *ngIf="selectedStudent.neetMarksheetPath" [href]="getDocUrl(selectedStudent.neetMarksheetPath)"
-                target="_blank" class="doc-tile">
-                <div class="doc-name">NEET Scorecard</div>
-              </a>
-
-              <!-- Application Documents -->
-              <a *ngIf="selectedStudent.confirmationPagePath" [href]="getDocUrl(selectedStudent.confirmationPagePath)"
-                target="_blank" class="doc-tile">
-                <div class="doc-name">Confirmation Page</div>
-              </a>
-              <a *ngIf="selectedStudent.admissionLetterPathInternal"
-                [href]="getDocUrl(selectedStudent.admissionLetterPathInternal)" target="_blank" class="doc-tile">
-                <div class="doc-name">Admission Letter</div>
-              </a>
-              <a *ngIf="selectedStudent.conditionalOfferLetterPath"
-                [href]="getDocUrl(selectedStudent.conditionalOfferLetterPath)" target="_blank" class="doc-tile">
-                <div class="doc-name">Conditional Offer</div>
-              </a>
-
-              <!-- Telex Documents -->
-              <a *ngIf="selectedStudent.telexDocumentsPath" [href]="getDocUrl(selectedStudent.telexDocumentsPath)"
-                target="_blank" class="doc-tile">
-                <div class="doc-name">Telex Documents</div>
-              </a>
-              <a *ngIf="selectedStudent.telexPaymentScreenshotPath"
-                [href]="getDocUrl(selectedStudent.telexPaymentScreenshotPath)" target="_blank" class="doc-tile">
-                <div class="doc-name">Telex Payment Screenshot</div>
-              </a>
-
-              <!-- Visa Documents -->
-              <a *ngIf="selectedStudent.visaPhotoPath" [href]="getDocUrl(selectedStudent.visaPhotoPath)" target="_blank"
-                class="doc-tile">
-                <div class="doc-name">Visa Photo</div>
-              </a>
-              <a *ngIf="selectedStudent.visaPassportCopyPath" [href]="getDocUrl(selectedStudent.visaPassportCopyPath)"
-                target="_blank" class="doc-tile">
-                <div class="doc-name">Visa Passport Copy</div>
-              </a>
-
-              <!-- Payment Documents -->
-              <a *ngIf="selectedStudent.ttCopyPath" [href]="getDocUrl(selectedStudent.ttCopyPath)" target="_blank"
-                class="doc-tile">
-                <div class="doc-name">TT Copy</div>
-              </a>
-              <a *ngIf="selectedStudent.paymentConfirmationPath"
-                [href]="getDocUrl(selectedStudent.paymentConfirmationPath)" target="_blank" class="doc-tile">
-                <div class="doc-name">Payment Confirmation</div>
-              </a>
-
-              <div
-                *ngIf="!selectedStudent.passportPath && !selectedStudent.markseetPath && !selectedStudent.adhaarPath && !selectedStudent.profileImagePath"
-                style="color: #94a3b8; font-style: italic;">No documents available.</div>
-            </div>
-          </div>
-
-          <div class="detail-card full-width">
-            <div class="card-header">
-              <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              <h3>History</h3>
-            </div>
-            <div class="history-timeline" *ngIf="selectedStudent.studentStatusHistory?.length; else noHistory">
-              <div class="history-item" *ngFor="let history of selectedStudent.studentStatusHistory">
-                <div class="timeline-dot"></div>
-                <div class="history-content">
-                  <h4>{{getStatusLabel(history.studentApplicationStatus)}}</h4>
-                  <div class="history-meta">
-                    <span class="history-actor">By: {{history.updatedBy || 'System'}}</span>
-                    <span> • {{history.updatedAt | date:'medium'}}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <ng-template #noHistory>
-              <div style="padding: 20px; color: #94a3b8;">No history available.</div>
-            </ng-template>
-          </div>
-
         </div>
       </div>
-    </div>
+      <div class="detail-card">
+        <div class="card-header">
+          <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+          </svg>
+          <h3>Academic & Course</h3>
+        </div>
+        <div class="info-list">
+          <div class="info-item"><label>Applied For</label><span>{{selectedStudent.appliedFor}}
+        ({{selectedStudent.intake}})</span></div>
+        <div class="info-item"><label>College</label><span>{{selectedStudent.college?.collegeName ||
+      'N/A'}}</span></div>
+      <div class="info-item"><label>12th Board</label><span>{{selectedStudent.baords}}
+    ({{selectedStudent.class12thPassingYear}})</span></div>
+    <div class="info-item"><label>Marks</label><span>{{selectedStudent.class12thMarks}} /
+  {{selectedStudent.maxMarks}}</span></div>
+</div>
+</div>
+<div class="detail-card">
+  <div class="card-header">
+    <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+      <line x1="16" y1="2" x2="16" y2="6"></line>
+    </svg>
+    <h3>Identification</h3>
   </div>
+  <div class="info-list">
+    <div class="info-item"><label>Passport</label><span>{{selectedStudent.passportNo || 'N/A'}}</span></div>
+    <div class="info-item"><label>Valid Till</label><span>{{selectedStudent.passportValidTill ||
+  'N/A'}}</span></div>
+  <div class="info-item"><label>Adhaar</label><span>{{selectedStudent.adhaarCardNo || 'N/A'}}</span></div>
+</div>
+</div>
+<div class="detail-card full-width">
+  <div class="card-header">
+    <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </svg>
+    <h3>Assigned Staff</h3>
+  </div>
+  <div class="info-list">
+    <div class="info-item"><label>Telex Manager</label><span>{{selectedStudent.telexMan?.fullName || 'Not
+  Assigned'}}</span></div>
+  <div class="info-item"><label>Visa Manager</label><span>{{selectedStudent.visaMan?.fullName || 'Not
+Assigned'}}</span></div>
+<div class="info-item"><label>Telex No</label><span>{{selectedStudent.telexNumber || 'Pending'}}</span>
+</div>
+<div class="info-item"><label>Payment</label><span>{{selectedStudent.paymentStatus || 'N/A'}}</span></div>
+</div>
+</div>
+<div class="detail-card full-width">
+  <div class="card-header">
+    <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+    </svg>
+    <h3>Documents</h3>
+  </div>
+  <div class="document-grid">
+    <!-- Basic Documents -->
+    @if (selectedStudent.passportPath) {
+      <a [href]="getDocUrl(selectedStudent.passportPath)" target="_blank"
+        class="doc-tile">
+        <div class="doc-name">Passport</div>
+      </a>
+    }
+    @if (selectedStudent.markseetPath) {
+      <a [href]="getDocUrl(selectedStudent.markseetPath)" target="_blank"
+        class="doc-tile">
+        <div class="doc-name">12th Marksheet</div>
+      </a>
+    }
+    @if (selectedStudent.adhaarPath) {
+      <a [href]="getDocUrl(selectedStudent.adhaarPath)" target="_blank"
+        class="doc-tile">
+        <div class="doc-name">Aadhaar</div>
+      </a>
+    }
+    @if (selectedStudent.profileImagePath) {
+      <a [href]="getDocUrl(selectedStudent.profileImagePath)"
+        target="_blank" class="doc-tile">
+        <div class="doc-name">Profile Photo</div>
+      </a>
+    }
+    @if (selectedStudent.neetMarksheetPath) {
+      <a [href]="getDocUrl(selectedStudent.neetMarksheetPath)"
+        target="_blank" class="doc-tile">
+        <div class="doc-name">NEET Scorecard</div>
+      </a>
+    }
+    <!-- Application Documents -->
+    @if (selectedStudent.confirmationPagePath) {
+      <a [href]="getDocUrl(selectedStudent.confirmationPagePath)"
+        target="_blank" class="doc-tile">
+        <div class="doc-name">Confirmation Page</div>
+      </a>
+    }
+    @if (selectedStudent.admissionLetterPathInternal) {
+      <a
+        [href]="getDocUrl(selectedStudent.admissionLetterPathInternal)" target="_blank" class="doc-tile">
+        <div class="doc-name">Admission Letter</div>
+      </a>
+    }
+    @if (selectedStudent.conditionalOfferLetterPath) {
+      <a
+        [href]="getDocUrl(selectedStudent.conditionalOfferLetterPath)" target="_blank" class="doc-tile">
+        <div class="doc-name">Conditional Offer</div>
+      </a>
+    }
+    <!-- Telex Documents -->
+    @if (selectedStudent.telexDocumentsPath) {
+      <a [href]="getDocUrl(selectedStudent.telexDocumentsPath)"
+        target="_blank" class="doc-tile">
+        <div class="doc-name">Telex Documents</div>
+      </a>
+    }
+    @if (selectedStudent.telexPaymentScreenshotPath) {
+      <a
+        [href]="getDocUrl(selectedStudent.telexPaymentScreenshotPath)" target="_blank" class="doc-tile">
+        <div class="doc-name">Telex Payment Screenshot</div>
+      </a>
+    }
+    <!-- Visa Documents -->
+    @if (selectedStudent.visaPhotoPath) {
+      <a [href]="getDocUrl(selectedStudent.visaPhotoPath)" target="_blank"
+        class="doc-tile">
+        <div class="doc-name">Visa Photo</div>
+      </a>
+    }
+    @if (selectedStudent.visaPassportCopyPath) {
+      <a [href]="getDocUrl(selectedStudent.visaPassportCopyPath)"
+        target="_blank" class="doc-tile">
+        <div class="doc-name">Visa Passport Copy</div>
+      </a>
+    }
+    <!-- Payment Documents -->
+    @if (selectedStudent.ttCopyPath) {
+      <a [href]="getDocUrl(selectedStudent.ttCopyPath)" target="_blank"
+        class="doc-tile">
+        <div class="doc-name">TT Copy</div>
+      </a>
+    }
+    @if (selectedStudent.paymentConfirmationPath) {
+      <a
+        [href]="getDocUrl(selectedStudent.paymentConfirmationPath)" target="_blank" class="doc-tile">
+        <div class="doc-name">Payment Confirmation</div>
+      </a>
+    }
+    @if (!selectedStudent.passportPath && !selectedStudent.markseetPath && !selectedStudent.adhaarPath && !selectedStudent.profileImagePath) {
+      <div
+      style="color: #94a3b8; font-style: italic;">No documents available.</div>
+    }
+  </div>
+</div>
+<div class="detail-card full-width">
+  <div class="card-header">
+    <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 6 12 12 16 14"></polyline>
+    </svg>
+    <h3>History</h3>
+  </div>
+  @if (selectedStudent.studentStatusHistory?.length) {
+    <div class="history-timeline">
+      @for (history of selectedStudent.studentStatusHistory; track history) {
+        <div class="history-item">
+          <div class="timeline-dot"></div>
+          <div class="history-content">
+            <h4>{{getStatusLabel(history.studentApplicationStatus)}}</h4>
+            <div class="history-meta">
+              <span class="history-actor">By: {{history.updatedBy || 'System'}}</span>
+              <span> • {{history.updatedAt | date:'medium'}}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div style="padding: 20px; color: #94a3b8;">No history available.</div>
+  }
+</div>
+</div>
+</div>
+}
+</div>
+</div>
+}
 
-  <div class="modal-backdrop z-high" *ngIf="showActionModal">
+@if (showActionModal) {
+  <div class="modal-backdrop z-high">
     <div class="modal-dialog" [@fadeIn]>
       <div class="dialog-header">
         <h3>Confirm Action</h3>
       </div>
       <div class="dialog-body">
-        <p *ngIf="actionType === 'forward'">
-          Are you sure you want to forward <strong>{{studentForAction?.fullName}}</strong> to the University
-          Coordinator?
-        </p>
-        <p *ngIf="actionType === 'approve'">
-          Are you sure you want to approve the Admission Letter for <strong>{{studentForAction?.fullName}}</strong>?
-        </p>
-
-        <div *ngIf="actionType === 'assign-telex'" class="form-group">
-          <label>Select Telex Manager</label>
-          <select class="form-select" [(ngModel)]="selectedManagerUsername">
-            <option value="" disabled selected>Select Manager...</option>
-            <option *ngFor="let man of availableTelexManagers" [value]="man.username">{{man.username}} -
-              {{man.studentCount}} Students</option>
-          </select>
-        </div>
-
-        <div *ngIf="actionType === 'assign-visa'" class="form-group">
-          <label>Select Visa Manager</label>
-          <select class="form-select" [(ngModel)]="selectedManagerUsername">
-            <option value="" disabled selected>Select Manager...</option>
-            <option *ngFor="let man of availableVisaManagers" [value]="man.username">{{man.username}} -
-              {{man.studentCount}} Students</option>
-          </select>
-        </div>
+        @if (actionType === 'forward') {
+          <p>
+            Are you sure you want to forward <strong>{{studentForAction?.fullName}}</strong> to the University
+            Coordinator?
+          </p>
+        }
+        @if (actionType === 'approve') {
+          <p>
+            Are you sure you want to approve the Admission Letter for <strong>{{studentForAction?.fullName}}</strong>?
+          </p>
+        }
+        @if (actionType === 'assign-telex') {
+          <div class="form-group">
+            <label>Select Telex Manager</label>
+            <select class="form-select" [(ngModel)]="selectedManagerUsername">
+              <option value="" disabled selected>Select Manager...</option>
+              @for (man of availableTelexManagers; track man) {
+                <option [value]="man.username">{{man.username}} -
+                {{man.studentCount}} Students</option>
+              }
+            </select>
+          </div>
+        }
+        @if (actionType === 'assign-visa') {
+          <div class="form-group">
+            <label>Select Visa Manager</label>
+            <select class="form-select" [(ngModel)]="selectedManagerUsername">
+              <option value="" disabled selected>Select Manager...</option>
+              @for (man of availableVisaManagers; track man) {
+                <option [value]="man.username">{{man.username}} -
+                {{man.studentCount}} Students</option>
+              }
+            </select>
+          </div>
+        }
       </div>
       <div class="dialog-footer">
         <button class="btn-text" (click)="closeActionModal()" [disabled]="isSubmitting">Cancel</button>
         <button class="btn-primary" (click)="confirmAction()" [disabled]="isSubmitting">
-          <span *ngIf="!isSubmitting">Confirm</span>
-          <span *ngIf="isSubmitting" class="spinner-sm"></span>
+          @if (!isSubmitting) {
+            <span>Confirm</span>
+          }
+          @if (isSubmitting) {
+            <span class="spinner-sm"></span>
+          }
         </button>
       </div>
     </div>
   </div>
+}
 
-  <div class="modal-backdrop z-high" *ngIf="showSuccessModal">
+@if (showSuccessModal) {
+  <div class="modal-backdrop z-high">
     <div class="modal-dialog success-modal" [@scaleIn]>
       <div class="success-content">
         <div class="success-icon-large">
@@ -964,9 +1101,11 @@
       </div>
     </div>
   </div>
+}
 
-  <!-- News Create/Edit Modal -->
-  <div class="modal-backdrop z-high" *ngIf="showNewsModal" (click)="closeNewsModal()">
+<!-- News Create/Edit Modal -->
+@if (showNewsModal) {
+  <div class="modal-backdrop z-high" (click)="closeNewsModal()">
     <div class="news-modal-dialog" (click)="$event.stopPropagation()" [@scaleIn]>
       <div class="news-modal-header">
         <div class="news-modal-title">
@@ -984,63 +1123,66 @@
           </svg>
         </button>
       </div>
-
       <div class="news-modal-body">
         <div class="news-form-group">
           <label>Heading <span class="required">*</span></label>
           <input type="text" class="news-form-input" [(ngModel)]="newsForm.heading" placeholder="Enter news headline..."
             maxlength="200">
         </div>
-
         <div class="news-form-group">
           <label>Content <span class="required">*</span></label>
           <textarea class="news-form-textarea" [(ngModel)]="newsForm.content"
-            placeholder="Write your news content here..." rows="4"></textarea>
+          placeholder="Write your news content here..." rows="4"></textarea>
         </div>
-
         <div class="news-form-row">
           <div class="news-form-group">
             <label>Target Audience <span class="required">*</span></label>
             <select class="news-form-select" [(ngModel)]="newsForm.forUser">
               <option value="" disabled selected>Select audience...</option>
-              <option *ngFor="let opt of userTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+              @for (opt of userTypeOptions; track opt) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
             </select>
           </div>
-
           <div class="news-form-group">
             <label>Tag</label>
             <select class="news-form-select" [(ngModel)]="newsForm.tag">
               <option value="" disabled selected>Select tag...</option>
-              <option *ngFor="let opt of tagOptions" [value]="opt.value">{{ opt.label }}</option>
+              @for (opt of tagOptions; track opt) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
             </select>
           </div>
         </div>
-
         <div class="news-form-row">
           <div class="news-form-group">
             <label>Active From <span class="required">*</span></label>
             <input type="date" class="news-form-input" [(ngModel)]="newsForm.activeFrom">
           </div>
-
           <div class="news-form-group">
             <label>Till Date <span class="required">*</span></label>
             <input type="date" class="news-form-input" [(ngModel)]="newsForm.tillDate">
           </div>
         </div>
       </div>
-
       <div class="news-modal-footer">
         <button class="btn-text" (click)="closeNewsModal()" [disabled]="isSubmitting">Cancel</button>
         <button class="btn-primary" (click)="saveNews()" [disabled]="isSubmitting">
-          <span *ngIf="!isSubmitting">{{ isEditingNews ? 'Update News' : 'Create News' }}</span>
-          <span *ngIf="isSubmitting" class="spinner-sm"></span>
+          @if (!isSubmitting) {
+            <span>{{ isEditingNews ? 'Update News' : 'Create News' }}</span>
+          }
+          @if (isSubmitting) {
+            <span class="spinner-sm"></span>
+          }
         </button>
       </div>
     </div>
   </div>
+}
 
-  <!-- Premium News Success Modal -->
-  <div class="news-success-modal" *ngIf="showNewsSuccessModal" (click)="closeNewsSuccessModal()">
+<!-- Premium News Success Modal -->
+@if (showNewsSuccessModal) {
+  <div class="news-success-modal" (click)="closeNewsSuccessModal()">
     <div class="news-success-content" (click)="$event.stopPropagation()">
       <!-- Confetti particles -->
       <div class="confetti" style="left: 10%; background: #10B981; animation-delay: 0.1s;"></div>
@@ -1049,7 +1191,6 @@
       <div class="confetti" style="left: 55%; background: #EC4899; animation-delay: 0.25s;"></div>
       <div class="confetti" style="left: 70%; background: #8B5CF6; animation-delay: 0.1s;"></div>
       <div class="confetti" style="left: 85%; background: #10B981; animation-delay: 0.3s;"></div>
-
       <div class="news-success-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
           stroke-linejoin="round">
@@ -1061,8 +1202,10 @@
       <button class="btn-primary" (click)="closeNewsSuccessModal()">Continue</button>
     </div>
   </div>
-  <!-- Premium Delete Confirmation Modal -->
-  <div class="news-confirm-modal" *ngIf="showDeleteConfirmModal" (click)="cancelDeleteNews()">
+}
+<!-- Premium Delete Confirmation Modal -->
+@if (showDeleteConfirmModal) {
+  <div class="news-confirm-modal" (click)="cancelDeleteNews()">
     <div class="news-confirm-content" (click)="$event.stopPropagation()">
       <div class="news-confirm-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1079,10 +1222,12 @@
       </div>
     </div>
   </div>
+}
 
 
-  <!-- Premium Logout Confirmation Modal -->
-  <div class="logout-modal-overlay" *ngIf="isLogoutModalOpen" (click)="cancelLogout()">
+<!-- Premium Logout Confirmation Modal -->
+@if (isLogoutModalOpen) {
+  <div class="logout-modal-overlay" (click)="cancelLogout()">
     <div class="logout-modal-content" (click)="$event.stopPropagation()" [@scaleIn]>
       <div class="logout-modal-header">
         <div class="logout-icon-container">
@@ -1096,7 +1241,6 @@
         <h2>Message Box Check</h2>
         <p class="logout-modal-subtitle">Before logging out, please confirm</p>
       </div>
-
       <div class="logout-modal-body">
         <div class="logout-warning-card">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1107,11 +1251,10 @@
           <div class="warning-text">
             <h3>Have you checked your message box?</h3>
             <p>Make sure you've reviewed all your messages before logging out. Missing important messages may delay
-              student processing.</p>
+            student processing.</p>
           </div>
         </div>
       </div>
-
       <div class="logout-modal-footer">
         <button class="btn-logout-cancel" (click)="cancelLogout()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1129,9 +1272,11 @@
       </div>
     </div>
   </div>
+}
 
-  <!-- Premium Minimal Logout Spinner Overlay -->
-  <div class="logout-overlay" *ngIf="isLoggingOut" [@fadeIn]>
+<!-- Premium Minimal Logout Spinner Overlay -->
+@if (isLoggingOut) {
+  <div class="logout-overlay" [@fadeIn]>
     <div class="logout-content">
       <div class="logout-spinner-container">
         <div class="logout-spinner-ring"></div>
@@ -1150,5 +1295,6 @@
       </div>
     </div>
   </div>
+}
 
 </div>

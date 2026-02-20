@@ -1,286 +1,303 @@
 <div class="analytics-dashboard">
-    <!-- Loading State -->
-    <div class="loading-overlay" *ngIf="isLoading">
-        <div class="loader-container">
-            <div class="premium-spinner">
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-            </div>
-            <p class="loading-text">Loading Dashboard Analytics...</p>
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="loader-container">
+        <div class="premium-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
         </div>
+        <p class="loading-text">Loading Dashboard Analytics...</p>
+      </div>
     </div>
+  }
 
-    <!-- Error State -->
-    <div class="error-state" *ngIf="error && !isLoading">
-        <div class="error-card">
-            <i-lucide name="alert-circle" size="64"></i-lucide>
-            <h3>Unable to Load Dashboard</h3>
-            <p>{{ error }}</p>
-            <button class="btn-retry" (click)="retryLoad()">
-                <i-lucide name="refresh-cw" size="18"></i-lucide>
-                Try Again
+  <!-- Error State -->
+  @if (error && !isLoading) {
+    <div class="error-state">
+      <div class="error-card">
+        <i-lucide name="alert-circle" size="64"></i-lucide>
+        <h3>Unable to Load Dashboard</h3>
+        <p>{{ error }}</p>
+        <button class="btn-retry" (click)="retryLoad()">
+          <i-lucide name="refresh-cw" size="18"></i-lucide>
+          Try Again
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Dashboard Content -->
+  @if (!isLoading && !error) {
+    <div class="dashboard-content" [@staggerCards]="statCards.length">
+      <!-- Header Controls -->
+      <div class="dashboard-header" [@fadeInUp]>
+        <div class="header-left">
+          <h2 class="dashboard-title">
+            <span class="icon-wrapper">
+              <i-lucide name="bar-chart-2" size="24"></i-lucide>
+            </span>
+            Executive Dashboard
+          </h2>
+          <span class="last-refresh">
+            <i-lucide name="clock" size="14"></i-lucide>
+            Last updated: {{ getLastRefreshDisplay() }}
+          </span>
+        </div>
+        <div class="header-controls">
+          <div class="date-filters glass-panel">
+            <div class="filter-group">
+              <label>From</label>
+              <input type="date" [(ngModel)]="dateFrom" (change)="onFilterChange()" class="date-input">
+            </div>
+            <div class="filter-group">
+              <label>To</label>
+              <input type="date" [(ngModel)]="dateTo" (change)="onFilterChange()" class="date-input">
+            </div>
+            <div class="filter-group">
+              <label>View</label>
+              <select [(ngModel)]="granularity" (change)="onFilterChange()" class="select-input">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <button class="btn-refresh" [class.spinning]="isRefreshing" (click)="refreshDashboard()"
+              [disabled]="isRefreshing">
+              <i-lucide name="refresh-cw" size="18"></i-lucide>
+              <span>{{ isRefreshing ? 'Refreshing...' : 'Refresh' }}</span>
             </button>
+            <button class="btn-auto-refresh" [class.active]="autoRefresh" (click)="toggleAutoRefresh()">
+              <i-lucide name="clock" size="18"></i-lucide>
+              <span>Auto</span>
+            </button>
+          </div>
         </div>
+      </div>
+      <!-- Alerts Banner -->
+      @if (alerts && alerts.length > 0) {
+        <div class="alerts-banner" [@slideIn]>
+          @for (alert of alerts; track trackByIndex($index, alert)) {
+            <div class="alert-item"
+              [ngClass]="getAlertClass(alert.severity)">
+              <div class="alert-icon-wrapper">
+                <i-lucide [name]="getAlertIcon(alert.severity)" size="18"></i-lucide>
+              </div>
+              <span class="alert-message">{{ alert.message }}</span>
+              <span class="alert-count">{{ alert.count }}</span>
+            </div>
+          }
+        </div>
+      }
+      <!-- Top Level Metrics & Chart Grid -->
+      <div class="top-grid">
+        <!-- KPI Cards -->
+        <div class="kpi-section" [@fadeInUp]>
+          <div class="kpi-card kpi-active">
+            <div class="kpi-inner">
+              <div class="kpi-icon">
+                <i-lucide name="users" size="28"></i-lucide>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Active Today</span>
+                <span class="kpi-value">{{ animatedValues['activeToday'] || 0 }}</span>
+              </div>
+            </div>
+            <div class="kpi-trend positive">
+              <i-lucide name="trending-up" size="14"></i-lucide>
+              <span>Live</span>
+            </div>
+            <div class="kpi-bg-icon">
+              <i-lucide name="users" size="100"></i-lucide>
+            </div>
+          </div>
+          <div class="kpi-card kpi-new">
+            <div class="kpi-inner">
+              <div class="kpi-icon">
+                <i-lucide name="user-plus" size="28"></i-lucide>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">New This Week</span>
+                <span class="kpi-value">{{ animatedValues['newThisWeek'] || 0 }}</span>
+              </div>
+            </div>
+            <div class="kpi-trend positive">
+              <i-lucide name="trending-up" size="14"></i-lucide>
+              <span>Since Monday</span>
+            </div>
+            <div class="kpi-bg-icon">
+              <i-lucide name="user-plus" size="100"></i-lucide>
+            </div>
+          </div>
+          <div class="kpi-card kpi-visa">
+            <div class="kpi-inner">
+              <div class="kpi-icon">
+                <i-lucide name="check-circle" size="28"></i-lucide>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Visa Stamped</span>
+                <span class="kpi-value">{{ animatedValues['visaStamped'] || 0 }}</span>
+              </div>
+            </div>
+            <div class="kpi-trend neutral">
+              <i-lucide name="calendar" size="14"></i-lucide>
+              <span>This Month</span>
+            </div>
+            <div class="kpi-bg-icon">
+              <i-lucide name="check-circle" size="100"></i-lucide>
+            </div>
+          </div>
+        </div>
+        <!-- Time Series Chart -->
+        <div class="chart-section glass-panel" [@fadeInUp]>
+          <div class="section-header-small">
+            <h3><i-lucide name="activity" size="18"></i-lucide> Performance Trends</h3>
+          </div>
+          <div class="chart-container">
+            <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"
+              [legend]="lineChartLegend">
+            </canvas>
+          </div>
+        </div>
+      </div>
+      <!-- Student Pipeline Flow -->
+      <div class="full-width-section glass-panel" [@fadeInUp]>
+        <div class="section-header">
+          <h3><i-lucide name="git-branch" size="20"></i-lucide> Student Pipeline Flow</h3>
+        </div>
+        <div class="pipeline-flow">
+          @for (stage of pipelineStages; track trackByIndex(i, stage); let i = $index) {
+            <div class="pipeline-step"
+              [style.--stage-color]="stage.color" [style.animation-delay.ms]="i * 100">
+              <div class="step-indicator">
+                <div class="step-circle">
+                  <span class="step-count">{{ stage.count }}</span>
+                </div>
+                @if (i < pipelineStages.length - 1) {
+                  <div class="step-line"></div>
+                }
+              </div>
+              <div class="step-content">
+                <span class="step-label">{{ stage.label }}</span>
+                <div class="step-progress">
+                  <div class="progress-bar" [style.width.%]="stage.percentage"></div>
+                </div>
+                <span class="step-percent">{{ stage.percentage }}%</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <!-- Main Grid Layout -->
+      <div class="main-grid">
+        <!-- Left Column: Role Summaries -->
+        <div class="role-column">
+          <div class="section-header">
+            <h3><i-lucide name="briefcase" size="20"></i-lucide> Department Performance</h3>
+          </div>
+          <div class="role-cards-list">
+            @for (role of roleCards; track trackByIndex(i, role); let i = $index) {
+              <div class="role-card-premium"
+                [class.expanded]="role.isExpanded" [style.--role-color]="role.color"
+                [style.animation-delay.ms]="i * 80" (click)="toggleRoleCard(role)">
+                <div class="role-card-header">
+                  <div class="role-icon-box">
+                    <i-lucide [name]="role.icon" size="20"></i-lucide>
+                  </div>
+                  <div class="role-summary">
+                    <h4>{{ role.title }}</h4>
+                    <span class="role-badge">{{ role.badge }}</span>
+                  </div>
+                  <div class="role-toggler">
+                    <i-lucide [name]="role.isExpanded ? 'chevron-up' : 'chevron-down'" size="18"></i-lucide>
+                  </div>
+                </div>
+                <div class="role-details" [class.visible]="role.isExpanded">
+                  <div class="metric-grid">
+                    @for (metric of role.metrics; track metric) {
+                      <div class="mini-metric">
+                        <span class="mini-label">{{ metric.label }}</span>
+                        <span class="mini-value" [ngClass]="getMetricStatusClass(metric.status)">
+                          {{ metric.label.includes('Amount') ? formatCurrency(metric.value) : metric.value
+                          }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <!-- Right Column: System Overview & Recent Activity -->
+        <div class="secondary-column">
+          <!-- Quick Stats Grid -->
+          <div class="section-header">
+            <h3><i-lucide name="layers" size="20"></i-lucide> System Overview</h3>
+          </div>
+          <div class="quick-stats-grid">
+            @for (card of statCards; track card) {
+              <div class="quick-stat-card glass-panel"
+                [style.--card-color]="card.color">
+                <div class="qs-icon">
+                  <i-lucide [name]="card.icon" size="16"></i-lucide>
+                </div>
+                <div class="qs-info">
+                  <span class="qs-value">{{ card.value | number }}</span>
+                  <span class="qs-label">{{ card.title }}</span>
+                </div>
+              </div>
+            }
+          </div>
+          <!-- Recent Activity Feed -->
+          <div class="section-header mt-4">
+            <h3><i-lucide name="activity" size="20"></i-lucide> Recent Activity</h3>
+          </div>
+          <div class="activities-panel glass-panel">
+            @if (recentActivities && recentActivities.length > 0) {
+              <div class="activities-list">
+                @for (activity of recentActivities; track trackByActivityId(i, activity); let i = $index) {
+                  <div class="activity-row"
+                    >
+                    <div class="activity-marker"></div>
+                    <div class="activity-details">
+                      <div class="act-header">
+                        <span class="act-student">{{ activity.studentName }}</span>
+                        <span class="act-time">{{ getRelativeTime(activity.timestamp) }}</span>
+                      </div>
+                      <div class="act-body">
+                        @if (activity.action === 'STATUS_CHANGE') {
+                          <span class="status-flow">
+                            {{ (activity.previousStatus || '') | replaceUnderscore }}
+                            <i-lucide name="arrow-right" size="12"></i-lucide>
+                            <b>{{ activity.newStatus | replaceUnderscore }}</b>
+                          </span>
+                        }
+                        @if (activity.action === 'CURRENT_STATUS') {
+                          <span>
+                            Current: <b>{{ activity.newStatus | replaceUnderscore }}</b>
+                          </span>
+                        }
+                      </div>
+                      <div class="act-footer">
+                        <i-lucide name="user" size="10"></i-lucide> {{ activity.actor }}
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+            @if (!recentActivities || recentActivities.length === 0) {
+              <div class="empty-state">
+                <p>No recent activities found.</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- Dashboard Content -->
-    <div class="dashboard-content" *ngIf="!isLoading && !error" [@staggerCards]="statCards.length">
-
-        <!-- Header Controls -->
-        <div class="dashboard-header" [@fadeInUp]>
-            <div class="header-left">
-                <h2 class="dashboard-title">
-                    <span class="icon-wrapper">
-                        <i-lucide name="bar-chart-2" size="24"></i-lucide>
-                    </span>
-                    Executive Dashboard
-                </h2>
-                <span class="last-refresh">
-                    <i-lucide name="clock" size="14"></i-lucide>
-                    Last updated: {{ getLastRefreshDisplay() }}
-                </span>
-            </div>
-            <div class="header-controls">
-                <div class="date-filters glass-panel">
-                    <div class="filter-group">
-                        <label>From</label>
-                        <input type="date" [(ngModel)]="dateFrom" (change)="onFilterChange()" class="date-input">
-                    </div>
-                    <div class="filter-group">
-                        <label>To</label>
-                        <input type="date" [(ngModel)]="dateTo" (change)="onFilterChange()" class="date-input">
-                    </div>
-                    <div class="filter-group">
-                        <label>View</label>
-                        <select [(ngModel)]="granularity" (change)="onFilterChange()" class="select-input">
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn-refresh" [class.spinning]="isRefreshing" (click)="refreshDashboard()"
-                        [disabled]="isRefreshing">
-                        <i-lucide name="refresh-cw" size="18"></i-lucide>
-                        <span>{{ isRefreshing ? 'Refreshing...' : 'Refresh' }}</span>
-                    </button>
-                    <button class="btn-auto-refresh" [class.active]="autoRefresh" (click)="toggleAutoRefresh()">
-                        <i-lucide name="clock" size="18"></i-lucide>
-                        <span>Auto</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Alerts Banner -->
-        <div class="alerts-banner" *ngIf="alerts && alerts.length > 0" [@slideIn]>
-            <div class="alert-item" *ngFor="let alert of alerts; trackBy: trackByIndex"
-                [ngClass]="getAlertClass(alert.severity)">
-                <div class="alert-icon-wrapper">
-                    <i-lucide [name]="getAlertIcon(alert.severity)" size="18"></i-lucide>
-                </div>
-                <span class="alert-message">{{ alert.message }}</span>
-                <span class="alert-count">{{ alert.count }}</span>
-            </div>
-        </div>
-
-        <!-- Top Level Metrics & Chart Grid -->
-        <div class="top-grid">
-            <!-- KPI Cards -->
-            <div class="kpi-section" [@fadeInUp]>
-                <div class="kpi-card kpi-active">
-                    <div class="kpi-inner">
-                        <div class="kpi-icon">
-                            <i-lucide name="users" size="28"></i-lucide>
-                        </div>
-                        <div class="kpi-content">
-                            <span class="kpi-label">Active Today</span>
-                            <span class="kpi-value">{{ animatedValues['activeToday'] || 0 }}</span>
-                        </div>
-                    </div>
-                    <div class="kpi-trend positive">
-                        <i-lucide name="trending-up" size="14"></i-lucide>
-                        <span>Live</span>
-                    </div>
-                    <div class="kpi-bg-icon">
-                        <i-lucide name="users" size="100"></i-lucide>
-                    </div>
-                </div>
-
-                <div class="kpi-card kpi-new">
-                    <div class="kpi-inner">
-                        <div class="kpi-icon">
-                            <i-lucide name="user-plus" size="28"></i-lucide>
-                        </div>
-                        <div class="kpi-content">
-                            <span class="kpi-label">New This Week</span>
-                            <span class="kpi-value">{{ animatedValues['newThisWeek'] || 0 }}</span>
-                        </div>
-                    </div>
-                    <div class="kpi-trend positive">
-                        <i-lucide name="trending-up" size="14"></i-lucide>
-                        <span>Since Monday</span>
-                    </div>
-                    <div class="kpi-bg-icon">
-                        <i-lucide name="user-plus" size="100"></i-lucide>
-                    </div>
-                </div>
-
-                <div class="kpi-card kpi-visa">
-                    <div class="kpi-inner">
-                        <div class="kpi-icon">
-                            <i-lucide name="check-circle" size="28"></i-lucide>
-                        </div>
-                        <div class="kpi-content">
-                            <span class="kpi-label">Visa Stamped</span>
-                            <span class="kpi-value">{{ animatedValues['visaStamped'] || 0 }}</span>
-                        </div>
-                    </div>
-                    <div class="kpi-trend neutral">
-                        <i-lucide name="calendar" size="14"></i-lucide>
-                        <span>This Month</span>
-                    </div>
-                    <div class="kpi-bg-icon">
-                        <i-lucide name="check-circle" size="100"></i-lucide>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Time Series Chart -->
-            <div class="chart-section glass-panel" [@fadeInUp]>
-                <div class="section-header-small">
-                    <h3><i-lucide name="activity" size="18"></i-lucide> Performance Trends</h3>
-                </div>
-                <div class="chart-container">
-                    <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType"
-                        [legend]="lineChartLegend">
-                    </canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Student Pipeline Flow -->
-        <div class="full-width-section glass-panel" [@fadeInUp]>
-            <div class="section-header">
-                <h3><i-lucide name="git-branch" size="20"></i-lucide> Student Pipeline Flow</h3>
-            </div>
-            <div class="pipeline-flow">
-                <div class="pipeline-step" *ngFor="let stage of pipelineStages; let i = index; trackBy: trackByIndex"
-                    [style.--stage-color]="stage.color" [style.animation-delay.ms]="i * 100">
-                    <div class="step-indicator">
-                        <div class="step-circle">
-                            <span class="step-count">{{ stage.count }}</span>
-                        </div>
-                        <div class="step-line" *ngIf="i < pipelineStages.length - 1"></div>
-                    </div>
-                    <div class="step-content">
-                        <span class="step-label">{{ stage.label }}</span>
-                        <div class="step-progress">
-                            <div class="progress-bar" [style.width.%]="stage.percentage"></div>
-                        </div>
-                        <span class="step-percent">{{ stage.percentage }}%</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Grid Layout -->
-        <div class="main-grid">
-            <!-- Left Column: Role Summaries -->
-            <div class="role-column">
-                <div class="section-header">
-                    <h3><i-lucide name="briefcase" size="20"></i-lucide> Department Performance</h3>
-                </div>
-                <div class="role-cards-list">
-                    <div class="role-card-premium" *ngFor="let role of roleCards; let i = index; trackBy: trackByIndex"
-                        [class.expanded]="role.isExpanded" [style.--role-color]="role.color"
-                        [style.animation-delay.ms]="i * 80" (click)="toggleRoleCard(role)">
-
-                        <div class="role-card-header">
-                            <div class="role-icon-box">
-                                <i-lucide [name]="role.icon" size="20"></i-lucide>
-                            </div>
-                            <div class="role-summary">
-                                <h4>{{ role.title }}</h4>
-                                <span class="role-badge">{{ role.badge }}</span>
-                            </div>
-                            <div class="role-toggler">
-                                <i-lucide [name]="role.isExpanded ? 'chevron-up' : 'chevron-down'" size="18"></i-lucide>
-                            </div>
-                        </div>
-
-                        <div class="role-details" [class.visible]="role.isExpanded">
-                            <div class="metric-grid">
-                                <div class="mini-metric" *ngFor="let metric of role.metrics">
-                                    <span class="mini-label">{{ metric.label }}</span>
-                                    <span class="mini-value" [ngClass]="getMetricStatusClass(metric.status)">
-                                        {{ metric.label.includes('Amount') ? formatCurrency(metric.value) : metric.value
-                                        }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: System Overview & Recent Activity -->
-            <div class="secondary-column">
-                <!-- Quick Stats Grid -->
-                <div class="section-header">
-                    <h3><i-lucide name="layers" size="20"></i-lucide> System Overview</h3>
-                </div>
-                <div class="quick-stats-grid">
-                    <div class="quick-stat-card glass-panel" *ngFor="let card of statCards"
-                        [style.--card-color]="card.color">
-                        <div class="qs-icon">
-                            <i-lucide [name]="card.icon" size="16"></i-lucide>
-                        </div>
-                        <div class="qs-info">
-                            <span class="qs-value">{{ card.value | number }}</span>
-                            <span class="qs-label">{{ card.title }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity Feed -->
-                <div class="section-header mt-4">
-                    <h3><i-lucide name="activity" size="20"></i-lucide> Recent Activity</h3>
-                </div>
-                <div class="activities-panel glass-panel">
-                    <div class="activities-list" *ngIf="recentActivities && recentActivities.length > 0">
-                        <div class="activity-row"
-                            *ngFor="let activity of recentActivities; let i = index; trackBy: trackByActivityId">
-                            <div class="activity-marker"></div>
-                            <div class="activity-details">
-                                <div class="act-header">
-                                    <span class="act-student">{{ activity.studentName }}</span>
-                                    <span class="act-time">{{ getRelativeTime(activity.timestamp) }}</span>
-                                </div>
-                                <div class="act-body">
-                                    <span *ngIf="activity.action === 'STATUS_CHANGE'" class="status-flow">
-                                        {{ (activity.previousStatus || '') | replaceUnderscore }}
-                                        <i-lucide name="arrow-right" size="12"></i-lucide>
-                                        <b>{{ activity.newStatus | replaceUnderscore }}</b>
-                                    </span>
-                                    <span *ngIf="activity.action === 'CURRENT_STATUS'">
-                                        Current: <b>{{ activity.newStatus | replaceUnderscore }}</b>
-                                    </span>
-                                </div>
-                                <div class="act-footer">
-                                    <i-lucide name="user" size="10"></i-lucide> {{ activity.actor }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="empty-state" *ngIf="!recentActivities || recentActivities.length === 0">
-                        <p>No recent activities found.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
+  }
 </div>

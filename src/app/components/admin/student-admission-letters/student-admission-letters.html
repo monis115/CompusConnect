@@ -1,349 +1,374 @@
 <!-- ULTRA PREMIUM ADMISSION LETTERS - $50M Design -->
 <div class="letters-universe">
 
-    <!-- ANIMATED BACKGROUND ELEMENTS -->
-    <div class="ambient-effects">
-        <div class="floating-orb orb-1"></div>
-        <div class="floating-orb orb-2"></div>
-        <div class="floating-orb orb-3"></div>
-        <div class="grid-overlay"></div>
-        <div class="gradient-mesh"></div>
+  <!-- ANIMATED BACKGROUND ELEMENTS -->
+  <div class="ambient-effects">
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
+    <div class="grid-overlay"></div>
+    <div class="gradient-mesh"></div>
+  </div>
+
+  <!-- HERO HEADER SECTION -->
+  <header class="hero-header">
+    <div class="header-content">
+      <div class="header-left-cluster">
+        <!-- PREMIUM BACK BUTTON -->
+        <button (click)="goBack()" class="btn-back-premium" title="Go Back">
+          <div class="btn-glow"></div>
+          <i-lucide name="arrow-left" size="20"></i-lucide>
+        </button>
+
+        <div class="title-block">
+          <div class="title-badge">
+            <i-lucide name="award" size="14"></i-lucide>
+            <span>OFFICIAL DOCUMENTS</span>
+          </div>
+          <h1 class="hero-title">
+            <span class="title-main">Admission Letters</span>
+            <span class="title-accent">Repository</span>
+          </h1>
+          <p class="hero-subtitle">
+            <i-lucide name="sparkles" size="14"></i-lucide>
+            Collection of generated student Admission letters
+          </p>
+        </div>
+      </div>
+
+      <div class="header-right-cluster">
+        <!-- STATS PILLS -->
+        @if (!isLoading && students.length > 0) {
+          <div class="stats-cluster">
+            <div class="stat-pill">
+              <div class="stat-icon">
+                <i-lucide name="file-text" size="16"></i-lucide>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ filteredStudents.length }}</span>
+                <span class="stat-label">Showing</span>
+              </div>
+            </div>
+            <div class="stat-pill accent">
+              <div class="stat-icon">
+                <i-lucide name="check-circle-2" size="16"></i-lucide>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ students.length }}</span>
+                <span class="stat-label">Total</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- REFRESH BUTTON -->
+        <button class="btn-refresh-premium" (click)="refreshData()" [disabled]="isLoading">
+          <div class="btn-shine"></div>
+          <i-lucide name="refresh-cw" size="18" [class.spin]="isLoading"></i-lucide>
+          <span>Refresh</span>
+        </button>
+      </div>
     </div>
+  </header>
 
-    <!-- HERO HEADER SECTION -->
-    <header class="hero-header">
-        <div class="header-content">
-            <div class="header-left-cluster">
-                <!-- PREMIUM BACK BUTTON -->
-                <button (click)="goBack()" class="btn-back-premium" title="Go Back">
-                    <div class="btn-glow"></div>
-                    <i-lucide name="arrow-left" size="20"></i-lucide>
-                </button>
-
-                <div class="title-block">
-                    <div class="title-badge">
-                        <i-lucide name="award" size="14"></i-lucide>
-                        <span>OFFICIAL DOCUMENTS</span>
-                    </div>
-                    <h1 class="hero-title">
-                        <span class="title-main">Admission Letters</span>
-                        <span class="title-accent">Repository</span>
-                    </h1>
-                    <p class="hero-subtitle">
-                        <i-lucide name="sparkles" size="14"></i-lucide>
-                        Collection of generated student Admission letters
-                    </p>
-                </div>
-            </div>
-
-            <div class="header-right-cluster">
-                <!-- STATS PILLS -->
-                <div class="stats-cluster" *ngIf="!isLoading && students.length > 0">
-                    <div class="stat-pill">
-                        <div class="stat-icon">
-                            <i-lucide name="file-text" size="16"></i-lucide>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-value">{{ filteredStudents.length }}</span>
-                            <span class="stat-label">Showing</span>
-                        </div>
-                    </div>
-                    <div class="stat-pill accent">
-                        <div class="stat-icon">
-                            <i-lucide name="check-circle-2" size="16"></i-lucide>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-value">{{ students.length }}</span>
-                            <span class="stat-label">Total</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- REFRESH BUTTON -->
-                <button class="btn-refresh-premium" (click)="refreshData()" [disabled]="isLoading">
-                    <div class="btn-shine"></div>
-                    <i-lucide name="refresh-cw" size="18" [class.spin]="isLoading"></i-lucide>
-                    <span>Refresh</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- PREMIUM SEARCH SECTION -->
-    <div class="search-section" *ngIf="!isLoading && !loadingError && students.length > 0">
-        <div class="search-container" [class.focused]="isSearchFocused" [class.has-value]="searchQuery.length > 0">
-            <div class="search-glow"></div>
-            <div class="search-inner">
-                <div class="search-icon-wrapper">
-                    <i-lucide name="search" size="20"></i-lucide>
-                    <div class="icon-pulse"></div>
-                </div>
-                <input type="text" class="search-input" placeholder="Search by name, application ID, or agent ID..."
-                    [(ngModel)]="searchQuery" (input)="onSearchInput()" (focus)="onSearchFocus()"
-                    (blur)="onSearchBlur()" />
-                <button *ngIf="searchQuery.length > 0" class="btn-clear-search" (click)="clearSearch()">
-                    <i-lucide name="x" size="16"></i-lucide>
-                </button>
-                <div class="search-shortcut" *ngIf="!searchQuery.length && !isSearchFocused">
-                    <span>⌘K</span>
-                </div>
-            </div>
-            <div class="search-border-glow"></div>
-        </div>
-
-        <!-- Search Results Info -->
-        <div class="search-results-info" *ngIf="searchQuery.length > 0">
-            <div class="results-badge">
-                <i-lucide name="filter" size="12"></i-lucide>
-                <span>{{ filteredStudents.length }} of {{ students.length }} results</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- PREMIUM LOADING STATE -->
-    <div *ngIf="isLoading" class="loading-universe">
-        <div class="loader-wrapper">
-            <div class="loader-rings">
-                <div class="ring ring-1"></div>
-                <div class="ring ring-2"></div>
-                <div class="ring ring-3"></div>
-                <div class="ring ring-4"></div>
-            </div>
-            <div class="loader-core">
-                <i-lucide name="file-text" size="24"></i-lucide>
-            </div>
-        </div>
-        <div class="loading-text-block">
-            <p class="loading-primary">Loading Admission Letters</p>
-            <p class="loading-secondary">Fetching premium documents...</p>
-        </div>
-        <div class="loading-progress">
-            <div class="progress-bar"></div>
-        </div>
-    </div>
-
-    <!-- PREMIUM ERROR STATE -->
-    <div *ngIf="!isLoading && loadingError" class="error-universe">
-        <div class="error-card">
-            <div class="error-icon-wrapper">
-                <div class="error-pulse"></div>
-                <i-lucide name="alert-triangle" size="40"></i-lucide>
-            </div>
-            <h2 class="error-title">Unable to Load Documents</h2>
-            <p class="error-message">We couldn't retrieve the admission letters. Please check your connection and try
-                again.</p>
-            <button class="btn-retry" (click)="refreshData()">
-                <i-lucide name="refresh-cw" size="16"></i-lucide>
-                <span>Retry Now</span>
+  <!-- PREMIUM SEARCH SECTION -->
+  @if (!isLoading && !loadingError && students.length > 0) {
+    <div class="search-section">
+      <div class="search-container" [class.focused]="isSearchFocused" [class.has-value]="searchQuery.length > 0">
+        <div class="search-glow"></div>
+        <div class="search-inner">
+          <div class="search-icon-wrapper">
+            <i-lucide name="search" size="20"></i-lucide>
+            <div class="icon-pulse"></div>
+          </div>
+          <input type="text" class="search-input" placeholder="Search by name, application ID, or agent ID..."
+            [(ngModel)]="searchQuery" (input)="onSearchInput()" (focus)="onSearchFocus()"
+            (blur)="onSearchBlur()" />
+          @if (searchQuery.length > 0) {
+            <button class="btn-clear-search" (click)="clearSearch()">
+              <i-lucide name="x" size="16"></i-lucide>
             </button>
+          }
+          @if (!searchQuery.length && !isSearchFocused) {
+            <div class="search-shortcut">
+              <span>⌘K</span>
+            </div>
+          }
         </div>
+        <div class="search-border-glow"></div>
+      </div>
+      <!-- Search Results Info -->
+      @if (searchQuery.length > 0) {
+        <div class="search-results-info">
+          <div class="results-badge">
+            <i-lucide name="filter" size="12"></i-lucide>
+            <span>{{ filteredStudents.length }} of {{ students.length }} results</span>
+          </div>
+        </div>
+      }
     </div>
+  }
 
-    <!-- PREMIUM EMPTY STATE -->
-    <div *ngIf="!isLoading && !loadingError && students.length === 0" class="empty-universe">
-        <div class="empty-card">
-            <div class="empty-visual">
-                <div class="empty-rings">
-                    <div class="ering ering-1"></div>
-                    <div class="ering ering-2"></div>
-                </div>
-                <div class="empty-icon">
-                    <i-lucide name="inbox" size="48"></i-lucide>
-                </div>
-            </div>
-            <h2 class="empty-title">No Admission Letters Yet</h2>
-            <p class="empty-description">There are no students with generated admission letters at this time. Letters
-                will appear here once they are created.</p>
+  <!-- PREMIUM LOADING STATE -->
+  @if (isLoading) {
+    <div class="loading-universe">
+      <div class="loader-wrapper">
+        <div class="loader-rings">
+          <div class="ring ring-1"></div>
+          <div class="ring ring-2"></div>
+          <div class="ring ring-3"></div>
+          <div class="ring ring-4"></div>
         </div>
+        <div class="loader-core">
+          <i-lucide name="file-text" size="24"></i-lucide>
+        </div>
+      </div>
+      <div class="loading-text-block">
+        <p class="loading-primary">Loading Admission Letters</p>
+        <p class="loading-secondary">Fetching premium documents...</p>
+      </div>
+      <div class="loading-progress">
+        <div class="progress-bar"></div>
+      </div>
     </div>
+  }
 
-    <!-- NO SEARCH RESULTS STATE -->
-    <div *ngIf="!isLoading && !loadingError && students.length > 0 && filteredStudents.length === 0"
-        class="no-results-universe">
-        <div class="no-results-card">
-            <div class="no-results-icon">
-                <i-lucide name="search" size="40"></i-lucide>
-            </div>
-            <h3 class="no-results-title">No Results Found</h3>
-            <p class="no-results-text">No admission letters match "{{ searchQuery }}"</p>
-            <button class="btn-clear-filter" (click)="clearSearch()">
-                <i-lucide name="x" size="14"></i-lucide>
-                <span>Clear Search</span>
-            </button>
+  <!-- PREMIUM ERROR STATE -->
+  @if (!isLoading && loadingError) {
+    <div class="error-universe">
+      <div class="error-card">
+        <div class="error-icon-wrapper">
+          <div class="error-pulse"></div>
+          <i-lucide name="alert-triangle" size="40"></i-lucide>
         </div>
+        <h2 class="error-title">Unable to Load Documents</h2>
+        <p class="error-message">We couldn't retrieve the admission letters. Please check your connection and try
+        again.</p>
+        <button class="btn-retry" (click)="refreshData()">
+          <i-lucide name="refresh-cw" size="16"></i-lucide>
+          <span>Retry Now</span>
+        </button>
+      </div>
     </div>
+  }
 
-    <!-- PREMIUM DATA SECTION -->
-    <section *ngIf="!isLoading && !loadingError && filteredStudents.length > 0" class="data-universe">
-
-        <!-- PREMIUM TABLE CARD -->
-        <div class="table-card">
-            <div class="card-glow"></div>
-
-            <!-- TABLE HEADER BAR -->
-            <div class="table-header-bar">
-                <div class="table-title-group">
-                    <i-lucide name="layout-list" size="18"></i-lucide>
-                    <span>Admission Letter Records</span>
-                </div>
-                <div class="table-meta">
-                    <span class="record-count">{{ filteredStudents.length }} records</span>
-                </div>
-            </div>
-
-            <!-- RESPONSIVE TABLE WRAPPER -->
-            <div class="table-wrapper">
-                <table class="luxury-table">
-                    <thead>
-                        <tr>
-                            <th class="th-ref">
-                                <div class="th-content">
-                                    <i-lucide name="hash" size="12"></i-lucide>
-                                    <span>Reference ID</span>
-                                </div>
-                            </th>
-                            <th class="th-student">
-                                <div class="th-content">
-                                    <i-lucide name="user" size="12"></i-lucide>
-                                    <span>Student</span>
-                                </div>
-                            </th>
-                            <th class="th-details">
-                                <div class="th-content">
-                                    <i-lucide name="briefcase" size="12"></i-lucide>
-                                    <span>Assignment</span>
-                                </div>
-                            </th>
-                            <th class="th-status">
-                                <div class="th-content">
-                                    <i-lucide name="activity" size="12"></i-lucide>
-                                    <span>Status</span>
-                                </div>
-                            </th>
-                            <th class="th-action">
-                                <div class="th-content">
-                                    <i-lucide name="mouse-pointer" size="12"></i-lucide>
-                                    <span>Action</span>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let student of filteredStudents; let i = index" class="data-row"
-                            [style.animation-delay]="i * 50 + 'ms'">
-
-                            <!-- REFERENCE ID -->
-                            <td class="td-ref">
-                                <div class="ref-badge-premium copyable-badge"
-                                    [class.copied]="copiedField === 'appId-' + i">
-                                    <span class="ref-prefix">#</span>
-                                    <span class="ref-value">{{ student.applicationId }}</span>
-                                    <button type="button" class="btn-copy"
-                                        (click)="$event.stopPropagation(); copyToClipboard(student.applicationId, 'appId-' + i)"
-                                        title="Copy Application ID">
-                                        <i-lucide *ngIf="copiedField !== 'appId-' + i" name="copy" size="12"></i-lucide>
-                                        <i-lucide *ngIf="copiedField === 'appId-' + i" name="check"
-                                            size="12"></i-lucide>
-                                    </button>
-                                    <span class="copied-tooltip" *ngIf="copiedField === 'appId-' + i">Copied!</span>
-                                    <div class="ref-glow"></div>
-                                </div>
-                            </td>
-
-                            <!-- STUDENT INFO -->
-                            <td class="td-student">
-                                <div class="student-profile">
-                                    <div class="avatar-wrapper">
-                                        <div class="avatar-ring"></div>
-                                        <div class="avatar">
-                                            {{ student.studentName | slice:0:1 }}
-                                        </div>
-                                    </div>
-                                    <div class="student-text">
-                                        <span class="student-name">{{ student.studentName }}</span>
-                                        <span class="student-course">
-                                            <i-lucide name="graduation-cap" size="10"></i-lucide>
-                                            {{ student.course }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <!-- ASSIGNMENT DETAILS -->
-                            <td class="td-details">
-                                <div class="details-stack">
-                                    <div class="detail-row">
-                                        <div class="detail-badge agent">
-                                            <span class="detail-label">Agent</span>
-                                            <span class="detail-value">{{ student.agentName }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-badge agent-id copyable-badge"
-                                            [class.copied]="copiedField === 'agentId-' + i">
-                                            <span class="detail-label">Agent ID</span>
-                                            <span class="detail-value">{{ student.agentUserId || 'N/A' }}</span>
-                                            <button type="button" class="btn-copy" *ngIf="student.agentUserId"
-                                                (click)="$event.stopPropagation(); copyToClipboard(student.agentUserId, 'agentId-' + i)"
-                                                title="Copy Agent ID">
-                                                <i-lucide *ngIf="copiedField !== 'agentId-' + i" name="copy"
-                                                    size="10"></i-lucide>
-                                                <i-lucide *ngIf="copiedField === 'agentId-' + i" name="check"
-                                                    size="10"></i-lucide>
-                                            </button>
-                                            <span class="copied-tooltip"
-                                                *ngIf="copiedField === 'agentId-' + i">Copied!</span>
-                                        </div>
-                                    </div>
-                                    <div class="detail-row">
-                                        <div class="detail-badge college">
-                                            <span class="detail-label">College</span>
-                                            <span class="detail-value">{{ student.collegeName }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <!-- STATUS -->
-                            <td class="td-status">
-                                <div class="status-badge-premium">
-                                    <div class="status-glow"></div>
-                                    <div class="status-indicator"></div>
-                                    <i-lucide name="check-circle" size="14"></i-lucide>
-                                    <span>{{ student.applicationStatus | titlecase }}</span>
-                                </div>
-                            </td>
-
-                            <!-- ACTION BUTTON -->
-                            <td class="td-action">
-                                <a [href]="getFileUrl(student.admissionLetterPath)" target="_blank"
-                                    class="btn-download-premium">
-                                    <div class="btn-download-bg"></div>
-                                    <div class="btn-download-content">
-                                        <i-lucide name="download" size="16"></i-lucide>
-                                        <span>Download</span>
-                                    </div>
-                                    <div class="btn-download-shine"></div>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- TABLE FOOTER -->
-            <div class="table-footer">
-                <div class="footer-info">
-                    <i-lucide name="info" size="14"></i-lucide>
-                    <span>All letters are in PDF format and ready for download</span>
-                </div>
-                <div class="footer-brand">
-                    <i-lucide name="shield-check" size="14"></i-lucide>
-                    <span>Secured Documents</span>
-                </div>
-            </div>
+  <!-- PREMIUM EMPTY STATE -->
+  @if (!isLoading && !loadingError && students.length === 0) {
+    <div class="empty-universe">
+      <div class="empty-card">
+        <div class="empty-visual">
+          <div class="empty-rings">
+            <div class="ering ering-1"></div>
+            <div class="ering ering-2"></div>
+          </div>
+          <div class="empty-icon">
+            <i-lucide name="inbox" size="48"></i-lucide>
+          </div>
         </div>
+        <h2 class="empty-title">No Admission Letters Yet</h2>
+        <p class="empty-description">There are no students with generated admission letters at this time. Letters
+        will appear here once they are created.</p>
+      </div>
+    </div>
+  }
 
+  <!-- NO SEARCH RESULTS STATE -->
+  @if (!isLoading && !loadingError && students.length > 0 && filteredStudents.length === 0) {
+    <div
+      class="no-results-universe">
+      <div class="no-results-card">
+        <div class="no-results-icon">
+          <i-lucide name="search" size="40"></i-lucide>
+        </div>
+        <h3 class="no-results-title">No Results Found</h3>
+        <p class="no-results-text">No admission letters match "{{ searchQuery }}"</p>
+        <button class="btn-clear-filter" (click)="clearSearch()">
+          <i-lucide name="x" size="14"></i-lucide>
+          <span>Clear Search</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- PREMIUM DATA SECTION -->
+  @if (!isLoading && !loadingError && filteredStudents.length > 0) {
+    <section class="data-universe">
+      <!-- PREMIUM TABLE CARD -->
+      <div class="table-card">
+        <div class="card-glow"></div>
+        <!-- TABLE HEADER BAR -->
+        <div class="table-header-bar">
+          <div class="table-title-group">
+            <i-lucide name="layout-list" size="18"></i-lucide>
+            <span>Admission Letter Records</span>
+          </div>
+          <div class="table-meta">
+            <span class="record-count">{{ filteredStudents.length }} records</span>
+          </div>
+        </div>
+        <!-- RESPONSIVE TABLE WRAPPER -->
+        <div class="table-wrapper">
+          <table class="luxury-table">
+            <thead>
+              <tr>
+                <th class="th-ref">
+                  <div class="th-content">
+                    <i-lucide name="hash" size="12"></i-lucide>
+                    <span>Reference ID</span>
+                  </div>
+                </th>
+                <th class="th-student">
+                  <div class="th-content">
+                    <i-lucide name="user" size="12"></i-lucide>
+                    <span>Student</span>
+                  </div>
+                </th>
+                <th class="th-details">
+                  <div class="th-content">
+                    <i-lucide name="briefcase" size="12"></i-lucide>
+                    <span>Assignment</span>
+                  </div>
+                </th>
+                <th class="th-status">
+                  <div class="th-content">
+                    <i-lucide name="activity" size="12"></i-lucide>
+                    <span>Status</span>
+                  </div>
+                </th>
+                <th class="th-action">
+                  <div class="th-content">
+                    <i-lucide name="mouse-pointer" size="12"></i-lucide>
+                    <span>Action</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (student of filteredStudents; track student; let i = $index) {
+                <tr class="data-row"
+                  [style.animation-delay]="i * 50 + 'ms'">
+                  <!-- REFERENCE ID -->
+                  <td class="td-ref">
+                    <div class="ref-badge-premium copyable-badge"
+                      [class.copied]="copiedField === 'appId-' + i">
+                      <span class="ref-prefix">#</span>
+                      <span class="ref-value">{{ student.applicationId }}</span>
+                      <button type="button" class="btn-copy"
+                        (click)="$event.stopPropagation(); copyToClipboard(student.applicationId, 'appId-' + i)"
+                        title="Copy Application ID">
+                        @if (copiedField !== 'appId-' + i) {
+                          <i-lucide name="copy" size="12"></i-lucide>
+                        }
+                        @if (copiedField === 'appId-' + i) {
+                          <i-lucide name="check"
+                          size="12"></i-lucide>
+                        }
+                      </button>
+                      @if (copiedField === 'appId-' + i) {
+                        <span class="copied-tooltip">Copied!</span>
+                      }
+                      <div class="ref-glow"></div>
+                    </div>
+                  </td>
+                  <!-- STUDENT INFO -->
+                  <td class="td-student">
+                    <div class="student-profile">
+                      <div class="avatar-wrapper">
+                        <div class="avatar-ring"></div>
+                        <div class="avatar">
+                          {{ student.studentName | slice:0:1 }}
+                        </div>
+                      </div>
+                      <div class="student-text">
+                        <span class="student-name">{{ student.studentName }}</span>
+                        <span class="student-course">
+                          <i-lucide name="graduation-cap" size="10"></i-lucide>
+                          {{ student.course }}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <!-- ASSIGNMENT DETAILS -->
+                  <td class="td-details">
+                    <div class="details-stack">
+                      <div class="detail-row">
+                        <div class="detail-badge agent">
+                          <span class="detail-label">Agent</span>
+                          <span class="detail-value">{{ student.agentName }}</span>
+                        </div>
+                      </div>
+                      <div class="detail-row">
+                        <div class="detail-badge agent-id copyable-badge"
+                          [class.copied]="copiedField === 'agentId-' + i">
+                          <span class="detail-label">Agent ID</span>
+                          <span class="detail-value">{{ student.agentUserId || 'N/A' }}</span>
+                          @if (student.agentUserId) {
+                            <button type="button" class="btn-copy"
+                              (click)="$event.stopPropagation(); copyToClipboard(student.agentUserId, 'agentId-' + i)"
+                              title="Copy Agent ID">
+                              @if (copiedField !== 'agentId-' + i) {
+                                <i-lucide name="copy"
+                                size="10"></i-lucide>
+                              }
+                              @if (copiedField === 'agentId-' + i) {
+                                <i-lucide name="check"
+                                size="10"></i-lucide>
+                              }
+                            </button>
+                          }
+                          @if (copiedField === 'agentId-' + i) {
+                            <span class="copied-tooltip"
+                            >Copied!</span>
+                          }
+                        </div>
+                      </div>
+                      <div class="detail-row">
+                        <div class="detail-badge college">
+                          <span class="detail-label">College</span>
+                          <span class="detail-value">{{ student.collegeName }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <!-- STATUS -->
+                  <td class="td-status">
+                    <div class="status-badge-premium">
+                      <div class="status-glow"></div>
+                      <div class="status-indicator"></div>
+                      <i-lucide name="check-circle" size="14"></i-lucide>
+                      <span>{{ student.applicationStatus | titlecase }}</span>
+                    </div>
+                  </td>
+                  <!-- ACTION BUTTON -->
+                  <td class="td-action">
+                    <a [href]="getFileUrl(student.admissionLetterPath)" target="_blank"
+                      class="btn-download-premium">
+                      <div class="btn-download-bg"></div>
+                      <div class="btn-download-content">
+                        <i-lucide name="download" size="16"></i-lucide>
+                        <span>Download</span>
+                      </div>
+                      <div class="btn-download-shine"></div>
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <!-- TABLE FOOTER -->
+        <div class="table-footer">
+          <div class="footer-info">
+            <i-lucide name="info" size="14"></i-lucide>
+            <span>All letters are in PDF format and ready for download</span>
+          </div>
+          <div class="footer-brand">
+            <i-lucide name="shield-check" size="14"></i-lucide>
+            <span>Secured Documents</span>
+          </div>
+        </div>
+      </div>
     </section>
+  }
 
 </div>

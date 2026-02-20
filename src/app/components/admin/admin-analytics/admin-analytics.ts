@@ -638,7 +638,7 @@ export class AdminAnalytics implements OnInit, OnDestroy {
     this.loadDashboard();
   }
 
-  trackByIndex(index: number): number {
+  trackByIndex(index: number, item?: any): number {
     return index;
   }
 

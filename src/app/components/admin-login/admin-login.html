@@ -123,28 +123,34 @@
                   autocomplete="current-password">
                 <button type="button" class="toggle-password" (click)="togglePasswordVisibility()"
                   [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
-                  <svg *ngIf="!showPassword()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                  <svg *ngIf="showPassword()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                  </svg>
+                  @if (!showPassword()) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  }
+                  @if (showPassword()) {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path
+                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  }
                 </button>
               </div>
             </div>
 
             <!-- Error Message -->
-            <div class="error-message" *ngIf="errorMessage()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              <span>{{ errorMessage() }}</span>
-            </div>
+            @if (errorMessage()) {
+              <div class="error-message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <span>{{ errorMessage() }}</span>
+              </div>
+            }
 
             <!-- Submit Button -->
             <button type="submit" class="submit-button" [disabled]="isLoading()"
@@ -204,63 +210,75 @@
   <footer class="page-footer">
     <p>Copyright © 2025 | Rare Education | All Rights Reserved</p>
     <p class="footer-credit">Designed and Developed by <a href="https://www.zorixlab.com" target="_blank"
-        class="footer-link">Zorix Lab</a></p>
+    class="footer-link">Zorix Lab</a></p>
   </footer>
   <!-- Fullscreen Toggle Button -->
   <button class="fullscreen-toggle" (click)="toggleFullscreen()"
     [attr.aria-label]="isFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen'">
-    <svg *ngIf="!isFullscreen()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-    </svg>
-    <svg *ngIf="isFullscreen()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
-    </svg>
+    @if (!isFullscreen()) {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+      </svg>
+    }
+    @if (isFullscreen()) {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+      </svg>
+    }
   </button>
 </div>
 
 <!-- Premium Loading Spinner -->
-<div class="spinner-overlay" *ngIf="isLoading()">
-  <div class="spinner-container">
-    <!-- Spinner Visual (Logo + Rings) -->
-    <div class="spinner-visual">
-      <!-- Animated rings -->
-      <div class="spinner-rings">
-        <div class="ring ring-1" [class.success]="spinnerPhase() === 'success'"
+@if (isLoading()) {
+  <div class="spinner-overlay">
+    <div class="spinner-container">
+      <!-- Spinner Visual (Logo + Rings) -->
+      <div class="spinner-visual">
+        <!-- Animated rings -->
+        <div class="spinner-rings">
+          <div class="ring ring-1" [class.success]="spinnerPhase() === 'success'"
           [class.error]="spinnerPhase() === 'error'"></div>
-        <div class="ring ring-2" [class.success]="spinnerPhase() === 'success'"
+          <div class="ring ring-2" [class.success]="spinnerPhase() === 'success'"
           [class.error]="spinnerPhase() === 'error'"></div>
+        </div>
+        <!-- Logo in center -->
+        <img src="rare-education-logo.png" alt="Rare Education" class="spinner-logo">
       </div>
-
-      <!-- Logo in center -->
-      <img src="rare-education-logo.png" alt="Rare Education" class="spinner-logo">
-    </div>
-
-    <!-- Status Section -->
-    <div class="spinner-status">
-      <div class="status-icon-container" *ngIf="spinnerPhase() !== 'validating'">
-        <svg *ngIf="spinnerPhase() === 'success'" class="status-icon success" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor">
-          <path d="M20 6L9 17l-5-5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        <svg *ngIf="spinnerPhase() === 'error'" class="status-icon error" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor">
-          <circle cx="12" cy="12" r="10" stroke-width="3" />
-          <line x1="15" y1="9" x2="9" y2="15" stroke-width="3" stroke-linecap="round" />
-          <line x1="9" y1="9" x2="15" y2="15" stroke-width="3" stroke-linecap="round" />
-        </svg>
+      <!-- Status Section -->
+      <div class="spinner-status">
+        @if (spinnerPhase() !== 'validating') {
+          <div class="status-icon-container">
+            @if (spinnerPhase() === 'success') {
+              <svg class="status-icon success" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor">
+                <path d="M20 6L9 17l-5-5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            }
+            @if (spinnerPhase() === 'error') {
+              <svg class="status-icon error" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor">
+                <circle cx="12" cy="12" r="10" stroke-width="3" />
+                <line x1="15" y1="9" x2="9" y2="15" stroke-width="3" stroke-linecap="round" />
+                <line x1="9" y1="9" x2="15" y2="15" stroke-width="3" stroke-linecap="round" />
+              </svg>
+            }
+          </div>
+        }
+        @if (spinnerText()) {
+          <div class="spinner-text" [class.success]="spinnerPhase() === 'success'"
+            [class.error]="spinnerPhase() === 'error'">
+            {{ spinnerText() }}
+          </div>
+        }
       </div>
-
-      <div class="spinner-text" *ngIf="spinnerText()" [class.success]="spinnerPhase() === 'success'"
-        [class.error]="spinnerPhase() === 'error'">
-        {{ spinnerText() }}
-      </div>
-    </div>
-
-    <!-- Progress dots -->
-    <div class="progress-dots" *ngIf="spinnerPhase() === 'validating'">
-      <span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
+      <!-- Progress dots -->
+      @if (spinnerPhase() === 'validating') {
+        <div class="progress-dots">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      }
     </div>
   </div>
-</div>
+}

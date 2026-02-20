@@ -1,185 +1,206 @@
 <div class="university-wise-container">
-    <!-- Header with Back Button -->
-    <div class="page-header">
-        <button class="back-btn" (click)="goBack()">
-            <i-lucide name="arrow-left" size="20"></i-lucide>
-            <span>Back to University</span>
+  <!-- Header with Back Button -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <i-lucide name="arrow-left" size="20"></i-lucide>
+      <span>Back to University</span>
+    </button>
+    <div class="header-content">
+      <div class="title-wrapper">
+        <div class="title-icon">
+          <i-lucide name="building" size="28"></i-lucide>
+        </div>
+        <div>
+          <h1>University-wise Coordinators</h1>
+          <p>View all colleges and their assigned University Coordinators</p>
+        </div>
+      </div>
+      @if (!isLoading) {
+        <div class="header-stats">
+          <div class="stat-pill">
+            <i-lucide name="building-2" size="16"></i-lucide>
+            <span>{{ getTotalColleges() }} Colleges</span>
+          </div>
+          <div class="stat-pill assigned">
+            <i-lucide name="user-check" size="16"></i-lucide>
+            <span>{{ getAssignedCount() }} Assigned</span>
+          </div>
+          <div class="stat-pill unassigned">
+            <i-lucide name="user-x" size="16"></i-lucide>
+            <span>{{ getUnassignedCount() }} Unassigned</span>
+          </div>
+          <div class="stat-pill students">
+            <i-lucide name="graduation-cap" size="16"></i-lucide>
+            <span>{{ getTotalStudents() }} Students</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Filter & Search Bar -->
+  @if (!isLoading && allColleges.length > 0) {
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">
+          <i-lucide name="layers" size="16"></i-lucide>
+          All Colleges
+          <span class="tab-count">{{ getTotalColleges() }}</span>
         </button>
-        <div class="header-content">
-            <div class="title-wrapper">
-                <div class="title-icon">
-                    <i-lucide name="building" size="28"></i-lucide>
-                </div>
-                <div>
-                    <h1>University-wise Coordinators</h1>
-                    <p>View all colleges and their assigned University Coordinators</p>
-                </div>
-            </div>
-            <div class="header-stats" *ngIf="!isLoading">
-                <div class="stat-pill">
-                    <i-lucide name="building-2" size="16"></i-lucide>
-                    <span>{{ getTotalColleges() }} Colleges</span>
-                </div>
-                <div class="stat-pill assigned">
-                    <i-lucide name="user-check" size="16"></i-lucide>
-                    <span>{{ getAssignedCount() }} Assigned</span>
-                </div>
-                <div class="stat-pill unassigned">
-                    <i-lucide name="user-x" size="16"></i-lucide>
-                    <span>{{ getUnassignedCount() }} Unassigned</span>
-                </div>
-                <div class="stat-pill students">
-                    <i-lucide name="graduation-cap" size="16"></i-lucide>
-                    <span>{{ getTotalStudents() }} Students</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filter & Search Bar -->
-    <div class="filter-bar" *ngIf="!isLoading && allColleges.length > 0">
-        <div class="filter-tabs">
-            <button class="filter-tab" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">
-                <i-lucide name="layers" size="16"></i-lucide>
-                All Colleges
-                <span class="tab-count">{{ getTotalColleges() }}</span>
-            </button>
-            <button class="filter-tab" [class.active]="activeFilter === 'assigned'" (click)="setFilter('assigned')">
-                <i-lucide name="user-check" size="16"></i-lucide>
-                Assigned
-                <span class="tab-count">{{ getAssignedCount() }}</span>
-            </button>
-            <button class="filter-tab" [class.active]="activeFilter === 'unassigned'" (click)="setFilter('unassigned')">
-                <i-lucide name="user-x" size="16"></i-lucide>
-                Unassigned
-                <span class="tab-count">{{ getUnassignedCount() }}</span>
-            </button>
-        </div>
-        <div class="search-box">
-            <i-lucide name="search" size="18"></i-lucide>
-            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
-                placeholder="Search colleges, cities, or coordinators...">
-        </div>
-    </div>
-
-    <!-- Loading State -->
-    <div class="loading-container" *ngIf="isLoading">
-        <div class="premium-loader">
-            <div class="loader-ring"></div>
-            <p>Loading Colleges...</p>
-        </div>
-    </div>
-
-    <!-- Error State -->
-    <div class="error-state" *ngIf="errorMessage && !isLoading">
-        <i-lucide name="alert-circle" size="48"></i-lucide>
-        <h3>Something went wrong</h3>
-        <p>{{ errorMessage }}</p>
-        <button class="btn-retry" (click)="loadColleges()">
-            <i-lucide name="refresh-cw" size="16"></i-lucide>
-            Try Again
+        <button class="filter-tab" [class.active]="activeFilter === 'assigned'" (click)="setFilter('assigned')">
+          <i-lucide name="user-check" size="16"></i-lucide>
+          Assigned
+          <span class="tab-count">{{ getAssignedCount() }}</span>
         </button>
-    </div>
-
-    <!-- Empty State -->
-    <div class="empty-state" *ngIf="!isLoading && !errorMessage && allColleges.length === 0">
-        <div class="empty-icon">
-            <i-lucide name="building-2" size="64"></i-lucide>
-        </div>
-        <h3>No Colleges Found</h3>
-        <p>There are no colleges registered in the system yet.</p>
-    </div>
-
-    <!-- No Results State -->
-    <div class="empty-state" *ngIf="!isLoading && allColleges.length > 0 && filteredColleges.length === 0">
-        <div class="empty-icon">
-            <i-lucide name="search-x" size="64"></i-lucide>
-        </div>
-        <h3>No Results Found</h3>
-        <p>No colleges match your current filters or search.</p>
-        <button class="btn-clear" (click)="searchTerm = ''; setFilter('all')">
-            <i-lucide name="x" size="16"></i-lucide>
-            Clear Filters
+        <button class="filter-tab" [class.active]="activeFilter === 'unassigned'" (click)="setFilter('unassigned')">
+          <i-lucide name="user-x" size="16"></i-lucide>
+          Unassigned
+          <span class="tab-count">{{ getUnassignedCount() }}</span>
         </button>
+      </div>
+      <div class="search-box">
+        <i-lucide name="search" size="18"></i-lucide>
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+          placeholder="Search colleges, cities, or coordinators...">
+      </div>
     </div>
+  }
 
-    <!-- College Cards Grid -->
-    <div class="colleges-grid" *ngIf="!isLoading && filteredColleges.length > 0">
-        <div class="college-card" *ngFor="let college of filteredColleges; trackBy: trackByCollegeId"
-            [class.unassigned]="!college.hasCoordinator"
-            [class.inactive-coordinator]="college.coordinator?.status === 'Inactive'">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="premium-loader">
+        <div class="loader-ring"></div>
+        <p>Loading Colleges...</p>
+      </div>
+    </div>
+  }
 
-            <!-- Assignment Badge -->
-            <div class="assignment-badge" [class.assigned]="college.hasCoordinator">
-                <i-lucide [name]="college.hasCoordinator ? 'user-check' : 'user-x'" size="12"></i-lucide>
-                {{ college.hasCoordinator ? 'Assigned' : 'Unassigned' }}
+  <!-- Error State -->
+  @if (errorMessage && !isLoading) {
+    <div class="error-state">
+      <i-lucide name="alert-circle" size="48"></i-lucide>
+      <h3>Something went wrong</h3>
+      <p>{{ errorMessage }}</p>
+      <button class="btn-retry" (click)="loadColleges()">
+        <i-lucide name="refresh-cw" size="16"></i-lucide>
+        Try Again
+      </button>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading && !errorMessage && allColleges.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i-lucide name="building-2" size="64"></i-lucide>
+      </div>
+      <h3>No Colleges Found</h3>
+      <p>There are no colleges registered in the system yet.</p>
+    </div>
+  }
+
+  <!-- No Results State -->
+  @if (!isLoading && allColleges.length > 0 && filteredColleges.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i-lucide name="search-x" size="64"></i-lucide>
+      </div>
+      <h3>No Results Found</h3>
+      <p>No colleges match your current filters or search.</p>
+      <button class="btn-clear" (click)="searchTerm = ''; setFilter('all')">
+        <i-lucide name="x" size="16"></i-lucide>
+        Clear Filters
+      </button>
+    </div>
+  }
+
+  <!-- College Cards Grid -->
+  @if (!isLoading && filteredColleges.length > 0) {
+    <div class="colleges-grid">
+      @for (college of filteredColleges; track trackByCollegeId($index, college)) {
+        <div class="college-card"
+          [class.unassigned]="!college.hasCoordinator"
+          [class.inactive-coordinator]="college.coordinator?.status === 'Inactive'">
+          <!-- Assignment Badge -->
+          <div class="assignment-badge" [class.assigned]="college.hasCoordinator">
+            <i-lucide [name]="college.hasCoordinator ? 'user-check' : 'user-x'" size="12"></i-lucide>
+            {{ college.hasCoordinator ? 'Assigned' : 'Unassigned' }}
+          </div>
+          <!-- College Info -->
+          <div class="college-header">
+            <div class="college-icon">
+              <i-lucide name="building-2" size="24"></i-lucide>
             </div>
-
-            <!-- College Info -->
-            <div class="college-header">
-                <div class="college-icon">
-                    <i-lucide name="building-2" size="24"></i-lucide>
-                </div>
-                <div class="college-details">
-                    <h3>{{ college.collegeName }}</h3>
-                    <div class="location">
-                        <i-lucide name="map-pin" size="14"></i-lucide>
-                        <span>{{ college.city }}, {{ college.country }}</span>
-                    </div>
-                </div>
+            <div class="college-details">
+              <h3>{{ college.collegeName }}</h3>
+              <div class="location">
+                <i-lucide name="map-pin" size="14"></i-lucide>
+                <span>{{ college.city }}, {{ college.country }}</span>
+              </div>
             </div>
-
-            <!-- Coordinator Section -->
-            <div class="coordinator-section" *ngIf="college.hasCoordinator && college.coordinator">
-                <div class="section-label">
-                    <i-lucide name="user" size="14"></i-lucide>
-                    Coordinator
+          </div>
+          <!-- Coordinator Section -->
+          @if (college.hasCoordinator && college.coordinator) {
+            <div class="coordinator-section">
+              <div class="section-label">
+                <i-lucide name="user" size="14"></i-lucide>
+                Coordinator
+              </div>
+              <div class="coordinator-info">
+                <div class="coordinator-avatar">
+                  <span>{{ college.coordinator.userName.charAt(0).toUpperCase() }}</span>
                 </div>
-                <div class="coordinator-info">
-                    <div class="coordinator-avatar">
-                        <span>{{ college.coordinator.userName.charAt(0).toUpperCase() }}</span>
-                    </div>
-                    <div class="coordinator-details">
-                        <div class="coordinator-name">@{{ college.coordinator.userName }}</div>
-                        <div class="coordinator-meta">
-                            <span class="status-badge" [ngClass]="getStatusClass(college.coordinator.status)">
-                                <i-lucide [name]="college.coordinator.status === 'Active' ? 'check-circle' : 'x-circle'"
-                                    size="10"></i-lucide>
-                                {{ college.coordinator.status }}
-                            </span>
-                            <span class="student-count">
-                                <i-lucide name="users" size="12"></i-lucide>
-                                {{ college.coordinator.studentCount }} students
-                            </span>
-                        </div>
-                    </div>
+                <div class="coordinator-details">
+                  <div class="coordinator-name">@{{ college.coordinator.userName }}</div>
+                  <div class="coordinator-meta">
+                    <span class="status-badge" [ngClass]="getStatusClass(college.coordinator.status)">
+                      <i-lucide [name]="college.coordinator.status === 'Active' ? 'check-circle' : 'x-circle'"
+                      size="10"></i-lucide>
+                      {{ college.coordinator.status }}
+                    </span>
+                    <span class="student-count">
+                      <i-lucide name="users" size="12"></i-lucide>
+                      {{ college.coordinator.studentCount }} students
+                    </span>
+                  </div>
                 </div>
+              </div>
             </div>
-
-            <!-- No Coordinator Section -->
-            <div class="no-coordinator-section" *ngIf="!college.hasCoordinator">
-                <div class="no-coordinator-icon">
-                    <i-lucide name="user-plus" size="24"></i-lucide>
-                </div>
-                <p>No coordinator assigned to this college</p>
+          }
+          <!-- No Coordinator Section -->
+          @if (!college.hasCoordinator) {
+            <div class="no-coordinator-section">
+              <div class="no-coordinator-icon">
+                <i-lucide name="user-plus" size="24"></i-lucide>
+              </div>
+              <p>No coordinator assigned to this college</p>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="card-actions">
-                <button class="btn-action primary" *ngIf="!college.hasCoordinator" (click)="navigateToManage()">
-                    <i-lucide name="user-plus" size="16"></i-lucide>
-                    Assign Coordinator
-                </button>
-                <button class="btn-action secondary" *ngIf="college.hasCoordinator"
-                    (click)="viewStudents(college.coordinator!)">
-                    <i-lucide name="users" size="16"></i-lucide>
-                    View Students
-                </button>
-                <button class="btn-action outline" *ngIf="college.hasCoordinator" (click)="navigateToManage()">
-                    <i-lucide name="settings" size="16"></i-lucide>
-                    Manage
-                </button>
-            </div>
+          }
+          <!-- Action Buttons -->
+          <div class="card-actions">
+            @if (!college.hasCoordinator) {
+              <button class="btn-action primary" (click)="navigateToManage()">
+                <i-lucide name="user-plus" size="16"></i-lucide>
+                Assign Coordinator
+              </button>
+            }
+            @if (college.hasCoordinator) {
+              <button class="btn-action secondary"
+                (click)="viewStudents(college.coordinator!)">
+                <i-lucide name="users" size="16"></i-lucide>
+                View Students
+              </button>
+            }
+            @if (college.hasCoordinator) {
+              <button class="btn-action outline" (click)="navigateToManage()">
+                <i-lucide name="settings" size="16"></i-lucide>
+                Manage
+              </button>
+            }
+          </div>
         </div>
+      }
     </div>
+  }
 </div>

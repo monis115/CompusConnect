@@ -15,7 +15,7 @@ export interface LoginResponse {
   id: number;
   username: string;
   password: string; // Note: Received but NOT stored for security
-  role: 'admin' | 'agent' | 'student' | 'visa-manager' | 'AdmissionManager';
+  role: 'admin' | 'agent' | 'student' | 'visa-manager' | 'visa_manager' | 'AdmissionManager' | 'admission_manager' | 'telex_manager' | 'accountant' | 'doc_manager' | 'universitycoordinator';
 }
 
 interface AgentDetailsResponse {

@@ -1,286 +1,318 @@
 <!-- Loading Overlay -->
-<div class="loading-overlay" *ngIf="isRefreshingChats">
+@if (isRefreshingChats) {
+  <div class="loading-overlay">
     <div class="loading-overlay-content">
-        <div class="spinner-refresh"></div>
-        <p>Please Wait Loading Chats...</p>
+      <div class="spinner-refresh"></div>
+      <p>Please Wait Loading Chats...</p>
     </div>
-</div>
+  </div>
+}
 
 <div class="message-dashboard">
-    <!-- Sidebar: Inbox -->
-    <aside class="inbox-sidebar" [class.mobile-open]="isMobileSidebarOpen">
-        <div class="sidebar-header">
-            <h2>Chats</h2>
-        </div>
+  <!-- Sidebar: Inbox -->
+  <aside class="inbox-sidebar" [class.mobile-open]="isMobileSidebarOpen">
+    <div class="sidebar-header">
+      <h2>Chats</h2>
+    </div>
 
-        <!-- Skeleton Loaders -->
-        <div class="inbox-list" *ngIf="isLoadingInbox">
-            <div class="skeleton-conversation" *ngFor="let i of [1,2,3,4,5]">
-                <div class="skeleton skeleton-avatar"></div>
-                <div class="skeleton-text">
-                    <div class="skeleton skeleton-line"></div>
-                    <div class="skeleton skeleton-line short"></div>
-                </div>
+    <!-- Skeleton Loaders -->
+    @if (isLoadingInbox) {
+      <div class="inbox-list">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="skeleton-conversation">
+            <div class="skeleton skeleton-avatar"></div>
+            <div class="skeleton-text">
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line short"></div>
             </div>
-        </div>
+          </div>
+        }
+      </div>
+    }
 
-        <!-- Conversations List -->
-        <div class="inbox-list" *ngIf="!isLoadingInbox" role="list">
-            <div *ngFor="let conv of conversations" class="conversation-item"
-                [class.active]="selectedConversation?.studentId === conv.studentId" (click)="selectConversation(conv)"
-                role="listitem" tabindex="0" [attr.aria-label]="'Conversation with ' + conv.studentName">
-
-                <div class="conv-avatar" [attr.aria-hidden]="true">
-                    {{ conv.studentName.charAt(0) }}
-                </div>
-
-                <div class="conv-details">
-                    <div class="conv-header">
-                        <span class="conv-name">{{ conv.studentName }}</span>
-                        <span class="conv-time">{{ formatTime(conv.latestTimestamp) }}</span>
-                    </div>
-                    <div class="conv-preview">
-                        <p class="conv-message">
-                            <span *ngIf="conv.isTyping" class="typing-indicator">
-                                <span class="typing-dot"></span>
-                                <span class="typing-dot"></span>
-                                <span class="typing-dot"></span>
-                            </span>
-                            <span *ngIf="!conv.isTyping">{{ truncate(conv.latestMessage) }}</span>
-                        </p>
-
-                    </div>
-                </div>
-
-                <!-- Pinned Indicator -->
-                <span class="pin-indicator" *ngIf="conv.isPinned" title="Pinned">📌</span>
-
-                <!-- Context Menu Button -->
-                <button class="conv-menu-btn" (click)="showActionsForMessage(conv.studentId); $event.stopPropagation()"
-                    aria-label="Conversation actions">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="6" r="2"></circle>
-                        <circle cx="12" cy="12" r="2"></circle>
-                        <circle cx="12" cy="18" r="2"></circle>
-                    </svg>
+    <!-- Conversations List -->
+    @if (!isLoadingInbox) {
+      <div class="inbox-list" role="list">
+        @for (conv of conversations; track conv) {
+          <div class="conversation-item"
+            [class.active]="selectedConversation?.studentId === conv.studentId" (click)="selectConversation(conv)"
+            role="listitem" tabindex="0" [attr.aria-label]="'Conversation with ' + conv.studentName">
+            <div class="conv-avatar" [attr.aria-hidden]="true">
+              {{ conv.studentName.charAt(0) }}
+            </div>
+            <div class="conv-details">
+              <div class="conv-header">
+                <span class="conv-name">{{ conv.studentName }}</span>
+                <span class="conv-time">{{ formatTime(conv.latestTimestamp) }}</span>
+              </div>
+              <div class="conv-preview">
+                <p class="conv-message">
+                  @if (conv.isTyping) {
+                    <span class="typing-indicator">
+                      <span class="typing-dot"></span>
+                      <span class="typing-dot"></span>
+                      <span class="typing-dot"></span>
+                    </span>
+                  }
+                  @if (!conv.isTyping) {
+                    <span>{{ truncate(conv.latestMessage) }}</span>
+                  }
+                </p>
+              </div>
+            </div>
+            <!-- Pinned Indicator -->
+            @if (conv.isPinned) {
+              <span class="pin-indicator" title="Pinned">📌</span>
+            }
+            <!-- Context Menu Button -->
+            <button class="conv-menu-btn" (click)="showActionsForMessage(conv.studentId); $event.stopPropagation()"
+              aria-label="Conversation actions">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="6" r="2"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+                <circle cx="12" cy="18" r="2"></circle>
+              </svg>
+            </button>
+            <!-- Context Menu -->
+            @if (selectedMessageId === conv.studentId) {
+              <div class="context-menu"
+                (click)="$event.stopPropagation()">
+                <button (click)="pinConversation(conv); selectedMessageId = null">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />
+                  </svg>
+                  {{ conv.isPinned ? 'Unpin' : 'Pin' }}
                 </button>
-
-                <!-- Context Menu -->
-                <div class="context-menu" *ngIf="selectedMessageId === conv.studentId"
-                    (click)="$event.stopPropagation()">
-                    <button (click)="pinConversation(conv); selectedMessageId = null">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />
-                        </svg>
-                        {{ conv.isPinned ? 'Unpin' : 'Pin' }}
-                    </button>
-                    <button (click)="muteConversation(conv); selectedMessageId = null">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93L4.93 19.07M15.54 8.46a5 5 0 0 1 0 7.07" />
-                        </svg>
-                        {{ conv.isMuted ? 'Unmute' : 'Mute' }}
-                    </button>
-                    <button (click)="archiveConversation(conv); selectedMessageId = null">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="21 8 21 21 3 21 3 8" />
-                            <rect x="1" y="3" width="22" height="5" />
-                            <line x1="10" y1="12" x2="14" y2="12" />
-                        </svg>
-                        Archive
-                    </button>
-                </div>
-            </div>
-
-            <!-- Empty Inbox -->
-            <div class="empty-inbox" *ngIf="conversations.length === 0">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                </svg>
-                <p>No conversations yet</p>
-                <button class="btn-primary-sm" (click)="openNewChatModal()">
-                    <span>Start a chat</span>
+                <button (click)="muteConversation(conv); selectedMessageId = null">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93L4.93 19.07M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg>
+                  {{ conv.isMuted ? 'Unmute' : 'Mute' }}
                 </button>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Chat Area -->
-    <main class="chat-area">
-        <!-- Empty Chat State -->
-        <div class="empty-chat" *ngIf="!selectedConversation">
-            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                <line x1="9" y1="10" x2="15" y2="10"></line>
-                <line x1="9" y1="14" x2="13" y2="14"></line>
+                <button (click)="archiveConversation(conv); selectedMessageId = null">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="21 8 21 21 3 21 3 8" />
+                    <rect x="1" y="3" width="22" height="5" />
+                    <line x1="10" y1="12" x2="14" y2="12" />
+                  </svg>
+                  Archive
+                </button>
+              </div>
+            }
+          </div>
+        }
+        <!-- Empty Inbox -->
+        @if (conversations.length === 0) {
+          <div class="empty-inbox">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
-            <h3>Select a conversation</h3>
-            <p>Choose a conversation from the sidebar or start a new chat</p>
-        </div>
+            <p>No conversations yet</p>
+            <button class="btn-primary-sm" (click)="openNewChatModal()">
+              <span>Start a chat</span>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </aside>
 
-        <!-- Active Chat -->
-        <div class="chat-container" *ngIf="selectedConversation">
-            <!-- Chat Header -->
-            <header class="chat-header">
-                <div class="student-info">
-                    <div class="student-avatar">
-                        {{ selectedConversation!.studentName.charAt(0) }}
-                    </div>
-                    <div class="student-details">
-                        <h3>{{ selectedConversation!.studentName }}</h3>
-                        <p class="app-id" *ngIf="selectedConversation!.studentApplicationId">
-                            {{ selectedConversation!.studentApplicationId }}
-                        </p>
-                        <p class="agent-info">Agent: {{ selectedConversation!.agentName }}</p>
-                    </div>
-                </div>
-
-                <!-- Simple Header - No Action Buttons -->
-            </header>
-
-            <!-- Messages List -->
-            <div class="messages-list" *ngIf="!isLoadingMessages" role="log" aria-live="polite">
-                <div *ngFor="let message of messages" class="message-wrapper"
-                    [class.sent]="message.senderRole === 'MANAGER'" [class.received]="message.senderRole === 'AGENT'">
-
-                    <div class="message-bubble"
-                        (contextmenu)="showActionsForMessage(message.id); $event.preventDefault()">
-                        <div class="message-content">{{ message.content }}</div>
-                        <div class="message-meta">
-                            <span class="message-sender" *ngIf="message.senderRole === 'AGENT'">
-                                {{ message.agentName }}
-                            </span>
-                            <span class="message-time">{{ formatTime(message.timestamp) }}</span>
-
-                            <!-- Read Receipts REMOVED - was showing tiny squares -->
-                        </div>
-
-                        <!-- Message Reactions -->
-                        <div class="message-reactions" *ngIf="message.reactions && message.reactions.length > 0">
-                            <span *ngFor="let reaction of message.reactions" class="reaction">{{ reaction }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Message Actions Menu -->
-                    <div class="message-actions" *ngIf="selectedMessageId === message.id">
-                        <button (click)="copyMessage(message); selectedMessageId = null" title="Copy">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                        </button>
-                        <button (click)="deleteMessage(message.id); selectedMessageId = null" title="Delete">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path
-                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                </path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="empty-messages" *ngIf="messages.length === 0">
-                    <p>No messages yet. Start the conversation!</p>
-                </div>
-            </div>
-
-            <!-- Loading Messages Spinner -->
-            <div class="loading-messages" *ngIf="isLoadingMessages">
-                <div class="spinner-small"></div>
-                <p>Loading messages...</p>
-            </div>
-
-            <!-- Message Input -->
-            <footer class="chat-footer">
-
-
-                <div class="message-input-container">
-                    <textarea #messageInput [(ngModel)]="newMessageContent"
-                        (keydown.enter)="onMessageInputKeyDown($any($event))"
-                        (input)="selectedConversation && saveDraft(selectedConversation.studentId, newMessageContent)"
-                        placeholder="Start typing..." rows="1" class="message-input" aria-label="Message input"
-                        [attr.aria-describedby]="messageDrafts.has(selectedConversation?.studentId || 0) ? 'draft-indicator' : null">
-                    </textarea> <button class="btn-send" (click)="sendMessage()"
-                        [disabled]="!newMessageContent.trim() || isSendingMessage" [class.success]="!isSendingMessage"
-                        title="Send message" aria-label="Send message">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" *ngIf="!isSendingMessage">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
-                        <div class="spinner-sm" *ngIf="isSendingMessage"></div>
-                    </button>
-                </div>
-
-                <!-- Draft Indicator -->
-                <div class="draft-indicator" id="draft-indicator"
-                    *ngIf="selectedConversation && messageDrafts.has(selectedConversation.studentId)">
-                    💾 Draft saved
-                </div>
-            </footer>
-        </div>
-    </main>
-    <!-- Floating Refresh Button -->
-    <button class="btn-refresh-floating" (click)="refreshChats()" [disabled]="isRefreshingChats" title="Reload Chats"
-        aria-label="Reload all chats">
-        <svg [class.spinning]="isRefreshingChats" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.5">
-            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+  <!-- Chat Area -->
+  <main class="chat-area">
+    <!-- Empty Chat State -->
+    @if (!selectedConversation) {
+      <div class="empty-chat">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <line x1="9" y1="10" x2="15" y2="10"></line>
+          <line x1="9" y1="14" x2="13" y2="14"></line>
         </svg>
-        <span>Refresh Chats Now</span>
-    </button>
+        <h3>Select a conversation</h3>
+        <p>Choose a conversation from the sidebar or start a new chat</p>
+      </div>
+    }
+
+    <!-- Active Chat -->
+    @if (selectedConversation) {
+      <div class="chat-container">
+        <!-- Chat Header -->
+        <header class="chat-header">
+          <div class="student-info">
+            <div class="student-avatar">
+              {{ selectedConversation!.studentName.charAt(0) }}
+            </div>
+            <div class="student-details">
+              <h3>{{ selectedConversation!.studentName }}</h3>
+              @if (selectedConversation!.studentApplicationId) {
+                <p class="app-id">
+                  {{ selectedConversation!.studentApplicationId }}
+                </p>
+              }
+              <p class="agent-info">Agent: {{ selectedConversation!.agentName }}</p>
+            </div>
+          </div>
+          <!-- Simple Header - No Action Buttons -->
+        </header>
+        <!-- Messages List -->
+        @if (!isLoadingMessages) {
+          <div class="messages-list" role="log" aria-live="polite">
+            @for (message of messages; track message) {
+              <div class="message-wrapper"
+                [class.sent]="message.senderRole === 'MANAGER'" [class.received]="message.senderRole === 'AGENT'">
+                <div class="message-bubble"
+                  (contextmenu)="showActionsForMessage(message.id); $event.preventDefault()">
+                  <div class="message-content">{{ message.content }}</div>
+                  <div class="message-meta">
+                    @if (message.senderRole === 'AGENT') {
+                      <span class="message-sender">
+                        {{ message.agentName }}
+                      </span>
+                    }
+                    <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+                    <!-- Read Receipts REMOVED - was showing tiny squares -->
+                  </div>
+                  <!-- Message Reactions -->
+                  @if (message.reactions && message.reactions.length > 0) {
+                    <div class="message-reactions">
+                      @for (reaction of message.reactions; track reaction) {
+                        <span class="reaction">{{ reaction }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+                <!-- Message Actions Menu -->
+                @if (selectedMessageId === message.id) {
+                  <div class="message-actions">
+                    <button (click)="copyMessage(message); selectedMessageId = null" title="Copy">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                    </button>
+                    <button (click)="deleteMessage(message.id); selectedMessageId = null" title="Delete">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path
+                          d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                        </path>
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+            @if (messages.length === 0) {
+              <div class="empty-messages">
+                <p>No messages yet. Start the conversation!</p>
+              </div>
+            }
+          </div>
+        }
+        <!-- Loading Messages Spinner -->
+        @if (isLoadingMessages) {
+          <div class="loading-messages">
+            <div class="spinner-small"></div>
+            <p>Loading messages...</p>
+          </div>
+        }
+        <!-- Message Input -->
+        <footer class="chat-footer">
+          <div class="message-input-container">
+            <textarea #messageInput [(ngModel)]="newMessageContent"
+              (keydown.enter)="onMessageInputKeyDown($any($event))"
+              (input)="selectedConversation && saveDraft(selectedConversation.studentId, newMessageContent)"
+              placeholder="Start typing..." rows="1" class="message-input" aria-label="Message input"
+              [attr.aria-describedby]="messageDrafts.has(selectedConversation?.studentId || 0) ? 'draft-indicator' : null">
+            </textarea> <button class="btn-send" (click)="sendMessage()"
+            [disabled]="!newMessageContent.trim() || isSendingMessage" [class.success]="!isSendingMessage"
+            title="Send message" aria-label="Send message">
+            @if (!isSendingMessage) {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            }
+            @if (isSendingMessage) {
+              <div class="spinner-sm"></div>
+            }
+          </button>
+        </div>
+        <!-- Draft Indicator -->
+        @if (selectedConversation && messageDrafts.has(selectedConversation.studentId)) {
+          <div class="draft-indicator" id="draft-indicator"
+            >
+            💾 Draft saved
+          </div>
+        }
+      </footer>
+    </div>
+  }
+</main>
+<!-- Floating Refresh Button -->
+<button class="btn-refresh-floating" (click)="refreshChats()" [disabled]="isRefreshingChats" title="Reload Chats"
+  aria-label="Reload all chats">
+  <svg [class.spinning]="isRefreshingChats" width="20" height="20" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2.5">
+    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+  </svg>
+  <span>Refresh Chats Now</span>
+</button>
 </div>
 
 <!-- Floating Refresh Button -->
 
 
 <!-- New Chat Modal -->
-<div class="modal-backdrop" *ngIf="showNewChatModal" (click)="closeNewChatModal()" role="dialog" aria-modal="true"
+@if (showNewChatModal) {
+  <div class="modal-backdrop" (click)="closeNewChatModal()" role="dialog" aria-modal="true"
     aria-labelledby="modal-title">
     <div class="modal-container" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h3 id="modal-title">New Chat</h3>
-            <button class="btn-close" (click)="closeNewChatModal()" aria-label="Close modal">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
+      <div class="modal-header">
+        <h3 id="modal-title">New Chat</h3>
+        <button class="btn-close" (click)="closeNewChatModal()" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" [(ngModel)]="searchQuery" (input)="filterStudents()"
+            placeholder="Search students by name, ID, or email..." class="search-input"
+            aria-label="Search students">
         </div>
-
-        <div class="modal-body">
-            <div class="search-box">
-                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" [(ngModel)]="searchQuery" (input)="filterStudents()"
-                    placeholder="Search students by name, ID, or email..." class="search-input"
-                    aria-label="Search students">
+        <div class="students-list" role="list">
+          @for (student of filteredStudents; track student) {
+            <div class="student-item"
+              (click)="startChatWithStudent(student)" role="listitem" tabindex="0"
+              [attr.aria-label]="'Start chat with ' + student.fullName">
+              <div class="student-avatar-sm">{{ student.fullName.charAt(0) }}</div>
+              <div class="student-info-sm">
+                <p class="student-name">{{ student.fullName }}</p>
+                <p class="student-email">{{ student.email }}</p>
+              </div>
             </div>
-
-            <div class="students-list" role="list">
-                <div *ngFor="let student of filteredStudents" class="student-item"
-                    (click)="startChatWithStudent(student)" role="listitem" tabindex="0"
-                    [attr.aria-label]="'Start chat with ' + student.fullName">
-                    <div class="student-avatar-sm">{{ student.fullName.charAt(0) }}</div>
-                    <div class="student-info-sm">
-                        <p class="student-name">{{ student.fullName }}</p>
-                        <p class="student-email">{{ student.email }}</p>
-                    </div>
-                </div>
-
-                <div class="empty-search" *ngIf="filteredStudents.length === 0">
-                    <p>No students found</p>
-                </div>
+          }
+          @if (filteredStudents.length === 0) {
+            <div class="empty-search">
+              <p>No students found</p>
             </div>
+          }
         </div>
+      </div>
     </div>
-</div>
+  </div>
+}
