@@ -23,6 +23,7 @@ interface StatusHistory {
   updatedBy: string;
   updatedAt: string;
   newStatus: string;
+  remarks?: string;
 }
 
 interface Student {
@@ -30,6 +31,7 @@ interface Student {
   actionOnUser: string;
   id: number;
   fullName: string;
+  applicationId: string;
   dob: string;
   age: number;
   createdAt: string;
@@ -62,25 +64,92 @@ interface Student {
   intake: string;
   appliedFor: string;
   college: { id: number; collegeName: string } | null;
+  nextStep: string | null;
   // Docs - Basic
   confirmationPagePath: string | null;
   conditionalOfferLetterPath: string | null;
   admissionLetterPathInternal: string | null;
   profileImagePath: string | null;
-  // Docs - Telex
-  telexDocumentsPath: string | null;
-  telexPaymentScreenshotPath: string | null;
-  // Docs - Visa
+  // Personal/Visa Information
+  surname: string | null;
+  firstName: string | null;
+  middleName: string | null;
+  sex: string | null;
+  countryOfBirth: string | null;
+  placeOfBirth: string | null;
+  maritalStatus: string | null;
+  citizenship: string | null;
+  previousCitizenship: string | null;
+  passportType: string | null;
+  passportIssueDate: string | null;
+  passportExpirationDate: string | null;
+  durationOfVisaProcedure: string | null;
+  placeOfVisaIssuance: string | null;
   visaPhotoPath: string | null;
   visaPassportCopyPath: string | null;
-  // Docs - Payment
+  // Visa Payment Fields
+  visaManServiceCharge: number | null;
+  visaPaymentRequestedAmount: number | null;
+  visaPaymentRequestedCurrency: string | null;
+  visaBankDetailsSentDate: string | null;
+  visaPaymentTxId: string | null;
+  visaPaymentConfirmationPath: string | null;
+  visaPaymentReceivedAmount: number | null;
+  visaPaymentReceivedDate: string | null;
+  // Bank Details
+  visaBankName: string | null;
+  visaBankAccountNumber: string | null;
+  visaBankSwiftCode: string | null;
+  visaBankBeneficiaryName: string | null;
+  visaBankBranchAddress: string | null;
+  // Telex Details
+  telexNumber: string | null;
+  telexIssueDate: string | null;
+  telexDocumentsPath: string | null;
+  passportValidationDate: string | null;
+  telexPaymentAmount: number | null;
+  telexPaymentScreenshotPath: string | null;
+  telexPaymentTxId: string | null;
+  telexPaymentReceivedAmount: number | null;
+  telexPaymentReceivedDate: string | null;
+  isTelexAccountantApproved: boolean | null;
+  isTelexDocApproved: boolean | null;
+  docPersonComment: string | null;
+  // Document Tracking
+  originalDocLocation: string | null;
+  originalDocsSent: boolean | null;
+  docDeliveryMethod: string | null;
+  courierPartner: string | null;
+  courierTrackingId: string | null;
+  selfPersonContact: string | null;
+  docTentativeReachDate: string | null;
+  docReceivedDate: string | null;
+  received12thMarksheet: boolean | null;
+  received10thMarksheet: boolean | null;
+  receivedNeetScorecard: boolean | null;
+  receivedPassport: boolean | null;
+  docReturnedDate: string | null;
+  docReturnMethod: string | null;
+  docReturnTrackingId: string | null;
+  readyForDocReturn: boolean | null;
+  // Payment Details
+  hasPaid: boolean | null;
+  paidAmount: number | null;
+  paidTo: string | null;
   ttCopyPath: string | null;
   paymentConfirmationPath: string | null;
+  paymentDueDate: string | null;
+  paymentType: string | null;
   // Workflow
   telexMan: User | null;
   visaMan: User | null;
-  telexNumber: string | null;
-  telexIssueDate: string | null;
+  docPerson: User | null;
+  accountant: User | null;
+  agent: User | null;
+  admissionManager: User | null;
+  canRequestDocReturn: boolean | null;
+  hasRaiseReturnRequest: boolean | null;
+  docPersonAssignedDate: string | null;
   paymentStatus: string | null;
   // History
   studentStatusHistory: StatusHistory[];

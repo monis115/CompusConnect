@@ -1,6 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { environment } from '../../../../environments/environment';
@@ -51,9 +50,13 @@ interface Location {
   district: string;
 }
 
-interface StateGroup {
-  state: string;
-  districts: Location[];
+// Per-college location access entry (same as admin-agent-registration)
+interface CollegeAccessEntry {
+  collegeId: number;
+  collegeName: string;
+  city: string;
+  accessAllLocations: boolean;
+  locationIds: number[];
 }
 
 @Component({
@@ -78,12 +81,16 @@ export class PendingAgents implements OnInit {
   pendingAgents: Agent[] = [];
   colleges: College[] = [];
   locations: Location[] = [];
-  stateGroups: StateGroup[] = [];
+  states: string[] = [];
+  districtsByState: { [state: string]: Location[] } = {};
 
   selectedAgent: Agent | null = null;
-  selectedCollegeIds: number[] = [];
-  selectedLocationIds: number[] = [];
-  expandedStates: Set<string> = new Set();
+
+  // Per-college access (replaces flat selectedCollegeIds/selectedLocationIds)
+  collegeAccessList: CollegeAccessEntry[] = [];
+  selectedCollegeToAdd: string = '';
+  expandedStates: { [key: string]: boolean } = {};
+
   isDetailsModalOpen = false;
   isApproveModalOpen = false;
   isSuccessModalOpen = false;
@@ -97,12 +104,13 @@ export class PendingAgents implements OnInit {
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    console.log('PendingAgents component initialized');
     this.loadData();
   }
 
+  /* --------------------------------------------------------------------- */
+  /* ----------------------------- LOAD DATA ----------------------------- */
+  /* --------------------------------------------------------------------- */
   loadData() {
-    console.log('Loading data...');
     this.isLoading = true;
     this.cdr.detectChanges();
 
@@ -112,16 +120,10 @@ export class PendingAgents implements OnInit {
       locations: this.http.get<Location[]>(`${this.apiBase}/locations`)
     }).subscribe({
       next: (data) => {
-        console.log('Data loaded successfully:', {
-          agents: data.agents?.length || 0,
-          colleges: data.colleges?.length || 0,
-          locations: data.locations?.length || 0
-        });
-        
         this.pendingAgents = data.agents || [];
         this.colleges = data.colleges || [];
         this.locations = data.locations || [];
-        this.groupLocationsByState();
+        this.buildStateDistrictMap();
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -130,35 +132,37 @@ export class PendingAgents implements OnInit {
         this.pendingAgents = [];
         this.colleges = [];
         this.locations = [];
-        this.stateGroups = [];
         this.isLoading = false;
         this.cdr.detectChanges();
       }
     });
   }
 
-  groupLocationsByState() {
-    console.log('Grouping locations by state...');
-    const map = new Map<string, Location[]>();
-    this.locations.forEach(loc => {
-      if (!map.has(loc.state)) map.set(loc.state, []);
-      map.get(loc.state)!.push(loc);
+  private buildStateDistrictMap() {
+    const map: { [s: string]: Location[] } = {};
+    const set = new Set<string>();
+
+    this.locations.forEach(l => {
+      if (!l.state || !l.district) return;
+      set.add(l.state);
+      if (!map[l.state]) map[l.state] = [];
+      map[l.state].push(l);
     });
-    this.stateGroups = Array.from(map.entries())
-      .map(([state, districts]) => ({ state, districts }))
-      .sort((a, b) => a.state.localeCompare(b.state));
-    console.log('State groups created:', this.stateGroups.length);
+
+    this.states = Array.from(set).sort();
+    this.districtsByState = map;
   }
 
+  /* --------------------------------------------------------------------- */
+  /* ----------------------- DETAILS MODAL ------------------------------ */
+  /* --------------------------------------------------------------------- */
   showDetails(agent: Agent) {
-    console.log('Showing details for agent:', agent.fullName);
     this.selectedAgent = agent;
     this.isDetailsModalOpen = true;
     this.cdr.detectChanges();
   }
 
   closeDetailsModal() {
-    console.log('Closing details modal');
     this.isDetailsModalOpen = false;
     setTimeout(() => {
       if (!this.isApproveModalOpen) {
@@ -169,249 +173,248 @@ export class PendingAgents implements OnInit {
 
   onDetailsOverlayClick(event: MouseEvent) {
     if ((event.target as HTMLElement).classList.contains('pa-modal-overlay')) {
-      console.log('Overlay clicked - closing details modal');
       this.closeDetailsModal();
     }
   }
 
+  /* --------------------------------------------------------------------- */
+  /* ----------------------- APPROVE MODAL ------------------------------ */
+  /* --------------------------------------------------------------------- */
   startApproving(agent?: Agent) {
-    console.log('startApproving called with:', agent);
-    
     if (agent) {
       this.selectedAgent = agent;
     }
-    
     if (!this.selectedAgent) {
-      console.error('No agent provided to startApproving!');
       alert('No agent selected. Please try again.');
       return;
     }
-    
-    console.log('Selected agent for approval:', this.selectedAgent.fullName);
-    
+
     this.closeDetailsModal();
-    this.selectedCollegeIds = [];
-    this.selectedLocationIds = [];
+    this.collegeAccessList = [];
+    this.selectedCollegeToAdd = '';
+    this.expandedStates = {};
     this.isApproveModalOpen = true;
-    
-    console.log('Approve modal opened for agent:', this.selectedAgent.fullName);
     this.cdr.detectChanges();
   }
 
   closeApproveModal() {
-    console.log('Closing approve modal');
     this.isApproveModalOpen = false;
-    
     setTimeout(() => {
       this.selectedAgent = null;
-      this.selectedCollegeIds = [];
-      this.selectedLocationIds = [];
-      console.log('Approve modal data cleared');
+      this.collegeAccessList = [];
+      this.selectedCollegeToAdd = '';
+      this.expandedStates = {};
     }, 300);
   }
 
   onApproveOverlayClick(event: MouseEvent) {
     if ((event.target as HTMLElement).classList.contains('pa-modal-overlay')) {
-      console.log('Overlay clicked - closing approve modal');
       this.closeApproveModal();
     }
   }
 
-  // College Selection Functions
-  toggleCollege(collegeId: number, event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    this.selectedCollegeIds = this.selectedCollegeIds.includes(collegeId)
-      ? this.selectedCollegeIds.filter(id => id !== collegeId)
-      : [...this.selectedCollegeIds, collegeId];
-    console.log(`Toggled college ${collegeId}. Selected colleges:`, this.selectedCollegeIds);
+  /* --------------------------------------------------------------------- */
+  /* --------------- COLLEGE ACCESS MANAGEMENT (per-college) ------------- */
+  /* --------------------------------------------------------------------- */
+
+  // Get colleges not yet added
+  getAvailableColleges(): College[] {
+    const addedIds = this.collegeAccessList.map(e => e.collegeId);
+    return this.colleges.filter(c => !addedIds.includes(c.id));
+  }
+
+  // Add a college to the access list
+  addCollegeAccess() {
+    const collegeId = parseInt(this.selectedCollegeToAdd, 10);
+    if (!collegeId) return;
+
+    const college = this.colleges.find(c => c.id === collegeId);
+    if (!college) return;
+    if (this.collegeAccessList.some(e => e.collegeId === collegeId)) return;
+
+    this.collegeAccessList.push({
+      collegeId: college.id,
+      collegeName: college.collegeName,
+      city: college.city,
+      accessAllLocations: false,
+      locationIds: []
+    });
+
+    this.selectedCollegeToAdd = '';
     this.cdr.detectChanges();
   }
 
-  isAllCollegesSelected(): boolean {
-    return this.colleges.length > 0 && this.selectedCollegeIds.length === this.colleges.length;
-  }
-
-  toggleAllColleges(checked: boolean, event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    this.selectedCollegeIds = checked ? this.colleges.map(c => c.id) : [];
-    console.log(`Toggled all colleges (${checked ? 'selected' : 'deselected'}):`, this.selectedCollegeIds);
+  // Remove a college
+  removeCollegeAccess(collegeId: number) {
+    this.collegeAccessList = this.collegeAccessList.filter(e => e.collegeId !== collegeId);
+    Object.keys(this.expandedStates).forEach(key => {
+      if (key.endsWith('_' + collegeId)) {
+        delete this.expandedStates[key];
+      }
+    });
     this.cdr.detectChanges();
   }
 
-  // Location Selection Functions
-  toggleLocation(locationId: number, event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    this.selectedLocationIds = this.selectedLocationIds.includes(locationId)
-      ? this.selectedLocationIds.filter(id => id !== locationId)
-      : [...this.selectedLocationIds, locationId];
-    console.log(`Toggled location ${locationId}. Selected locations:`, this.selectedLocationIds);
-    this.cdr.detectChanges();
-  }
+  // Toggle "All India Access" for a college
+  toggleAccessAllLocations(collegeId: number) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
 
-  isAllLocationsSelected(): boolean {
-    const allLocationIds = this.locations.map(l => l.id);
-    return allLocationIds.length > 0 && this.selectedLocationIds.length === allLocationIds.length;
-  }
-
-  toggleAllLocations(checked: boolean, event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    const allIds = this.locations.map(l => l.id);
-    if (checked) {
-      this.selectedLocationIds = [...new Set([...this.selectedLocationIds, ...allIds])];
+    entry.accessAllLocations = !entry.accessAllLocations;
+    if (entry.accessAllLocations) {
+      entry.locationIds = this.locations.map(l => l.id);
     } else {
-      this.selectedLocationIds = this.selectedLocationIds.filter(id => !allIds.includes(id));
+      entry.locationIds = [];
     }
-    console.log(`Toggled all locations (${checked ? 'selected' : 'deselected'}):`, this.selectedLocationIds.length);
     this.cdr.detectChanges();
   }
 
-  isAllDistrictsInStateSelected(group: StateGroup): boolean {
-    return group.districts.every(d => this.selectedLocationIds.includes(d.id));
+  // Toggle state expansion (per college)
+  toggleStateExpansion(key: string) {
+    this.expandedStates[key] = !this.expandedStates[key];
   }
 
-  toggleAllDistrictsInState(group: StateGroup, checked: boolean, event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    const districtIds = group.districts.map(d => d.id);
-    if (checked) {
-      this.selectedLocationIds = [...new Set([...this.selectedLocationIds, ...districtIds])];
+  // Check if location is selected for a specific college
+  isLocationSelectedForCollege(collegeId: number, locationId: number): boolean {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    return entry ? entry.locationIds.includes(locationId) : false;
+  }
+
+  // Toggle a specific location for a college
+  toggleLocationForCollege(collegeId: number, locationId: number) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+
+    const idx = entry.locationIds.indexOf(locationId);
+    if (idx === -1) {
+      entry.locationIds.push(locationId);
     } else {
-      this.selectedLocationIds = this.selectedLocationIds.filter(id => !districtIds.includes(id));
+      entry.locationIds.splice(idx, 1);
     }
-    console.log(`Toggled all districts in ${group.state} (${checked ? 'selected' : 'deselected'})`);
+
+    entry.accessAllLocations = entry.locationIds.length === this.locations.length;
     this.cdr.detectChanges();
   }
 
-  getSelectedDistrictsCount(group: StateGroup): number {
-    return group.districts.filter(d => this.selectedLocationIds.includes(d.id)).length;
+  // Check if all districts of a state are selected for a college
+  isAllDistrictsSelectedForCollege(collegeId: number, state: string): boolean {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return false;
+
+    const stateLocations = this.districtsByState[state] || [];
+    return stateLocations.length > 0 && stateLocations.every(loc => entry.locationIds.includes(loc.id));
   }
 
-  toggleStateExpansion(state: string, event?: Event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    if (this.expandedStates.has(state)) {
-      this.expandedStates.delete(state);
+  // Toggle all districts of a state for a college
+  toggleAllDistrictsForCollege(collegeId: number, state: string) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+
+    const stateLocations = this.districtsByState[state] || [];
+    const allSelected = this.isAllDistrictsSelectedForCollege(collegeId, state);
+
+    if (allSelected) {
+      stateLocations.forEach(loc => {
+        const idx = entry.locationIds.indexOf(loc.id);
+        if (idx !== -1) entry.locationIds.splice(idx, 1);
+      });
     } else {
-      this.expandedStates.add(state);
+      stateLocations.forEach(loc => {
+        if (!entry.locationIds.includes(loc.id)) entry.locationIds.push(loc.id);
+      });
     }
+
+    entry.accessAllLocations = entry.locationIds.length === this.locations.length;
     this.cdr.detectChanges();
   }
 
-  isStateExpanded(state: string): boolean {
-    return this.expandedStates.has(state);
+  // Get district count for a state
+  getDistrictCountForState(state: string): number {
+    return this.districtsByState[state]?.length || 0;
   }
 
+  // Check if any valid college access exists
+  hasValidCollegeAccess(): boolean {
+    return this.collegeAccessList.length > 0 &&
+      this.collegeAccessList.every(e => e.locationIds.length > 0);
+  }
+
+  approvedAgentCredentials: { userId: string, password?: string } | null = null;
+
+  /* --------------------------------------------------------------------- */
+  /* ----------------------------- APPROVE ------------------------------- */
+  /* --------------------------------------------------------------------- */
   approveAgent() {
-    console.log('=== APPROVE AGENT CALLED ===');
-    console.log('selectedAgent:', this.selectedAgent);
-    console.log('selectedCollegeIds:', this.selectedCollegeIds);
-    console.log('selectedLocationIds:', this.selectedLocationIds);
-    
     if (!this.selectedAgent) {
-      console.error('Agent selection was lost!');
       alert('Agent selection was lost. Please close the modal and try again.');
       return;
     }
-    
-    if (this.selectedCollegeIds.length === 0 && this.selectedLocationIds.length === 0) {
-      console.warn('No colleges or locations selected');
-      alert('Please select at least one college or location.');
+
+    if (this.collegeAccessList.length === 0) {
+      alert('Please add at least one college with location access.');
       return;
     }
 
-    console.log('Validation passed. Starting approval process...');
+    const collegeWithNoLocations = this.collegeAccessList.find(e => e.locationIds.length === 0);
+    if (collegeWithNoLocations) {
+      alert(`Please select at least one location for ${collegeWithNoLocations.collegeName}.`);
+      return;
+    }
+
     this.isApproving = true;
     this.cdr.detectChanges();
 
+    // Build per-college access list payload
+    const collegeAccessListPayload = this.collegeAccessList.map(entry => ({
+      collegeId: entry.collegeId,
+      accessAllLocations: entry.accessAllLocations,
+      locationIds: entry.locationIds
+    }));
+
     const payload = {
-      fullName: this.selectedAgent.fullName,
-      gender: this.selectedAgent.gender,
-      dob: this.selectedAgent.dob,
-      age: this.selectedAgent.age,
-      email: this.selectedAgent.email,
-      contactNo: this.selectedAgent.contactNo,
-      address: this.selectedAgent.address,
-      identityProofType: this.selectedAgent.identityProofType,
-      identityProofNumber: this.selectedAgent.identityProofNumber,
-      designation: this.selectedAgent.designation,
-      experience: this.selectedAgent.experience,
-      status: "Active",
-      companyName: this.selectedAgent.companyName,
-      registeredBusinessName: this.selectedAgent.registeredBusinessName,
-      businessType: this.selectedAgent.businessType,
-      registrationNumber: this.selectedAgent.registrationNumber,
-      panOrGstNumber: this.selectedAgent.panOrGstNumber,
-      registeredOfficeAddress: this.selectedAgent.registeredOfficeAddress,
-      branchOfficeAddress: this.selectedAgent.branchOfficeAddress,
-      companyEmail: this.selectedAgent.companyEmail,
-      companyContactNo: this.selectedAgent.companyContactNo,
-      website: this.selectedAgent.website,
-      approvedCollegeIds: this.selectedCollegeIds,
-      collegeIds: this.selectedCollegeIds,
-      locationIds: this.selectedLocationIds
+      collegeAccessList: collegeAccessListPayload,
+      // Also send flat arrays for backward compatibility
+      collegeIds: this.collegeAccessList.map(e => e.collegeId),
+      locationIds: [...new Set(this.collegeAccessList.flatMap(e => e.locationIds))]
     };
 
-    console.log('Payload prepared:', payload);
-    console.log('Making PUT request to:', `${this.apiBase}/admins/agents/${this.selectedAgent.id}`);
-
-    this.http.put(`${this.apiBase}/admins/agents/${this.selectedAgent.id}`, payload).subscribe({
-      next: () => {
-        console.log('Agent approved successfully!');
+    this.http.post<Agent>(`${this.apiBase}/agents/approve/${this.selectedAgent.id}`, payload).subscribe({
+      next: (res) => {
+        this.approvedAgentCredentials = { userId: res.userId, password: res.password };
         this.pendingAgents = this.pendingAgents.filter(a => a.id !== this.selectedAgent!.id);
         this.isApproving = false;
         this.closeApproveModal();
-        
-        // Show processing spinner first
+
         this.isProcessingSpinnerOpen = true;
         this.cdr.detectChanges();
-        
-        // After 1.5 seconds, show success modal
+
         setTimeout(() => {
           this.isProcessingSpinnerOpen = false;
           this.showSuccessModal();
         }, 1500);
       },
       error: (err) => {
-        console.error('Update failed:', err);
-        console.error('Error details:', err.error);
+        console.error('Approval failed:', err);
         this.isApproving = false;
-        alert(`Update failed: ${err.message || 'Unknown error'}. Check console for details.`);
+        alert(`Approval failed: ${err.error?.message || err.message || 'Unknown error'}`);
         this.cdr.detectChanges();
       }
     });
   }
 
   showSuccessModal() {
-    console.log('Showing success modal');
     this.isSuccessModalOpen = true;
     this.cdr.detectChanges();
   }
 
   closeSuccessModal() {
-    console.log('Closing success modal');
     this.isSuccessModalOpen = false;
     this.selectedAgent = null;
+    this.approvedAgentCredentials = null;
     this.cdr.detectChanges();
   }
 
   refreshData() {
-    console.log('Refreshing data...');
     this.refreshRotation += 360;
     this.loadData();
   }

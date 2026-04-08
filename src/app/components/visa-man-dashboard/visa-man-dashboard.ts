@@ -30,6 +30,11 @@ interface Student {
   visaPaymentRequestedAmount?: number;
   visaPaymentRequestedCurrency?: string;
   visaManServiceCharge?: number;
+  visaPaymentReceivedAmount?: number;
+  visaDisbursedToVisaManAmount?: number;
+  visaDisbursementMode?: string;
+  visaDisbursementTxId?: string;
+  visaDisbursementDate?: string;
 }
 
 // VisaMan Profile Interface
@@ -57,7 +62,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   private destroy$ = new Subject<void>();
 
-  activeSection: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'funds' = 'dashboard';
+  activeSection: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'accounts' | 'funds' = 'dashboard';
   currentUsername: string = 'VM_001';
   students: Student[] = [];
   visaManProfile: VisaManProfile | null = null;
@@ -89,6 +94,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   paymentAmount: number | null = null;
   paymentServiceCharge: number | null = null;
   paymentCurrency: string = 'INR';
+  paymentPurpose: string = '';
   paymentError: string = '';
 
   // Currency Options
@@ -131,14 +137,24 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // API Base URL
   private readonly API_URL = environment.apiUrl + '/api';
 
+  // Fund Requests variables
+  myFundRequests: any[] = [];
+  qrCodePreview: string | ArrayBuffer | null = null;
+  isFundSubmitting: boolean = false;
+
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef,
     private router: Router,
+    private fileService: FileService,
+    private cdr: ChangeDetectorRef,
     private paymentRequestService: PaymentRequestService,
-    private visaService: VisaService,
-    private fileService: FileService
-  ) { }
+    private visaService: VisaService
+  ) {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state && navigation.extras.state['username']) {
+      this.currentUsername = navigation.extras.state['username'];
+    }
+  }
 
   ngOnInit(): void {
     // Get username from session
@@ -280,10 +296,51 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     );
   }
 
+  get accountRecords(): Student[] {
+    return this.students.filter(s =>
+      s.visaPaymentRequestedAmount && s.visaPaymentRequestedAmount > 0
+    );
+  }
+
+  get totalVisaRequested(): number {
+    return this.accountRecords.reduce((sum, s) => sum + (s.visaPaymentRequestedAmount || 0), 0);
+  }
+
+  get totalVisaReceived(): number {
+    return this.accountRecords.reduce((sum, s) => sum + (s.visaDisbursedToVisaManAmount || 0), 0);
+  }
+
+  get totalServiceChargeRequested(): number {
+    return this.accountRecords.reduce((sum, s) => sum + (s.visaManServiceCharge || 0), 0);
+  }
+
+  get totalServiceChargeEarned(): number {
+    return this.accountRecords.reduce((sum, s) => {
+      const disbursed = s.visaDisbursedToVisaManAmount || 0;
+      if (disbursed > 0) {
+        return sum + (s.visaManServiceCharge || 0);
+      }
+      return sum;
+    }, 0);
+  }
+
+  get disbursedRecordsCount(): number {
+    return this.accountRecords.filter(s => s.visaDisbursedToVisaManAmount && s.visaDisbursedToVisaManAmount > 0).length;
+  }
+
+  getAvatarColor(name: string): string {
+    const colors = ['#4f46e5', '#7c3aed', '#2563eb', '#0891b2', '#059669', '#d97706', '#dc2626', '#be185d'];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  }
+
   // ============================================
   // NAVIGATION
   // ============================================
-  setActiveSection(section: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'funds'): void {
+  setActiveSection(section: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'accounts' | 'funds'): void {
     this.activeSection = section;
     this.sidebarOpen = false;
     if (section === 'funds') {
@@ -309,6 +366,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     this.paymentAmount = null;
     this.paymentServiceCharge = null;
     this.paymentCurrency = 'INR';
+    this.paymentPurpose = `Visa Payment for ${student.fullName}`;
     this.paymentError = '';
     this.showPaymentModal = true;
     this.cdr.detectChanges();
@@ -319,6 +377,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     this.paymentStudent = null;
     this.paymentAmount = null;
     this.paymentServiceCharge = null;
+    this.paymentPurpose = '';
     this.paymentError = '';
     this.cdr.detectChanges();
   }
@@ -345,7 +404,8 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       visaManUsername: this.currentUsername,
       amount: this.paymentAmount,
       currency: this.paymentCurrency,
-      visaManServiceCharge: this.paymentServiceCharge || 0.0
+      visaManServiceCharge: this.paymentServiceCharge || 0.0,
+      purpose: this.paymentPurpose
     };
 
     this.http.post(`${this.API_URL}/visa/request-payment/${this.paymentStudent.id}`, payload)
@@ -728,9 +788,9 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       return dateString;
     }
   }
-
+  
   // ============================================
-  // FUND REQUESTS (Ported from DocPerson)
+  // FUND REQUESTS (Restored)
   // ============================================
   fundRequestForm = {
     amount: null,
@@ -745,11 +805,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     bankDetails: '',
     qrCodeBase64: ''
   };
-  qrCodePreview: string | ArrayBuffer | null = null;
-  myFundRequests: any[] = [];
-  isFundSubmitting: boolean = false;
 
-  // History Modal State
   showHistoryModal: boolean = false;
   selectedHistoryRequest: any = null;
   showFundRequestModal: boolean = false;
@@ -858,7 +914,7 @@ IFSC: ${this.fundRequestForm.ifscCode}
 Branch: ${this.fundRequestForm.branchName}`;
     }
 
-    const request: PaymentRequest = {
+    const request: any = {
       requesterUsername: this.currentUsername,
       requesterFullName: this.visaManProfile?.fullName || this.currentUsername || 'Visa Man',
       requesterRole: 'VisaManager',
@@ -907,7 +963,7 @@ Branch: ${this.fundRequestForm.branchName}`;
     this.isLoading = true;
     this.paymentRequestService.getRequestsByUsername(this.currentUsername)
       .subscribe({
-        next: (requests) => {
+        next: (requests: any) => {
           this.myFundRequests = requests;
           this.isLoading = false;
           this.cdr.detectChanges();

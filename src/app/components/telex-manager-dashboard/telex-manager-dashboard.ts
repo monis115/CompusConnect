@@ -495,12 +495,18 @@ export class TelexManagerDashboard implements OnInit {
   }
 
   getInitials(name: string | undefined): string {
-    if (!name) return 'TM';
-    const parts = name.split(' ');
-    if (parts.length > 1) {
-      return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  getAvatarColor(name: string | undefined): string {
+    if (!name) return '#64748b'; // default slate-500
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
-    return name.substring(0, 2).toUpperCase();
+    const hue = Math.abs(hash % 360);
+    return `hsl(${hue}, 65%, 45%)`;
   }
 
   getDocUrl(path: string | undefined): string {

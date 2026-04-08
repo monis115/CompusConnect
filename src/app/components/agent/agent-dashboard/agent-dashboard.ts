@@ -94,6 +94,7 @@ export class AgentDashboard implements OnInit {
 
   // --- News Data ---
   newsItems: NewsItem[] = [];
+  isNewsModalOpen = false;
 
   // --- Stats & Widgets ---
   stats = { totalStudents: 0, pending: 0, approved: 0, completed: 0, rejected: 0 };
@@ -1185,6 +1186,31 @@ export class AgentDashboard implements OnInit {
     this.isValidationModalOpen = false;
     this.validationMessage = '';
     this.cdr.detectChanges();
+  }
+
+  closeNewsModal() {
+    this.isNewsModalOpen = false;
+  }
+
+  // --- Referral Link Logic ---
+  get referralLink(): string {
+    if (!this.agentData || !this.agentData.userId) return '';
+    // Assuming the app runs on the same origin
+    const origin = window.location.origin;
+    return `${origin}/apply/${this.agentData.userId}`;
+  }
+
+  copyReferralLink(): void {
+    const link = this.referralLink;
+    if (link) {
+      navigator.clipboard.writeText(link).then(() => {
+        // Find a way to show a toast, or simply alert for now
+        alert('Referral link copied to clipboard!');
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy link.');
+      });
+    }
   }
 
   closeTelexModal(): void {

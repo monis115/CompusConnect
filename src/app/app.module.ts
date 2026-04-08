@@ -12,6 +12,7 @@ import { AdminLogin } from './components/admin-login/admin-login';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { AgentModule } from './components/agent/agent-dashboard/agent.module';
 
 // Material Modules (ONLY import modules, NOT components)
 import { MatTableModule } from '@angular/material/table';
@@ -229,6 +230,8 @@ import { CollegePerformancesDashbaord } from './components/admin/college-perform
 import { ReportsGenerationDashboard } from './components/admin/reports-generation-dashboard/reports-generation-dashboard';
 import { ReportsGeneratedDashbaord } from './components/admin/reports-generated-dashbaord/reports-generated-dashbaord';
 import { SystemConfigurationDetails } from './components/admin/system-configuration-details/system-configuration-details';
+import { AgentApply } from './components/agent-apply/agent-apply';
+import { StudentPublicApplyComponent } from './components/student-public-apply/student-public-apply.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
@@ -247,6 +250,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     AdmissionManagerUpdate,
     ActiveAdmissionManager,
     StudentAgentDetails,
+    StudentPublicApplyComponent,
     AllAgentDetails,
     UniversityPersonDashboard,
     DocPersonDashbaord,
@@ -274,6 +278,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     ReportsGenerationDashboard,
     ReportsGeneratedDashbaord,
     SystemConfigurationDetails,
+    AgentApply,
 
   ],
   imports: [
@@ -456,6 +461,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
       // System Configuration icons
       Infinity
     }),
+    AgentModule,
     StudentStatusPipe,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),

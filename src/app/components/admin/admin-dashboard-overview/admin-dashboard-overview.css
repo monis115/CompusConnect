@@ -1255,30 +1255,49 @@
   color: var(--border-light);
 }
 
-/* Success Message */
+/* ==========================================================================
+   Toast Notification (Success / Info)
+   ========================================================================== */
 .success-message {
-  background: #ecfdf5;
-  border: 1px solid #d1fae5;
-  color: var(--success-green);
-  padding: 1rem;
-  border-radius: 0.75rem;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-left: 4px solid var(--success-green);
+  color: var(--primary-navy);
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
-  animation: slideDown 0.3s ease-out;
+  gap: 1rem;
+  font-weight: 600;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  animation: slideUpToast 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-@keyframes slideDown {
+.success-message i-lucide {
+  color: var(--success-green);
+}
+
+.success-message.info-message {
+  border-left-color: #3b82f6;
+}
+
+.success-message.info-message i-lucide {
+  color: #3b82f6;
+}
+
+@keyframes slideUpToast {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translate(-50%, 100%);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(-50%, 0);
   }
 }
 
@@ -1308,16 +1327,17 @@
   border-radius: 1.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   z-index: 51;
-  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  animation: smoothModalEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes scaleIn {
-  from {
+@keyframes smoothModalEnter {
+  0% {
     opacity: 0;
-    transform: translate(-50%, -48%) scale(0.96);
+    transform: translate(-50%, -45%) scale(0.95);
   }
 
-  to {
+  100% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
@@ -1372,6 +1392,7 @@
 
 .form-group input {
   width: 100%;
+  box-sizing: border-box;
   padding: 0.75rem 1rem;
   border: 1px solid var(--border-light);
   border-radius: 0.75rem;
@@ -1394,6 +1415,55 @@
   background: #f8fafc;
   border-bottom-left-radius: 1rem;
   border-bottom-right-radius: 1rem;
+}
+
+/* ==========================================================================
+ Status Toggle Switch
+ ========================================================================== */
+.status-toggle {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.status-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border-light);
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.status-toggle input:checked+.toggle-slider {
+  background-color: var(--success-green);
+}
+
+.status-toggle input:checked+.toggle-slider:before {
+  transform: translateX(24px);
 }
 
 /* ==========================================================================
@@ -3789,11 +3859,12 @@
   max-height: 80vh;
   overflow-y: auto;
 }
+
 /* Empty State and Loading State Styles */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
   border-radius: 1.5rem;
   border: 2px dashed var(--border-light);
 }
@@ -3832,7 +3903,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-state p {

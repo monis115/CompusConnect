@@ -138,22 +138,27 @@ export class AdminAgentRegistration implements OnInit {
   /* --------------------------------------------------------------------- */
   initForm() {
     this.form = this.fb.group({
+      // --------------------------------------------------------------------------------
+      // SMART TOGGLE
+      // --------------------------------------------------------------------------------
+      hasCompanyDetails: [false], // Toggle to reveal company section
+
       // Company
-      companyName: ['', Validators.required],
-      registeredBusinessName: ['', Validators.required],
-      businessType: ['', Validators.required],
-      registrationNumber: ['', Validators.required],
-      panOrGstNumber: ['', Validators.required],
-      companyEmail: ['', [Validators.required, Validators.email]],
-      companyContactNo: ['', [Validators.required, Validators.pattern(/^\d{10,12}$/)]],
-      website: ['', Validators.required],
+      companyName: [''],
+      registeredBusinessName: [''],
+      businessType: [''],
+      registrationNumber: [''],
+      panOrGstNumber: [''],
+      companyEmail: ['', [Validators.email]],
+      companyContactNo: ['', [Validators.pattern(/^(\s*|\d{10,12})$/)]],
+      website: [''],
 
       // Registered Office Address
-      regStreet: ['', Validators.required],
-      regCity: ['', Validators.required],
+      regStreet: [''],
+      regCity: [''],
       regLandmark: [''],
-      regState: ['', Validators.required],
-      regPin: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+      regState: [''],
+      regPin: ['', [Validators.pattern(/^(\s*|\d{6})$/)]],
 
       branchOfficeAddress: [''],
 
@@ -166,16 +171,16 @@ export class AdminAgentRegistration implements OnInit {
       contactNo: ['', [Validators.required, Validators.pattern(/^\d{10,12}$/)]],
 
       // Personal Address
-      street: ['', Validators.required],
-      city: ['', Validators.required],
+      street: [''],
+      city: [''],
       landmark: [''],
-      state: ['', Validators.required],
-      pin: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+      state: [''],
+      pin: ['', [Validators.pattern(/^(\s*|\d{6})$/)]],
 
       identityProofType: ['', Validators.required],
       identityProofNumber: ['', Validators.required],
-      designation: ['', Validators.required],
-      experience: ['', Validators.required],
+      designation: [''],
+      experience: [''],
       status: ['Active', Validators.required],
     });
 
@@ -411,9 +416,9 @@ export class AdminAgentRegistration implements OnInit {
 
     // Build addresses
     const personalAddr = [this.form.value.street, this.form.value.landmark, this.form.value.city, this.form.value.state, this.form.value.pin]
-      .filter(Boolean).join(', ');
+      .filter(val => val && val.trim().length > 0).join(', ');
     const regAddr = [this.form.value.regStreet, this.form.value.regLandmark, this.form.value.regCity, this.form.value.regState, this.form.value.regPin]
-      .filter(Boolean).join(', ');
+      .filter(val => val && val.trim().length > 0).join(', ');
 
     // Build collegeAccessList for the new structure
     const collegeAccessListPayload = this.collegeAccessList.map(entry => ({
@@ -428,9 +433,9 @@ export class AdminAgentRegistration implements OnInit {
 
     const payload: any = {
       ...this.form.getRawValue(),
-      fullName: this.form.value.fullName.trim(),
-      email: this.form.value.email.trim(),
-      companyEmail: this.form.value.companyEmail.trim(),
+      fullName: this.form.value.fullName?.trim() || '',
+      email: this.form.value.email?.trim() || '',
+      companyEmail: this.form.value.companyEmail?.trim() || '',
       address: personalAddr,
       registeredOfficeAddress: regAddr,
       // New structure
@@ -439,6 +444,9 @@ export class AdminAgentRegistration implements OnInit {
       collegeIds: allCollegeIds,
       locationIds: allLocationIds,
     };
+
+    // Clean up internal non-backend fields
+    delete payload.hasCompanyDetails;
 
     // Remove split fields
     ['street', 'city', 'landmark', 'state', 'pin', 'regStreet', 'regCity', 'regLandmark', 'regState', 'regPin'].forEach(f => delete payload[f]);

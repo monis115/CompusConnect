@@ -21,6 +21,9 @@ import { MessageDashboard } from '../message-dashboard/message-dashboard';
     ReactiveFormsModule, // <-- ADDED
     HttpClientModule,
     AgentRoutingModule
+  ],
+  exports: [
+    AgentStudentResgistration
   ]
 })
 export class AgentModule { }

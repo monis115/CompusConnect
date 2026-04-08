@@ -414,7 +414,7 @@
                 </thead>
                 <tbody>
                   @for (student of filteredList; track student) {
-                    <tr>
+                    <tr (click)="selectStudent(student)" style="cursor: pointer;" class="clickable-row">
                       <td>
                         <div class="student-profile">
                           <div class="table-avatar" [style.background-color]="getAvatarColor(student.fullName)">
@@ -456,7 +456,7 @@
                         }
                       </td>
                       <td class="text-right">
-                        <div class="action-group">
+                        <div class="action-group" (click)="$event.stopPropagation()">
                           <button class="btn-icon" (click)="selectStudent(student)" title="View Full Profile">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                               stroke-width="2">
@@ -777,126 +777,157 @@
 
   @if (showStudentDetail) {
     <div class="modal-backdrop" (click)="closeStudentDetail()">
-      <div class="modal-panel" (click)="$event.stopPropagation()" [@fadeIn]>
-        <div class="modal-header">
-          <div>
-            <h2>Applicant Profile</h2>
-            <p class="modal-subtitle">Student ID: #{{selectedStudent?.id}}</p>
-          </div>
-          <button class="close-btn" (click)="closeStudentDetail()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
+      <div class="modal-panel premium-modal" (click)="$event.stopPropagation()" [@fadeIn]>
+        
         @if (selectedStudent) {
-          <div class="modal-scroll-content">
-            <div class="detail-grid">
-              <div class="detail-card">
-                <div class="card-header">
-                  <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                  <h3>Personal Info</h3>
+          <!-- Premium Hero Header -->
+          <div class="modal-hero-header">
+            <div class="hero-bg-pattern"></div>
+            <div class="hero-content">
+              <div class="hero-left">
+                <div class="student-avatar-large" [style.background-color]="getAvatarColor(selectedStudent.fullName)">
+                  {{ selectedStudent.fullName.charAt(0).toUpperCase() }}
                 </div>
-                <div class="info-list">
-                  <div class="info-item"><label>Full Name</label><span>{{selectedStudent.fullName || 'N/A'}}</span></div>
-                  <div class="info-item"><label>Email</label><span>{{selectedStudent.email || 'N/A'}}</span></div>
-                  <div class="info-item"><label>DOB</label><span>{{selectedStudent.dob}} ({{selectedStudent.age}}
-                yrs)</span></div>
-                <div class="info-item"><label>Contact</label><span>{{selectedStudent.contactNo || 'N/A'}}</span></div>
-                <div class="info-item" style="grid-column: span 2"><label>Address</label><span>{{selectedStudent.address
-              || 'N/A'}}</span></div>
+                <div class="hero-info">
+                  <h2>{{selectedStudent.fullName || 'N/A'}}</h2>
+                  <p class="hero-subtitle">#{{selectedStudent.id}} • {{selectedStudent.email || 'N/A'}}</p>
+                  <div class="hero-badges">
+                    <span class="status-badge" [ngClass]="getStatusClass(selectedStudent.applicationStatus)">
+                      {{getStatusLabel(selectedStudent.applicationStatus)}}
+                    </span>
+                    @if (selectedStudent.college) {
+                      <span class="college-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                        {{selectedStudent.college.collegeName}}
+                      </span>
+                    }
+                  </div>
+                </div>
+              </div>
+              <button class="close-btn premium-close" (click)="closeStudentDetail()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </div>
           </div>
-          <div class="detail-card">
-            <div class="card-header">
-              <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-              </svg>
-              <h3>Family Details</h3>
+
+          <div class="modal-scroll-content premium-scroll">
+            <div class="premium-sections-grid">
+              
+              <!-- Personal & Family Section -->
+              <div class="profile-section">
+                <div class="section-header">
+                  <h3 class="section-title">Personal & Family</h3>
+                </div>
+                <div class="section-body info-list" style="grid-template-columns: repeat(2, 1fr);">
+                  <div class="info-item"><label>DOB / Age</label><span>{{selectedStudent.dob || 'N/A'}} ({{selectedStudent.age || 'N/A'}} yrs)</span></div>
+                  <div class="info-item"><label>Contact No</label><span>{{selectedStudent.contactNo || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Gender</label><span>{{selectedStudent.sex || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Marital Status</label><span>{{selectedStudent.maritalStatus || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Mother's Name</label><span>{{selectedStudent.mothersName || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Father's Name</label><span>{{selectedStudent.fathersName || 'N/A'}}</span></div>
+                  <div class="info-item" style="grid-column: span 2"><label>Birth Place</label><span>{{selectedStudent.placeOfBirth || 'N/A'}}, {{selectedStudent.countryOfBirth || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Citizenship</label><span>{{selectedStudent.citizenship || 'N/A'}} (Prev: {{selectedStudent.previousCitizenship || 'N/A'}})</span></div>
+                  <div class="info-item" style="grid-column: span 2"><label>Current Address</label><span>{{selectedStudent.address || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Emergency Contact</label><span>{{selectedStudent.emergencyContactNo || 'N/A'}} ({{selectedStudent.emergencyRelation || 'N/A'}})</span></div>
+                </div>
+              </div>
+
+              <!-- Academic Section -->
+              <div class="profile-section">
+                <div class="section-header">
+                  <h3 class="section-title">Academic Details</h3>
+                </div>
+                <div class="section-body info-list" style="grid-template-columns: repeat(2, 1fr);">
+                  <div class="info-item"><label>Applied For</label><span>{{selectedStudent.appliedFor}} ({{selectedStudent.intake}})</span></div>
+                  <div class="info-item"><label>Assigned College</label><span>{{selectedStudent.college?.collegeName || 'N/A'}}</span></div>
+                  <div class="info-item"><label>12th Board</label><span>{{selectedStudent.baords}} ({{selectedStudent.class12thPassingYear}})</span></div>
+                  <div class="info-item"><label>12th Marks</label><span>{{selectedStudent.class12thMarks}} / {{selectedStudent.maxMarks}}</span></div>
+                </div>
+              </div>
+              <!-- Identification Section -->
+              <div class="profile-section">
+                <div class="section-header">
+                  <h3 class="section-title">Identification</h3>
+                </div>
+                <div class="section-body info-list" style="grid-template-columns: repeat(2, 1fr);">
+                  <div class="info-item"><label>Passport Type</label><span>{{selectedStudent.passportType || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Passport No</label><span>{{selectedStudent.passportNo || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Issue Date</label><span>{{selectedStudent.passportIssueDate || 'N/A'}}</span></div>
+                  <div class="info-item"><label>Valid Till</label><span>{{selectedStudent.passportValidTill || 'N/A'}}</span></div>
+                  <div class="info-item" style="grid-column: span 2"><label>Aadhaar Number</label><span>{{selectedStudent.adhaarCardNo || 'N/A'}}</span></div>
+                </div>
+              </div>
+
+            </div> <!-- END detail-grid -->
+
+            <!-- Assiged Staff (Full Width Wrapper) -->
+            <div class="profile-section full-width-section">
+              <div class="section-header">
+                <h3 class="section-title">Assigned Staff</h3>
+              </div>
+              <div class="section-body info-list" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="info-item"><label>Admission Manager</label><span>{{selectedStudent.admissionManager?.fullName || 'Not Assigned'}}</span></div>
+                <div class="info-item"><label>Doc Person</label><span>{{selectedStudent.docPerson?.fullName || 'Not Assigned'}}</span></div>
+                <div class="info-item"><label>Accountant</label><span>{{selectedStudent.accountant?.fullName || 'Not Assigned'}}</span></div>
+                <div class="info-item"><label>Telex Manager</label><span>{{selectedStudent.telexMan?.fullName || 'Not Assigned'}}</span></div>
+                <div class="info-item"><label>Visa Manager</label><span>{{selectedStudent.visaMan?.fullName || 'Not Assigned'}}</span></div>
+                <div class="info-item"><label>Agent</label><span>{{selectedStudent.agent?.fullName || 'Direct Application'}}</span></div>
+              </div>
             </div>
-            <div class="info-list">
-              <div class="info-item"><label>Father</label><span>{{selectedStudent.fathersName || 'N/A'}}</span></div>
-              <div class="info-item"><label>Mother</label><span>{{selectedStudent.mothersName || 'N/A'}}</span></div>
-              <div class="info-item"><label>Emergency</label><span>{{selectedStudent.emergencyContactNo ||
-            'N/A'}}</span></div>
-            <div class="info-item"><label>Relation</label><span>{{selectedStudent.emergencyRelation || 'N/A'}}</span>
-          </div>
-        </div>
-      </div>
-      <div class="detail-card">
-        <div class="card-header">
-          <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-          </svg>
-          <h3>Academic & Course</h3>
-        </div>
-        <div class="info-list">
-          <div class="info-item"><label>Applied For</label><span>{{selectedStudent.appliedFor}}
-        ({{selectedStudent.intake}})</span></div>
-        <div class="info-item"><label>College</label><span>{{selectedStudent.college?.collegeName ||
-      'N/A'}}</span></div>
-      <div class="info-item"><label>12th Board</label><span>{{selectedStudent.baords}}
-    ({{selectedStudent.class12thPassingYear}})</span></div>
-    <div class="info-item"><label>Marks</label><span>{{selectedStudent.class12thMarks}} /
-  {{selectedStudent.maxMarks}}</span></div>
-</div>
-</div>
-<div class="detail-card">
-  <div class="card-header">
-    <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-      <line x1="16" y1="2" x2="16" y2="6"></line>
-    </svg>
-    <h3>Identification</h3>
-  </div>
-  <div class="info-list">
-    <div class="info-item"><label>Passport</label><span>{{selectedStudent.passportNo || 'N/A'}}</span></div>
-    <div class="info-item"><label>Valid Till</label><span>{{selectedStudent.passportValidTill ||
-  'N/A'}}</span></div>
-  <div class="info-item"><label>Adhaar</label><span>{{selectedStudent.adhaarCardNo || 'N/A'}}</span></div>
-</div>
-</div>
-<div class="detail-card full-width">
-  <div class="card-header">
-    <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-      <circle cx="9" cy="7" r="4"></circle>
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-    </svg>
-    <h3>Assigned Staff</h3>
-  </div>
-  <div class="info-list">
-    <div class="info-item"><label>Telex Manager</label><span>{{selectedStudent.telexMan?.fullName || 'Not
-  Assigned'}}</span></div>
-  <div class="info-item"><label>Visa Manager</label><span>{{selectedStudent.visaMan?.fullName || 'Not
-Assigned'}}</span></div>
-<div class="info-item"><label>Telex No</label><span>{{selectedStudent.telexNumber || 'Pending'}}</span>
-</div>
-<div class="info-item"><label>Payment</label><span>{{selectedStudent.paymentStatus || 'N/A'}}</span></div>
-</div>
-</div>
-<div class="detail-card full-width">
-  <div class="card-header">
-    <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-      <polyline points="14 2 14 8 20 8"></polyline>
-    </svg>
-    <h3>Documents</h3>
-  </div>
-  <div class="document-grid">
+
+            <!-- Document Tracking Section -->
+            <div class="profile-section full-width-section">
+              <div class="section-header">
+                <h3 class="section-title">Document Tracking (Telex/Visa)</h3>
+              </div>
+              <div class="section-body info-list" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="info-item"><label>Telex Number & Issue</label><span>{{selectedStudent.telexNumber || 'Pending'}} ({{selectedStudent.telexIssueDate || 'N/A'}})</span></div>
+                <div class="info-item"><label>Passport Validated</label><span>{{selectedStudent.passportValidationDate || 'N/A'}}</span></div>
+                <div class="info-item"><label>Telex Approvals</label><span>Acc: {{selectedStudent.isTelexAccountantApproved ? 'Yes' : 'No'}}, Doc: {{selectedStudent.isTelexDocApproved ? 'Yes' : 'No'}}</span></div>
+                
+                <div class="info-item"><label>Original Docs Sent</label><span>{{selectedStudent.originalDocsSent ? 'Yes' : 'No'}}</span></div>
+                <div class="info-item"><label>Delivery Method</label><span>{{selectedStudent.docDeliveryMethod || 'N/A'}}</span></div>
+                <div class="info-item"><label>Courier Partner</label><span>{{selectedStudent.courierPartner || 'N/A'}}</span></div>
+                
+                <div class="info-item"><label>Tracking ID</label><span>{{selectedStudent.courierTrackingId || 'N/A'}}</span></div>
+                <div class="info-item"><label>Self Person Contact</label><span>{{selectedStudent.selfPersonContact || 'N/A'}}</span></div>
+                <div class="info-item"><label>Tentative Reach</label><span>{{selectedStudent.docTentativeReachDate || 'N/A'}}</span></div>
+                
+                <div class="info-item"><label>Docs Received Date</label><span>{{selectedStudent.docReceivedDate || 'N/A'}}</span></div>
+                <div class="info-item"><label>Docs Returned</label><span>{{selectedStudent.docReturnedDate || 'N/A'}} ({{selectedStudent.docReturnMethod || 'N/A'}})</span></div>
+                <div class="info-item"><label>Ready for Return</label><span>{{selectedStudent.readyForDocReturn ? 'Yes' : 'No'}}</span></div>
+              </div>
+            </div>
+
+            <!-- Payments Section -->
+            <div class="profile-section full-width-section">
+              <div class="section-header">
+                <h3 class="section-title">Detailed Payments</h3>
+              </div>
+              <div class="section-body info-list" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="info-item"><label>App Status / Due</label><span>{{selectedStudent.paymentStatus || 'N/A'}} ({{selectedStudent.paymentDueDate || 'N/A'}})</span></div>
+                <div class="info-item"><label>App Paid</label><span>{{selectedStudent.hasPaid ? 'Yes (' + selectedStudent.paidAmount + ')' : 'No'}}</span></div>
+                <div class="info-item"><label>Paid To</label><span>{{selectedStudent.paidTo || 'N/A'}} ({{selectedStudent.paymentType || 'N/A'}})</span></div>
+
+                <div class="info-item"><label>Visa Man Charge</label><span>{{selectedStudent.visaManServiceCharge || 'N/A'}}</span></div>
+                <div class="info-item"><label>Visa Amt Req</label><span>{{selectedStudent.visaPaymentRequestedAmount || 'N/A'}} {{selectedStudent.visaPaymentRequestedCurrency || ''}}</span></div>
+                <div class="info-item"><label>Visa Amt Recv</label><span>{{selectedStudent.visaPaymentReceivedAmount || 'N/A'}}</span></div>
+
+                <div class="info-item"><label>Telex Amt Req</label><span>{{selectedStudent.telexPaymentAmount || 'N/A'}}</span></div>
+                <div class="info-item"><label>Telex Amt Recv</label><span>{{selectedStudent.telexPaymentReceivedAmount || 'N/A'}}</span></div>
+                <div class="info-item"><label>Telex Tx ID</label><span>{{selectedStudent.telexPaymentTxId || 'N/A'}}</span></div>
+              </div>
+            </div>
+
+            <!-- Documents Grid Section -->
+            <div class="profile-section full-width-section document-repository">
+              <div class="section-header">
+                <h3 class="section-title">Uploaded Documents</h3>
+              </div>
+              <div class="section-body document-grid">
     <!-- Basic Documents -->
     @if (selectedStudent.passportPath) {
       <a [href]="getDocUrl(selectedStudent.passportPath)" target="_blank"
@@ -986,46 +1017,46 @@ Assigned'}}</span></div>
         <div class="doc-name">Payment Confirmation</div>
       </a>
     }
-    @if (!selectedStudent.passportPath && !selectedStudent.markseetPath && !selectedStudent.adhaarPath && !selectedStudent.profileImagePath) {
-      <div
-      style="color: #94a3b8; font-style: italic;">No documents available.</div>
-    }
-  </div>
-</div>
-<div class="detail-card full-width">
-  <div class="card-header">
-    <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2">
-      <circle cx="12" cy="12" r="10"></circle>
-      <polyline points="12 6 12 12 16 14"></polyline>
-    </svg>
-    <h3>History</h3>
-  </div>
-  @if (selectedStudent.studentStatusHistory?.length) {
-    <div class="history-timeline">
-      @for (history of selectedStudent.studentStatusHistory; track history) {
-        <div class="history-item">
-          <div class="timeline-dot"></div>
-          <div class="history-content">
-            <h4>{{getStatusLabel(history.studentApplicationStatus)}}</h4>
-            <div class="history-meta">
-              <span class="history-actor">By: {{history.updatedBy || 'System'}}</span>
-              <span> • {{history.updatedAt | date:'medium'}}</span>
+              </div>
             </div>
+
+            <!-- History Section -->
+            <div class="profile-section full-width-section history-section">
+              <div class="section-header">
+                <h3 class="section-title">Action History</h3>
+              </div>
+              <div class="section-body">
+                @if (selectedStudent.studentStatusHistory.length) {
+                  <div class="history-timeline">
+                    @for (history of selectedStudent.studentStatusHistory; track history) {
+                      <div class="history-item">
+                        <div class="timeline-dot"></div>
+                        <div class="history-content">
+                          <h4>{{getStatusLabel(history.studentApplicationStatus)}}</h4>
+                          <div class="history-meta">
+                            <span class="history-actor">By: {{history.updatedBy || 'System'}}</span>
+                            <span> • {{history.updatedAt | date:'medium'}}</span>
+                          </div>
+                          @if (history.remarks) {
+                            <div class="history-remarks">
+                              {{ history.remarks }}
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="empty-state-text">No history available for this applicant.</div>
+                }
+              </div>
+            </div>
+
           </div>
-        </div>
-      }
+        }
+      </div>
     </div>
-  } @else {
-    <div style="padding: 20px; color: #94a3b8;">No history available.</div>
   }
-</div>
-</div>
-</div>
-}
-</div>
-</div>
-}
 
 @if (showActionModal) {
   <div class="modal-backdrop z-high">

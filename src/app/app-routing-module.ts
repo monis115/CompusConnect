@@ -39,12 +39,16 @@ import { DocPersonStudentDirectory } from './components/admin/doc-person-student
 import { NewsDashboard } from './components/admin/news-dashboard/news-dashboard';
 import { CollegePerformancesDashbaord } from './components/admin/college-performances-dashbaord/college-performances-dashbaord';
 import { SystemConfigurationDetails } from './components/admin/system-configuration-details/system-configuration-details';
+import { AgentApply } from './components/agent-apply/agent-apply';
+import { StudentPublicApplyComponent } from './components/student-public-apply/student-public-apply.component';
 
 const routes: Routes = [
   { path: '', component: AdminLogin },
   { path: 'StudentLogin', component: StudentLogin },
   { path: 'AdminLogin', component: AdminLogin },
   { path: 'admin-login', component: AdminLogin },
+  { path: 'agent-apply', component: AgentApply },
+  { path: 'apply/:agentId', component: StudentPublicApplyComponent },
 
   // Admin Dashboard Routes - Protected
   {
@@ -153,6 +157,9 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     data: { role: 'visa_manager' }
   },
+
+  // Public Agent Application - No Auth Required
+  { path: 'agent-apply', component: AgentApply },
 
   // Wildcard route
   { path: '**', redirectTo: '', pathMatch: 'full' }

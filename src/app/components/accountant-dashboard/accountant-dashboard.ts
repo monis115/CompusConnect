@@ -83,7 +83,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   };
 
   // UI State
-  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' = 'dashboard';
+  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' = 'dashboard';
   isSidebarCollapsed = false;
 
   // History Modal State
@@ -252,7 +252,12 @@ export class AccountantDashboard implements OnInit, OnDestroy {
               visaPaymentRequestedCurrency: s.visaPaymentRequestedCurrency,
               visaManServiceCharge: s.visaManServiceCharge,
               visaPaymentTxId: s.visaPaymentTxId,
-              visaPaymentConfirmationPath: s.visaPaymentConfirmationPath
+              visaPaymentConfirmationPath: s.visaPaymentConfirmationPath,
+              visaDisbursedToVisaManAmount: s.visaDisbursedToVisaManAmount,
+              visaDisbursementMode: s.visaDisbursementMode,
+              visaDisbursementTxId: s.visaDisbursementTxId,
+              visaDisbursementDate: s.visaDisbursementDate,
+              visaMan: s.visaMan
             }));
             this.filteredStudents = [...this.students];
           }
@@ -314,7 +319,12 @@ export class AccountantDashboard implements OnInit, OnDestroy {
             visaPaymentRequestedCurrency: (s as any).visaPaymentRequestedCurrency,
             visaManServiceCharge: (s as any).visaManServiceCharge,
             visaPaymentTxId: (s as any).visaPaymentTxId,
-            visaPaymentConfirmationPath: (s as any).visaPaymentConfirmationPath
+            visaPaymentConfirmationPath: (s as any).visaPaymentConfirmationPath,
+            visaDisbursedToVisaManAmount: (s as any).visaDisbursedToVisaManAmount,
+            visaDisbursementMode: (s as any).visaDisbursementMode,
+            visaDisbursementTxId: (s as any).visaDisbursementTxId,
+            visaDisbursementDate: (s as any).visaDisbursementDate,
+            visaMan: (s as any).visaMan
           }));
           this.filteredStudents = [...this.students];
 
@@ -371,7 +381,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // --- Navigation ---
 
-  switchView(view: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds'): void {
+  switchView(view: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts'): void {
     this.activeView = view;
     this.searchTerm = '';
     if (view === 'funds') {
@@ -380,6 +390,36 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       this.filterStudents();
     }
     this.cdr.detectChanges();
+  }
+
+  get visaAccountsStudents(): any[] {
+    return this.students.filter((s: any) => !!s.visaPaymentRequestedAmount && s.visaPaymentRequestedAmount > 0);
+  }
+
+  get totalVisaRequested(): number {
+    return this.visaAccountsStudents.reduce((sum, s) => sum + (s.visaPaymentRequestedAmount || 0), 0);
+  }
+
+  get totalVisaReceived(): number {
+    return this.visaAccountsStudents.reduce((sum, s) => sum + (s.visaDisbursedToVisaManAmount || 0), 0);
+  }
+
+  get totalServiceChargeRequested(): number {
+    return this.visaAccountsStudents.reduce((sum, s) => sum + (s.visaManServiceCharge || 0), 0);
+  }
+
+  get totalServiceChargeEarned(): number {
+    return this.visaAccountsStudents.reduce((sum, s) => {
+      const disbursed = s.visaDisbursedToVisaManAmount || 0;
+      if (disbursed > 0) {
+        return sum + (s.visaManServiceCharge || 0);
+      }
+      return sum;
+    }, 0);
+  }
+
+  get disbursedRecordsCount(): number {
+    return this.visaAccountsStudents.filter(s => s.visaDisbursedToVisaManAmount && s.visaDisbursedToVisaManAmount > 0).length;
   }
 
   toggleSidebar(): void {
@@ -852,10 +892,21 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   /**
    * Open modal to confirm visa payment received
    */
+  disbursedAmount: number | null = null;
+  disbursementMode: string = 'CASH';
+  disbursementTxId: string = '';
+  disbursementDate: string = '';
+
   openConfirmPaymentModal(student: any): void {
     this.selectedStudent = student;
     this.receivedAmount = student.visaPaymentRequestedAmount || 0;
     this.receivedDate = new Date().toISOString().split('T')[0]; // Today's date in YYYY-MM-DD format
+    
+    this.disbursedAmount = student.visaPaymentRequestedAmount || 0;
+    this.disbursementMode = 'CASH';
+    this.disbursementTxId = '';
+    this.disbursementDate = new Date().toISOString().split('T')[0];
+
     this.showConfirmPaymentModal = true;
     this.cdr.detectChanges();
   }
@@ -942,7 +993,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     const body = {
       accountantUsername: this.username,
       receivedAmount: receivedAmt,
-      receivedDate: receivedDt
+      receivedDate: receivedDt,
+      disbursedAmount: this.disbursedAmount,
+      disbursementMode: this.disbursementMode,
+      disbursementTxId: this.disbursementMode === 'CASH' ? null : this.disbursementTxId,
+      disbursementDate: this.disbursementDate
     };
 
     this.http.post(`${environment.apiUrl}/api/visa/confirm-payment/${studentId}`, body)

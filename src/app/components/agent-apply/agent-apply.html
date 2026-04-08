@@ -1,0 +1,242 @@
+<!-- Top Navigation Header -->
+<header class="top-header">
+  <div class="header-content">
+    <a href="https://rareeducation.in" target="_blank" class="logo-link">
+      <img src="rare-education-logo.png" alt="Rare Education" class="logo-image">
+    </a>
+    <nav class="nav-links">
+      <a href="https://rareeducation.in" target="_blank" class="nav-link">Home</a>
+      <a href="https://rareeducation.in/#enquiry" target="_blank" class="nav-link">Get Enquiry</a>
+      <a href="https://rareeducation.in/#contact" target="_blank" class="nav-link">Contact Us</a>
+    </nav>
+  </div>
+</header>
+
+<div class="registration-wrapper">
+
+  <!-- Submitting spinner overlay -->
+  @if (loading) {
+  <div class="submitting-overlay">
+    <div class="submitting-content">
+      <div class="submitting-spinner"></div>
+      <p>Submitting Application...</p>
+    </div>
+  </div>
+  }
+
+  <div class="registration-container">
+
+    <!-- Header -->
+    @if (!success) {
+    <div class="form-header-row">
+      <div class="form-header-content">
+        <div class="header-icon-box">
+          <i-lucide name="user-plus" [size]="32"></i-lucide>
+        </div>
+        <div>
+          <h1>Agent Registration</h1>
+          <p class="header-subtitle">Fill in your details to apply as an agent.</p>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Form -->
+    @if (!success) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <div class="section-header" style="justify-content: space-between; align-items: center; width: 100%;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <i-lucide name="building-2" [size]="24"></i-lucide>
+            <h2>Company / Agency Profile</h2>
+          </div>
+
+          <!-- Smart Toggle -->
+          <label class="switch-label" style="margin: 0;">
+            <span style="font-weight: 500; font-size: 0.9rem; color: var(--gray-600);">Registering as a Company?</span>
+            <input type="checkbox" class="switch-input" formControlName="hasCompanyDetails">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        @if (form.get('hasCompanyDetails')?.value) {
+        <div class="form-grid" style="animation: sectionFadeUp 0.4s ease forwards;">
+          <div class="form-field">
+            <label>Company Name</label>
+            <input type="text" formControlName="companyName" placeholder="Enter company name">
+          </div>
+          <div class="form-field">
+            <label>Legal Business Name</label>
+            <input type="text" formControlName="registeredBusinessName" placeholder="Enter registered business name">
+          </div>
+          <div class="form-field">
+            <label>Business Type</label>
+            <input type="text" formControlName="businessType" placeholder="e.g. Private Limited">
+          </div>
+          <div class="form-field">
+            <label>Registration No.</label>
+            <input type="text" formControlName="registrationNumber" placeholder="Enter registration number">
+          </div>
+          <div class="form-field">
+            <label>PAN / GST</label>
+            <input type="text" formControlName="panOrGstNumber" placeholder="Enter PAN or GST number">
+          </div>
+          <div class="form-field">
+            <label>Email Address</label>
+            <input type="email" formControlName="companyEmail" placeholder="company@example.com">
+          </div>
+          <div class="form-field">
+            <label>Contact Number</label>
+            <input type="tel" formControlName="companyContactNo" placeholder="Enter 10-12 digit phone">
+          </div>
+          <div class="form-field">
+            <label>Website</label>
+            <input type="text" formControlName="website" placeholder="www.example.com">
+          </div>
+          <div class="form-field form-field-full">
+            <label>Registered Address</label>
+            <div class="address-grid">
+              <input formControlName="regStreet" placeholder="Street / Locality">
+              <input formControlName="regCity" placeholder="City">
+              <input formControlName="regState" placeholder="State">
+              <input formControlName="regPin" placeholder="PIN Code">
+            </div>
+          </div>
+          <div class="form-field form-field-full">
+            <label>Branch Office Address</label>
+            <input type="text" formControlName="branchOfficeAddress"
+              placeholder="Enter branch office address (optional)">
+          </div>
+        </div>
+        } @else {
+        <div
+          style="padding: 1rem; background: var(--gray-50); border-radius: var(--radius-md); border: 1px dashed var(--gray-300); text-align: center; color: var(--gray-500); font-size: 0.9rem;">
+          Toggle the switch above if you represent an agency or corporate entity.
+        </div>
+        }
+      </div>
+      <div class="form-section">
+        <div class="section-header">
+          <i-lucide name="user" [size]="24"></i-lucide>
+          <h2>Agent Details</h2>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Full Name <span class="required">*</span></label>
+            <input type="text" formControlName="fullName" placeholder="Enter full name">
+          </div>
+          <div class="form-field">
+            <label>Gender <span class="required">*</span></label>
+            <select formControlName="gender">
+              <option value="" disabled selected>Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Date of Birth <span class="required">*</span></label>
+            <input type="date" formControlName="dob">
+          </div>
+          <div class="form-field">
+            <label>Calculated Age</label>
+            <input type="text" formControlName="age" readonly placeholder="Auto-calculated">
+          </div>
+          <div class="form-field">
+            <label>Personal Email <span class="required">*</span></label>
+            <input type="email" formControlName="email" placeholder="personal@example.com">
+          </div>
+          <div class="form-field">
+            <label>Mobile Number <span class="required">*</span></label>
+            <input type="tel" formControlName="contactNo" placeholder="Enter 10-12 digit mobile">
+          </div>
+          <div class="form-field">
+            <label>ID Proof Type <span class="required">*</span></label>
+            <select formControlName="identityProofType">
+              <option value="" disabled selected>Select ID proof</option>
+              <option value="Aadhaar">Aadhaar</option>
+              <option value="Passport">Passport</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>ID Proof Number <span class="required">*</span></label>
+            <input type="text" formControlName="identityProofNumber" placeholder="Enter ID proof number">
+          </div>
+          <div class="form-field">
+            <label>Designation</label>
+            <input type="text" formControlName="designation" placeholder="e.g. Sales Manager">
+          </div>
+          <div class="form-field">
+            <label>Experience (Years)</label>
+            <input type="text" formControlName="experience" placeholder="e.g. 5">
+          </div>
+          <div class="form-field form-field-full">
+            <label>Residential Address</label>
+            <div class="address-grid">
+              <input formControlName="street" placeholder="Street">
+              <input formControlName="city" placeholder="City">
+              <input formControlName="state" placeholder="State">
+              <input formControlName="pin" placeholder="PIN">
+            </div>
+          </div>
+        </div>
+      </div>
+      @if (error) {
+      <div class="error-banner">
+        <div class="error-content">
+          <i-lucide name="alert-triangle" [size]="20"></i-lucide>
+          <div>
+            <h3>Validation Error</h3>
+            <p>{{ error }}</p>
+          </div>
+        </div>
+      </div>
+      }
+      <div class="form-footer">
+        <button type="button" class="btn btn-secondary" (click)="resetForm()">Reset</button>
+        <button type="submit" class="btn btn-primary"
+          [disabled]="form.invalid || loading">
+          <i-lucide name="check-circle" [size]="18"></i-lucide>
+          Submit Application
+        </button>
+      </div>
+    </form>
+    }
+
+  </div>
+
+  <!-- Success Modal -->
+  @if (success) {
+  <div class="modal-backdrop">
+    <div class="success-card">
+      <a href="https://rareeducation.in" class="success-close-btn" title="Close">
+        <i-lucide name="x" [size]="20"></i-lucide>
+      </a>
+      <div class="success-header">
+        <div class="success-icon-large">
+          <i-lucide name="check" [size]="32"></i-lucide>
+        </div>
+        <h2>Application Submitted!</h2>
+        <p>Your agent registration application has been received successfully.</p>
+      </div>
+      <div class="success-body">
+        <div class="credentials-box">
+          <div class="cred-item">
+            <span class="cred-label">What happens next?</span>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--gray-600); line-height: 1.6;">
+              Our team will review your application and get back to you via the email you provided. Please allow up to 48 hours for processing.
+            </p>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" (click)="resetForm()">
+            <i-lucide name="plus" [size]="18"></i-lucide>
+            Submit Another Application
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+</div>

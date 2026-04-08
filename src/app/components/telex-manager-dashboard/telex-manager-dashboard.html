@@ -65,16 +65,11 @@
   @if (isLoggingOut) {
     <div class="logout-overlay">
       <div class="logout-content">
-        <!-- Glowing orb spinner -->
-        <div class="logout-orb">
-          <div class="orb-core"></div>
-          <div class="orb-ring orb-ring-1"></div>
-          <div class="orb-ring orb-ring-2"></div>
-          <div class="orb-ring orb-ring-3"></div>
-          <div class="orb-particles">
-            <span></span><span></span><span></span>
-            <span></span><span></span><span></span>
-          </div>
+        <!-- Spinner -->
+        <div class="spinner-container" style="margin: 0 auto 20px;">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
         </div>
         <!-- Logout icon -->
         <div class="logout-icon">
@@ -146,7 +141,9 @@
 
     <div class="sidebar-footer">
       <div class="user-profile" (click)="activeTab = 'profile'">
-        <div class="user-avatar">{{ getInitials(profileData?.fullName || currentUsername) }}</div>
+        <div class="user-avatar" [style.background]="getAvatarColor(profileData?.fullName || currentUsername)">
+          {{ getInitials(profileData?.fullName || currentUsername) }}
+        </div>
         <div class="user-info">
           <div class="user-name">{{ profileData?.fullName || currentUsername }}</div>
           <div class="user-role">Telex Manager</div>
@@ -373,7 +370,9 @@
             <div class="profile-container">
               <div class="profile-card">
                 <div class="profile-header">
-                  <div class="profile-avatar">{{ getInitials(profileData.fullName) }}</div>
+                  <div class="profile-avatar" [style.background]="getAvatarColor(profileData.fullName)">
+                    {{ getInitials(profileData.fullName) }}
+                  </div>
                   <h2 class="profile-name">{{ profileData.fullName }}</h2>
                   <p class="profile-role">Telex Manager</p>
                 </div>

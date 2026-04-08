@@ -69,6 +69,10 @@ Premium Angular Dashboard with Glassmorphism
             <span class="nav-badge-count">{{paidFundRequestsCount}}</span>
           }
         </div>
+        <div class="nav-item" [class.active]="activeSection === 'accounts'" (click)="setActiveSection('accounts')">
+          <i>💰</i>
+          <span>Accounts</span>
+        </div>
         <div class="nav-item" [class.active]="activeSection === 'students'" (click)="setActiveSection('students')">
           <i>👥</i>
           <span>All Students</span>
@@ -116,11 +120,14 @@ Premium Angular Dashboard with Glassmorphism
             @if (activeSection === 'pipeline') {
               <span>Visa Pipeline</span>
             }
+            @if (activeSection === 'funds') {
+              <span>Fund Requests</span>
+            }
             @if (activeSection === 'students') {
               <span>All Students</span>
             }
-            @if (activeSection === 'funds') {
-              <span>Fund Requests</span>
+            @if (activeSection === 'accounts') {
+              <span>Visa Accounts</span>
             }
           </h1>
           <p>{{ getCurrentDate() }}</p>
@@ -515,8 +522,186 @@ Premium Angular Dashboard with Glassmorphism
           </div>
         }
         <!-- ============================================
-        FUNDS SECTION
+        ACCOUNTS SECTION - LIGHT THEME
         ============================================ -->
+        @if (activeSection === 'accounts') {
+          <div class="visa-accounts-section">
+            <!-- Premium Header -->
+            <div class="va-header">
+              <div class="va-header-left">
+                <div class="va-header-icon">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div>
+                  <h3>Visa Accounts Ledger</h3>
+                  <p>Track all visa fee requests, disbursements & earnings</p>
+                </div>
+              </div>
+              <div class="va-record-count">
+                <span class="va-count-num">{{accountRecords.length}}</span>
+                <span class="va-count-label">Records</span>
+              </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="va-cards-grid">
+              <!-- Card 1: Total Requested -->
+              <div class="va-card va-card-requested">
+                <div class="va-card-icon">
+                  <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="va-card-content">
+                  <span class="va-card-label">Visa Requested Money</span>
+                  <span class="va-card-value">{{totalVisaRequested | number:'1.0-2'}}</span>
+                  <span class="va-card-sub">Across {{accountRecords.length}} applications</span>
+                </div>
+              </div>
+              <!-- Card 2: Total Received -->
+              <div class="va-card va-card-received">
+                <div class="va-card-icon">
+                  <i class="fas fa-wallet"></i>
+                </div>
+                <div class="va-card-content">
+                  <span class="va-card-label">VISA FEE PROCESSED</span>
+                  <span class="va-card-value">{{totalVisaReceived | number:'1.0-2'}}</span>
+                  <span class="va-card-sub">{{disbursedRecordsCount}} of {{accountRecords.length}} disbursed</span>
+                </div>
+              </div>
+              <!-- Card 3: Service Charges Expected -->
+              <div class="va-card va-card-requested">
+                <div class="va-card-icon" style="background:#fff7ed; color:#ea580c">
+                  <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div class="va-card-content">
+                  <span class="va-card-label">Service Charge Requested</span>
+                  <span class="va-card-value">{{totalServiceChargeRequested | number:'1.0-2'}}</span>
+                  <span class="va-card-sub">From all requests</span>
+                </div>
+              </div>
+              <!-- Card 4: Service Charges Earned / Profit -->
+              <div class="va-card va-card-profit">
+                <div class="va-card-icon">
+                  <i class="fas fa-coins"></i>
+                </div>
+                <div class="va-card-content">
+                  <span class="va-card-label">Service Charge Received</span>
+                  <span class="va-card-value">{{totalServiceChargeEarned | number:'1.0-2'}}</span>
+                  <span class="va-card-sub va-profit-sub">
+                    <i class="fas fa-arrow-up"></i>
+                    Net Profit (Disbursed)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Professional Ledger Table -->
+            <div class="va-table-container">
+              <table class="va-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Student</th>
+                    <th>Application ID</th>
+                    <th>Visa Fee</th>
+                    <th>Service Charge</th>
+                    <th>Total Requested</th>
+                    <th>Disbursed</th>
+                    <th>Date</th>
+                    <th>Mode / Txn</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (student of accountRecords; track student.id; let i = $index) {
+                    <tr>
+                      <td class="va-sn">{{i + 1}}</td>
+                      <td>
+                        <div class="va-student-cell">
+                          <div class="va-student-avatar" [style.background]="getAvatarColor(student.fullName)">
+                            {{student.fullName?.charAt(0) || '?'}}
+                          </div>
+                          <span class="va-student-name">{{student.fullName}}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="va-app-id">{{student.applicationId}}</span>
+                      </td>
+                      <td>
+                        <span class="va-amount">{{(student.visaPaymentRequestedAmount || 0) - (student.visaManServiceCharge || 0)}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
+                      </td>
+                      <td>
+                        @if (student.visaManServiceCharge) {
+                          <span class="va-service-charge">{{student.visaManServiceCharge}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
+                        } @else {
+                          <span class="va-na">-</span>
+                        }
+                      </td>
+                      <td>
+                        <span class="va-amount highlight">{{student.visaPaymentRequestedAmount || 0}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
+                      </td>
+                      <td>
+                        @if (student.visaDisbursedToVisaManAmount) {
+                          <span class="va-amount va-received">{{student.visaDisbursedToVisaManAmount}}</span>
+                        } @else {
+                          <span class="va-pending-badge">Awaiting</span>
+                        }
+                      </td>
+                      <td>
+                        @if (student.visaDisbursementDate) {
+                          <span class="va-date">{{student.visaDisbursementDate}}</span>
+                        } @else {
+                          <span class="va-na">-</span>
+                        }
+                      </td>
+                      <td>
+                        @if (student.visaDisbursementMode) {
+                          <div class="va-mode-cell">
+                            <span class="va-mode-tag"
+                              [class.cash]="student.visaDisbursementMode === 'CASH'"
+                              [class.upi]="student.visaDisbursementMode === 'UPI'"
+                              [class.online]="student.visaDisbursementMode === 'ONLINE'">
+                              {{student.visaDisbursementMode}}
+                            </span>
+                            @if (student.visaDisbursementTxId) {
+                              <span class="va-txn-id">{{student.visaDisbursementTxId}}</span>
+                            }
+                          </div>
+                        } @else {
+                          <span class="va-na">-</span>
+                        }
+                      </td>
+                      <td>
+                        @if (student.visaDisbursedToVisaManAmount) {
+                          @if (student.visaDisbursedToVisaManAmount >= (student.visaPaymentRequestedAmount || 0)) {
+                            <span class="va-status-pill paid">Fully Paid</span>
+                          } @else {
+                            <span class="va-status-pill partial">Partial</span>
+                          }
+                        } @else {
+                          <span class="va-status-pill pending">Pending</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                  @if (accountRecords.length === 0) {
+                    <tr>
+                      <td colspan="9">
+                        <div class="va-empty">
+                          <div class="va-empty-icon">
+                            <i class="fas fa-file-invoice"></i>
+                          </div>
+                          <h4>No Visa Records Yet</h4>
+                          <p>Visa fee requests and disbursements will appear here.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+        
         <!-- ============================================
         FUNDS SECTION - LIGHT THEME
         ============================================ -->
@@ -747,7 +932,7 @@ Premium Angular Dashboard with Glassmorphism
             </div>
           </div>
         }
-      }
+        }
     </div>
   </main>
 </div>
@@ -846,10 +1031,6 @@ MODALS
     </div>
   </div>
 }
-
-<!-- ============================================
-MODALS
-============================================ -->
 
 <!-- CONFIRMATION MODAL -->
 @if (showConfirmModal) {
@@ -967,6 +1148,16 @@ MODALS
         </div>
         <!-- Payment Form -->
         <div class="payment-form">
+          <div class="form-group" style="background: #f8fafc; padding: 14px; border-radius: 8px; border-left: 4px solid #4f46e5; margin-bottom: 20px;">
+            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Authorized Requester</div>
+            <div style="font-size: 1rem; font-weight: 600; color: #1e293b; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-user-circle" style="color: #4f46e5;"></i> {{ currentUsername }}
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Purpose <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="paymentPurpose" placeholder="e.g. Visa Processing Fee" class="form-input" required>
+          </div>
           <div class="form-group">
             <label>Amount <span class="required">*</span></label>
             <input type="number" [(ngModel)]="paymentAmount" placeholder="Enter amount" class="form-input"

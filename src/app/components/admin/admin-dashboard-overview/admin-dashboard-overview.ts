@@ -42,6 +42,7 @@ interface College {
   collegeName: string;
   city: string;
   country: string;
+  active?: boolean;
 }
 
 import { SessionService, Session } from '../../../services/session.service';
@@ -67,6 +68,7 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
   searchTerm = '';
   showAddModal = false;
   showSuccessMessage = false;
+  notificationType: 'success' | 'info' = 'success';
   successMessage = '';
   newCollege: College = { collegeName: '', city: '', country: '' };
   isAdding = false;
@@ -388,18 +390,33 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     });
   }
 
-  deleteCollege(id: number | undefined) {
-    if (!id || !confirm('Are you sure you want to delete this college?')) return;
-    this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+  toggleCollegeStatus(college: College, event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    const newStatus = checkbox.checked;
+    const statusText = newStatus ? 'Active' : 'Inactive';
+
+    if (!college.id) {
+      this.showSuccess('Cannot update status for an unsaved college.', 'info');
+      checkbox.checked = !newStatus; // Revert UI
+      return;
+    }
+
+    // PATCH /api/colleges/{id}/status?isActive=true|false
+    this.http.patch(`${this.apiUrl}/${college.id}/status?isActive=${newStatus}`, {}).subscribe({
       next: () => {
-        this.colleges = this.colleges.filter(c => c.id !== id);
-        this.searchCollege();
-        this.showSuccess('College deleted successfully!');
+        college.active = newStatus;
+        if (newStatus) {
+          this.showSuccess(`${college.collegeName} is now ${statusText}!`, 'success');
+        } else {
+          this.showSuccess(`${college.collegeName} is now ${statusText}!`, 'info');
+        }
         this.cdr.detectChanges();
       },
       error: (err) => {
-        alert('Failed to delete college');
-        console.error('Delete error:', err);
+        console.error('Status update error:', err);
+        this.showSuccess('Failed to update college status.', 'info');
+        checkbox.checked = !newStatus; // Revert UI on failure
+        this.cdr.detectChanges();
       }
     });
   }
@@ -418,14 +435,15 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  showSuccess(message: string) {
+  showSuccess(message: string, type: 'success' | 'info' = 'success') {
     this.successMessage = message;
+    this.notificationType = type;
     this.showSuccessMessage = true;
     this.cdr.detectChanges();
     setTimeout(() => {
       this.showSuccessMessage = false;
       this.cdr.detectChanges();
-    }, 3000);
+    }, 5000);
   }
 
   openAddModal() {

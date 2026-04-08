@@ -54,6 +54,11 @@ export interface Student {
     visaManServiceCharge?: number | null;
     visaPaymentTxId?: string | null;
     visaPaymentConfirmationPath?: string | null;
+    visaMan?: {
+        id: number;
+        username: string;
+        fullName: string;
+    } | null;
 }
 
 export interface Accountant {
@@ -128,6 +133,7 @@ export interface AssignedStudent {
     visaManServiceCharge?: number | null;
     visaPaymentTxId?: string | null;
     visaPaymentConfirmationPath?: string | null;
+    visaMan?: any | null;
 }
 
 export interface DashboardData {

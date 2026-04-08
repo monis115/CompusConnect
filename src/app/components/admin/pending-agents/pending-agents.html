@@ -36,7 +36,6 @@
             <p><strong>Email:</strong> {{ agent.email }}</p>
             <p><strong>Company:</strong> {{ agent.companyName }}</p>
             <p><strong>Designation:</strong> {{ agent.designation }}</p>
-            <p><strong>User ID:</strong> <code class="pa-code">{{ agent.userId }}</code></p>
           </div>
           <button class="pa-approve-btn" (click)="$event.stopPropagation(); startApproving(agent)">
             Start Approving
@@ -121,10 +120,6 @@
                 <span class="pa-detail-label">Website:</span>
                 <span class="pa-detail-value">{{ selectedAgent.website }}</span>
               </div>
-              <div class="pa-detail-row">
-                <span class="pa-detail-label">User ID/Password:</span>
-                <span class="pa-detail-value">{{ selectedAgent.userId }} / {{ selectedAgent.password }}</span>
-              </div>
             </div>
           </div>
         }
@@ -132,7 +127,7 @@
     </div>
   }
 
-  <!-- Approve Modal -->
+  <!-- Approve Modal with Per-College Territory Assignment -->
   @if (isApproveModalOpen) {
     <div class="pa-modal-overlay" (click)="onApproveOverlayClick($event)">
       <div class="pa-modal" (click)="$event.stopPropagation()">
@@ -150,93 +145,107 @@
         </div>
         <div class="pa-details-content">
           <div class="pa-section">
-            <h3>Select Colleges ({{ selectedCollegeIds.length }} selected)</h3>
-            <label class="pa-checkbox-item pa-all-india" (click)="toggleAllColleges(!isAllCollegesSelected(), $event)">
-              <input
-                type="checkbox"
-                [checked]="isAllCollegesSelected()"
-                (change)="toggleAllColleges($any($event.target).checked, $event)">
-              <span class="pa-checkbox"></span>
-              <div class="pa-label-text">
-                <div class="pa-label-main">Select All Colleges</div>
-                <div class="pa-label-sub">Select all colleges across the list</div>
+            <h3>Territory Assignment</h3>
+
+            <!-- Add College Dropdown -->
+            <div class="pa-add-college-area">
+              <label style="display:block; margin-bottom: 0.5rem; font-weight:600; color:#475569">Assign College Access</label>
+              <div class="pa-add-college-row">
+                <select [(ngModel)]="selectedCollegeToAdd" class="pa-college-dropdown">
+                  <option value="">Select a college from list...</option>
+                  @for (c of getAvailableColleges(); track c) {
+                    <option [value]="c.id">
+                      {{ c.collegeName }} — {{ c.city }}
+                    </option>
+                  }
+                </select>
+                <button type="button" class="pa-btn-add-college" [class.is-ready]="selectedCollegeToAdd" (click)="addCollegeAccess()">
+                  + Add Access
+                </button>
               </div>
-            </label>
-            <div class="pa-scroll-box">
-              @for (college of colleges; track college) {
-                <label class="pa-checkbox-item" (click)="toggleCollege(college.id, $event)">
-                  <input
-                    type="checkbox"
-                    [checked]="selectedCollegeIds.includes(college.id)"
-                    (change)="toggleCollege(college.id, $event)">
-                  <span class="pa-checkbox"></span>
-                  <div class="pa-label-text">
-                    <div class="pa-label-main">{{ college.collegeName }}</div>
-                    <div class="pa-label-sub">{{ college.city }}, {{ college.country }}</div>
-                  </div>
-                </label>
-              }
             </div>
-          </div>
-          <div class="pa-section">
-            <h3>Select Locations ({{ selectedLocationIds.length }} selected)</h3>
-            <label class="pa-checkbox-item pa-all-india" (click)="toggleAllLocations(!isAllLocationsSelected(), $event)">
-              <input
-                type="checkbox"
-                [checked]="isAllLocationsSelected()"
-                (change)="toggleAllLocations($any($event.target).checked, $event)">
-              <span class="pa-checkbox"></span>
-              <div class="pa-label-text">
-                <div class="pa-label-main">All India</div>
-                <div class="pa-label-sub">Select all locations across India</div>
-              </div>
-            </label>
-            <div class="pa-scroll-box">
-              @for (group of stateGroups; track group) {
-                <div class="pa-state-group">
-                  <label class="pa-checkbox-item pa-state-all" (click)="toggleAllDistrictsInState(group, !isAllDistrictsInStateSelected(group), $event)">
-                    <input
-                      type="checkbox"
-                      [checked]="isAllDistrictsInStateSelected(group)"
-                      (change)="toggleAllDistrictsInState(group, $any($event.target).checked, $event)">
-                    <span class="pa-checkbox"></span>
-                    <span class="pa-label-main">Select All Districts in {{ group.state }}</span>
-                  </label>
-                  <div class="pa-state-header" (click)="toggleStateExpansion(group.state, $event)">
-                    <span>{{ group.state }} ({{ getSelectedDistrictsCount(group) }}/{{ group.districts.length }} selected)</span>
-                    <svg
-                      class="pa-chevron"
-                      [class.pa-chevron-open]="isStateExpanded(group.state)"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+
+            <!-- College Access Cards -->
+            <div class="pa-college-list">
+              @for (entry of collegeAccessList; track entry) {
+                <div class="pa-college-card">
+                  <div class="pa-college-card-header">
+                    <div class="pa-college-title">
+                      <h4>{{ entry.collegeName }}</h4>
+                      <p>{{ entry.city }}</p>
+                    </div>
+                    <div class="pa-college-controls">
+                      <label class="pa-switch-label">
+                        <span>All India</span>
+                        <input type="checkbox" class="pa-switch-input" [checked]="entry.accessAllLocations"
+                          (change)="toggleAccessAllLocations(entry.collegeId)">
+                        <span class="pa-switch-slider"></span>
+                      </label>
+                      <button type="button" class="pa-btn-remove" (click)="removeCollegeAccess(entry.collegeId)" title="Remove">
+                        ✕
+                      </button>
+                    </div>
                   </div>
-                  @if (isStateExpanded(group.state)) {
-                    <div class="pa-district-grid" [@slideDown]>
-                      @for (loc of group.districts; track loc) {
-                        <label class="pa-district-item" (click)="toggleLocation(loc.id, $event)">
-                          <input
-                            type="checkbox"
-                            [checked]="selectedLocationIds.includes(loc.id)"
-                            (change)="toggleLocation(loc.id, $event)">
-                          <span class="pa-checkbox"></span>
-                          <span class="pa-district-name">{{ loc.district }}</span>
-                        </label>
+
+                  @if (!entry.accessAllLocations) {
+                    <div class="pa-location-panel">
+                      @for (state of states; track state) {
+                        <div class="pa-state-group">
+                          <div class="pa-state-header" (click)="toggleStateExpansion(state + '_' + entry.collegeId)">
+                            <div style="display:flex; align-items:center; gap:0.5rem;">
+                              <strong>{{ state }}</strong>
+                              <span style="font-size:0.8rem; color:#94a3b8">({{ getDistrictCountForState(state) }} districts)</span>
+                            </div>
+                            <svg class="pa-chevron" [class.pa-chevron-open]="expandedStates[state + '_' + entry.collegeId]"
+                              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                          @if (expandedStates[state + '_' + entry.collegeId]) {
+                            <div class="pa-district-grid" [@slideDown]>
+                              <label class="pa-district-item pa-select-all-state"
+                                (click)="$event.preventDefault(); toggleAllDistrictsForCollege(entry.collegeId, state)">
+                                <input type="checkbox" [checked]="isAllDistrictsSelectedForCollege(entry.collegeId, state)">
+                                <span class="pa-checkbox"></span>
+                                <span class="pa-district-name" style="font-weight:600; color:#0ea5e9">Select All {{ state }}</span>
+                              </label>
+                              @for (loc of districtsByState[state]; track loc) {
+                                <label class="pa-district-item"
+                                  (click)="$event.preventDefault(); toggleLocationForCollege(entry.collegeId, loc.id)">
+                                  <input type="checkbox" [checked]="isLocationSelectedForCollege(entry.collegeId, loc.id)">
+                                  <span class="pa-checkbox"></span>
+                                  <span class="pa-district-name">{{ loc.district }}</span>
+                                </label>
+                              }
+                            </div>
+                          }
+                        </div>
                       }
+                    </div>
+                  }
+
+                  @if (entry.accessAllLocations) {
+                    <div class="pa-all-india-badge">
+                      <span>🌍</span>
+                      <p>Full National Access Granted</p>
                     </div>
                   }
                 </div>
               }
             </div>
+
+            @if (collegeAccessList.length === 0) {
+              <div class="pa-empty-access">
+                <p>No colleges assigned yet. Use the dropdown above to add one.</p>
+              </div>
+            }
           </div>
         </div>
         <div class="pa-modal-footer">
           <button class="pa-btn pa-btn-secondary" (click)="closeApproveModal()">Cancel</button>
           <button
             class="pa-btn pa-btn-primary"
-            [disabled]="isApproving || (selectedCollegeIds.length === 0 && selectedLocationIds.length === 0)"
+            [disabled]="isApproving || !hasValidCollegeAccess()"
             (click)="approveAgent()">
             @if (!isApproving) {
               <span>Approve Agent</span>
@@ -281,6 +290,22 @@
         </div>
         <h3 class="pa-success-title">Approval Successful!</h3>
         <p class="pa-success-message">{{ selectedAgent?.fullName }} has been approved and activated.</p>
+        
+        @if (approvedAgentCredentials) {
+          <div class="pa-credentials-box">
+            <h4 class="pa-credentials-heading">Generated Login Credentials</h4>
+            <div class="pa-credentials-row">
+              <span class="pa-credentials-label">User ID:</span>
+              <span class="pa-credentials-val">{{ approvedAgentCredentials.userId }}</span>
+            </div>
+            <div class="pa-credentials-row">
+              <span class="pa-credentials-label">Password:</span>
+              <span class="pa-credentials-val">{{ approvedAgentCredentials.password || 'default123' }}</span>
+            </div>
+            <p class="pa-credentials-note">Please securely share these credentials with the agent.</p>
+          </div>
+        }
+
         <div class="pa-success-confetti">
           @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
             <div class="pa-confetti"></div>

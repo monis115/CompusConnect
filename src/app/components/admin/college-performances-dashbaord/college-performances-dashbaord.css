@@ -4,28 +4,47 @@
 
 /* CSS Variables */
 :host {
-    --bg-primary: #0f0f23;
-    --bg-secondary: #161632;
-    --bg-card: rgba(255, 255, 255, 0.03);
-    --bg-card-hover: rgba(255, 255, 255, 0.06);
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-hover: rgba(79, 140, 255, 0.3);
+    /* Premium Light Theme Colors */
+    --bg-primary: #f8fafc;
+    /* Slate 50 */
+    --bg-secondary: #ffffff;
+    /* White */
+    --bg-card: #ffffff;
+    --bg-card-hover: #f1f5f9;
+    /* Slate 100 */
+    --border-color: #e2e8f0;
+    /* Slate 200 */
+    --border-hover: #cbd5e1;
+    /* Slate 300 */
 
-    --accent-blue: #4f8cff;
-    --accent-purple: #9b5de5;
-    --accent-green: #00d68f;
-    --accent-red: #ff3d71;
-    --accent-orange: #ffaa00;
-    --accent-pink: #ff6b9d;
+    /* Vibrant Accents */
+    --accent-blue: #3b82f6;
+    /* Blue 500 */
+    --accent-purple: #8b5cf6;
+    /* Violet 500 */
+    --accent-green: #10b981;
+    /* Emerald 500 */
+    --accent-red: #ef4444;
+    /* Red 500 */
+    --accent-orange: #f59e0b;
+    /* Amber 500 */
+    --accent-pink: #ec4899;
+    /* Pink 500 */
 
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.7);
-    --text-muted: rgba(255, 255, 255, 0.4);
+    /* Text Colors for Light Theme */
+    --text-primary: #0f172a;
+    /* Slate 900 */
+    --text-secondary: #475569;
+    /* Slate 600 */
+    --text-muted: #94a3b8;
+    /* Slate 400 */
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 0 40px rgba(79, 140, 255, 0.15);
+    /* Light Theme Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
+    /* Soft blue glow */
 
     --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -40,8 +59,8 @@
     min-height: 100vh;
     background: var(--bg-primary);
     background-image:
-        radial-gradient(ellipse at 20% 0%, rgba(79, 140, 255, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 100%, rgba(155, 93, 229, 0.08) 0%, transparent 50%);
+        radial-gradient(ellipse at 20% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
     color: var(--text-primary);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     padding: 2rem;
@@ -85,7 +104,7 @@
     font-size: 1.75rem;
     font-weight: 800;
     margin: 0;
-    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -219,7 +238,8 @@
 }
 
 .dropdown-item.selected {
-    background: rgba(79, 140, 255, 0.15);
+    background: rgba(59, 130, 246, 0.15);
+    /* light blue instead of dark theme blue */
 }
 
 .college-info {
@@ -274,7 +294,7 @@
 
 .preset-btn:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.03);
 }
 
 .preset-btn.active {
@@ -381,7 +401,7 @@
     left: 0;
     width: 100%;
     height: 100vh;
-    background: rgba(15, 15, 35, 0.6);
+    background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(2px);
     z-index: 1000;
     display: flex;
@@ -392,11 +412,11 @@
 .spinner-thin {
     width: 50px;
     height: 50px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
+    border: 3px solid rgba(0, 0, 0, 0.1);
     border-top-color: var(--accent-blue);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
-    box-shadow: 0 0 10px rgba(79, 140, 255, 0.2);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
 }
 
 /* ============================================================================
@@ -499,7 +519,7 @@
 .kpi-icon {
     width: 48px;
     height: 48px;
-    background: rgba(var(--icon-color, 79, 140, 255), 0.1);
+    background: rgba(var(--icon-color, 3b, 130, 246), 0.1);
     border-radius: 14px;
     display: flex;
     align-items: center;
@@ -545,7 +565,7 @@
 }
 
 .kpi-trend.trend-stable {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.05);
     color: var(--text-muted);
 }
 
@@ -596,7 +616,7 @@
     align-items: center;
     position: relative;
     transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 20px rgba(79, 140, 255, 0.2);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.1);
 }
 
 .stage-glow {
@@ -605,7 +625,7 @@
     right: 0;
     width: 60px;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2));
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
     animation: shimmer 2s ease-in-out infinite;
 }
 
@@ -718,7 +738,7 @@
 .entity-icon {
     width: 44px;
     height: 44px;
-    background: rgba(79, 140, 255, 0.1);
+    background: rgba(59, 130, 246, 0.1);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -811,7 +831,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.02);
     border-radius: 10px;
 }
 
@@ -1009,7 +1029,7 @@
 
 .app-id {
     font-family: 'SF Mono', monospace;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.04);
     padding: 0.15rem 0.5rem;
     border-radius: 4px;
 }
@@ -1017,7 +1037,7 @@
 .activity-remarks {
     margin-top: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.02);
     border-radius: 8px;
     font-size: 0.8rem;
     color: var(--text-secondary);
@@ -1032,7 +1052,7 @@
 }
 
 .alert-item {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.01);
     border: 1px solid var(--border-color);
     border-radius: 14px;
     overflow: hidden;
@@ -1043,7 +1063,7 @@
 }
 
 .alert-item:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(0, 0, 0, 0.03);
 }
 
 .alert-item.severity-high {
@@ -1307,15 +1327,15 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.02);
     border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.2);
 }

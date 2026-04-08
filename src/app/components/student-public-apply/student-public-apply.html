@@ -1,0 +1,56 @@
+<div class="public-apply-container">
+
+  <header class="public-header" *ngIf="agentProfile && !isLoading && !error && !isSuccess">
+    <div class="header-content">
+      <div class="agent-brand">
+        <div class="agent-avatar">
+          {{ agentProfile.fullName ? agentProfile.fullName.charAt(0) : 'A' }}
+        </div>
+        <div class="agent-details">
+          <h1>Student Registration</h1>
+          <p class="powered-by">Powered by <strong>{{ agentProfile.companyName || agentProfile.fullName }}</strong></p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading application...</p>
+  </div>
+
+  <div class="error-state" *ngIf="error && !isLoading">
+    <div class="error-card">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <h2>Invalid Link</h2>
+      <p>{{ error }}</p>
+    </div>
+  </div>
+
+  <div class="success-state" *ngIf="isSuccess">
+    <div class="success-card">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      </div>
+      <h2>Application Submitted!</h2>
+      <p>Your registration has been successfully submitted to <strong>{{ agentProfile?.companyName ||
+          agentProfile?.fullName }}</strong>.</p>
+      <p class="sub-text">They will review your application and contact you soon.</p>
+    </div>
+  </div>
+
+  <div class="form-wrapper" *ngIf="agentProfile && !isLoading && !error && !isSuccess">
+    <!-- Embed the existing component and pass the public profile data -->
+    <app-agent-student-resgistration [collegeAccess]="agentProfile.collegeAccessList" [agentUserName]="agentId"
+      (onRegistrationSuccess)="onRegistrationSuccess($event)">
+    </app-agent-student-resgistration>
+  </div>
+
+</div>

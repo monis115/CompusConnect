@@ -607,6 +607,80 @@
   background: rgba(99, 102, 241, 0.1);
 }
 
+/* === Share Link Card === */
+.share-link-card {
+  margin-bottom: 32px;
+  border-color: rgba(99, 102, 241, 0.4);
+  background: linear-gradient(to right, #ffffff, #f8fafc);
+}
+
+.share-link-card .card-header-modern {
+  background: rgba(99, 102, 241, 0.08);
+  border-bottom-color: rgba(99, 102, 241, 0.2);
+}
+
+.share-link-card .header-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  margin-left: 30px; /* Aligned with the icon */
+}
+
+.share-link-body {
+  padding: 24px;
+}
+
+.input-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.link-input {
+  flex: 1;
+  padding: 14px 18px;
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--primary-dark);
+  font-weight: 500;
+  font-family: monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.link-input:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.copy-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+}
+
+.copy-btn svg {
+  stroke-width: 2.5;
+}
+
 /* === Dashboard Grid === */
 .dashboard-grid {
   display: grid;

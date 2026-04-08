@@ -669,6 +669,58 @@
   }
 }
 
+/* Credentials Box */
+.pa-credentials-box {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 1.5rem auto 0;
+  max-width: 90%;
+  text-align: left;
+  animation: slideUpFade 0.5s ease 0.8s both;
+}
+
+.pa-credentials-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #225062;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+.pa-credentials-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.pa-credentials-label {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.pa-credentials-val {
+  font-family: monospace;
+  font-weight: 700;
+  color: #1a1a1a;
+  background: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+}
+
+.pa-credentials-note {
+  font-size: 0.8rem !important;
+  color: #ef4444 !important;
+  margin-top: 0.75rem !important;
+  text-align: center;
+  font-style: italic;
+  animation: none;
+}
+
 /* Confetti Animation */
 .pa-success-confetti {
   position: absolute;
@@ -768,4 +820,282 @@
 .pa-state-all input:checked ~ .pa-checkbox {
   background: #0ea5e9;
   border-color: #0ea5e9;
+}
+
+/* ============================================ */
+/* PER-COLLEGE TERRITORY ASSIGNMENT STYLES     */
+/* ============================================ */
+
+.pa-add-college-area {
+  background: linear-gradient(135deg, #f8fafc 0%, rgba(34, 80, 98, 0.05) 100%);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 2px dashed #e2e8f0;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.pa-add-college-area:hover {
+  border-color: #225062;
+  border-style: solid;
+}
+
+.pa-add-college-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.pa-college-dropdown {
+  flex: 1;
+  height: 48px;
+  padding: 0 1rem;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #1a1a1a;
+  background: white;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+.pa-college-dropdown:hover {
+  border-color: #cbd5e1;
+}
+
+.pa-college-dropdown:focus {
+  border-color: #225062;
+  box-shadow: 0 0 0 3px rgba(34, 80, 98, 0.1);
+}
+
+.pa-btn-add-college {
+  padding: 0 1.25rem;
+  height: 48px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: not-allowed;
+  transition: all 0.3s ease;
+  background: #e2e8f0;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.pa-btn-add-college.is-ready {
+  background: #225062;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(34, 80, 98, 0.25);
+}
+
+.pa-btn-add-college.is-ready:hover {
+  background: #1e3a5f;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(34, 80, 98, 0.3);
+}
+
+/* College Cards */
+.pa-college-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pa-college-card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: slideUp 0.3s ease-out;
+}
+
+.pa-college-card:hover {
+  border-color: #225062;
+  box-shadow: 0 4px 16px rgba(34, 80, 98, 0.1);
+}
+
+.pa-college-card-header {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.pa-college-title h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #225062;
+  margin: 0;
+}
+
+.pa-college-title p {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+.pa-college-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pa-btn-remove {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #ef4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.pa-btn-remove:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+/* Switch Toggle */
+.pa-switch-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.pa-switch-input {
+  display: none;
+}
+
+.pa-switch-slider {
+  width: 40px;
+  height: 22px;
+  background: #cbd5e1;
+  border-radius: 999px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.pa-switch-slider::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.pa-switch-input:checked + .pa-switch-slider {
+  background: #10b981;
+}
+
+.pa-switch-input:checked + .pa-switch-slider::after {
+  transform: translateX(18px);
+}
+
+/* Location Panel */
+.pa-location-panel {
+  background: #f8fafc;
+  padding: 1rem;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+/* All India Badge */
+.pa-all-india-badge {
+  padding: 1.5rem;
+  text-align: center;
+  color: #10b981;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pa-all-india-badge span {
+  font-size: 2rem;
+}
+
+.pa-all-india-badge p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Empty Access State */
+.pa-empty-access {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px dashed #e2e8f0;
+}
+
+.pa-empty-access p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Select All State (special styling) */
+.pa-select-all-state {
+  background: #f0f9ff !important;
+  border-color: #0ea5e9 !important;
+}
+
+.pa-select-all-state:hover {
+  background: #e0f2fe !important;
+}
+
+/* Location Panel Scrollbar */
+.pa-location-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pa-location-panel::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.pa-location-panel::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+  .pa-add-college-row {
+    flex-direction: column;
+  }
+
+  .pa-btn-add-college {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pa-college-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
 }
