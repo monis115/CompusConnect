@@ -1266,24 +1266,19 @@
         <!-- KPI Summary Grid -->
         <div class="gov-kpi-grid">
           <div class="gov-kpi-card">
-            <span class="gov-kpi-label">Total Requested Money</span>
-            <span class="gov-kpi-value blue"><small>$</small>{{totalVisaRequested | number:'1.0-2'}}</span>
-            <span class="gov-kpi-sub">Applicable Visa Fees</span>
+            <span class="gov-kpi-label">Total Requested By Visa</span>
+            <span class="gov-kpi-value blue"><small>$</small>{{animatedStats.totalVisaRequestedByVisaMan | number:'1.0-2'}}</span>
+            <span class="gov-kpi-sub">Applicable Visa Fees + Service Charge</span>
           </div>
           <div class="gov-kpi-card">
-            <span class="gov-kpi-label">VISA FEE PROCESSED</span>
-            <span class="gov-kpi-value green"><small>$</small>{{totalVisaReceived | number:'1.0-2'}}</span>
+            <span class="gov-kpi-label">TOTAL PAID TO VISA MAN</span>
+            <span class="gov-kpi-value green"><small>$</small>{{animatedStats.totalAccToVisaManPaidAmount | number:'1.0-2'}}</span>
             <span class="gov-kpi-sub">{{disbursedRecordsCount}} of {{visaAccountsStudents.length}} disbursed</span>
           </div>
           <div class="gov-kpi-card">
-            <span class="gov-kpi-label">Service Charge Expected</span>
-            <span class="gov-kpi-value orange"><small>$</small>{{totalServiceChargeRequested | number:'1.0-2'}}</span>
+            <span class="gov-kpi-label">Pending Payouts</span>
+            <span class="gov-kpi-value orange"><small>$</small>{{(animatedStats.totalVisaRequestedByVisaMan - animatedStats.totalAccToVisaManPaidAmount) | number:'1.0-2'}}</span>
             <span class="gov-kpi-sub">Accounted from all requests</span>
-          </div>
-          <div class="gov-kpi-card">
-            <span class="gov-kpi-label">Service Charge Processed</span>
-            <span class="gov-kpi-value purple"><small>$</small>{{totalServiceChargeEarned | number:'1.0-2'}}</span>
-            <span class="gov-kpi-sub">From successfully cleared disbursements</span>
           </div>
         </div>
 
@@ -1299,6 +1294,7 @@
                 <th>Disbursed to Manager</th>
                 <th>Clearing Date</th>
                 <th>Reference & Mode</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -1315,7 +1311,7 @@
                   </td>
                   <td>
                     <span class="gov-amount gov-amount-neutral">
-                      {{(student.visaPaymentRequestedAmount || 0) - (student.visaManServiceCharge || 0)}}
+                      {{student.visaPaymentRequestedAmount || 0}}
                       <small>{{student.visaPaymentRequestedCurrency || 'USD'}}</small>
                     </span>
                   </td>
@@ -1328,16 +1324,16 @@
                   </td>
                   <td>
                     <span class="gov-amount" style="color: #2563eb;">
-                      {{ student.visaPaymentRequestedAmount || 0 }}
+                      {{ (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0) }}
                     </span>
                   </td>
                   <td>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                      @if (student.visaDisbursedToVisaManAmount) {
+                      @if (student.accToVisaManPaidAmount) {
                         <span class="gov-amount gov-amount-credit">
-                          {{student.visaDisbursedToVisaManAmount}}
+                          {{student.accToVisaManPaidAmount}}
                         </span>
-                        @if (student.visaDisbursedToVisaManAmount >= (student.visaPaymentRequestedAmount || 0)) {
+                        @if (student.accToVisaManStatus === 'FULLY_PAID') {
                           <span class="gov-status cleared">Fully Paid</span>
                         } @else {
                           <span class="gov-status partial">Partial</span>
@@ -1348,23 +1344,32 @@
                     </div>
                   </td>
                   <td>
-                    @if (student.visaDisbursementDate) {
-                      <span class="gov-date">{{student.visaDisbursementDate}}</span>
+                    @if (student.accToVisaManPaymentDate) {
+                      <span class="gov-date">{{student.accToVisaManPaymentDate}}</span>
                     } @else {
                       <span class="text-muted">-</span>
                     }
                   </td>
                   <td>
-                    @if (student.visaDisbursementMode) {
+                    @if (student.accToVisaManMode) {
                       <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <span class="gov-mode" style="width: fit-content; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">APP: {{student.visaDisbursementMode}}</span>
-                        @if (student.visaDisbursementTxId) {
-                          <span class="gov-id-tag" style="font-size: 0.75rem; border: none; background: transparent; padding: 0;">REF: {{student.visaDisbursementTxId}}</span>
+                        <span class="gov-mode" style="width: fit-content; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">APP: {{student.accToVisaManMode}}</span>
+                        @if (student.accToVisaManTxId) {
+                          <span class="gov-id-tag" style="font-size: 0.75rem; border: none; background: transparent; padding: 0;">REF: {{student.accToVisaManTxId}}</span>
                         }
                       </div>
                     } @else {
                       <span class="text-muted">-</span>
                     }
+                  </td>
+                  <td>
+                    <button class="gov-btn-primary" (click)="openPayVisaManModal(student)" [disabled]="student.accToVisaManStatus === 'FULLY_PAID'">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                      </svg>
+                      Log Payment
+                    </button>
                   </td>
                 </tr>
               }
@@ -1956,7 +1961,7 @@
         <div class="visa-details-box">
           <div class="detail-row">
             <span class="detail-label">Base Visa Fee</span>
-            <span class="detail-value">{{(selectedStudent?.visaPaymentRequestedAmount || 0) - (selectedStudent?.visaManServiceCharge || 0)}} {{selectedStudent?.visaPaymentRequestedCurrency || 'USD'}}</span>
+            <span class="detail-value">{{selectedStudent?.visaPaymentRequestedAmount || 0}} {{selectedStudent?.visaPaymentRequestedCurrency || 'INR'}}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Service Charge</span>
@@ -1964,7 +1969,7 @@
           </div>
           <div class="detail-row">
             <span class="detail-label">Total Expected</span>
-            <span class="detail-value highlight">{{ selectedStudent?.visaPaymentRequestedAmount || 0 }} {{selectedStudent?.visaPaymentRequestedCurrency || 'USD'}}</span>
+            <span class="detail-value highlight">{{ (selectedStudent?.visaPaymentRequestedAmount || 0) + (selectedStudent?.visaManServiceCharge || 0) }} {{selectedStudent?.visaPaymentRequestedCurrency || 'INR'}}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Visa Manager</span>
@@ -2071,46 +2076,7 @@
             <input type="date" class="visa-input" [(ngModel)]="receivedDate">
           </div>
         </div>
-        <!-- Disbursement Details for Visa Manager -->
-        <div class="visa-details-box" style="margin-top: 15px;">
-          <h4 style="margin-bottom: 10px; font-size: 0.95rem; color: #374151;">Disburse to Visa Manager</h4>
-          <div class="visa-form-group">
-            <label class="visa-label">Disbursed Amount ({{selectedStudent?.visaPaymentRequestedCurrency || 'USD'}})</label>
-            <div class="visa-input-wrapper">
-              <input type="number" class="visa-input" [(ngModel)]="disbursedAmount" placeholder="Amount" step="0.01" min="0">
-            </div>
-          </div>
-          <div class="form-row two-col">
-            <div class="visa-form-group">
-              <label class="visa-label">Payment Mode</label>
-              <div class="visa-select-wrapper">
-                <select class="visa-select" [(ngModel)]="disbursementMode">
-                  <option value="CASH">Cash</option>
-                  <option value="ONLINE">Online/Bank Transfer</option>
-                  <option value="UPI">UPI</option>
-                </select>
-                <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </div>
-            </div>
-            <div class="visa-form-group">
-              <label class="visa-label">Date</label>
-              <div class="visa-input-wrapper">
-                <input type="date" class="visa-input" [(ngModel)]="disbursementDate">
-              </div>
-            </div>
-          </div>
-          @if (disbursementMode !== 'CASH') {
-            <div class="visa-form-group">
-              <label class="visa-label">Transaction / UPI ID</label>
-              <div class="visa-input-wrapper">
-                <input type="text" class="visa-input" [(ngModel)]="disbursementTxId" placeholder="Txn ID">
-              </div>
-            </div>
-          }
-        </div>
+
 
       </div>
       <div class="dialog-footer visa-footer">
@@ -2130,6 +2096,100 @@
             </span>
           }
           @if (processingId !== null) {
+            <span class="visa-spinner"></span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: Pay Visa Man (New Accountant Ledger Integration) -->
+@if (showPayVisaManModal) {
+  <div class="modal-backdrop z-high" (click)="closePayVisaManModal()">
+    <div class="modal-dialog visa-modal" (click)="$event.stopPropagation()" [@scaleIn]>
+      <div class="dialog-header confirm-header" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6) !important;">
+        <div class="confirm-header-icon" style="background: rgba(255,255,255,0.2) !important;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+        <div class="confirm-header-text">
+          <h3 style="color: white !important;">Log Direct Visa Payment</h3>
+          <p class="confirm-subtitle" style="color: rgba(255,255,255,0.8) !important;">Record payout to assigned Visa Manager</p>
+        </div>
+        <button class="dialog-close-btn" (click)="closePayVisaManModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="dialog-body visa-body">
+        
+        <div class="visa-student-card">
+          <div class="visa-student-avatar"
+            [style.background-color]="getAvatarColor(selectedStudent?.fullName || '')">
+            {{selectedStudent?.fullName?.charAt(0) || '?'}}
+          </div>
+          <div class="visa-student-info">
+            <span class="visa-student-name">{{selectedStudent?.fullName}}</span>
+            <span class="visa-student-id">App ID: {{selectedStudent?.applicationId}} | Visa Manager: {{selectedStudent?.visaMan?.username}}</span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="visa-form-group">
+             <label class="visa-label">Payout Amount ({{selectedStudent?.visaPaymentRequestedCurrency || 'USD'}})</label>
+             <div class="visa-input-wrapper">
+               <input type="number" class="visa-input" [(ngModel)]="payVisaManForm.amountToPay" placeholder="Amount..." step="0.01" min="0">
+             </div>
+          </div>
+          
+          <div class="form-row two-col">
+            <div class="visa-form-group">
+               <label class="visa-label">Transaction Reference (TxId)</label>
+               <div class="visa-input-wrapper">
+                 <input type="text" class="visa-input" [(ngModel)]="payVisaManForm.txId" placeholder="Optionally track internal ref">
+               </div>
+            </div>
+            <div class="visa-form-group">
+              <label class="visa-label">Date Completed</label>
+              <div class="visa-input-wrapper">
+                <input type="date" class="visa-input" [(ngModel)]="payVisaManForm.paymentDate">
+              </div>
+            </div>
+          </div>
+          
+          <div class="visa-form-group" style="margin-top: 15px;">
+            <label class="visa-label">Transfer Mode</label>
+            <div class="visa-select-wrapper">
+              <select class="visa-select" [(ngModel)]="payVisaManForm.mode">
+                <option value="UPI">UPI</option>
+                <option value="ONLINE">Internal Transfer</option>
+                <option value="CASH">Cash Over Counter</option>
+                <option value="WIRE">International Wire</option>
+              </select>
+              <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="dialog-footer visa-footer">
+        <button class="btn-visa-cancel" (click)="closePayVisaManModal()" [disabled]="isSubmitting">
+          Cancel
+        </button>
+        <button class="gov-btn-primary"
+          (click)="confirmPayVisaMan()"
+          [disabled]="isSubmitting || !payVisaManForm.amountToPay || !payVisaManForm.paymentDate || !payVisaManForm.mode">
+          @if (!isSubmitting) {
+            <span>Submit to Ledger</span>
+          }
+          @if (isSubmitting) {
             <span class="visa-spinner"></span>
           }
         </button>

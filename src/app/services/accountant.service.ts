@@ -62,6 +62,8 @@ export interface Student {
 }
 
 export interface Accountant {
+    totalAccToVisaManPaidAmount: number;
+    totalVisaRequestedByVisaMan: number;
     contactNo: any;
     id: number;
     fullName: string;
@@ -90,6 +92,8 @@ export interface DashboardStats {
     paymentsNotReceived: number;
     totalAmountReceived: number;
     totalAmountPending: number;
+    totalVisaRequestedByVisaMan: number;
+    totalAccToVisaManPaidAmount: number;
 }
 
 export interface CollectionSummary {
@@ -134,6 +138,21 @@ export interface AssignedStudent {
     visaPaymentTxId?: string | null;
     visaPaymentConfirmationPath?: string | null;
     visaMan?: any | null;
+    visaPaymentReceivedAmount?: number | null;
+    visaPaymentReceivedDate?: string | null;
+    accToVisaManPaidAmount?: number | null;
+    accToVisaManPaymentDate?: string | null;
+    accToVisaManTxId?: string | null;
+    accToVisaManMode?: string | null;
+    accToVisaManStatus?: string | null;
+}
+
+export interface PayVisaManPayload {
+    amountToPay: number;
+    paymentDate: string;
+    mode: string;
+    txId: string;
+    accountantUsername: string;
 }
 
 export interface DashboardData {
@@ -177,6 +196,15 @@ export class AccountantService {
      */
     rejectPayment(studentId: number, payload: RejectPaymentPayload): Observable<any> {
         return this.http.post(`${this.API_URL}/accountant/payment-not-received/${studentId}`, payload);
+    }
+
+    /**
+     * Pay Visa Man
+     * @param studentId - The student ID
+     * @param payload - Contains amount, dates, modes, accountant username
+     */
+    payVisaMan(studentId: number, payload: PayVisaManPayload): Observable<any> {
+        return this.http.post(`${this.API_URL}/visa/pay-visa-man/${studentId}`, payload);
     }
 
     // --- NEW Dashboard Methods ---

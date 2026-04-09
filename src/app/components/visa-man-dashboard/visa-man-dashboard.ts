@@ -31,10 +31,11 @@ interface Student {
   visaPaymentRequestedCurrency?: string;
   visaManServiceCharge?: number;
   visaPaymentReceivedAmount?: number;
-  visaDisbursedToVisaManAmount?: number;
-  visaDisbursementMode?: string;
-  visaDisbursementTxId?: string;
-  visaDisbursementDate?: string;
+  accToVisaManPaidAmount?: number;
+  accToVisaManMode?: string;
+  accToVisaManTxId?: string;
+  accToVisaManPaymentDate?: string;
+  accToVisaManStatus?: string;
 }
 
 // VisaMan Profile Interface
@@ -307,7 +308,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   }
 
   get totalVisaReceived(): number {
-    return this.accountRecords.reduce((sum, s) => sum + (s.visaDisbursedToVisaManAmount || 0), 0);
+    return this.accountRecords.reduce((sum, s) => sum + (s.visaPaymentReceivedAmount || 0), 0);
   }
 
   get totalServiceChargeRequested(): number {
@@ -316,8 +317,8 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
   get totalServiceChargeEarned(): number {
     return this.accountRecords.reduce((sum, s) => {
-      const disbursed = s.visaDisbursedToVisaManAmount || 0;
-      if (disbursed > 0) {
+      const received = s.visaPaymentReceivedAmount || 0;
+      if (received > 0) {
         return sum + (s.visaManServiceCharge || 0);
       }
       return sum;
@@ -325,7 +326,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   }
 
   get disbursedRecordsCount(): number {
-    return this.accountRecords.filter(s => s.visaDisbursedToVisaManAmount && s.visaDisbursedToVisaManAmount > 0).length;
+    return this.accountRecords.filter(s => s.accToVisaManPaidAmount && s.accToVisaManPaidAmount > 0).length;
   }
 
   getAvatarColor(name: string): string {

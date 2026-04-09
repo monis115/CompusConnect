@@ -34,7 +34,7 @@ export class StudentPublicApplyComponent implements OnInit {
   }
 
   fetchAgentProfile(userId: string): void {
-    const url = `${environment.apiUrl}/api/agents/public/${userId}`;
+    const url = `${environment.apiUrl}/api/public/agent/${userId}`;
     this.http.get(url).subscribe({
       next: (profile: any) => {
         if (profile && profile.collegeAccessList) {

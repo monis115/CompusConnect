@@ -627,7 +627,7 @@ Premium Angular Dashboard with Glassmorphism
                         <span class="va-app-id">{{student.applicationId}}</span>
                       </td>
                       <td>
-                        <span class="va-amount">{{(student.visaPaymentRequestedAmount || 0) - (student.visaManServiceCharge || 0)}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
+                        <span class="va-amount">{{student.visaPaymentRequestedAmount || 0}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
                       </td>
                       <td>
                         @if (student.visaManServiceCharge) {
@@ -637,33 +637,33 @@ Premium Angular Dashboard with Glassmorphism
                         }
                       </td>
                       <td>
-                        <span class="va-amount highlight">{{student.visaPaymentRequestedAmount || 0}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
+                        <span class="va-amount highlight">{{(student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0)}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
                       </td>
                       <td>
-                        @if (student.visaDisbursedToVisaManAmount) {
-                          <span class="va-amount va-received">{{student.visaDisbursedToVisaManAmount}}</span>
+                        @if (student.accToVisaManStatus === 'FULLY_PAID' || student.accToVisaManStatus === 'PARTIALLY_PAID' || student.accToVisaManPaidAmount) {
+                          <span class="va-amount va-received">{{student.accToVisaManPaidAmount}}</span>
                         } @else {
                           <span class="va-pending-badge">Awaiting</span>
                         }
                       </td>
                       <td>
-                        @if (student.visaDisbursementDate) {
-                          <span class="va-date">{{student.visaDisbursementDate}}</span>
+                        @if (student.accToVisaManPaymentDate) {
+                          <span class="va-date">{{student.accToVisaManPaymentDate}}</span>
                         } @else {
                           <span class="va-na">-</span>
                         }
                       </td>
                       <td>
-                        @if (student.visaDisbursementMode) {
+                        @if (student.accToVisaManMode) {
                           <div class="va-mode-cell">
                             <span class="va-mode-tag"
-                              [class.cash]="student.visaDisbursementMode === 'CASH'"
-                              [class.upi]="student.visaDisbursementMode === 'UPI'"
-                              [class.online]="student.visaDisbursementMode === 'ONLINE'">
-                              {{student.visaDisbursementMode}}
+                              [class.cash]="student.accToVisaManMode === 'CASH'"
+                              [class.upi]="student.accToVisaManMode === 'UPI'"
+                              [class.online]="student.accToVisaManMode === 'ONLINE'">
+                              {{student.accToVisaManMode}}
                             </span>
-                            @if (student.visaDisbursementTxId) {
-                              <span class="va-txn-id">{{student.visaDisbursementTxId}}</span>
+                            @if (student.accToVisaManTxId) {
+                              <span class="va-txn-id">{{student.accToVisaManTxId}}</span>
                             }
                           </div>
                         } @else {
@@ -671,12 +671,10 @@ Premium Angular Dashboard with Glassmorphism
                         }
                       </td>
                       <td>
-                        @if (student.visaDisbursedToVisaManAmount) {
-                          @if (student.visaDisbursedToVisaManAmount >= (student.visaPaymentRequestedAmount || 0)) {
-                            <span class="va-status-pill paid">Fully Paid</span>
-                          } @else {
-                            <span class="va-status-pill partial">Partial</span>
-                          }
+                        @if (student.accToVisaManStatus === 'FULLY_PAID') {
+                          <span class="va-status-pill paid">Fully Paid</span>
+                        } @else if (student.accToVisaManStatus === 'PARTIALLY_PAID' || (student.accToVisaManPaidAmount && student.accToVisaManPaidAmount > 0)) {
+                          <span class="va-status-pill partial">Partial</span>
                         } @else {
                           <span class="va-status-pill pending">Pending</span>
                         }
