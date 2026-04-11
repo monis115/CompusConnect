@@ -5,932 +5,805 @@ Premium Angular Dashboard with Glassmorphism
 
 <!-- LOADING OVERLAY -->
 @if (isLoading) {
-  <div class="loading-overlay">
-    <div class="passport-loader"></div>
-    <div class="stamp-loader">Processing Visa Documents...</div>
-  </div>
+<div class="loading-overlay">
+  <div class="passport-loader"></div>
+  <div class="stamp-loader">Processing Visa Documents...</div>
+</div>
 }
 
 <!-- MAIN DASHBOARD CONTAINER -->
 @if (!isLoading) {
-  <div class="dashboard-container">
-    <!-- TOAST NOTIFICATIONS -->
-    <div class="toast-container">
-      @for (toast of toasts; track toast) {
-        <div class="toast" [ngClass]="'toast-' + toast.type"
-          (click)="dismissToast(toast.id)">
-          <div class="toast-icon">
-            <i class="fas" [class.fa-check-circle]="toast.type === 'success'"
-              [class.fa-exclamation-circle]="toast.type === 'error'"
-              [class.fa-info-circle]="toast.type === 'info'"
-            [class.fa-exclamation-triangle]="toast.type === 'warning'"></i>
-          </div>
-          <div class="toast-message">{{ toast.message }}</div>
-          <button class="toast-close">&times;</button>
-        </div>
-      }
+<div class="dashboard-container">
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container">
+    @for (toast of toasts; track toast) {
+    <div class="toast" [ngClass]="'toast-' + toast.type" (click)="dismissToast(toast.id)">
+      <div class="toast-icon">
+        <i class="fas" [class.fa-check-circle]="toast.type === 'success'"
+          [class.fa-exclamation-circle]="toast.type === 'error'" [class.fa-info-circle]="toast.type === 'info'"
+          [class.fa-exclamation-triangle]="toast.type === 'warning'"></i>
+      </div>
+      <div class="toast-message">{{ toast.message }}</div>
+      <button class="toast-close">&times;</button>
     </div>
-    <!-- ============================================
+    }
+  </div>
+  <!-- ============================================
     SIDEBAR
     ============================================ -->
-    <aside class="sidebar" [class.open]="sidebarOpen">
-      <!-- Logo / Brand -->
-      <div class="sidebar-header">
-        <div class="logo">
-          <div class="logo-icon">🛂</div>
-          <span class="logo-text">Visa <span>Manager</span></span>
-        </div>
+  <aside class="sidebar" [class.open]="sidebarOpen">
+    <!-- Logo / Brand -->
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">🛂</div>
+        <span class="logo-text">Visa <span>Manager</span></span>
       </div>
-      <!-- Navigation -->
-      <nav class="sidebar-nav">
-        <div class="nav-section-title">Main Menu</div>
-        <div class="nav-item" [class.active]="activeSection === 'dashboard'"
-          (click)="setActiveSection('dashboard')">
-          <i>📊</i>
-          <span>Dashboard</span>
-        </div>
-        <div class="nav-item" [class.active]="activeSection === 'actions'" (click)="setActiveSection('actions')">
-          <i>⚡</i>
-          <span>Actions Needed</span>
-          @if (actionRequiredStudents.length > 0) {
-            <span class="nav-badge">
-              {{ actionRequiredStudents.length }}
-            </span>
-          }
-        </div>
-        <div class="nav-item" [class.active]="activeSection === 'pipeline'" (click)="setActiveSection('pipeline')">
-          <i>🔄</i>
-          <span>Pipeline</span>
-        </div>
-        <div class="nav-item" [class.active]="activeSection === 'funds'" (click)="setActiveSection('funds')">
-          <i>💰</i>
-          <span>Fund Requests</span>
-          @if (paidFundRequestsCount > 0) {
-            <span class="nav-badge-count">{{paidFundRequestsCount}}</span>
-          }
-        </div>
-        <div class="nav-item" [class.active]="activeSection === 'accounts'" (click)="setActiveSection('accounts')">
-          <i>💰</i>
-          <span>Accounts</span>
-        </div>
-        <div class="nav-item" [class.active]="activeSection === 'students'" (click)="setActiveSection('students')">
-          <i>👥</i>
-          <span>All Students</span>
-          @if (students.length > 0) {
-            <span class="nav-badge">
-              {{ students.length }}
-            </span>
-          }
-        </div>
-      </nav>
-      <!-- Footer / Profile -->
-      <div class="sidebar-footer">
-        @if (visaManProfile) {
-          <div class="user-profile">
-            <div class="user-avatar">
-              {{ getInitials(visaManProfile.fullName) }}
-            </div>
-            <div class="user-info">
-              <div class="user-name">{{ visaManProfile.fullName }}</div>
-              <div class="user-role">Visa Manager</div>
-            </div>
-          </div>
+    </div>
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main Menu</div>
+      <div class="nav-item" [class.active]="activeSection === 'dashboard'" (click)="setActiveSection('dashboard')">
+        <i>📊</i>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" [class.active]="activeSection === 'actions'" (click)="setActiveSection('actions')">
+        <i>⚡</i>
+        <span>Actions Needed</span>
+        @if (actionRequiredStudents.length > 0) {
+        <span class="nav-badge">
+          {{ actionRequiredStudents.length }}
+        </span>
         }
-        <button class="logout-btn" (click)="openLogoutModal()">
-          <i>🚪</i>
-          <span>Logout</span>
-        </button>
       </div>
-    </aside>
-    <!-- ============================================
+      <div class="nav-item" [class.active]="activeSection === 'pipeline'" (click)="setActiveSection('pipeline')">
+        <i>🔄</i>
+        <span>Pipeline</span>
+      </div>
+      <div class="nav-item" [class.active]="activeSection === 'funds'" (click)="setActiveSection('funds')">
+        <i>💰</i>
+        <span>Fund Requests</span>
+        @if (paidFundRequestsCount > 0) {
+        <span class="nav-badge-count">{{paidFundRequestsCount}}</span>
+        }
+      </div>
+      <div class="nav-item" [class.active]="activeSection === 'accounts'" (click)="setActiveSection('accounts')">
+        <i>💰</i>
+        <span>Accounts</span>
+      </div>
+      <div class="nav-item" [class.active]="activeSection === 'students'" (click)="setActiveSection('students')">
+        <i>👥</i>
+        <span>All Students</span>
+        @if (students.length > 0) {
+        <span class="nav-badge">
+          {{ students.length }}
+        </span>
+        }
+      </div>
+    </nav>
+    <!-- Footer / Profile -->
+    <div class="sidebar-footer">
+      @if (visaManProfile) {
+      <div class="user-profile">
+        <div class="user-avatar">
+          {{ getInitials(visaManProfile.fullName) }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ visaManProfile.fullName }}</div>
+          <div class="user-role">Visa Manager</div>
+        </div>
+      </div>
+      }
+      <button class="logout-btn" (click)="openLogoutModal()">
+        <i>🚪</i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+  <!-- ============================================
     MAIN CONTENT
     ============================================ -->
-    <main class="main-content">
-      <!-- Top Header -->
-      <header class="top-header">
-        <div class="header-left">
-          <h1>
-            <i>🛂</i>
-            @if (activeSection === 'dashboard') {
-              <span>Visa Dashboard</span>
-            }
-            @if (activeSection === 'actions') {
-              <span>Actions Required</span>
-            }
-            @if (activeSection === 'pipeline') {
-              <span>Visa Pipeline</span>
-            }
-            @if (activeSection === 'funds') {
-              <span>Fund Requests</span>
-            }
-            @if (activeSection === 'students') {
-              <span>All Students</span>
-            }
-            @if (activeSection === 'accounts') {
-              <span>Visa Accounts</span>
-            }
-          </h1>
-          <p>{{ getCurrentDate() }}</p>
+  <main class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <h1>
+          <i>🛂</i>
+          @if (activeSection === 'dashboard') {
+          <span>Visa Dashboard</span>
+          }
+          @if (activeSection === 'actions') {
+          <span>Actions Required</span>
+          }
+          @if (activeSection === 'pipeline') {
+          <span>Visa Pipeline</span>
+          }
+          @if (activeSection === 'funds') {
+          <span>Fund Requests</span>
+          }
+          @if (activeSection === 'students') {
+          <span>All Students</span>
+          }
+          @if (activeSection === 'accounts') {
+          <span>Visa Accounts</span>
+          }
+        </h1>
+        <p>{{ getCurrentDate() }}</p>
+      </div>
+      <div class="header-right">
+        <div class="search-box">
+          <i>🔍</i>
+          <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery">
         </div>
-        <div class="header-right">
-          <div class="search-box">
-            <i>🔍</i>
-            <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery">
-          </div>
-          <button class="icon-btn" (click)="refreshData()" [disabled]="isRefreshing">
-            @if (!isRefreshing) {
-              <span>🔄</span>
-            }
-            @if (isRefreshing) {
-              <span class="spinner"></span>
-            }
-          </button>
-        </div>
-      </header>
-      <!-- Content Body -->
-      <div class="content-body">
-        <!-- ============================================
+        <button class="icon-btn" (click)="refreshData()" [disabled]="isRefreshing">
+          @if (!isRefreshing) {
+          <span>🔄</span>
+          }
+          @if (isRefreshing) {
+          <span class="spinner"></span>
+          }
+        </button>
+      </div>
+    </header>
+    <!-- Content Body -->
+    <div class="content-body">
+      <!-- ============================================
         DASHBOARD SECTION
         ============================================ -->
-        @if (activeSection === 'dashboard') {
-          <!-- Stat Cards -->
-          <div class="stats-row">
-            <div class="stat-card pending fade-in-up stagger-1" (click)="setActiveSection('actions')">
-              <div class="stat-icon" [class.pulse]="displayStats.pendingApplications > 0">🎫</div>
-              <h3>Pending Applications</h3>
-              <div class="count">{{ displayStats.pendingApplications }}</div>
+      @if (activeSection === 'dashboard') {
+      <!-- Stat Cards -->
+      <div class="stats-row">
+        <div class="stat-card pending fade-in-up stagger-1" (click)="setActiveSection('actions')">
+          <div class="stat-icon" [class.pulse]="displayStats.pendingApplications > 0">🎫</div>
+          <h3>Pending Applications</h3>
+          <div class="count">{{ displayStats.pendingApplications }}</div>
+        </div>
+        <div class="stat-card processing fade-in-up stagger-2" (click)="setActiveSection('actions')">
+          <div class="stat-icon" [class.pulse]="displayStats.awaitingPassport > 0">📤</div>
+          <h3>Awaiting Passport</h3>
+          <div class="count">{{ displayStats.awaitingPassport }}</div>
+        </div>
+        <div class="stat-card gold fade-in-up stagger-3" (click)="setActiveSection('pipeline')">
+          <div class="stat-icon" [class.pulse]="displayStats.atEmbassy > 0">⏳</div>
+          <h3>At Embassy</h3>
+          <div class="count">{{ displayStats.atEmbassy }}</div>
+        </div>
+        <div class="stat-card success fade-in-up stagger-4">
+          <div class="stat-icon">✅</div>
+          <h3>Visas Issued</h3>
+          <div class="count">{{ displayStats.visasIssued }}</div>
+        </div>
+      </div>
+      <!-- Quick Actions -->
+      <div class="section-header fade-in-up stagger-5">
+        <div class="section-title">
+          <h2><i>⚡</i> Urgent Actions</h2>
+          @if (actionRequiredStudents.length > 0) {
+          <span class="count-badge">
+            {{ actionRequiredStudents.length }}
+          </span>
+          }
+        </div>
+      </div>
+      <div class="cards-grid">
+        @for (student of actionRequiredStudents.slice(0, 3); track student; let i = $index) {
+        <div class="student-card fade-in-up" [class.processing]="processingId === student.id"
+          [style.animation-delay]="(i * 100 + 600) + 'ms'">
+          <div class="card-header">
+            <div class="profile-placeholder">
+              {{ getInitials(student.fullName) }}
             </div>
-            <div class="stat-card processing fade-in-up stagger-2" (click)="setActiveSection('actions')">
-              <div class="stat-icon" [class.pulse]="displayStats.awaitingPassport > 0">📤</div>
-              <h3>Awaiting Passport</h3>
-              <div class="count">{{ displayStats.awaitingPassport }}</div>
-            </div>
-            <div class="stat-card gold fade-in-up stagger-3" (click)="setActiveSection('pipeline')">
-              <div class="stat-icon" [class.pulse]="displayStats.atEmbassy > 0">⏳</div>
-              <h3>At Embassy</h3>
-              <div class="count">{{ displayStats.atEmbassy }}</div>
-            </div>
-            <div class="stat-card success fade-in-up stagger-4">
-              <div class="stat-icon">✅</div>
-              <h3>Visas Issued</h3>
-              <div class="count">{{ displayStats.visasIssued }}</div>
-            </div>
-          </div>
-          <!-- Quick Actions -->
-          <div class="section-header fade-in-up stagger-5">
-            <div class="section-title">
-              <h2><i>⚡</i> Urgent Actions</h2>
-              @if (actionRequiredStudents.length > 0) {
-                <span class="count-badge">
-                  {{ actionRequiredStudents.length }}
-                </span>
+            <div class="student-info">
+              <h3 class="student-name">{{ student.fullName }}</h3>
+              <div class="student-id">{{ student.applicationId }}</div>
+              @if (student.telexNumber) {
+              <div class="telex-number">
+                Telex: {{ student.telexNumber }}
+              </div>
               }
             </div>
           </div>
-          <div class="cards-grid">
-            @for (student of actionRequiredStudents.slice(0, 3); track student; let i = $index) {
-              <div class="student-card fade-in-up" [class.processing]="processingId === student.id"
-                [style.animation-delay]="(i * 100 + 600) + 'ms'">
-                <div class="card-header">
-                  <div class="profile-placeholder">
-                    {{ getInitials(student.fullName) }}
-                  </div>
-                  <div class="student-info">
-                    <h3 class="student-name">{{ student.fullName }}</h3>
-                    <div class="student-id">{{ student.applicationId }}</div>
-                    @if (student.telexNumber) {
-                      <div class="telex-number">
-                        Telex: {{ student.telexNumber }}
-                      </div>
-                    }
-                  </div>
-                </div>
-                <div class="card-details">
-                  <div class="detail-item">
-                    <span class="detail-label">Passport</span>
-                    <span class="detail-value">{{ student.passportNo || 'N/A' }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Valid Till</span>
-                    <span class="detail-value">{{ formatDate(student.passportValidTill) }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Status</span>
-                    <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
-                      {{ formatStatus(student.applicationStatus) }}
-                    </span>
-                  </div>
-                </div>
-                <div class="card-actions">
-                  @if (getActionButton(student); as btn) {
-                    <button class="action-btn primary" (click)="btn.action()"
-                      [disabled]="processingId === student.id">
-                      @if (processingId !== student.id) {
-                        <span>{{ btn.icon }} {{ btn.label }}</span>
-                      }
-                      @if (processingId === student.id) {
-                        <span class="spinner"></span>
-                      }
-                    </button>
-                  }
-                  <button class="btn-view" (click)="openDetailModal(student)">
-                    👁️ View Details
-                  </button>
-                </div>
-              </div>
-            }
-            @if (actionRequiredStudents.length === 0) {
-              <div class="empty-state">
-                <div class="empty-icon">✨</div>
-                <h3>All Caught Up!</h3>
-                <p>No pending actions at the moment.</p>
-              </div>
-            }
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="detail-label">Passport</span>
+              <span class="detail-value">{{ student.passportNo || 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Valid Till</span>
+              <span class="detail-value">{{ formatDate(student.passportValidTill) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Status</span>
+              <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
+                {{ formatStatus(student.applicationStatus) }}
+              </span>
+            </div>
           </div>
+          <div class="card-actions">
+            @if (getActionButton(student); as btn) {
+            <button class="action-btn primary" (click)="btn.action()" [disabled]="processingId === student.id">
+              @if (processingId !== student.id) {
+              <span>{{ btn.icon }} {{ btn.label }}</span>
+              }
+              @if (processingId === student.id) {
+              <span class="spinner"></span>
+              }
+            </button>
+            }
+            <button class="btn-view" (click)="openDetailModal(student)">
+              👁️ View Details
+            </button>
+          </div>
+        </div>
         }
-        <!-- ============================================
+        @if (actionRequiredStudents.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">✨</div>
+          <h3>All Caught Up!</h3>
+          <p>No pending actions at the moment.</p>
+        </div>
+        }
+      </div>
+      }
+      <!-- ============================================
         ACTIONS SECTION
         ============================================ -->
-        @if (activeSection === 'actions') {
-          <div class="section-header">
-            <div class="section-title">
-              <h2><i>⚡</i> Actions Required</h2>
-              <span class="count-badge">{{ actionRequiredStudents.length }}</span>
+      @if (activeSection === 'actions') {
+      <div class="section-header">
+        <div class="section-title">
+          <h2><i>⚡</i> Actions Required</h2>
+          <span class="count-badge">{{ actionRequiredStudents.length }}</span>
+        </div>
+      </div>
+      <div class="cards-grid">
+        @for (student of actionRequiredStudents; track student; let i = $index) {
+        <div class="student-card fade-in-up" [class.processing]="processingId === student.id"
+          [style.animation-delay]="(i * 100) + 'ms'">
+          <div class="card-header">
+            @if (student.profileImagePath) {
+            <img [src]="getImageUrl(student.profileImagePath)" class="profile-image"
+              (error)="student.profileImagePath = ''">
+            }
+            @if (!student.profileImagePath) {
+            <div class="profile-placeholder">
+              {{ getInitials(student.fullName) }}
+            </div>
+            }
+            <div class="student-info">
+              <h3 class="student-name">{{ student.fullName }}</h3>
+              <div class="student-id">{{ student.applicationId }}</div>
+              @if (student.telexNumber) {
+              <div class="telex-number">
+                Telex: {{ student.telexNumber }}
+              </div>
+              }
             </div>
           </div>
-          <div class="cards-grid">
-            @for (student of actionRequiredStudents; track student; let i = $index) {
-              <div class="student-card fade-in-up" [class.processing]="processingId === student.id"
-                [style.animation-delay]="(i * 100) + 'ms'">
-                <div class="card-header">
-                  @if (student.profileImagePath) {
-                    <img [src]="getImageUrl(student.profileImagePath)"
-                      class="profile-image" (error)="student.profileImagePath = ''">
-                  }
-                  @if (!student.profileImagePath) {
-                    <div class="profile-placeholder">
-                      {{ getInitials(student.fullName) }}
-                    </div>
-                  }
-                  <div class="student-info">
-                    <h3 class="student-name">{{ student.fullName }}</h3>
-                    <div class="student-id">{{ student.applicationId }}</div>
-                    @if (student.telexNumber) {
-                      <div class="telex-number">
-                        Telex: {{ student.telexNumber }}
-                      </div>
-                    }
-                  </div>
-                </div>
-                <div class="card-details">
-                  <div class="detail-item">
-                    <span class="detail-label">Passport</span>
-                    <span class="detail-value">{{ student.passportNo || 'N/A' }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Status</span>
-                    <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
-                      {{ formatStatus(student.applicationStatus) }}
-                    </span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Action</span>
-                    <span class="detail-value">{{ formatAction(student.action) }}</span>
-                  </div>
-                </div>
-                <div class="card-actions">
-                  @if (getActionButton(student); as btn) {
-                    <button class="action-btn primary" (click)="btn.action()"
-                      [disabled]="processingId === student.id">
-                      @if (processingId !== student.id) {
-                        <span>{{ btn.icon }} {{ btn.label }}</span>
-                      }
-                      @if (processingId === student.id) {
-                        <span class="spinner"></span>
-                      }
-                    </button>
-                  }
-                  <button class="btn-view" (click)="openDetailModal(student)">
-                    👁️ View Details
-                  </button>
-                </div>
-              </div>
-            }
-            @if (actionRequiredStudents.length === 0) {
-              <div class="empty-state">
-                <div class="empty-icon">✨</div>
-                <h3>All Caught Up!</h3>
-                <p>No pending actions at the moment.</p>
-              </div>
-            }
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="detail-label">Passport</span>
+              <span class="detail-value">{{ student.passportNo || 'N/A' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Status</span>
+              <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
+                {{ formatStatus(student.applicationStatus) }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Action</span>
+              <span class="detail-value">{{ formatAction(student.action) }}</span>
+            </div>
           </div>
+          <div class="card-actions">
+            @if (getActionButton(student); as btn) {
+            <button class="action-btn primary" (click)="btn.action()" [disabled]="processingId === student.id">
+              @if (processingId !== student.id) {
+              <span>{{ btn.icon }} {{ btn.label }}</span>
+              }
+              @if (processingId === student.id) {
+              <span class="spinner"></span>
+              }
+            </button>
+            }
+            <button class="btn-view" (click)="openDetailModal(student)">
+              👁️ View Details
+            </button>
+          </div>
+        </div>
         }
-        <!-- ============================================
+        @if (actionRequiredStudents.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">✨</div>
+          <h3>All Caught Up!</h3>
+          <p>No pending actions at the moment.</p>
+        </div>
+        }
+      </div>
+      }
+      <!-- ============================================
         PIPELINE SECTION
         ============================================ -->
-        @if (activeSection === 'pipeline') {
-          <div class="section-header">
-            <div class="section-title">
-              <h2><i>🔄</i> Visa Processing Pipeline</h2>
-            </div>
+      @if (activeSection === 'pipeline') {
+      <div class="section-header">
+        <div class="section-title">
+          <h2><i>🔄</i> Visa Processing Pipeline</h2>
+        </div>
+      </div>
+      <div class="pipeline-container">
+        <!-- Fee Pending -->
+        <div class="pipeline-column pending">
+          <div class="pipeline-header">
+            <span class="pipeline-title">💳 Fee Pending</span>
+            <span class="pipeline-count">{{ feePendingStudents.length }}</span>
           </div>
-          <div class="pipeline-container">
-            <!-- Fee Pending -->
-            <div class="pipeline-column pending">
-              <div class="pipeline-header">
-                <span class="pipeline-title">💳 Fee Pending</span>
-                <span class="pipeline-count">{{ feePendingStudents.length }}</span>
-              </div>
-              <div class="pipeline-cards">
-                @for (student of feePendingStudents; track student) {
-                  <div class="pipeline-card"
-                    (click)="openDetailModal(student)">
-                    <div class="pipeline-card-name">{{ student.fullName }}</div>
-                    <div class="pipeline-card-id">{{ student.applicationId }}</div>
-                  </div>
-                }
-                @if (feePendingStudents.length === 0) {
-                  <div class="empty-state">
-                    <p>No students</p>
-                  </div>
-                }
-              </div>
+          <div class="pipeline-cards">
+            @for (student of feePendingStudents; track student) {
+            <div class="pipeline-card" (click)="openDetailModal(student)">
+              <div class="pipeline-card-name">{{ student.fullName }}</div>
+              <div class="pipeline-card-id">{{ student.applicationId }}</div>
             </div>
-            <!-- Visa Applied -->
-            <div class="pipeline-column processing">
-              <div class="pipeline-header">
-                <span class="pipeline-title">🎫 Visa Applied</span>
-                <span class="pipeline-count">{{ visaAppliedStudents.length }}</span>
-              </div>
-              <div class="pipeline-cards">
-                @for (student of visaAppliedStudents; track student) {
-                  <div class="pipeline-card"
-                    (click)="openDetailModal(student)">
-                    <div class="pipeline-card-name">{{ student.fullName }}</div>
-                    <div class="pipeline-card-id">{{ student.applicationId }}</div>
-                  </div>
-                }
-                @if (visaAppliedStudents.length === 0) {
-                  <div class="empty-state">
-                    <p>No students</p>
-                  </div>
-                }
-              </div>
+            }
+            @if (feePendingStudents.length === 0) {
+            <div class="empty-state">
+              <p>No students</p>
             </div>
-            <!-- At Embassy -->
-            <div class="pipeline-column gold">
-              <div class="pipeline-header">
-                <span class="pipeline-title">🏛️ At Embassy</span>
-                <span class="pipeline-count">{{ atEmbassyStudents.length }}</span>
-              </div>
-              <div class="pipeline-cards">
-                @for (student of atEmbassyStudents; track student) {
-                  <div class="pipeline-card"
-                    (click)="openDetailModal(student)">
-                    <div class="pipeline-card-name">{{ student.fullName }}</div>
-                    <div class="pipeline-card-id">{{ student.applicationId }}</div>
-                  </div>
-                }
-                @if (atEmbassyStudents.length === 0) {
-                  <div class="empty-state">
-                    <p>No students</p>
-                  </div>
-                }
-              </div>
-            </div>
-            <!-- Visa Issued -->
-            <div class="pipeline-column success">
-              <div class="pipeline-header">
-                <span class="pipeline-title">✅ Visa Issued</span>
-                <span class="pipeline-count">{{ visaIssuedStudents.length }}</span>
-              </div>
-              <div class="pipeline-cards">
-                @for (student of visaIssuedStudents; track student) {
-                  <div class="pipeline-card"
-                    (click)="openDetailModal(student)">
-                    <div class="pipeline-card-name">{{ student.fullName }}</div>
-                    <div class="pipeline-card-id">{{ student.applicationId }}</div>
-                  </div>
-                }
-                @if (visaIssuedStudents.length === 0) {
-                  <div class="empty-state">
-                    <p>No students</p>
-                  </div>
-                }
-              </div>
-            </div>
+            }
           </div>
-        }
-        <!-- ============================================
+        </div>
+        <!-- Visa Applied -->
+        <div class="pipeline-column processing">
+          <div class="pipeline-header">
+            <span class="pipeline-title">🎫 Visa Applied</span>
+            <span class="pipeline-count">{{ visaAppliedStudents.length }}</span>
+          </div>
+          <div class="pipeline-cards">
+            @for (student of visaAppliedStudents; track student) {
+            <div class="pipeline-card" (click)="openDetailModal(student)">
+              <div class="pipeline-card-name">{{ student.fullName }}</div>
+              <div class="pipeline-card-id">{{ student.applicationId }}</div>
+            </div>
+            }
+            @if (visaAppliedStudents.length === 0) {
+            <div class="empty-state">
+              <p>No students</p>
+            </div>
+            }
+          </div>
+        </div>
+        <!-- At Embassy -->
+        <div class="pipeline-column gold">
+          <div class="pipeline-header">
+            <span class="pipeline-title">🏛️ At Embassy</span>
+            <span class="pipeline-count">{{ atEmbassyStudents.length }}</span>
+          </div>
+          <div class="pipeline-cards">
+            @for (student of atEmbassyStudents; track student) {
+            <div class="pipeline-card" (click)="openDetailModal(student)">
+              <div class="pipeline-card-name">{{ student.fullName }}</div>
+              <div class="pipeline-card-id">{{ student.applicationId }}</div>
+            </div>
+            }
+            @if (atEmbassyStudents.length === 0) {
+            <div class="empty-state">
+              <p>No students</p>
+            </div>
+            }
+          </div>
+        </div>
+        <!-- Visa Issued -->
+        <div class="pipeline-column success">
+          <div class="pipeline-header">
+            <span class="pipeline-title">✅ Visa Issued</span>
+            <span class="pipeline-count">{{ visaIssuedStudents.length }}</span>
+          </div>
+          <div class="pipeline-cards">
+            @for (student of visaIssuedStudents; track student) {
+            <div class="pipeline-card" (click)="openDetailModal(student)">
+              <div class="pipeline-card-name">{{ student.fullName }}</div>
+              <div class="pipeline-card-id">{{ student.applicationId }}</div>
+            </div>
+            }
+            @if (visaIssuedStudents.length === 0) {
+            <div class="empty-state">
+              <p>No students</p>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      }
+      <!-- ============================================
         ALL STUDENTS SECTION
         ============================================ -->
-        @if (activeSection === 'students') {
-          <div class="section-header">
-            <div class="section-title">
-              <h2><i>👥</i> All Students</h2>
-              <span class="count-badge">{{ allFilteredStudents.length }}</span>
+      @if (activeSection === 'students') {
+      <div class="section-header">
+        <div class="section-title">
+          <h2><i>👥</i> All Students</h2>
+          <span class="count-badge">{{ allFilteredStudents.length }}</span>
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Application ID</th>
+              <th>Passport</th>
+              <th>Telex Number</th>
+              <th>Visa Fee</th>
+              <th>Service Charge</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (student of allFilteredStudents; track student) {
+            <tr>
+              <td>{{ student.fullName }}</td>
+              <td>{{ student.applicationId }}</td>
+              <td>
+                <div class="passport-cell">
+                  <span>{{ student.passportNo || 'N/A' }}</span>
+                  @if (student.passportPath) {
+                  <button class="passport-link" (click)="openPassportDocument(student.passportPath)"
+                    title="View Passport Document">
+                    📄
+                  </button>
+                  }
+                </div>
+              </td>
+              <td>{{ student.telexNumber || 'Not Issued' }}</td>
+              <td>
+                @if (student.visaPaymentRequestedAmount) {
+                <span style="font-weight: 500;">
+                  {{ student.visaPaymentRequestedAmount }} {{ student.visaPaymentRequestedCurrency
+                  }}
+                </span>
+                }
+                @if (!student.visaPaymentRequestedAmount) {
+                <span class="text-muted">-</span>
+                }
+              </td>
+              <td>
+                @if (student.visaManServiceCharge) {
+                <span style="font-weight: 500;">
+                  {{ student.visaManServiceCharge }} {{ student.visaPaymentRequestedCurrency }}
+                </span>
+                }
+                @if (!student.visaManServiceCharge) {
+                <span class="text-muted">-</span>
+                }
+              </td>
+              <td>
+                <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
+                  {{ formatStatus(student.applicationStatus) }}
+                </span>
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button class="table-btn" (click)="openDetailModal(student)">
+                    View
+                  </button>
+                  @if (getActionButton(student); as btn) {
+                  <button class="action-btn primary" style="padding: 8px 12px; font-size: 0.8rem;"
+                    (click)="btn.action()" [disabled]="processingId === student.id">
+                    @if (processingId !== student.id) {
+                    <span>{{ btn.label }}</span>
+                    }
+                    @if (processingId === student.id) {
+                    <span class="spinner"></span>
+                    }
+                  </button>
+                  }
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+        @if (allFilteredStudents.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <h3>No Students Found</h3>
+          <p>No students match your search criteria.</p>
+        </div>
+        }
+      </div>
+      }
+      <!-- ============================================
+        ACCOUNTS SECTION - LIGHT THEME
+        ============================================ -->
+      @if (activeSection === 'accounts') {
+      @if (activeSection === 'accounts') {
+      <div class="passbook-master-container" [@fadeIn]>
+        <div class="passbook-topbar">
+          <div class="pb-title">
+            <i class="fas fa-book-open"></i>
+            <div>
+              <h2>My Financial Ledger</h2>
+              <p>Official Passbook for your Visa Processing Financials</p>
             </div>
           </div>
-          <div class="table-container">
-            <table class="data-table">
+        </div>
+
+        <div class="passbook-booklet">
+          <div class="pb-book-header visa-bg">
+            <div class="pb-bank-details">
+              <h3>CampusConnect Bank</h3>
+              <p>Account Holder: {{currentUsername}}</p>
+              <p>Date Generated: {{ getCurrentDate() }}</p>
+            </div>
+            <div class="pb-stamp">OFFICIAL LEDGER</div>
+          </div>
+          <div class="pb-table-wrap">
+            <table class="pb-table">
               <thead>
                 <tr>
-                  <th>Student</th>
-                  <th>Application ID</th>
-                  <th>Passport</th>
-                  <th>Telex Number</th>
-                  <th>Visa Fee</th>
-                  <th>Service Charge</th>
+                  <th>Date</th>
+                  <th>Particulars (Student/UID)</th>
+                  <th>Requested Visa Auth</th>
+                  <th>My Service Charge</th>
+                  <th>Disbursed To Me</th>
+                  <th>Remaining Due</th>
                   <th>Status</th>
-                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                @for (student of allFilteredStudents; track student) {
-                  <tr>
-                    <td>{{ student.fullName }}</td>
-                    <td>{{ student.applicationId }}</td>
-                    <td>
-                      <div class="passport-cell">
-                        <span>{{ student.passportNo || 'N/A' }}</span>
-                        @if (student.passportPath) {
-                          <button class="passport-link"
-                            (click)="openPassportDocument(student.passportPath)"
-                            title="View Passport Document">
-                            📄
-                          </button>
-                        }
-                      </div>
-                    </td>
-                    <td>{{ student.telexNumber || 'Not Issued' }}</td>
-                    <td>
-                      @if (student.visaPaymentRequestedAmount) {
-                        <span style="font-weight: 500;">
-                          {{ student.visaPaymentRequestedAmount }} {{ student.visaPaymentRequestedCurrency
-                          }}
-                        </span>
-                      }
-                      @if (!student.visaPaymentRequestedAmount) {
-                        <span class="text-muted">-</span>
-                      }
-                    </td>
-                    <td>
-                      @if (student.visaManServiceCharge) {
-                        <span style="font-weight: 500;">
-                          {{ student.visaManServiceCharge }} {{ student.visaPaymentRequestedCurrency }}
-                        </span>
-                      }
-                      @if (!student.visaManServiceCharge) {
-                        <span class="text-muted">-</span>
-                      }
-                    </td>
-                    <td>
-                      <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
-                        {{ formatStatus(student.applicationStatus) }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="table-btn" (click)="openDetailModal(student)">
-                          View
-                        </button>
-                        @if (getActionButton(student); as btn) {
-                          <button class="action-btn primary"
-                            style="padding: 8px 12px; font-size: 0.8rem;" (click)="btn.action()"
-                            [disabled]="processingId === student.id">
-                            @if (processingId !== student.id) {
-                              <span>{{ btn.label }}</span>
-                            }
-                            @if (processingId === student.id) {
-                              <span class="spinner"></span>
-                            }
-                          </button>
-                        }
-                      </div>
-                    </td>
-                  </tr>
+                @for (record of myPassbooks; track record.id) {
+                <tr>
+                  <td class="pb-date">
+                    {{ formatDateTime(record.requestedDateTime) }}
+                  </td>
+                  <td class="pb-particular">
+                    <strong>{{record.studentName}}</strong><br>
+                    <span class="pb-sub">{{record.applicationId}}</span>
+                  </td>
+                  <td class="pb-debit">{{record.visaAmountRequest ? record.visaAmountRequest : 0}}</td>
+                  <td class="pb-debit">{{record.serviceChargeRequested ? record.serviceChargeRequested : 0}}</td>
+                  <td class="pb-credit">{{record.totalAmountPaidByAccountant ? record.totalAmountPaidByAccountant : 0}}
+                  </td>
+                  <td class="pb-balance">
+                    {{ (record.visaAmountRequest + record.serviceChargeRequested) - (record.totalAmountPaidByAccountant
+                    ? record.totalAmountPaidByAccountant : 0) }}
+                  </td>
+                  <td>
+                    <span class="pb-status" [class]="getPassbookStatusClass(record.status)">{{record.status}}</span>
+                  </td>
+                </tr>
+                }
+                @if (myPassbooks.length === 0) {
+                <tr>
+                  <td colspan="7" class="pb-empty">Your passbook is currently empty.</td>
+                </tr>
                 }
               </tbody>
             </table>
-            @if (allFilteredStudents.length === 0) {
-              <div class="empty-state">
-                <div class="empty-icon">📭</div>
-                <h3>No Students Found</h3>
-                <p>No students match your search criteria.</p>
-              </div>
-            }
           </div>
-        }
-        <!-- ============================================
-        ACCOUNTS SECTION - LIGHT THEME
-        ============================================ -->
-        @if (activeSection === 'accounts') {
-          <div class="visa-accounts-section">
-            <!-- Premium Header -->
-            <div class="va-header">
-              <div class="va-header-left">
-                <div class="va-header-icon">
-                  <i class="fas fa-chart-line"></i>
-                </div>
-                <div>
-                  <h3>Visa Accounts Ledger</h3>
-                  <p>Track all visa fee requests, disbursements & earnings</p>
-                </div>
-              </div>
-              <div class="va-record-count">
-                <span class="va-count-num">{{accountRecords.length}}</span>
-                <span class="va-count-label">Records</span>
-              </div>
-            </div>
+        </div>
+      </div>
+      }
+      }
 
-            <!-- Summary Cards -->
-            <div class="va-cards-grid">
-              <!-- Card 1: Total Requested -->
-              <div class="va-card va-card-requested">
-                <div class="va-card-icon">
-                  <i class="fas fa-hand-holding-usd"></i>
-                </div>
-                <div class="va-card-content">
-                  <span class="va-card-label">Visa Requested Money</span>
-                  <span class="va-card-value">{{totalVisaRequested | number:'1.0-2'}}</span>
-                  <span class="va-card-sub">Across {{accountRecords.length}} applications</span>
-                </div>
-              </div>
-              <!-- Card 2: Total Received -->
-              <div class="va-card va-card-received">
-                <div class="va-card-icon">
-                  <i class="fas fa-wallet"></i>
-                </div>
-                <div class="va-card-content">
-                  <span class="va-card-label">VISA FEE PROCESSED</span>
-                  <span class="va-card-value">{{totalVisaReceived | number:'1.0-2'}}</span>
-                  <span class="va-card-sub">{{disbursedRecordsCount}} of {{accountRecords.length}} disbursed</span>
-                </div>
-              </div>
-              <!-- Card 3: Service Charges Expected -->
-              <div class="va-card va-card-requested">
-                <div class="va-card-icon" style="background:#fff7ed; color:#ea580c">
-                  <i class="fas fa-file-invoice-dollar"></i>
-                </div>
-                <div class="va-card-content">
-                  <span class="va-card-label">Service Charge Requested</span>
-                  <span class="va-card-value">{{totalServiceChargeRequested | number:'1.0-2'}}</span>
-                  <span class="va-card-sub">From all requests</span>
-                </div>
-              </div>
-              <!-- Card 4: Service Charges Earned / Profit -->
-              <div class="va-card va-card-profit">
-                <div class="va-card-icon">
-                  <i class="fas fa-coins"></i>
-                </div>
-                <div class="va-card-content">
-                  <span class="va-card-label">Service Charge Received</span>
-                  <span class="va-card-value">{{totalServiceChargeEarned | number:'1.0-2'}}</span>
-                  <span class="va-card-sub va-profit-sub">
-                    <i class="fas fa-arrow-up"></i>
-                    Net Profit (Disbursed)
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Professional Ledger Table -->
-            <div class="va-table-container">
-              <table class="va-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Student</th>
-                    <th>Application ID</th>
-                    <th>Visa Fee</th>
-                    <th>Service Charge</th>
-                    <th>Total Requested</th>
-                    <th>Disbursed</th>
-                    <th>Date</th>
-                    <th>Mode / Txn</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (student of accountRecords; track student.id; let i = $index) {
-                    <tr>
-                      <td class="va-sn">{{i + 1}}</td>
-                      <td>
-                        <div class="va-student-cell">
-                          <div class="va-student-avatar" [style.background]="getAvatarColor(student.fullName)">
-                            {{student.fullName?.charAt(0) || '?'}}
-                          </div>
-                          <span class="va-student-name">{{student.fullName}}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span class="va-app-id">{{student.applicationId}}</span>
-                      </td>
-                      <td>
-                        <span class="va-amount">{{student.visaPaymentRequestedAmount || 0}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
-                      </td>
-                      <td>
-                        @if (student.visaManServiceCharge) {
-                          <span class="va-service-charge">{{student.visaManServiceCharge}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
-                        } @else {
-                          <span class="va-na">-</span>
-                        }
-                      </td>
-                      <td>
-                        <span class="va-amount highlight">{{(student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0)}} <small>{{student.visaPaymentRequestedCurrency}}</small></span>
-                      </td>
-                      <td>
-                        @if (student.accToVisaManStatus === 'FULLY_PAID' || student.accToVisaManStatus === 'PARTIALLY_PAID' || student.accToVisaManPaidAmount) {
-                          <span class="va-amount va-received">{{student.accToVisaManPaidAmount}}</span>
-                        } @else {
-                          <span class="va-pending-badge">Awaiting</span>
-                        }
-                      </td>
-                      <td>
-                        @if (student.accToVisaManPaymentDate) {
-                          <span class="va-date">{{student.accToVisaManPaymentDate}}</span>
-                        } @else {
-                          <span class="va-na">-</span>
-                        }
-                      </td>
-                      <td>
-                        @if (student.accToVisaManMode) {
-                          <div class="va-mode-cell">
-                            <span class="va-mode-tag"
-                              [class.cash]="student.accToVisaManMode === 'CASH'"
-                              [class.upi]="student.accToVisaManMode === 'UPI'"
-                              [class.online]="student.accToVisaManMode === 'ONLINE'">
-                              {{student.accToVisaManMode}}
-                            </span>
-                            @if (student.accToVisaManTxId) {
-                              <span class="va-txn-id">{{student.accToVisaManTxId}}</span>
-                            }
-                          </div>
-                        } @else {
-                          <span class="va-na">-</span>
-                        }
-                      </td>
-                      <td>
-                        @if (student.accToVisaManStatus === 'FULLY_PAID') {
-                          <span class="va-status-pill paid">Fully Paid</span>
-                        } @else if (student.accToVisaManStatus === 'PARTIALLY_PAID' || (student.accToVisaManPaidAmount && student.accToVisaManPaidAmount > 0)) {
-                          <span class="va-status-pill partial">Partial</span>
-                        } @else {
-                          <span class="va-status-pill pending">Pending</span>
-                        }
-                      </td>
-                    </tr>
-                  }
-                  @if (accountRecords.length === 0) {
-                    <tr>
-                      <td colspan="9">
-                        <div class="va-empty">
-                          <div class="va-empty-icon">
-                            <i class="fas fa-file-invoice"></i>
-                          </div>
-                          <h4>No Visa Records Yet</h4>
-                          <p>Visa fee requests and disbursements will appear here.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-        }
-        
-        <!-- ============================================
+      <!-- ============================================
         FUNDS SECTION - LIGHT THEME
         ============================================ -->
-        @if (activeSection === 'funds') {
-          <div class="funds-view-light">
-            <!-- Header with New Request Button -->
-            <div class="funds-header-light">
-              <div class="funds-title-light">
-                <i class="fas fa-money-bill-wave"></i>
-                <h3>My Fund Requests</h3>
-                @if (paidFundRequestsCount > 0) {
-                  <span class="fund-count-badge paid"
-                  >{{paidFundRequestsCount}} Paid</span>
-                }
-              </div>
-              <div class="funds-actions-light">
-                <button class="refresh-btn-light" (click)="loadMyRequests()" title="Refresh">
-                  <i class="fas fa-sync-alt"></i>
-                </button>
-                <button class="new-request-btn-light" (click)="showFundRequestModal = true">
-                  <i class="fas fa-plus"></i>
-                  <span>New Request</span>
-                </button>
-              </div>
-            </div>
-            <!-- Requests Table - Full Width -->
-            <div class="funds-table-card-light">
-              <table class="funds-table-light">
-                <thead>
-                  <tr>
-                    <th style="width: 70px;">ID</th>
-                    <th>Purpose</th>
-                    <th style="width: 140px;">Amount</th>
-                    <th style="width: 110px;">Status</th>
-                    <th style="width: 120px;">Date</th>
-                    <th style="width: 80px;">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (req of myFundRequests; track req) {
-                    <tr>
-                      <td>
-                        <span class="id-pill-light">#{{req.id}}</span>
-                      </td>
-                      <td>
-                        <div class="purpose-cell-light">
-                          <span class="purpose-text">{{req.purpose}}</span>
-                          <span class="mode-tag-light"
-                            [class.upi]="req.requesterPaymentMode === 'UPI'"
-                            [class.bank]="req.requesterPaymentMode === 'BANK_TRANSFER'">
-                            <i class="fas"
-                            [ngClass]="req.requesterPaymentMode === 'UPI' ? 'fa-mobile-alt' : 'fa-university'"></i>
-                            {{req.requesterPaymentMode === 'BANK_TRANSFER' ? 'Bank' :
-                            req.requesterPaymentMode}}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="amount-cell-light">
-                          <span class="amount-main">₹{{req.requestedAmount | number}}</span>
-                          @if (req.status === 'PAID') {
-                            <span class="amount-paid">
-                              Paid: ₹{{req.amountPaid | number}}
-                            </span>
-                          }
-                          @if (req.status === 'PARTIAL') {
-                            <span class="amount-pending">
-                              ₹{{req.remainingAmount || ((req.requestedAmount || 0) - (req.amountPaid
-                              || 0))}} pending
-                            </span>
-                          }
-                        </div>
-                      </td>
-                      <td>
-                                        <span class="status-badge-light" [ngClass]="{
+      @if (activeSection === 'funds') {
+      <div class="funds-view-light">
+        <!-- Header with New Request Button -->
+        <div class="funds-header-light">
+          <div class="funds-title-light">
+            <i class="fas fa-money-bill-wave"></i>
+            <h3>My Fund Requests</h3>
+            @if (paidFundRequestsCount > 0) {
+            <span class="fund-count-badge paid">{{paidFundRequestsCount}} Paid</span>
+            }
+          </div>
+          <div class="funds-actions-light">
+            <button class="refresh-btn-light" (click)="loadMyRequests()" title="Refresh">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            <button class="new-request-btn-light" (click)="showFundRequestModal = true">
+              <i class="fas fa-plus"></i>
+              <span>New Request</span>
+            </button>
+          </div>
+        </div>
+        <!-- Requests Table - Full Width -->
+        <div class="funds-table-card-light">
+          <table class="funds-table-light">
+            <thead>
+              <tr>
+                <th style="width: 70px;">ID</th>
+                <th>Purpose</th>
+                <th style="width: 140px;">Amount</th>
+                <th style="width: 110px;">Status</th>
+                <th style="width: 120px;">Date</th>
+                <th style="width: 80px;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (req of myFundRequests; track req) {
+              <tr>
+                <td>
+                  <span class="id-pill-light">#{{req.id}}</span>
+                </td>
+                <td>
+                  <div class="purpose-cell-light">
+                    <span class="purpose-text">{{req.purpose}}</span>
+                    <span class="mode-tag-light" [class.upi]="req.requesterPaymentMode === 'UPI'"
+                      [class.bank]="req.requesterPaymentMode === 'BANK_TRANSFER'">
+                      <i class="fas"
+                        [ngClass]="req.requesterPaymentMode === 'UPI' ? 'fa-mobile-alt' : 'fa-university'"></i>
+                      {{req.requesterPaymentMode === 'BANK_TRANSFER' ? 'Bank' :
+                      req.requesterPaymentMode}}
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  <div class="amount-cell-light">
+                    <span class="amount-main">₹{{req.requestedAmount | number}}</span>
+                    @if (req.status === 'PAID') {
+                    <span class="amount-paid">
+                      Paid: ₹{{req.amountPaid | number}}
+                    </span>
+                    }
+                    @if (req.status === 'PARTIAL') {
+                    <span class="amount-pending">
+                      ₹{{req.remainingAmount || ((req.requestedAmount || 0) - (req.amountPaid
+                      || 0))}} pending
+                    </span>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span class="status-badge-light" [ngClass]="{
                                             'pending': req.status === 'PENDING',
                                             'partial': req.status === 'PARTIAL',
                                             'paid': req.status === 'PAID',
                                             'rejected': req.status === 'REJECTED'
                                         }">{{req.status}}</span>
-                      </td>
-                      <td class="date-cell-light">
-                        {{formatDate(req.createdAt)}}
-                      </td>
-                      <td>
-                        <button class="history-btn-light" (click)="openHistoryModal(req)"
-                          title="View History">
-                          <i class="fas fa-history"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  }
-                  @if (myFundRequests.length === 0) {
-                    <tr>
-                      <td colspan="6">
-                        <div class="empty-state-light">
-                          <i class="fas fa-inbox"></i>
-                          <h4>No Requests Found</h4>
-                          <p>Click "New Request" to create your first fund request.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+                </td>
+                <td class="date-cell-light">
+                  {{formatDate(req.createdAt)}}
+                </td>
+                <td>
+                  <button class="history-btn-light" (click)="openHistoryModal(req)" title="View History">
+                    <i class="fas fa-history"></i>
+                  </button>
+                </td>
+              </tr>
+              }
+              @if (myFundRequests.length === 0) {
+              <tr>
+                <td colspan="6">
+                  <div class="empty-state-light">
+                    <i class="fas fa-inbox"></i>
+                    <h4>No Requests Found</h4>
+                    <p>Click "New Request" to create your first fund request.</p>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- FUND REQUEST MODAL - LIGHT THEME -->
+      @if (showFundRequestModal) {
+      <div class="fund-modal-overlay-light" (click)="showFundRequestModal = false">
+        <div class="fund-modal-light" (click)="$event.stopPropagation()">
+          <div class="fund-modal-header-light">
+            <h3><i class="fas fa-plus-circle"></i> New Fund Request</h3>
+            <button class="close-btn-light" (click)="showFundRequestModal = false">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
-          <!-- FUND REQUEST MODAL - LIGHT THEME -->
-          @if (showFundRequestModal) {
-            <div class="fund-modal-overlay-light"
-              (click)="showFundRequestModal = false">
-              <div class="fund-modal-light" (click)="$event.stopPropagation()">
-                <div class="fund-modal-header-light">
-                  <h3><i class="fas fa-plus-circle"></i> New Fund Request</h3>
-                  <button class="close-btn-light" (click)="showFundRequestModal = false">
-                    <i class="fas fa-times"></i>
-                  </button>
+          <div class="fund-modal-body-light">
+            <div class="form-row-light">
+              <div class="form-group-light">
+                <label>Amount (₹) *</label>
+                <input type="number" [(ngModel)]="fundRequestForm.amount" name="amount" placeholder="e.g. 5000"
+                  required>
+              </div>
+              <div class="form-group-light">
+                <label>Purpose *</label>
+                <input type="text" [(ngModel)]="fundRequestForm.purpose" name="purpose"
+                  placeholder="e.g. Visa Application Fee" required>
+              </div>
+            </div>
+            <div class="form-group-light">
+              <label>Payment Mode</label>
+              <div class="payment-mode-options-light">
+                <label class="mode-option-light" [class.selected]="fundRequestForm.paymentMode === 'UPI'">
+                  <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode" value="UPI">
+                  <i class="fas fa-mobile-alt"></i>
+                  <span>UPI</span>
+                </label>
+                <label class="mode-option-light" [class.selected]="fundRequestForm.paymentMode === 'BANK_TRANSFER'">
+                  <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode"
+                    value="BANK_TRANSFER">
+                  <i class="fas fa-university"></i>
+                  <span>Bank Transfer</span>
+                </label>
+              </div>
+            </div>
+            <!-- UPI Details -->
+            @if (fundRequestForm.paymentMode === 'UPI') {
+            <div class="upi-section-light">
+              <div class="form-group-light">
+                <label>UPI ID</label>
+                <input type="text" [(ngModel)]="fundRequestForm.upiId" name="upiId" placeholder="e.g. name@paytm">
+              </div>
+              <div class="form-group-light">
+                <label>QR Code (Optional)</label>
+                <div class="qr-upload-light" (click)="qrInput.click()">
+                  <i class="fas fa-qrcode"></i>
+                  @if (!isQrUploading && !qrCodePreview) {
+                  <span>Click to upload</span>
+                  }
+                  @if (isQrUploading) {
+                  <span><i class="fas fa-spinner fa-spin"></i>
+                    Processing...</span>
+                  }
+                  <input #qrInput type="file" (change)="onQrCodeSelected($event)" accept="image/*" hidden>
                 </div>
-                <div class="fund-modal-body-light">
-                  <div class="form-row-light">
-                    <div class="form-group-light">
-                      <label>Amount (₹) *</label>
-                      <input type="number" [(ngModel)]="fundRequestForm.amount" name="amount"
-                        placeholder="e.g. 5000" required>
-                    </div>
-                    <div class="form-group-light">
-                      <label>Purpose *</label>
-                      <input type="text" [(ngModel)]="fundRequestForm.purpose" name="purpose"
-                        placeholder="e.g. Visa Application Fee" required>
-                    </div>
-                  </div>
-                  <div class="form-group-light">
-                    <label>Payment Mode</label>
-                    <div class="payment-mode-options-light">
-                      <label class="mode-option-light"
-                        [class.selected]="fundRequestForm.paymentMode === 'UPI'">
-                        <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode"
-                          value="UPI">
-                        <i class="fas fa-mobile-alt"></i>
-                        <span>UPI</span>
-                      </label>
-                      <label class="mode-option-light"
-                        [class.selected]="fundRequestForm.paymentMode === 'BANK_TRANSFER'">
-                        <input type="radio" [(ngModel)]="fundRequestForm.paymentMode" name="paymentMode"
-                          value="BANK_TRANSFER">
-                        <i class="fas fa-university"></i>
-                        <span>Bank Transfer</span>
-                      </label>
-                    </div>
-                  </div>
-                  <!-- UPI Details -->
-                  @if (fundRequestForm.paymentMode === 'UPI') {
-                    <div class="upi-section-light">
-                      <div class="form-group-light">
-                        <label>UPI ID</label>
-                        <input type="text" [(ngModel)]="fundRequestForm.upiId" name="upiId"
-                          placeholder="e.g. name@paytm">
-                      </div>
-                      <div class="form-group-light">
-                        <label>QR Code (Optional)</label>
-                        <div class="qr-upload-light" (click)="qrInput.click()">
-                          <i class="fas fa-qrcode"></i>
-                          @if (!isQrUploading && !qrCodePreview) {
-                            <span>Click to upload</span>
-                          }
-                          @if (isQrUploading) {
-                            <span><i class="fas fa-spinner fa-spin"></i>
-                          Processing...</span>
-                        }
-                        <input #qrInput type="file" (change)="onQrCodeSelected($event)" accept="image/*"
-                          hidden>
-                      </div>
-                      @if (qrCodePreview) {
-                        <div class="qr-preview-light">
-                          <img [src]="qrCodePreview" alt="QR Preview">
-                          <button type="button"
-                          (click)="fundRequestForm.qrCodeBase64 = ''; qrCodePreview = null">Remove</button>
-                        </div>
-                      }
-                    </div>
-                  </div>
+                @if (qrCodePreview) {
+                <div class="qr-preview-light">
+                  <img [src]="qrCodePreview" alt="QR Preview">
+                  <button type="button"
+                    (click)="fundRequestForm.qrCodeBase64 = ''; qrCodePreview = null">Remove</button>
+                </div>
                 }
-                <!-- Bank Details -->
-                @if (fundRequestForm.paymentMode === 'BANK_TRANSFER') {
-                  <div class="bank-section-light">
-                    <div class="form-group-light full-width">
-                      <label>Account Holder Name</label>
-                      <input type="text" [(ngModel)]="fundRequestForm.accountHolderName"
-                        name="accountHolderName" placeholder="Name as per bank records">
-                    </div>
-                    <div class="form-row-light">
-                      <div class="form-group-light">
-                        <label>Account Number</label>
-                        <input type="text" [(ngModel)]="fundRequestForm.accountNumber"
-                          name="accountNumber" placeholder="Your account number">
-                      </div>
-                      <div class="form-group-light">
-                        <label>Confirm Account No</label>
-                        <input type="text" [(ngModel)]="fundRequestForm.confirmAccountNumber"
-                          name="confirmAccountNumber" placeholder="Re-enter account number">
-                      </div>
-                    </div>
-                    <div class="form-row-light">
-                      <div class="form-group-light">
-                        <label>IFSC Code</label>
-                        <input type="text" [(ngModel)]="fundRequestForm.ifscCode" name="ifscCode"
-                          placeholder="e.g. HDFC0001234">
-                      </div>
-                      <div class="form-group-light">
-                        <label>Branch Name</label>
-                        <input type="text" [(ngModel)]="fundRequestForm.branchName" name="branchName"
-                          placeholder="e.g. Mumbai Main Branch">
-                      </div>
-                    </div>
-                  </div>
-                }
-                <div class="fund-modal-footer-light">
-                  <button type="button" class="cancel-btn-light"
-                  (click)="showFundRequestModal = false">Cancel</button>
-                  <button type="button" class="submit-btn-light" (click)="submitFundRequest()"
-                    [disabled]="isFundSubmitting">
-                    <i class="fas"
-                    [ngClass]="isFundSubmitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
-                    {{isFundSubmitting ? 'Submitting...' : 'Submit Request'}}
-                  </button>
+              </div>
+            </div>
+            }
+            <!-- Bank Details -->
+            @if (fundRequestForm.paymentMode === 'BANK_TRANSFER') {
+            <div class="bank-section-light">
+              <div class="form-group-light full-width">
+                <label>Account Holder Name</label>
+                <input type="text" [(ngModel)]="fundRequestForm.accountHolderName" name="accountHolderName"
+                  placeholder="Name as per bank records">
+              </div>
+              <div class="form-row-light">
+                <div class="form-group-light">
+                  <label>Account Number</label>
+                  <input type="text" [(ngModel)]="fundRequestForm.accountNumber" name="accountNumber"
+                    placeholder="Your account number">
+                </div>
+                <div class="form-group-light">
+                  <label>Confirm Account No</label>
+                  <input type="text" [(ngModel)]="fundRequestForm.confirmAccountNumber" name="confirmAccountNumber"
+                    placeholder="Re-enter account number">
+                </div>
+              </div>
+              <div class="form-row-light">
+                <div class="form-group-light">
+                  <label>IFSC Code</label>
+                  <input type="text" [(ngModel)]="fundRequestForm.ifscCode" name="ifscCode"
+                    placeholder="e.g. HDFC0001234">
+                </div>
+                <div class="form-group-light">
+                  <label>Branch Name</label>
+                  <input type="text" [(ngModel)]="fundRequestForm.branchName" name="branchName"
+                    placeholder="e.g. Mumbai Main Branch">
                 </div>
               </div>
             </div>
+            }
+            <div class="fund-modal-footer-light">
+              <button type="button" class="cancel-btn-light" (click)="showFundRequestModal = false">Cancel</button>
+              <button type="button" class="submit-btn-light" (click)="submitFundRequest()"
+                [disabled]="isFundSubmitting">
+                <i class="fas" [ngClass]="isFundSubmitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+                {{isFundSubmitting ? 'Submitting...' : 'Submit Request'}}
+              </button>
+            </div>
           </div>
-        }
-        }
+        </div>
+      </div>
+      }
+      }
     </div>
   </main>
 </div>
@@ -942,288 +815,290 @@ MODALS
 
 <!-- HISTORY MODAL -->
 @if (showHistoryModal) {
-  <div class="modal-overlay detail-modal fund-history-modal" (click)="closeHistoryModal()">
-    <div class="modal-content" style="max-width: 600px;" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2><i class="fas fa-history"></i> Payment History</h2>
-        <button class="modal-close" (click)="closeHistoryModal()">✕</button>
-      </div>
-      @if (selectedHistoryRequest) {
-        <div class="modal-body">
-          <!-- Header Info -->
-          <div class="fund-modal-info">
-            <div class="fund-modal-info-item">
-              <span class="label">Request ID</span>
-              <span class="value mono">#{{selectedHistoryRequest.id}}</span>
-            </div>
-            <div class="fund-modal-info-item">
-              <span class="label">Purpose</span>
-              <span class="value">{{selectedHistoryRequest.purpose}}</span>
-            </div>
-            <div class="fund-modal-info-item">
-                    <span class="fund-status-pill" [ngClass]="{
+<div class="modal-overlay detail-modal fund-history-modal" (click)="closeHistoryModal()">
+  <div class="modal-content" style="max-width: 600px;" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-history"></i> Payment History</h2>
+      <button class="modal-close" (click)="closeHistoryModal()">✕</button>
+    </div>
+    @if (selectedHistoryRequest) {
+    <div class="modal-body">
+      <!-- Header Info -->
+      <div class="fund-modal-info">
+        <div class="fund-modal-info-item">
+          <span class="label">Request ID</span>
+          <span class="value mono">#{{selectedHistoryRequest.id}}</span>
+        </div>
+        <div class="fund-modal-info-item">
+          <span class="label">Purpose</span>
+          <span class="value">{{selectedHistoryRequest.purpose}}</span>
+        </div>
+        <div class="fund-modal-info-item">
+          <span class="fund-status-pill" [ngClass]="{
                             'status-pending': selectedHistoryRequest.status === 'PENDING',
                             'status-partial': selectedHistoryRequest.status === 'PARTIAL',
                             'status-paid': selectedHistoryRequest.status === 'PAID',
                             'status-rejected': selectedHistoryRequest.status === 'REJECTED'
                         }">
-                {{selectedHistoryRequest.status}}
-              </span>
-            </div>
-          </div>
-          <table class="fund-modal-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Mode</th>
-                <th>Ref ID</th>
-                <th style="text-align: right;">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (txn of selectedHistoryRequest.transactions; track txn) {
-                <tr>
-                  <td>{{formatDate(txn.paymentDate)}}</td>
-                  <td>
-                    <span class="mode-badge"
-                      [style.background]="txn.paymentMode === 'CASH' ? 'rgba(255,255,255,0.1)' : 'rgba(59, 130, 246, 0.15)'"
-                      [style.color]="txn.paymentMode === 'CASH' ? 'var(--text-secondary)' : '#60a5fa'">
-                      {{txn.paymentMode}}
-                    </span>
-                  </td>
-                  <td style="font-family: monospace; color: var(--text-muted);">
-                    {{txn.transactionId || 'N/A'}}
-                  </td>
-                  <td class="amount-cell">
-                    ₹{{txn.amount | number}}
-                  </td>
-                </tr>
-              }
-              @if (!selectedHistoryRequest.transactions?.length) {
-                <tr>
-                  <td colspan="4"
-                    style="text-align: center; color: var(--text-muted); padding: 30px; font-style: italic;">
-                    No transactions found for this request.
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-          <!-- Summary Footer -->
-          <div class="fund-modal-summary">
-            <div class="fund-modal-summary-item">
-              <div class="label">Total Requested</div>
-              <div class="value requested">₹{{selectedHistoryRequest.requestedAmount | number}}</div>
-            </div>
-            <div class="fund-modal-summary-item">
-              <div class="label">Total Paid</div>
-              <div class="value paid">₹{{selectedHistoryRequest.amountPaid | number}}</div>
-            </div>
-            <div class="fund-modal-summary-item">
-              <div class="label">Pending</div>
-              <div class="value pending">₹{{getPendingAmount(selectedHistoryRequest) | number}}</div>
-            </div>
-          </div>
+            {{selectedHistoryRequest.status}}
+          </span>
         </div>
-      }
+      </div>
+      <table class="fund-modal-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Mode</th>
+            <th>Ref ID</th>
+            <th style="text-align: right;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (txn of selectedHistoryRequest.transactions; track txn) {
+          <tr>
+            <td>{{formatDate(txn.paymentDate)}}</td>
+            <td>
+              <span class="mode-badge"
+                [style.background]="txn.paymentMode === 'CASH' ? 'rgba(255,255,255,0.1)' : 'rgba(59, 130, 246, 0.15)'"
+                [style.color]="txn.paymentMode === 'CASH' ? 'var(--text-secondary)' : '#60a5fa'">
+                {{txn.paymentMode}}
+              </span>
+            </td>
+            <td style="font-family: monospace; color: var(--text-muted);">
+              {{txn.transactionId || 'N/A'}}
+            </td>
+            <td class="amount-cell">
+              ₹{{txn.amount | number}}
+            </td>
+          </tr>
+          }
+          @if (!selectedHistoryRequest.transactions?.length) {
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px; font-style: italic;">
+              No transactions found for this request.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+      <!-- Summary Footer -->
+      <div class="fund-modal-summary">
+        <div class="fund-modal-summary-item">
+          <div class="label">Total Requested</div>
+          <div class="value requested">₹{{selectedHistoryRequest.requestedAmount | number}}</div>
+        </div>
+        <div class="fund-modal-summary-item">
+          <div class="label">Total Paid</div>
+          <div class="value paid">₹{{selectedHistoryRequest.amountPaid | number}}</div>
+        </div>
+        <div class="fund-modal-summary-item">
+          <div class="label">Pending</div>
+          <div class="value pending">₹{{getPendingAmount(selectedHistoryRequest) | number}}</div>
+        </div>
+      </div>
     </div>
+    }
   </div>
+</div>
 }
 
 <!-- CONFIRMATION MODAL -->
 @if (showConfirmModal) {
-  <div class="modal-overlay confirm-modal" (click)="closeConfirmModal()">
-    <div class="modal-content confirm-content" (click)="$event.stopPropagation()">
-      <div class="confirm-icon">⚠️</div>
-      <h3>{{ confirmTitle }}</h3>
-      <p>{{ confirmMessage }}</p>
-      <div class="modal-actions">
-        <button class="modal-cancel-btn" (click)="closeConfirmModal()">Cancel</button>
-        <button class="modal-confirm-btn" (click)="confirmAction()">Confirm</button>
-      </div>
+<div class="modal-overlay confirm-modal" (click)="closeConfirmModal()">
+  <div class="modal-content confirm-content" (click)="$event.stopPropagation()">
+    <div class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
+    <h3>{{ confirmTitle }}</h3>
+    <p>{{ confirmMessage }}</p>
+    <div class="modal-actions">
+      <button class="modal-cancel-btn" (click)="closeConfirmModal()">Cancel</button>
+      <button class="modal-confirm-btn" (click)="confirmAction()">Confirm</button>
     </div>
   </div>
+</div>
 }
 
 <!-- Student Detail Modal -->
 @if (showDetailModal && selectedStudent) {
-  <div class="modal-overlay detail-modal" (click)="closeDetailModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Student Details</h2>
-        <button class="modal-close" (click)="closeDetailModal()">✕</button>
+<div class="modal-overlay detail-modal" (click)="closeDetailModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Student Details</h2>
+      <button class="modal-close" (click)="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h4>Personal Information</h4>
+        <div class="modal-grid">
+          <div class="modal-field">
+            <label>Full Name</label>
+            <span>{{ selectedStudent.fullName }}</span>
+          </div>
+          <div class="modal-field">
+            <label>Email</label>
+            <span>{{ selectedStudent.email }}</span>
+          </div>
+          <div class="modal-field">
+            <label>Contact</label>
+            <span>{{ selectedStudent.contactNo || 'N/A' }}</span>
+          </div>
+        </div>
       </div>
-      <div class="modal-body">
-        <div class="modal-section">
-          <h4>Personal Information</h4>
-          <div class="modal-grid">
-            <div class="modal-field">
-              <label>Full Name</label>
-              <span>{{ selectedStudent.fullName }}</span>
-            </div>
-            <div class="modal-field">
-              <label>Email</label>
-              <span>{{ selectedStudent.email }}</span>
-            </div>
-            <div class="modal-field">
-              <label>Contact</label>
-              <span>{{ selectedStudent.contactNo || 'N/A' }}</span>
-            </div>
+      <div class="modal-section">
+        <h4>Passport Information</h4>
+        <div class="modal-grid">
+          <div class="modal-field">
+            <label>Passport Number</label>
+            <span>{{ selectedStudent.passportNo || 'N/A' }}</span>
           </div>
-        </div>
-        <div class="modal-section">
-          <h4>Passport Information</h4>
-          <div class="modal-grid">
-            <div class="modal-field">
-              <label>Passport Number</label>
-              <span>{{ selectedStudent.passportNo || 'N/A' }}</span>
-            </div>
-            <div class="modal-field">
-              <label>Valid Till</label>
-              <span>{{ formatDate(selectedStudent.passportValidTill) }}</span>
-            </div>
-            @if (selectedStudent.passportPath) {
-              <div class="modal-field full-width">
-                <label>Passport Document</label>
-                <button class="btn-view passport-doc-btn"
-                  (click)="openPassportDocument(selectedStudent.passportPath)">
-                  📄 View Passport Document
-                </button>
-              </div>
-            }
+          <div class="modal-field">
+            <label>Valid Till</label>
+            <span>{{ formatDate(selectedStudent.passportValidTill) }}</span>
           </div>
-        </div>
-        <div class="modal-section">
-          <h4>Application Details</h4>
-          <div class="modal-grid">
-            <div class="modal-field">
-              <label>Application ID</label>
-              <span>{{ selectedStudent.applicationId }}</span>
-            </div>
-            <div class="modal-field">
-              <label>Telex Number</label>
-              <span>{{ selectedStudent.telexNumber || 'Not Issued' }}</span>
-            </div>
-            <div class="modal-field full-width">
-              <label>Current Status</label>
-              <span class="status-badge" [class]="getStatusClass(selectedStudent.applicationStatus)">
-                {{ formatStatus(selectedStudent.applicationStatus) }}
-              </span>
-            </div>
-          </div>
-        </div>
-        <div class="card-actions" style="justify-content: center; padding-top: 16px;">
-          @if (getActionButton(selectedStudent); as btn) {
-            <button class="action-btn primary" (click)="btn.action(); closeDetailModal()"
-              [disabled]="processingId === selectedStudent.id">
-              {{ btn.icon }} {{ btn.label }}
+          @if (selectedStudent.passportPath) {
+          <div class="modal-field full-width">
+            <label>Passport Document</label>
+            <button class="btn-view passport-doc-btn" (click)="openPassportDocument(selectedStudent.passportPath)">
+              📄 View Passport Document
             </button>
+          </div>
           }
         </div>
       </div>
+      <div class="modal-section">
+        <h4>Application Details</h4>
+        <div class="modal-grid">
+          <div class="modal-field">
+            <label>Application ID</label>
+            <span>{{ selectedStudent.applicationId }}</span>
+          </div>
+          <div class="modal-field">
+            <label>Telex Number</label>
+            <span>{{ selectedStudent.telexNumber || 'Not Issued' }}</span>
+          </div>
+          <div class="modal-field full-width">
+            <label>Current Status</label>
+            <span class="status-badge" [class]="getStatusClass(selectedStudent.applicationStatus)">
+              {{ formatStatus(selectedStudent.applicationStatus) }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions" style="justify-content: center; padding-top: 16px;">
+        @if (getActionButton(selectedStudent); as btn) {
+        <button class="action-btn primary" (click)="btn.action(); closeDetailModal()"
+          [disabled]="processingId === selectedStudent.id">
+          {{ btn.icon }} {{ btn.label }}
+        </button>
+        }
+      </div>
     </div>
   </div>
+</div>
 }
 
 <!-- Payment Request Modal -->
 @if (showPaymentModal && paymentStudent) {
-  <div class="modal-overlay payment-modal" (click)="closePaymentModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>💳 Request Visa Payment</h2>
-        <button class="modal-close" (click)="closePaymentModal()">✕</button>
+<div class="modal-overlay payment-modal" (click)="closePaymentModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>💳 Request Visa Payment</h2>
+      <button class="modal-close" (click)="closePaymentModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Student Info -->
+      <div class="payment-student-info">
+        <div class="profile-placeholder" style="width: 50px; height: 50px; font-size: 1rem;">
+          {{ getInitials(paymentStudent.fullName) }}
+        </div>
+        <div>
+          <div class="student-name">{{ paymentStudent.fullName }}</div>
+          <div class="student-id">{{ paymentStudent.applicationId }}</div>
+        </div>
       </div>
-      <div class="modal-body">
-        <!-- Student Info -->
-        <div class="payment-student-info">
-          <div class="profile-placeholder" style="width: 50px; height: 50px; font-size: 1rem;">
-            {{ getInitials(paymentStudent.fullName) }}
-          </div>
-          <div>
-            <div class="student-name">{{ paymentStudent.fullName }}</div>
-            <div class="student-id">{{ paymentStudent.applicationId }}</div>
+      <!-- Payment Form -->
+      <div class="payment-form">
+        <div class="form-group"
+          style="background: #f8fafc; padding: 14px; border-radius: 8px; border-left: 4px solid #4f46e5; margin-bottom: 20px;">
+          <div
+            style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+            Authorized Requester</div>
+          <div
+            style="font-size: 1rem; font-weight: 600; color: #1e293b; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-user-circle" style="color: #4f46e5;"></i> {{ currentUsername }}
           </div>
         </div>
-        <!-- Payment Form -->
-        <div class="payment-form">
-          <div class="form-group" style="background: #f8fafc; padding: 14px; border-radius: 8px; border-left: 4px solid #4f46e5; margin-bottom: 20px;">
-            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Authorized Requester</div>
-            <div style="font-size: 1rem; font-weight: 600; color: #1e293b; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
-              <i class="fas fa-user-circle" style="color: #4f46e5;"></i> {{ currentUsername }}
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Purpose <span class="required">*</span></label>
-            <input type="text" [(ngModel)]="paymentPurpose" placeholder="e.g. Visa Processing Fee" class="form-input" required>
-          </div>
-          <div class="form-group">
-            <label>Amount <span class="required">*</span></label>
-            <input type="number" [(ngModel)]="paymentAmount" placeholder="Enter amount" class="form-input"
-              min="1">
-          </div>
-          <div class="form-group">
-            <label>Service Charge</label>
-            <input type="number" [(ngModel)]="paymentServiceCharge" placeholder="Enter service charge"
-              class="form-input" min="0">
-          </div>
-          <div class="form-group">
-            <label>Currency <span class="required">*</span></label>
-            <select [(ngModel)]="paymentCurrency" class="form-select">
-              @for (currency of currencies; track currency) {
-                <option [value]="currency.code">
-                  {{ currency.symbol }} {{ currency.code }} - {{ currency.name }}
-                </option>
-              }
-            </select>
-          </div>
-          <!-- Error Message -->
-          @if (paymentError) {
-            <div class="payment-error">
-              ⚠️ {{ paymentError }}
-            </div>
+        <div class="form-group">
+          <label>Purpose <span class="required">*</span></label>
+          <input type="text" [(ngModel)]="paymentPurpose" placeholder="e.g. Visa Processing Fee" class="form-input"
+            required>
+        </div>
+        <div class="form-group">
+          <label>Amount <span class="required">*</span></label>
+          <input type="number" [(ngModel)]="paymentAmount" placeholder="Enter amount" class="form-input" min="1">
+        </div>
+        <div class="form-group">
+          <label>Service Charge</label>
+          <input type="number" [(ngModel)]="paymentServiceCharge" placeholder="Enter service charge" class="form-input"
+            min="0">
+        </div>
+        <div class="form-group">
+          <label>Currency <span class="required">*</span></label>
+          <select [(ngModel)]="paymentCurrency" class="form-select">
+            @for (currency of currencies; track currency) {
+            <option [value]="currency.code">
+              {{ currency.symbol }} {{ currency.code }} - {{ currency.name }}
+            </option>
+            }
+          </select>
+        </div>
+        <!-- Error Message -->
+        @if (paymentError) {
+        <div class="payment-error">
+          ⚠️ {{ paymentError }}
+        </div>
+        }
+      </div>
+      <!-- Actions -->
+      <div class="modal-buttons">
+        <button class="btn-cancel" (click)="closePaymentModal()">Cancel</button>
+        <button class="action-btn primary" (click)="submitPaymentRequest()"
+          [disabled]="processingId === paymentStudent.id">
+          @if (processingId !== paymentStudent.id) {
+          <span>💳 Submit Request</span>
           }
-        </div>
-        <!-- Actions -->
-        <div class="modal-buttons">
-          <button class="btn-cancel" (click)="closePaymentModal()">Cancel</button>
-          <button class="action-btn primary" (click)="submitPaymentRequest()"
-            [disabled]="processingId === paymentStudent.id">
-            @if (processingId !== paymentStudent.id) {
-              <span>💳 Submit Request</span>
-            }
-            @if (processingId === paymentStudent.id) {
-              <span class="spinner"></span>
-            }
-          </button>
-        </div>
+          @if (processingId === paymentStudent.id) {
+          <span class="spinner"></span>
+          }
+        </button>
       </div>
     </div>
   </div>
+</div>
 }
 
 <!-- Success Modal -->
 @if (showSuccessModal) {
-  <div class="modal-overlay" (click)="closeSuccessModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="success-stamp">✓</div>
-      <h2>Success!</h2>
-      <p>{{ successMessage }}</p>
-      <button class="btn-gold" (click)="closeSuccessModal()">Continue</button>
-    </div>
+<div class="modal-overlay" (click)="closeSuccessModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="success-stamp">✓</div>
+    <h2>Success!</h2>
+    <p>{{ successMessage }}</p>
+    <button class="btn-gold" (click)="closeSuccessModal()">Continue</button>
   </div>
+</div>
 }
 
 <!-- Logout Confirmation Modal -->
 @if (showLogoutModal) {
-  <div class="modal-overlay logout-modal" (click)="closeLogoutModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-icon">🚪</div>
-      <h2>Confirm Logout</h2>
-      <p>Are you sure you want to logout from the Visa Manager Dashboard?</p>
-      <div class="modal-buttons">
-        <button class="btn-cancel" (click)="closeLogoutModal()">Cancel</button>
-        <button class="btn-danger" (click)="confirmLogout()">Logout</button>
-      </div>
+<div class="modal-overlay logout-modal" (click)="closeLogoutModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-icon">🚪</div>
+    <h2>Confirm Logout</h2>
+    <p>Are you sure you want to logout from the Visa Manager Dashboard?</p>
+    <div class="modal-buttons">
+      <button class="btn-cancel" (click)="closeLogoutModal()">Cancel</button>
+      <button class="btn-danger" (click)="confirmLogout()">Logout</button>
     </div>
   </div>
+</div>
 }

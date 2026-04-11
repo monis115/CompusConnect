@@ -162,6 +162,28 @@ export interface DashboardData {
     students: AssignedStudent[];
 }
 
+// --- NEW Credit Ledger Interfaces ---
+
+export interface AccountantCredit {
+    id?: number;
+    amount: number;
+    method: string; // FRIEND, LOAN, CREDIT_CARD
+    creditDate: string;
+    dueDate?: string;
+    interestRate?: number;
+    friendName?: string;
+    friendPhone?: string;
+    bankName?: string;
+    loanTenureMonths?: number;
+    cardInfo?: string;
+    emiDetails?: string;
+    amountRepaid?: number;
+    status?: string; // ACTIVE, REPAID
+    accountantUsername?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -249,6 +271,22 @@ export class AccountantService {
         });
     }
 
+    // --- NEW Passbook Methods ---
+
+    /**
+     * Get VisaMan Accountant Ledger Passbook
+     */
+    getVisaManPassbooks(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/accountant/passbook/visaman`);
+    }
+
+    /**
+     * Get Agent Accountant Ledger Passbook
+     */
+    getAgentPassbooks(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/accountant/passbook/agent`);
+    }
+
     // --- Admin Management Methods ---
 
     /**
@@ -287,5 +325,15 @@ export class AccountantService {
      */
     getAccountantWithStudents(id: number): Observable<any> {
         return this.http.get<any>(`${this.API_URL}/accountant/${id}/with-students`);
+    }
+
+    // --- NEW Credit Ledger Methods ---
+
+    getAllCredits(username: string): Observable<AccountantCredit[]> {
+        return this.http.get<AccountantCredit[]>(`${this.API_URL}/accountant/credits/${username}`);
+    }
+
+    addCredit(credit: AccountantCredit, username: string): Observable<AccountantCredit> {
+        return this.http.post<AccountantCredit>(`${this.API_URL}/accountant/credits/${username}`, credit);
     }
 }

@@ -1320,7 +1320,7 @@ export class AgentDashboard implements OnInit {
    */
   openPaymentConfirmationModal(student: any): void {
     this.selectedPaymentStudent = student;
-    this.paymentAmount = student.visaPaymentRequestedAmount || 0;
+    this.paymentAmount = (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0);
     this.paymentCurrency = student.visaPaymentRequestedCurrency || 'USD';
     this.transactionId = '';
     this.confirmationFile = null;

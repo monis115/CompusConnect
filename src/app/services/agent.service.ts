@@ -10,6 +10,7 @@ export interface College {
     collegeName: string;
     city: string;
     country: string;
+    active?: boolean;
 }
 
 export interface Location {
@@ -18,11 +19,20 @@ export interface Location {
     district: string;
 }
 
+export interface CommissionSlab {
+    minStudents: number;
+    maxStudents: number | null;
+    dealPricePerStudent: number;
+}
+
 export interface CollegeAccess {
     id: number;
     college: College;
     allowedLocations: Location[];
     accessAllLocations: boolean;
+    dealPrice?: number;
+    isSlabApplicable?: boolean;
+    commissionSlabs?: CommissionSlab[];
 }
 
 export interface Student {

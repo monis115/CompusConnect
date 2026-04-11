@@ -367,19 +367,19 @@
         <div class="quick-actions">
           <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
           <div class="action-buttons">
-            <button class="action-btn" (click)="setActiveTab('receive')">
+            <button class="action-btn action-receive" (click)="setActiveTab('receive')">
               <i class="fas fa-inbox"></i>
               <span>Receive Docs</span>
             </button>
-            <button class="action-btn" (click)="setActiveTab('verify')">
+            <button class="action-btn action-verify" (click)="setActiveTab('verify')">
               <i class="fas fa-file-check"></i>
               <span>Verify Docs</span>
             </button>
-            <button class="action-btn" (click)="setActiveTab('return')">
+            <button class="action-btn action-return" (click)="setActiveTab('return')">
               <i class="fas fa-reply"></i>
               <span>Return Docs</span>
             </button>
-            <button class="action-btn" (click)="exportToCSV()">
+            <button class="action-btn action-export" (click)="exportToCSV()">
               <i class="fas fa-download"></i>
               <span>Export Data</span>
             </button>
@@ -609,7 +609,7 @@
                 </div>
               </div>
             </div>
-            <button class="btn-primary btn-verify ripple-effect" (click)="openVerifyModal(student)">
+            <button class="btn-verify-action ripple-effect" (click)="openVerifyModal(student)">
               <i class="fas fa-file-check"></i>
               <span>Verify Docs</span>
             </button>
@@ -675,8 +675,7 @@
             </div>
           </div>
           <!-- View Ticket Button -->
-          <button class="btn-secondary btn-sm" (click)="viewTicket(student)"
-            style="background-color: var(--primary-50); color: var(--primary-700); border: 1px solid var(--primary-200);">
+          <button class="btn-ticket btn-sm" (click)="viewTicket(student)">
             <i class="fas fa-ticket-alt"></i> Ticket
           </button>
           <!-- Dispatch Details Button -->
@@ -687,8 +686,7 @@
           <!-- Collect Button (Visible only when readyForDocReturn is true AND action is COLLECT_DOCS) -->
           @if (student.readyForDocReturn === true && student.action === 'COLLECT_DOCS') {
             <button
-              class="btn-warning btn-verify ripple-effect" (click)="confirmCollection(student)"
-              style="background-color: #f59e0b; color: white;">
+              class="btn-collect ripple-effect" (click)="confirmCollection(student)">
               <i class="fas fa-hand-holding"></i>
               <span>Collect Docs</span>
             </button>
@@ -697,7 +695,7 @@
           @if (student.hasRaiseReturnRequest && (student.action === 'INITIATE_DOC_RETURN' || student.action === 'NEED_TO_RETURN_VISA')) {
             <div
               class="tooltip-wrapper">
-              <button class="btn-primary btn-verify ripple-effect" (click)="openReturnModal(student)">
+              <button class="btn-return ripple-effect" (click)="openReturnModal(student)">
                 <i class="fas fa-paper-plane"></i>
                 <span>Return Docs</span>
               </button>

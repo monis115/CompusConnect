@@ -22,6 +22,13 @@ interface AgentResponse {
   password: string;
 }
 
+// New Commission Slab Interface
+export interface CommissionSlab {
+  minStudents: number;
+  maxStudents: number | null;
+  dealPricePerStudent: number;
+}
+
 // New interface for college-wise location access
 interface CollegeAccessEntry {
   collegeId: number;
@@ -29,6 +36,11 @@ interface CollegeAccessEntry {
   city: string;
   accessAllLocations: boolean;
   locationIds: number[];
+
+  // Dynamic Commission Slabs Settings
+  dealPrice: number | null;
+  isSlabApplicable: boolean;
+  slabs: CommissionSlab[];
 }
 
 @Component({
@@ -231,7 +243,10 @@ export class AdminAgentRegistration implements OnInit {
       collegeName: college.collegeName,
       city: college.city,
       accessAllLocations: false,
-      locationIds: []
+      locationIds: [],
+      dealPrice: null,
+      isSlabApplicable: false,
+      slabs: []
     });
 
     console.log(`Added college access: ${college.collegeName}`);
@@ -251,6 +266,48 @@ export class AdminAgentRegistration implements OnInit {
     });
     this.cdr.detectChanges();
   }
+
+  // --- Dynamic Commission Slabs Handlers ---
+
+  toggleSlabApplicable(collegeId: number, event: Event) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+    const checked = (event.target as HTMLInputElement).checked;
+    entry.isSlabApplicable = checked;
+    
+    // Automatically add a default first slab if toggled ON and empty
+    if (checked && entry.slabs.length === 0) {
+      this.addSlab(collegeId);
+    }
+    this.cdr.detectChanges();
+  }
+
+  addSlab(collegeId: number) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+    
+    // Default slab starts from the max of the previous slab + 1
+    let nextMin = 1;
+    if (entry.slabs.length > 0) {
+      const lastMax = entry.slabs[entry.slabs.length - 1].maxStudents;
+      nextMin = lastMax ? lastMax + 1 : 1;
+    }
+
+    entry.slabs.push({
+      minStudents: nextMin,
+      maxStudents: null, // null means N+
+      dealPricePerStudent: entry.dealPrice || 0
+    });
+    this.cdr.detectChanges();
+  }
+
+  removeSlab(collegeId: number, index: number) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+    entry.slabs.splice(index, 1);
+    this.cdr.detectChanges();
+  }
+
 
   // Toggle "Access All Locations" for a college
   toggleAccessAllLocations(collegeId: number) {
@@ -424,7 +481,10 @@ export class AdminAgentRegistration implements OnInit {
     const collegeAccessListPayload = this.collegeAccessList.map(entry => ({
       collegeId: entry.collegeId,
       accessAllLocations: entry.accessAllLocations,
-      locationIds: entry.locationIds
+      locationIds: entry.locationIds,
+      dealPrice: entry.dealPrice,
+      isSlabApplicable: entry.isSlabApplicable,
+      commissionSlabs: entry.slabs
     }));
 
     // Also build flat arrays for backward compatibility

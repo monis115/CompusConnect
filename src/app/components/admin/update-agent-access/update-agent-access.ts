@@ -40,11 +40,25 @@ interface AgentProfile {
     collegeName: string;
     accessAllLocations: boolean;
     locationDetails: Location[]; // The API returns details here
+    dealPrice?: number;
+    isSlabApplicable?: boolean;
+    commissionSlabs?: {
+      minStudents: number;
+      maxStudents: number | null;
+      dealPricePerStudent: number;
+    }[];
   }[];
   // ... other fields present in profile but not critical for this specific update, 
   // we will preserve them if we send full object back, but usually we map specific fields.
   // The user says "Include other required fields". We will assume the profile has enough.
   [key: string]: any;
+}
+
+// New Commission Slab Interface
+export interface CommissionSlab {
+  minStudents: number;
+  maxStudents: number | null;
+  dealPricePerStudent: number;
 }
 
 // Interface for our local editing state
@@ -54,6 +68,11 @@ interface CollegeAccessEntry {
   city?: string;
   accessAllLocations: boolean;
   locationIds: number[];
+  
+  // Dynamic Commission Slabs Settings
+  dealPrice: number | null;
+  isSlabApplicable: boolean;
+  slabs: CommissionSlab[];
 }
 
 @Component({
@@ -186,7 +205,10 @@ export class UpdateAgentAccess implements OnInit {
       collegeName: access.collegeName,
       city: this.getCollegeCity(access.collegeId),
       accessAllLocations: access.accessAllLocations,
-      locationIds: (access.locationDetails || []).map(l => l.id)
+      locationIds: (access.locationDetails || []).map(l => l.id),
+      dealPrice: access.dealPrice !== undefined ? access.dealPrice : null,
+      isSlabApplicable: access.isSlabApplicable || false,
+      slabs: access.commissionSlabs ? [...access.commissionSlabs] : []
     }));
 
     this.expandedStates = {};
@@ -221,7 +243,10 @@ export class UpdateAgentAccess implements OnInit {
       collegeName: college.collegeName,
       city: college.city,
       accessAllLocations: false,
-      locationIds: []
+      locationIds: [],
+      dealPrice: null,
+      isSlabApplicable: false,
+      slabs: []
     });
 
     this.selectedCollegeToAdd = '';
@@ -245,6 +270,47 @@ export class UpdateAgentAccess implements OnInit {
     } else {
       entry.locationIds = [];
     }
+  }
+
+// --- Dynamic Commission Slabs Handlers ---
+
+  toggleSlabApplicable(collegeId: number, event: Event) {
+    const entry = this.editCollegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+    const checked = (event.target as HTMLInputElement).checked;
+    entry.isSlabApplicable = checked;
+    
+    // Automatically add a default first slab if toggled ON and empty
+    if (checked && entry.slabs.length === 0) {
+      this.addSlab(collegeId);
+    }
+    this.cdr.detectChanges();
+  }
+
+  addSlab(collegeId: number) {
+    const entry = this.editCollegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+    
+    // Default slab starts from the max of the previous slab + 1
+    let nextMin = 1;
+    if (entry.slabs.length > 0) {
+      const lastMax = entry.slabs[entry.slabs.length - 1].maxStudents;
+      nextMin = lastMax ? lastMax + 1 : 1;
+    }
+
+    entry.slabs.push({
+      minStudents: nextMin,
+      maxStudents: null, // null means N+
+      dealPricePerStudent: entry.dealPrice || 0
+    });
+    this.cdr.detectChanges();
+  }
+
+  removeSlab(collegeId: number, index: number) {
+    const entry = this.editCollegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+    entry.slabs.splice(index, 1);
+    this.cdr.detectChanges();
   }
 
   // State Expansion
@@ -340,7 +406,10 @@ export class UpdateAgentAccess implements OnInit {
       collegeAccessList: this.editCollegeAccessList.map(e => ({
         collegeId: e.collegeId,
         accessAllLocations: e.accessAllLocations,
-        locationIds: e.locationIds
+        locationIds: e.locationIds,
+        dealPrice: e.dealPrice,
+        isSlabApplicable: e.isSlabApplicable,
+        commissionSlabs: e.slabs
       }))
     };
 

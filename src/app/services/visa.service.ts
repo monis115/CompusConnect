@@ -36,4 +36,9 @@ export class VisaService {
         // Controller uses @RequestParam for username
         return this.http.post(`${this.baseUrl}/return-docs/${studentId}?username=${username}`, {});
     }
+
+    // Get Passbooks
+    getPassbooks(username: string): Observable<any[]> {
+        return this.http.get<any[]>(`${environment.apiUrl}/api/visa-man/passbook/${username}`);
+    }
 }

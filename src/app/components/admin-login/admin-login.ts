@@ -135,9 +135,7 @@ export class AdminLogin {
 
   onUserIdInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    const upper = input.value.toUpperCase();
-    input.value = upper;
-    this.userId.set(upper);
+    this.userId.set(input.value);
     this.errorMessage.set('');
   }
 

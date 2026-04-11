@@ -12,7 +12,8 @@ import {
   DashboardStats,
   CollectionSummary,
   RecentActivity,
-  AssignedStudent
+  AssignedStudent,
+  AccountantCredit
 } from '../../services/accountant.service';
 import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
 import { environment } from '../../../environments/environment';
@@ -71,6 +72,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   students: AssignedStudent[] = [];
   filteredStudents: AssignedStudent[] = [];
   selectedStudent: Student | null = null;
+  credits: AccountantCredit[] = [];
+  includeCreditInBalance: boolean = true;
+
+  // Passbooks
+  visaManPassbooks: any[] = [];
+  agentPassbooks: any[] = [];
+  activePassbookTab: 'visaman' | 'agent' = 'visaman';
 
   // Animated Counters
   animatedStats = {
@@ -85,7 +93,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   };
 
   // UI State
-  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' = 'dashboard';
+  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger' = 'dashboard';
   isSidebarCollapsed = false;
 
   // History Modal State
@@ -116,8 +124,10 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   showDetailModal = false;
   showApproveModal = false;
   showRejectModal = false;
+  // Success Modal State
   showSuccessModal = false;
   successMessage = '';
+  successTitle = 'Payment Verified!';
 
   // Approve Form
   approveForm = {
@@ -150,6 +160,22 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     paymentDate: ''
   };
 
+  // Add Funds (Credit) Modal State
+  showAddFundsModal = false;
+  creditForm: AccountantCredit = {
+    amount: 0,
+    method: 'FRIEND',
+    creditDate: new Date().toISOString().split('T')[0],
+    dueDate: '',
+    interestRate: 0,
+    friendName: '',
+    friendPhone: '',
+    bankName: '',
+    loanTenureMonths: 0,
+    cardInfo: '',
+    emiDetails: ''
+  };
+
   // Logout
   isLogoutModalOpen = false;
   isLoggingOut = false;
@@ -167,7 +193,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private http: HttpClient,
-    @Inject(PaymentRequestService) private paymentRequestService: PaymentRequestService,
+    private paymentRequestService: PaymentRequestService,
     private fileService: FileService
   ) { }
 
@@ -183,7 +209,32 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // --- Data Loading ---
 
+  loadPassbooks(): void {
+    this.accountantService.getVisaManPassbooks()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.visaManPassbooks = data;
+        this.cdr.detectChanges();
+      });
+
+    this.accountantService.getAgentPassbooks()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.agentPassbooks = data;
+        this.cdr.detectChanges();
+      });
+
+    this.accountantService.getAllCredits(this.username)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.credits = data || [];
+        this.cdr.detectChanges();
+      });
+  }
+
   loadDashboardData(): void {
+    this.loadPassbooks();
+    this.loadFundRequests();
     if (!this.username) {
       this.isLoading = false;
       this.router.navigate(['/AdminLogin']);
@@ -412,7 +463,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // --- Navigation ---
 
-  switchView(view: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts'): void {
+  switchView(view: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger'): void {
     this.activeView = view;
     this.searchTerm = '';
     if (view === 'funds') {
@@ -632,6 +683,35 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  /**
+   * Open the Pay VisaMan modal from a passbook record.
+   * Maps the passbook record fields to a student-like object so the existing modal logic works.
+   */
+  openPayVisaManFromPassbook(record: any): void {
+    // Find matching student from loaded students by applicationId
+    const matchingStudent = this.students.find(s => s.applicationId === record.applicationId);
+
+    // Build a student-like object for the modal
+    const studentLike: any = {
+      id: matchingStudent ? matchingStudent.studentId : null,
+      studentId: matchingStudent ? matchingStudent.studentId : null,
+      fullName: record.studentName,
+      applicationId: record.applicationId,
+      visaPaymentRequestedAmount: record.visaAmountRequest || 0,
+      visaManServiceCharge: record.serviceChargeRequested || 0,
+      accToVisaManPaidAmount: record.totalAmountPaidByAccountant || 0,
+      visaPaymentRequestedCurrency: 'USD',
+      visaMan: { username: record.requesterName }
+    };
+
+    if (!studentLike.id) {
+      alert('Cannot find the matching student record. Please ensure the student data is loaded.');
+      return;
+    }
+
+    this.openPayVisaManModal(studentLike);
+  }
+
   // --- API Actions ---
 
   confirmApprove(): void {
@@ -736,6 +816,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           this.closePayVisaManModal();
           this.showSuccess('Payment accurately recorded and subtracted from pending Visa Man payout!');
           this.refreshData();
+          this.loadPassbooks();
         },
         error: (err) => {
           console.error('Pay Visa Man error:', err);
@@ -744,7 +825,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       });
   }
 
-  showSuccess(message: string): void {
+  showSuccess(message: string, title: string = 'Payment Verified!'): void {
+    this.successTitle = title;
     this.successMessage = message;
     this.showSuccessModal = true;
     this.cdr.detectChanges();
@@ -1280,5 +1362,183 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // Count of pending/partial fund requests (not fully paid)
   get pendingFundRequestsCount(): number {
     return this.fundRequests.filter(r => r.status === 'PENDING' || r.status === 'PARTIAL').length;
+  }
+
+  // Format DateTime for passbook
+  formatDateTime(dateStr: string): string {
+    if (!dateStr) return '-';
+    // dateStr might be an array if LocalDateTime is serialized as array by Jackson, but usually it's string.
+    // Let's assume standard ISO string from backend since it's typically configured so in modern Spring Boot
+    if (Array.isArray(dateStr)) {
+        // [year, month, day, hour, minute]
+        dateStr = `${dateStr[0]}-${String(dateStr[1]).padStart(2, '0')}-${String(dateStr[2]).padStart(2, '0')}T${String(dateStr[3]).padStart(2, '0')}:${String(dateStr[4]).padStart(2, '0')}`;
+    }
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getCurrentDate(): string {
+    return new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  getPassbookStatusClass(status: string): string {
+    if(!status) return 'pb-status-pending';
+    switch (status) {
+      case 'INITIATED': return 'pb-status-initiated';
+      case 'SENT_TO_AGENT': return 'pb-status-warning';
+      case 'ACCOUNTANT_CONFIRMED': return 'pb-status-info';
+      case 'PAID_TO_VISAMAN': return 'pb-status-success';
+      case 'COMPLETED': return 'pb-status-completed';
+      default: return 'pb-status-pending';
+    }
+  }
+
+  // ═══════════ FINANCIAL SUMMARY COMPUTATIONS ═══════════
+
+  // --- Agent Transactions (Money IN) ---
+  getTotalRequestedFromAgents(): number {
+    return this.agentPassbooks.reduce((sum: number, p: any) => sum + (p.requestedAmountByAccountantToAgent || 0), 0);
+  }
+
+  getTotalReceivedFromAgents(): number {
+    return this.agentPassbooks.reduce((sum: number, p: any) => sum + (p.amountPaidByAgent || 0), 0);
+  }
+
+  getTotalConfirmedFromAgents(): number {
+    return this.agentPassbooks.reduce((sum: number, p: any) => sum + (p.amountConfirmedByAccountant || 0), 0);
+  }
+
+  getPendingFromAgents(): number {
+    const requested = this.getTotalRequestedFromAgents();
+    const confirmed = this.getTotalConfirmedFromAgents();
+    return Math.max(0, requested - confirmed);
+  }
+
+  getAgentCollectionRate(): number {
+    const requested = this.getTotalRequestedFromAgents();
+    if (requested === 0) return 0;
+    return Math.min(100, (this.getTotalConfirmedFromAgents() / requested) * 100);
+  }
+
+  // --- VisaMan Payouts (Money OUT) ---
+  getTotalVisaFeeRequested(): number {
+    return this.visaManPassbooks.reduce((sum: number, p: any) => sum + (p.visaAmountRequest || 0), 0);
+  }
+
+  getTotalServiceCharge(): number {
+    return this.visaManPassbooks.reduce((sum: number, p: any) => sum + (p.serviceChargeRequested || 0), 0);
+  }
+
+  getTotalOwedToVisaMan(): number {
+    return this.getTotalVisaFeeRequested() + this.getTotalServiceCharge();
+  }
+
+  getTotalPaidToVisaMan(): number {
+    return this.visaManPassbooks.reduce((sum: number, p: any) => sum + (p.totalAmountPaidByAccountant || 0), 0);
+  }
+
+  getPendingToVisaMan(): number {
+    return Math.max(0, this.getTotalOwedToVisaMan() - this.getTotalPaidToVisaMan());
+  }
+
+  getVisaManPayoutRate(): number {
+    const owed = this.getTotalOwedToVisaMan();
+    if (owed === 0) return 0;
+    return Math.min(100, (this.getTotalPaidToVisaMan() / owed) * 100);
+  }
+
+  // --- Fund Requests (Money OUT) ---
+  getTotalPaidToFundRequests(): number {
+    return this.fundRequests.reduce((sum: number, req: any) => sum + (req.amountPaid || 0), 0);
+  }
+
+  // --- Net Balance ---
+  getTotalBorrowedFunds(): number {
+    return this.credits.reduce((sum, credit) => sum + (credit.amount || 0), 0);
+  }
+
+  getNetCashBalance(): number {
+    let balance = this.getTotalConfirmedFromAgents() - this.getTotalPaidToVisaMan() - this.getTotalPaidToFundRequests();
+    if (this.includeCreditInBalance) {
+      balance += this.getTotalBorrowedFunds();
+    }
+    return balance;
+  }
+
+  toggleCreditInclusion(): void {
+    this.includeCreditInBalance = !this.includeCreditInBalance;
+  }
+
+  // --- Add Funds Modal Logic ---
+  openAddFundsModal(): void {
+    this.creditForm = {
+      amount: 0,
+      method: 'FRIEND',
+      creditDate: new Date().toISOString().split('T')[0],
+      dueDate: '',
+      interestRate: 0,
+      friendName: '',
+      friendPhone: '',
+      bankName: '',
+      loanTenureMonths: 0,
+      cardInfo: '',
+      emiDetails: ''
+    };
+    this.showAddFundsModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeAddFundsModal(): void {
+    this.showAddFundsModal = false;
+    this.cdr.detectChanges();
+  }
+
+  submitCredit(): void {
+    if (!this.creditForm.amount || this.creditForm.amount <= 0) {
+      alert('Amount must be greater than 0.');
+      return;
+    }
+    
+    // Set basic validation based on method
+    if (this.creditForm.method === 'FRIEND' && (!this.creditForm.friendName || !this.creditForm.friendPhone)) {
+      alert('Please fill out Friend Name and Phone.');
+      return;
+    }
+    if (this.creditForm.method === 'LOAN' && !this.creditForm.bankName) {
+      alert('Please provide the Bank Name for the loan.');
+      return;
+    }
+    if (this.creditForm.method === 'CREDIT_CARD' && !this.creditForm.cardInfo) {
+      alert('Please provide the Credit Card info.');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.accountantService.addCredit(this.creditForm, this.username)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.isSubmitting = false; this.cdr.detectChanges(); })
+      )
+      .subscribe({
+        next: (res) => {
+          this.credits.unshift(res);
+          this.closeAddFundsModal();
+          this.showSuccess(`Successfully added ₹${res.amount} via ${res.method}!`, 'Credit Added!');
+        },
+        error: (err) => {
+          console.error('Failed to add credit', err);
+          alert('Failed to add funds. Please check your inputs.');
+        }
+      });
   }
 }

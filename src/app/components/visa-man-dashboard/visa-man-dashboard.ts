@@ -143,6 +143,9 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   qrCodePreview: string | ArrayBuffer | null = null;
   isFundSubmitting: boolean = false;
 
+  // Passbooks
+  myPassbooks: any[] = [];
+
   constructor(
     private http: HttpClient,
     private router: Router,
@@ -164,6 +167,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       this.currentUsername = storedUsername;
     }
     this.loadDashboardData();
+    this.loadPassbooks();
   }
 
   ngOnDestroy(): void {
@@ -174,6 +178,16 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   // DATA LOADING
   // ============================================
+  loadPassbooks(): void {
+    if (!this.currentUsername) return;
+    this.visaService.getPassbooks(this.currentUsername)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.myPassbooks = data;
+        this.cdr.detectChanges();
+      });
+  }
+
   loadDashboardData(): void {
     this.isLoading = true;
 
@@ -759,14 +773,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     }
   }
 
-  getCurrentDate(): string {
-    return new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
+
 
   // Open passport document in new tab
   openPassportDocument(path: string | undefined): void {
@@ -789,7 +796,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       return dateString;
     }
   }
-  
+
   // ============================================
   // FUND REQUESTS (Restored)
   // ============================================
@@ -991,5 +998,42 @@ Branch: ${this.fundRequestForm.branchName}`;
   // Count of paid or partially paid fund requests
   get paidFundRequestsCount(): number {
     return this.myFundRequests.filter(r => r.status === 'PAID' || r.status === 'PARTIAL').length;
+  }
+
+  // Format DateTime for passbook
+  formatDateTime(dateStr: string): string {
+    if (!dateStr) return '-';
+    let formattedStr = dateStr;
+    if (Array.isArray(dateStr)) {
+      formattedStr = `${dateStr[0]}-${String(dateStr[1]).padStart(2, '0')}-${String(dateStr[2]).padStart(2, '0')}T${String(dateStr[3]).padStart(2, '0')}:${String(dateStr[4]).padStart(2, '0')}`;
+    }
+    const date = new Date(formattedStr);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getCurrentDate(): string {
+    return new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  getPassbookStatusClass(status: string): string {
+    if (!status) return 'pb-status-pending';
+    switch (status) {
+      case 'INITIATED': return 'pb-status-initiated';
+      case 'SENT_TO_AGENT': return 'pb-status-warning';
+      case 'ACCOUNTANT_CONFIRMED': return 'pb-status-info';
+      case 'PAID_TO_VISAMAN': return 'pb-status-success';
+      case 'COMPLETED': return 'pb-status-completed';
+      default: return 'pb-status-pending';
+    }
   }
 }

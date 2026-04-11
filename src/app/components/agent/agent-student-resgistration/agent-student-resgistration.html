@@ -175,6 +175,13 @@
         </svg>
         Select College (Restricted Access)
       </h3>
+
+      @if (uniqueColleges.length === 0) {
+        <div class="reg-form-info">
+          No colleges assigned to your account. Please contact admin.
+        </div>
+      }
+
       <div class="reg-form-grid">
         <div class="reg-form-group reg-form-span-2">
           <label for="collegeSelect">
@@ -183,10 +190,17 @@
           <select id="collegeSelect" name="collegeSelect" [(ngModel)]="selectedCollegeId" (change)="onCollegeChange()"
             required #collegeInput="ngModel">
             <option [ngValue]="null" disabled>-- Choose a College --</option>
-            @for (college of uniqueColleges; track college) {
-              <option [ngValue]="college.id">
-                {{ college.collegeName }} ({{ college.city }}, {{ college.country }})
-              </option>
+            @for (college of uniqueColleges; track college.id) {
+              @if (college.active !== false) {
+                <option [ngValue]="college.id">
+                  {{ college.collegeName }} — {{ college.city }}, {{ college.country }}
+                </option>
+              }
+              @if (college.active === false) {
+                <option [ngValue]="college.id" disabled style="color: #94a3b8;">
+                  🔒 {{ college.collegeName }} — {{ college.city }}, {{ college.country }} (Inactive)
+                </option>
+              }
             }
           </select>
           @if (collegeInput.invalid && collegeInput.touched) {
@@ -194,13 +208,24 @@
               Please select a college.
             </div>
           }
-          @if (uniqueColleges.length === 0) {
-            <div class="reg-form-info">
-              No colleges assigned to your account. Please contact admin.
-            </div>
-          }
         </div>
       </div>
+
+      <!-- Inactive College Warning Banner -->
+      @if (selectedCollegeId && isSelectedCollegeInactive()) {
+        <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem 1.25rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; margin-bottom: 1.5rem;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <div>
+            <p style="margin: 0 0 0.25rem 0; font-size: 0.9rem; font-weight: 700; color: #991b1b;">College Deactivated by Admin</p>
+            <p style="margin: 0; font-size: 0.82rem; color: #b91c1c; line-height: 1.5;">
+              Admissions are currently paused for this college. You cannot register students until the admin reactivates it. Please select a different college or contact your administrator.
+            </p>
+          </div>
+        </div>
+      }
       <div class="reg-form-navigation">
         <button type="button" class="reg-btn reg-btn-secondary" (click)="cancel()">
           Cancel

@@ -1,0 +1,3 @@
+src/app/components/accountant-dashboard/accountant-dashboard.ts(195,5): error TS1206: Decorators are not valid here.
+src/app/components/accountant-dashboard/accountant-dashboard.ts(649,10): error TS2551: Property 'showRejectModal' does not exist on type 'AccountantDashboard'. Did you mean 'openRejectModal'?
+src/app/components/accountant-dashboard/accountant-dashboard.ts(654,10): error TS2551: Property 'showRejectModal' does not exist on type 'AccountantDashboard'. Did you mean 'openRejectModal'?

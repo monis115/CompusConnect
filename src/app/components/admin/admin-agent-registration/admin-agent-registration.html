@@ -240,6 +240,73 @@
                 </button>
               </div>
             </div>
+
+            <!-- COMMISSION SETTINGS PANEL -->
+            <div class="commission-panel"
+              style="padding: 0 1.25rem 1.25rem 1.25rem; border-bottom: 1px solid var(--gray-200); margin-bottom: 1rem;">
+              <h4
+                style="margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem; color: var(--gray-700); font-weight: 600;">
+                Pricing & Commissioning</h4>
+              <div class="form-grid" style="grid-template-columns: 1fr; gap: 1rem; margin-bottom: 0.5rem;" [style.opacity]="entry.isSlabApplicable ? '0.5' : '1'">
+                <div class="form-field" style="margin: 0; max-width: 50%;">
+                  <label>Standard Deal Price / Student (₹)</label>
+                  <input type="number" [(ngModel)]="entry.dealPrice" [ngModelOptions]="{standalone: true}"
+                    placeholder="e.g. 500" min="0" [disabled]="entry.isSlabApplicable">
+                </div>
+              </div>
+
+              <!-- SLAB TOGGLE -->
+              <div
+                style="background: var(--gray-50); padding: 1.25rem; border-radius: var(--radius-md); border: 1px dashed var(--gray-300);">
+                <label class="switch-label" style="margin-bottom: 0;">
+                  <span style="font-weight: 600; color: var(--gray-800);">Apply Dynamic Retroactive Slabs?</span>
+                  <input type="checkbox" class="switch-input" [checked]="entry.isSlabApplicable"
+                    (change)="toggleSlabApplicable(entry.collegeId, $event)">
+                  <span class="switch-slider"></span>
+                </label>
+
+                @if (entry.isSlabApplicable) {
+                <div class="slab-builder" style="margin-top: 1.25rem; animation: sectionFadeUp 0.3s ease;">
+                  <div
+                    style="display: grid; grid-template-columns: 1fr 1fr 1fr 40px; gap: 0.75rem; font-size: 0.75rem; font-weight: 700; color: var(--gray-500); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <div>Min Students</div>
+                    <div>Max Students (Blank for N+)</div>
+                    <div>Deal Price / Student (₹)</div>
+                    <div></div>
+                  </div>
+
+                  @for (slab of entry.slabs; track $index) {
+                  <div class="slab-row"
+                    style="display: grid; grid-template-columns: 1fr 1fr 1fr 40px; gap: 0.75rem; align-items: center; margin-bottom: 0.5rem;">
+                    <div class="form-field" style="margin: 0;">
+                      <input type="number" [(ngModel)]="slab.minStudents" [ngModelOptions]="{standalone: true}" min="1"
+                        style="background: white;">
+                    </div>
+                    <div class="form-field" style="margin: 0;">
+                      <input type="number" [(ngModel)]="slab.maxStudents" [ngModelOptions]="{standalone: true}" min="1"
+                        placeholder="e.g. 10 (or leave blank)" style="background: white;">
+                    </div>
+                    <div class="form-field" style="margin: 0;">
+                      <input type="number" [(ngModel)]="slab.dealPricePerStudent" [ngModelOptions]="{standalone: true}"
+                        min="0" style="background: white;">
+                    </div>
+                    <button type="button" class="btn btn-secondary"
+                      style="padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"
+                      (click)="removeSlab(entry.collegeId, $index)">
+                      <i-lucide name="trash-2" size="18" color="#ef4444"></i-lucide>
+                    </button>
+                  </div>
+                  }
+
+                  <button type="button" class="btn btn-secondary"
+                    style="margin-top: 0.75rem; font-size: 0.85rem; padding: 0.5rem 1rem;"
+                    (click)="addSlab(entry.collegeId)">
+                    <i-lucide name="plus" size="16"></i-lucide> Add Slab Level
+                  </button>
+                </div>
+                }
+              </div>
+            </div>
             @if (!entry.accessAllLocations) {
             <div class="location-panel">
               @for (state of states; track state) {

@@ -1,0 +1,734 @@
+
+> compus-connect@0.0.0 build
+> ng build
+
+❯ Building...
+✔ Building...
+Initial chunk files | Names                    |  Raw size | Estimated transfer size
+main-H5TV4GZB.js    | main                     |   2.80 MB |               359.20 kB
+chunk-GY4GJEL7.js   | -                        | 406.96 kB |               106.45 kB
+chunk-E3QDIMBW.js   | -                        | 337.51 kB |                55.22 kB
+chunk-LTHFRNPF.js   | -                        | 336.30 kB |                88.54 kB
+styles-VP3WIDYQ.css | styles                   |  84.75 kB |                18.62 kB
+
+                    | Initial total            |   3.97 MB |               628.02 kB
+
+Lazy chunk files    | Names                    |  Raw size | Estimated transfer size
+chunk-SAR5DZYY.js   | admission-manager-module | 197.62 kB |                32.90 kB
+chunk-43WWO6OZ.js   | agent-module             |  94 bytes |                94 bytes
+
+Application bundle generation complete. [19.817 seconds] - 2026-04-10T14:42:18.722Z
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/accountant-dashboard/accountant-dashboard.html:686:48:
+      686 │                             {{student.fullName?.charAt(0)}}
+          ╵                                                 ~~~~~~
+
+  Warning occurs in the template of component AccountantDashboard.
+
+    src/app/components/accountant-dashboard/accountant-dashboard.ts:24:15:
+      24 │   templateUrl: './accountant-dashboard.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/accountant-dashboard/accountant-dashboard.html:764:50:
+      764 │                               {{student.fullName?.charAt(0)}}
+          ╵                                                   ~~~~~~
+
+  Warning occurs in the template of component AccountantDashboard.
+
+    src/app/components/accountant-dashboard/accountant-dashboard.ts:24:15:
+      24 │   templateUrl: './accountant-dashboard.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/accountant-dashboard/accountant-dashboard.html:815:50:
+      815 │                               {{student.fullName?.charAt(0)}}
+          ╵                                                   ~~~~~~
+
+  Warning occurs in the template of component AccountantDashboard.
+
+    src/app/components/accountant-dashboard/accountant-dashboard.ts:24:15:
+      24 │   templateUrl: './accountant-dashboard.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/accountant-student-directory/accountant-student-directory.html:97:57:
+      97 │ ...ss="profile-avatar">{{ profile.fullName?.charAt(0) || 'A' }}</div>
+         ╵                                             ~~~~~~
+
+  Warning occurs in the template of component AccountantStudentDirectory.
+
+    src/app/components/admin/accountant-student-directory/accountant-student-directory.ts:20:15:
+      20 │   templateUrl: './accountant-student-directory.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/active-admission-manager/active-admission-manager.html:103:37:
+      103 │               @if (manager.colleges?.length) {
+          ╵                                      ~~~~~~
+
+  Warning occurs in the template of component ActiveAdmissionManager.
+
+    src/app/components/admin/active-admission-manager/active-admission-manager.ts:61:15:
+      61 │   templateUrl: './active-admission-manager.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/active-admission-manager/active-admission-manager.html:222:61:
+      222 │ ...="college-name">{{ student.college?.collegeName || '--' }}</span>
+          ╵                                        ~~~~~~~~~~~
+
+  Warning occurs in the template of component ActiveAdmissionManager.
+
+    src/app/components/admin/active-admission-manager/active-admission-manager.ts:61:15:
+      61 │   templateUrl: './active-admission-manager.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/admin-dashboard-overview/admin-dashboard-overview.html:2034:60:
+      2034 │ ...n class="detail-value">{{ createdVisaManInfo?.username }}</span>
+           ╵                                                  ~~~~~~~~
+
+  Warning occurs in the template of component AdminDashboardOverview.
+
+    src/app/components/admin/admin-dashboard-overview/admin-dashboard-overview.ts:54:15:
+      54 │   templateUrl: './admin-dashboard-overview.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/admin-dashboard-overview/admin-dashboard-overview.html:2038:60:
+      2038 │ ...n class="detail-value">{{ createdVisaManInfo?.fullName }}</span>
+           ╵                                                  ~~~~~~~~
+
+  Warning occurs in the template of component AdminDashboardOverview.
+
+    src/app/components/admin/admin-dashboard-overview/admin-dashboard-overview.ts:54:15:
+      54 │   templateUrl: './admin-dashboard-overview.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/all-agent-details/all-agent-details.html:417:50:
+      417 │             @if (selectedAgent.collegeAccessList?.length) {
+          ╵                                                   ~~~~~~
+
+  Warning occurs in the template of component AllAgentDetails.
+
+    src/app/components/admin/all-agent-details/all-agent-details.ts:58:15:
+      58 │   templateUrl: './all-agent-details.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/all-agent-details/all-agent-details.html:448:77:
+      448 │ ... (!access.accessAllLocations && access.locationDetails?.length) {
+          ╵                                                            ~~~~~~
+
+  Warning occurs in the template of component AllAgentDetails.
+
+    src/app/components/admin/all-agent-details/all-agent-details.ts:58:15:
+      58 │   templateUrl: './all-agent-details.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/all-agent-details/all-agent-details.html:485:78:
+      485 │ ...(!access.accessAllLocations && !access.locationDetails?.length) {
+          ╵                                                            ~~~~~~
+
+  Warning occurs in the template of component AllAgentDetails.
+
+    src/app/components/admin/all-agent-details/all-agent-details.ts:58:15:
+      58 │   templateUrl: './all-agent-details.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/doc-person-student-directory/doc-person-student-directory.html:53:51:
+      53 │ ...  <div class="avatar-lg">{{ dp.fullName?.charAt(0) || 'D' }}</div>
+         ╵                                             ~~~~~~
+
+  Warning occurs in the template of component DocPersonStudentDirectory.
+
+    src/app/components/admin/doc-person-student-directory/doc-person-student-directory.ts:9:15:
+      9 │   templateUrl: './doc-person-student-directory.html',
+        ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/doc-person-student-directory/doc-person-student-directory.html:97:57:
+      97 │ ...ss="profile-avatar">{{ profile.fullName?.charAt(0) || 'D' }}</div>
+         ╵                                             ~~~~~~
+
+  Warning occurs in the template of component DocPersonStudentDirectory.
+
+    src/app/components/admin/doc-person-student-directory/doc-person-student-directory.ts:9:15:
+      9 │   templateUrl: './doc-person-student-directory.html',
+        ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/doc-person-update/doc-person-update.html:90:40:
+      90 │                   <span>{{ dp.fullName?.charAt(0) || 'D' }}</span>
+         ╵                                         ~~~~~~
+
+  Warning occurs in the template of component DocPersonUpdate.
+
+    src/app/components/admin/doc-person-update/doc-person-update.ts:9:15:
+      9 │   templateUrl: './doc-person-update.html',
+        ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/student-dashboard/student-dashboard.html:454:51:
+      454 │           @if (selectedStudent.collegePreferences?.length) {
+          ╵                                                    ~~~~~~
+
+  Warning occurs in the template of component StudentDashboard.
+
+    src/app/components/admin/student-dashboard/student-dashboard.ts:12:15:
+      12 │   templateUrl: './student-dashboard.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/student-dashboard/student-dashboard.html:503:85:
+      503 │ ...sight-value">{{ selectedStudent.studentStatusHistory?.length || 0
+          ╵                                                          ~~~~~~
+
+  Warning occurs in the template of component StudentDashboard.
+
+    src/app/components/admin/student-dashboard/student-dashboard.ts:12:15:
+      12 │   templateUrl: './student-dashboard.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admin/update-accountant/update-accountant.html:90:41:
+      90 │                   <span>{{ acc.fullName?.charAt(0) || 'A' }}</span>
+         ╵                                          ~~~~~~
+
+  Warning occurs in the template of component UpdateAccountant.
+
+    src/app/components/admin/update-accountant/update-accountant.ts:18:15:
+      18 │   templateUrl: './update-accountant.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/admissionManager/message-dashboard-admission-manager/message-dashboard-admission-manager.html:231:79:
+      231 │ ....has(selectedConversation?.studentId || 0) ? 'draft-indicator'...
+          ╵                               ~~~~~~~~~
+
+  Warning occurs in the template of component MessageDashboardAdmissionManager.
+
+    src/app/components/admissionManager/message-dashboard-admission-manager/message-dashboard-admission-manager.ts:72:15:
+      72 │   templateUrl: './message-dashboard-admission-manager.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/agent/agent-dashboard/agent-dashboard.html:860:68:
+      860 │ ...pan class="detail-item">{{ student.college?.collegeName }}</span>
+          ╵                                                ~~~~~~~~~~~
+
+  Warning occurs in the template of component AgentDashboard.
+
+    src/app/components/agent/agent-dashboard/agent-dashboard.ts:75:15:
+      75 │   templateUrl: './agent-dashboard.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/agent/agent-dashboard/agent-dashboard.html:916:44:
+      916 │                         <span>{{ s.college?.collegeName }}</span>
+          ╵                                             ~~~~~~~~~~~
+
+  Warning occurs in the template of component AgentDashboard.
+
+    src/app/components/agent/agent-dashboard/agent-dashboard.ts:75:15:
+      75 │   templateUrl: './agent-dashboard.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/agent/agent-dashboard/agent-dashboard.html:1072:73:
+      1072 │ ...s="info-value">{{ selectedStudent.college?.collegeName }}</span>
+           ╵                                               ~~~~~~~~~~~
+
+  Warning occurs in the template of component AgentDashboard.
+
+    src/app/components/agent/agent-dashboard/agent-dashboard.ts:75:15:
+      75 │   templateUrl: './agent-dashboard.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1504:80:
+      1504 │ ...-xl-initials">{{ getInitials(selectedStudent?.fullName) }}</div>
+           ╵                                                  ~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1506:42:
+      1506 │                   <h2>{{ selectedStudent?.fullName }}</h2>
+           ╵                                           ~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1508:75:
+      1508 │ ...lass="badge-pill highlight">{{ selectedStudent?.applicationId ||
+           ╵                                                    ~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1509:37:
+      1509 │                     selectedStudent?.id }}</span>
+           ╵                                      ~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1510:89:
+      1510 │ ...tatus-pill" [ngClass]="getStatusClass(selectedStudent?.status)">
+           ╵                                                           ~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1511:42:
+      1511 │ ...  {{ selectedStudent?.applicationStatus || selectedStudent?.s...
+           ╵                          ~~~~~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1511:80:
+      1511 │ ...selectedStudent?.applicationStatus || selectedStudent?.status }}
+           ╵                                                           ~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1525:64:
+      1525 │ ...         <span class="value">{{ selectedStudent?.email }}</span>
+           ╵                                                     ~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1529:64:
+      1529 │ ...n class="value">{{ selectedStudent?.contactNo || 'N/A' }}</span>
+           ╵                                        ~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1533:64:
+      1533 │ ... <span class="value">{{ selectedStudent?.dob | date:'mediumDate'
+           ╵                                             ~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1538:64:
+      1538 │ ...pan class="value">{{ selectedStudent?.address || 'N/A' }}</span>
+           ╵                                          ~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1548:64:
+      1548 │ ... class="value">{{ selectedStudent?.college?.collegeName || 'N/A'
+           ╵                                       ~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1553:64:
+      1553 │ ...span class="value">{{ selectedStudent?.course || 'N/A' }}</span>
+           ╵                                           ~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1557:64:
+      1557 │ ...n class="value">{{ selectedStudent?.neetScore || 'N/A' }}</span>
+           ╵                                        ~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1567:64:
+      1567 │ ... class="value">{{ selectedStudent?.passportNo || 'N/A' }}</span>
+           ╵                                       ~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1571:64:
+      1571 │ ...     <span class="value">{{ selectedStudent?.passportValidTill |
+           ╵                                                 ~~~~~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1583:44:
+      1583 │                       @if (selectedStudent?.passportPath) {
+           ╵                                             ~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1588:71:
+      1588 │ ...       <a [href]="getDocumentUrl(selectedStudent?.passportPath)"
+           ╵                                                      ~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1594:44:
+      1594 │                       @if (selectedStudent?.adhaarPath) {
+           ╵                                             ~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1599:71:
+      1599 │ ...         <a [href]="getDocumentUrl(selectedStudent?.adhaarPath)"
+           ╵                                                        ~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1605:44:
+      1605 │                       @if (selectedStudent?.markseetPath) {
+           ╵                                             ~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1610:71:
+      1610 │ ...       <a [href]="getDocumentUrl(selectedStudent?.markseetPath)"
+           ╵                                                      ~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1616:44:
+      1616 │                       @if (selectedStudent?.neetMarksheetPath) {
+           ╵                                             ~~~~~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1621:71:
+      1621 │ ...  <a [href]="getDocumentUrl(selectedStudent?.neetMarksheetPath)"
+           ╵                                                 ~~~~~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1650:44:
+      1650 │ ...(selectedStudent?.conditionalOfferLetterPath || selectedStude...
+           ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1650:91:
+      1650 │ ...ditionalOfferLetterPath || selectedStudent?.conditionalLetter) {
+           ╵                                                ~~~~~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1662:44:
+      1662 │                       @if (selectedStudent?.telexDocumentsPath) {
+           ╵                                             ~~~~~~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1673:44:
+      1673 │ ...             @if (selectedStudent?.telexPaymentScreenshotPath) {
+           ╵                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1685:44:
+      1685 │                       @if (selectedStudent?.ttCopyPath) {
+           ╵                                             ~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1696:44:
+      1696 │ ...                @if (selectedStudent?.paymentConfirmationPath) {
+           ╵                                          ~~~~~~~~~~~~~~~~~~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1718:28:
+      1718 │       @if (selectedStudent?.action === 'VERIFY_DOCS') {
+           ╵                             ~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. Find more at https://v21.angular.dev/extended-diagnostics/NG8107 [plugin angular-compiler]
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.html:1735:28:
+      1735 │       @if (selectedStudent?.action === 'VERIFY_DOCS') {
+           ╵                             ~~~~~~
+
+  Warning occurs in the template of component DocPersonDashbaord.
+
+    src/app/components/doc-person-dashbaord/doc-person-dashbaord.ts:30:15:
+      30 │   templateUrl: './doc-person-dashbaord.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] All "@import" rules must come first [plugin angular-compiler] [invalid-@import]
+
+    src/app/components/home/home.css:339:4:
+      339 │     @import url('https://fonts.googleapis.com/css2?family=Inter:w...
+          ╵     ~~~~~~~
+
+  This rule cannot come before an "@import" rule
+
+    src/app/components/home/home.css:7:4:
+      7 │     :host {
+        ╵     ^
+
+
+▲ [WARNING] bundle initial exceeded maximum budget. Budget 2.00 MB was not met by 1.97 MB with a total of 3.97 MB.
+
+
+▲ [WARNING] src/app/components/accountant-dashboard/accountant-dashboard.css exceeded maximum budget. Budget 100.00 kB was not met by 2.66 kB with a total of 102.66 kB.
+
+
+▲ [WARNING] src/app/components/doc-person-dashbaord/doc-person-dashbaord.css exceeded maximum budget. Budget 100.00 kB was not met by 56.61 kB with a total of 156.61 kB.
+
+
+Output location: /Users/monis/Desktop/MasterFolder/Zorix/CompusConnect/dist/CompusConnect
+

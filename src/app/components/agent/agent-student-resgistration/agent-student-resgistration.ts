@@ -253,6 +253,12 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
 
   // ==================== STEP 1: COLLEGE & LOCATION LOGIC ====================
 
+  isSelectedCollegeInactive(): boolean {
+    if (!this.selectedCollegeId) return false;
+    const college = this.uniqueColleges.find(c => c.id === this.selectedCollegeId);
+    return college?.active === false;
+  }
+
   onIntakeChange(): void {
     // Logic for intake change if needed
   }
@@ -362,6 +368,13 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     }
     if (!this.selectedCollegeId) {
       this.errorMessage = 'Please select a college';
+      return false;
+    }
+    // Check if selected college is inactive
+    const selectedCollege = this.uniqueColleges.find(c => c.id === this.selectedCollegeId);
+    if (selectedCollege && selectedCollege.active === false) {
+      this.errorMessage = 'This college has been deactivated by admin. You cannot register students for this college.';
+      this.selectedCollegeId = null;
       return false;
     }
     this.errorMessage = null;
@@ -540,8 +553,8 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
       emergencyContactNo: this.student.emergencyContactNo,
       emergencyRelation: this.student.emergencyRelation,
 
-      passportNo: this.hasPassport ? this.student.passportNo : '',
-      passportValidTill: this.hasPassport ? this.student.passportValidTill : '',
+      passportNo: this.hasPassport ? this.student.passportNo : null,
+      passportValidTill: this.hasPassport ? this.student.passportValidTill : null,
       adhaarCardNo: this.student.adhaarCardNo,
 
       class12thPassingYear: this.student.class12thPassingYear,

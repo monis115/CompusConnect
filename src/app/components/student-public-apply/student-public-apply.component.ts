@@ -43,8 +43,9 @@ export class StudentPublicApplyComponent implements OnInit {
             college: {
               id: access.collegeId,
               collegeName: access.collegeName,
-              city: '',
-              country: ''
+              city: access.city || '',
+              country: access.country || '',
+              active: access.collegeActive !== false
             },
             accessAllLocations: access.accessAllLocations,
             allowedLocations: access.locationDetails ? access.locationDetails.map((loc: any) => ({
