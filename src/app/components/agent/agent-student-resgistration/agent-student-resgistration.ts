@@ -127,7 +127,77 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     passport: null as string | null
   };
 
-  boardOptions = ['CBSE', 'ICSE', 'State Board', 'IB', 'Other'];
+  boardOptions = [
+    // National Boards
+    'CBSE (Central Board of Secondary Education)',
+    'CISCE (Council for the Indian School Certificate Examinations)',
+    'NIOS (National Institute of Open Schooling)',
+    // International Boards
+    'IB (International Baccalaureate)',
+    'CAIE (Cambridge Assessment International Education)',
+    // State Boards
+    'Andhra Pradesh (BSEAP / BIEAP)',
+    'Assam (SEBA / AHSEC)',
+    'Bihar (BSEB)',
+    'Chhattisgarh (CGBSE)',
+    'Goa (GBSHSE)',
+    'Gujarat (GSEB)',
+    'Haryana (BSEH / HBSE)',
+    'Himachal Pradesh (HPBOSE)',
+    'Jammu & Kashmir (JKBOSE)',
+    'Jharkhand (JAC)',
+    'Karnataka (KSEAB / DPUE)',
+    'Kerala (KBPE / DHSE)',
+    'Madhya Pradesh (MPBSE)',
+    'Maharashtra (MSBSHSE)',
+    'Manipur (BOSEM / COHSEM)',
+    'Meghalaya (MBOSE)',
+    'Mizoram (MBSE)',
+    'Nagaland (NBSE)',
+    'Odisha (BSE / CHSE)',
+    'Punjab (PSEB)',
+    'Rajasthan (BSER / RBSE)',
+    'Tamil Nadu State Board',
+    'Telangana (BSETS / TSBIE)',
+    'Tripura (TBSE)',
+    'Uttar Pradesh (UPMSP / UP Board)',
+    'Uttarakhand (UBSE)',
+    'West Bengal (WBBSE / WBCHSE)',
+    // State Open Schooling Boards
+    'APOSS (Andhra Pradesh Open School)',
+    'ASOS (Assam State Open School)',
+    'BBOSE (Bihar Board of Open Schooling)',
+    'CGSOS (Chhattisgarh State Open School)',
+    'GSOS (Gujarat State Open School)',
+    'HOS (Haryana Open School)',
+    'HPSOS (Himachal Pradesh State Open School)',
+    'JKSOS (J&K State Open School)',
+    'KSOS (Karnataka State Open School)',
+    'SCOLE-Kerala (State Council for Open and Lifelong Education)',
+    'MPSOS (Madhya Pradesh State Open School)',
+    'MSOS (Maharashtra State Open School)',
+    'POS (Punjab Open School)',
+    'RSOS (Rajasthan State Open School)',
+    'TOSS (Telangana Open School Society)',
+    'UPSOS (UP State Open School)',
+    'WBCROS (West Bengal Council of Rabindra Open Schooling)',
+    // University & Specialized Boards
+    'AMU Board of Secondary & Senior Secondary Education',
+    'BHU Board (Central Hindu School exams)',
+    'JMI Board of Secondary & Senior Secondary Education',
+    'Visva-Bharati University Board',
+    'Rajiv Gandhi University of Knowledge Technologies (RGUKT)',
+    // Sanskrit and Madrasa Education Boards
+    'Uttar Pradesh Board of Madrasa Education',
+    'Bihar State Madrasa Education Board',
+    'West Bengal Board of Madrasa Education',
+    'Assam State Madrasa Education Board',
+    'Uttarakhand Sanskrit Shiksha Parishad',
+    'Bihar Sanskrit Shiksha Board',
+    'Chhattisgarh Madrasa Board',
+    'Madhya Pradesh Madrasa Board',
+    'Other'
+  ];
 
   hasPassport: boolean = true;
 

@@ -1195,9 +1195,9 @@ export class AgentDashboard implements OnInit {
   // --- Referral Link Logic ---
   get referralLink(): string {
     if (!this.agentData || !this.agentData.userId) return '';
-    // Assuming the app runs on the same origin
-    const origin = window.location.origin;
-    return `${origin}/apply/${this.agentData.userId}`;
+    const currentUrl = window.location.href;
+    const basePath = currentUrl.split('/agent-dashboard')[0];
+    return `${basePath}/apply/${this.agentData.userId}`;
   }
 
   copyReferralLink(): void {
