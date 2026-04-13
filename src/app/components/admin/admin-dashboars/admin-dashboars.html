@@ -1,40 +1,40 @@
 <div class="admin-dashboard">
   <!-- Premium Logout Overlay -->
   @if (isLoggingOut) {
-    <div class="logout-overlay">
-      <div class="logout-overlay-content">
-        <div class="logout-icon-wrapper">
-          <div class="logout-spinner-ring"></div>
-          <i-lucide name="shield-check" size="48"></i-lucide>
-        </div>
-        <h2 class="logout-title">Securing Your Session</h2>
-        <p class="logout-message">Please wait while we safely sign you out...</p>
-        <div class="logout-security-badges">
-          <span class="security-badge">
-            <i-lucide name="lock" size="14"></i-lucide>
-            Clearing Session
-          </span>
-          <span class="security-badge">
-            <i-lucide name="shield" size="14"></i-lucide>
-            Encrypting Data
-          </span>
-          <span class="security-badge">
-            <i-lucide name="check-circle" size="14"></i-lucide>
-            Secure Logout
-          </span>
-        </div>
+  <div class="logout-overlay">
+    <div class="logout-overlay-content">
+      <div class="logout-icon-wrapper">
+        <div class="logout-spinner-ring"></div>
+        <i-lucide name="shield-check" size="48"></i-lucide>
+      </div>
+      <h2 class="logout-title">Securing Your Session</h2>
+      <p class="logout-message">Please wait while we safely sign you out...</p>
+      <div class="logout-security-badges">
+        <span class="security-badge">
+          <i-lucide name="lock" size="14"></i-lucide>
+          Clearing Session
+        </span>
+        <span class="security-badge">
+          <i-lucide name="shield" size="14"></i-lucide>
+          Encrypting Data
+        </span>
+        <span class="security-badge">
+          <i-lucide name="check-circle" size="14"></i-lucide>
+          Secure Logout
+        </span>
       </div>
     </div>
+  </div>
   }
 
   <!-- Premium Spinner Overlay -->
   @if (showSystemActivitySpinner) {
-    <div class="system-activity-spinner-overlay">
-      <div class="premium-spinner-container">
-        <div class="premium-thin-spinner"></div>
-        <div class="loading-text">Loading Activity Logs...</div>
-      </div>
+  <div class="system-activity-spinner-overlay">
+    <div class="premium-spinner-container">
+      <div class="premium-thin-spinner"></div>
+      <div class="loading-text">Loading Activity Logs...</div>
     </div>
+  </div>
   }
 
   <!-- Sidebar -->
@@ -45,22 +45,23 @@
           <i-lucide name="graduation-cap" size="28"></i-lucide>
         </div>
         @if (!sidebarCollapsed) {
-          <span class="logo-text">CampusConnect</span>
+        <span class="logo-text">CampusConnect</span>
         }
       </div>
     </div>
 
     <nav class="sidebar-nav">
       @for (item of menuItems; track item) {
-        <button class="nav-item" [class.active]="activeSection === item.id"
-          (click)="navigateTo(item.id)">
-          <i-lucide [name]="item.icon" size="20"></i-lucide>
-          @if (!sidebarCollapsed) {
-            <span>{{ item.label }}</span>
-          }
-        </button>
+      <button class="nav-item" [class.active]="activeSection === item.id" (click)="navigateTo(item.id)">
+        <i-lucide [name]="item.icon" size="20"></i-lucide>
+        @if (!sidebarCollapsed) {
+        <span>{{ item.label }}</span>
+        }
+      </button>
       }
     </nav>
+
+
 
     <button class="sidebar-toggle" (click)="toggleSidebar()">
       <i-lucide [name]="sidebarCollapsed ? 'chevron-right' : 'chevron-left'" size="20"></i-lucide>
@@ -68,32 +69,57 @@
   </aside>
 
   <!-- Main Content -->
-  <main class="main-content">
-    @if (activeSection !== 'news-management') {
-      <header class="header">
-        <h1 class="page-title">{{ pageTitle }}</h1>
-        <div class="header-right">
-          <button class="btn-icon">
-            <i-lucide name="bell" size="20"></i-lucide>
-            <span class="badge">5</span>
-          </button>
-          <div class="user-profile">
-            <div class="avatar">AD</div>
-            <span class="user-name">{{ admin?.username || 'Admin User' }}</span>
-          </div>
-          <button class="logout-btn" (click)="logout()" [disabled]="isLoggingOut">
-            <i-lucide name="log-out" size="18"></i-lucide>
-            <span>Logout</span>
-          </button>
+  <main class="main-content" style="position: relative;">
+
+    <!-- Floating Top-Right Smart Profile & Logout -->
+    <div class="floating-action-block-row">
+      <!-- Profile Button -->
+      <div class="smart-profile-btn" [class.show-welcome]="showWelcomeMessage">
+        <div class="avatar avatar-icon">
+          <i-lucide name="user" size="18"></i-lucide>
         </div>
-      </header>
+        <div class="user-info-text">
+          @if (showWelcomeMessage) {
+          <span class="welcome-label">Welcome back,</span>
+          }
+          <span class="user-name">{{ admin?.username || 'Admin User' }}</span>
+        </div>
+      </div>
+
+      <!-- Logout Button -->
+      <button class="smart-logout-btn" (click)="confirmLogout()" [disabled]="isLoggingOut" title="Secure Logout">
+        <i-lucide name="power" size="18"></i-lucide>
+      </button>
+    </div>
+
+    <!-- Custom Logout Confirmation Modal -->
+    @if (showLogoutConfirmModal) {
+    <div class="modal-backdrop" style="z-index: 10001;" (click)="cancelLogout()"></div>
+    <div class="logout-confirm-modal"
+      style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 1rem; z-index: 10002; box-shadow: 0 20px 40px rgba(0,0,0,0.2); width: 320px; text-align: center; animation: slideDownGlass 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+      <div
+        style="width: 60px; height: 60px; background: #fee2e2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+        <i-lucide name="power" size="32"></i-lucide>
+      </div>
+      <h3 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Secure Logout</h3>
+      <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.4;">Are you sure you want to
+        end your session?</p>
+      <div style="display: flex; gap: 0.75rem; justify-content: center;">
+        <button
+          style="flex: 1; padding: 0.625rem; border: 1px solid #cbd5e1; background: white; border-radius: 0.5rem; font-weight: 600; color: #475569; cursor: pointer; transition: 0.2s;"
+          (click)="cancelLogout()">Cancel</button>
+        <button
+          style="flex: 1; padding: 0.625rem; border: none; background: #ef4444; color: white; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(239,68,68,0.3);"
+          (click)="executeLogout()">Log Out</button>
+      </div>
+    </div>
     }
 
     <!-- Render child routes here -->
     @if (!showSystemDashboard) {
-      <div class="content-area">
-        <router-outlet></router-outlet>
-      </div>
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
     }
   </main>
 
@@ -138,6 +164,12 @@
             <i-lucide name="calendar" size="20"></i-lucide>
           </div>
         </li>
+        <li class="sys-menu-item" (click)="openShareableLinks()">
+          <span class="sys-label">Shareable Links</span>
+          <div class="sys-icon-wrapper" style="color: #10b981;">
+            <i-lucide name="link" size="20"></i-lucide>
+          </div>
+        </li>
         <li class="sys-menu-item" (click)="handleOption('Settings')">
           <span class="sys-label">Settings</span>
           <div class="sys-icon-wrapper">
@@ -151,10 +183,10 @@
     <button class="sys-config-fab" (click)="toggleConfigMenu()" [class.active]="isConfigOpen">
       <div class="fab-content">
         @if (!isConfigOpen) {
-          <i-lucide name="settings" size="24" class="fab-icon main-icon"></i-lucide>
+        <i-lucide name="settings" size="24" class="fab-icon main-icon"></i-lucide>
         }
         @if (isConfigOpen) {
-          <i-lucide name="x" size="24" class="fab-icon close-icon"></i-lucide>
+        <i-lucide name="x" size="24" class="fab-icon close-icon"></i-lucide>
         }
       </div>
       <div class="fab-ripple"></div>
@@ -167,87 +199,127 @@
 
   <!-- SESSION MANAGEMENT MODAL -->
   @if (showSessionModal) {
-    <div class="modal-backdrop" (click)="closeSessionModal()"></div>
+  <div class="modal-backdrop" (click)="closeSessionModal()"></div>
   }
   @if (showSessionModal) {
-    <div class="session-modal" (click)="$event.stopPropagation()">
-      <div class="session-modal-header">
-        <div class="session-modal-title">
-          <i-lucide name="calendar" size="24"></i-lucide>
-          <h3>Session Management</h3>
+  <div class="session-modal" (click)="$event.stopPropagation()">
+    <div class="session-modal-header">
+      <div class="session-modal-title">
+        <i-lucide name="calendar" size="24"></i-lucide>
+        <h3>Session Management</h3>
+      </div>
+      <button class="close-btn" (click)="closeSessionModal()">
+        <i-lucide name="x" size="20"></i-lucide>
+      </button>
+    </div>
+    <div class="session-modal-body">
+      <!-- Loading State -->
+      @if (isLoadingSessions) {
+      <div class="session-loading">
+        <div class="session-spinner"></div>
+        <p>Loading sessions...</p>
+      </div>
+      }
+      <!-- Empty State -->
+      @if (!isLoadingSessions && sessions.length === 0) {
+      <div class="session-empty">
+        <i-lucide name="calendar-x" size="48"></i-lucide>
+        <p>No sessions found. Please check backend.</p>
+      </div>
+      }
+      <!-- Session List -->
+      @if (!isLoadingSessions && sessions.length > 0) {
+      <div class="session-list">
+        @for (session of sessions; track session) {
+        <div class="session-item" [class.selected]="selectedSession?.id === session.id"
+          (click)="selectSession(session)">
+          <div class="session-info">
+            <h4>{{ session.sessionName }}</h4>
+            <p>{{ session.academicYear }}</p>
+          </div>
+          @if (selectedSession?.id === session.id) {
+          <i-lucide name="check-circle" size="20"></i-lucide>
+          }
         </div>
-        <button class="close-btn" (click)="closeSessionModal()">
-          <i-lucide name="x" size="20"></i-lucide>
+        }
+      </div>
+      }
+      <!-- Update Form -->
+      @if (selectedSession) {
+      <div class="session-update-form">
+        <h4>Update Session</h4>
+        <div class="form-group">
+          <label>Session Name</label>
+          <input [(ngModel)]="sessionForm.sessionName" placeholder="e.g. Winter 2024">
+        </div>
+        <div class="form-group">
+          <label>Academic Year</label>
+          <input [(ngModel)]="sessionForm.academicYear" placeholder="e.g. 2024-2025">
+        </div>
+        @if (sessionUpdateError) {
+        <div class="session-error">
+          <i-lucide name="alert-circle" size="16"></i-lucide>
+          {{ sessionUpdateError }}
+        </div>
+        }
+        @if (sessionUpdateSuccess) {
+        <div class="session-success">
+          <i-lucide name="check-circle" size="16"></i-lucide>
+          Session updated successfully!
+        </div>
+        }
+        <button class="update-btn" [disabled]="isUpdatingSession" (click)="updateSession()">
+          @if (!isUpdatingSession) {
+          <span>Update Session</span>
+          }
+          @if (isUpdatingSession) {
+          <div class="btn-spinner"></div>
+          }
         </button>
       </div>
-      <div class="session-modal-body">
-        <!-- Loading State -->
-        @if (isLoadingSessions) {
-          <div class="session-loading">
-            <div class="session-spinner"></div>
-            <p>Loading sessions...</p>
-          </div>
-        }
-        <!-- Empty State -->
-        @if (!isLoadingSessions && sessions.length === 0) {
-          <div class="session-empty">
-            <i-lucide name="calendar-x" size="48"></i-lucide>
-            <p>No sessions found. Please check backend.</p>
-          </div>
-        }
-        <!-- Session List -->
-        @if (!isLoadingSessions && sessions.length > 0) {
-          <div class="session-list">
-            @for (session of sessions; track session) {
-              <div class="session-item"
-                [class.selected]="selectedSession?.id === session.id"
-                (click)="selectSession(session)">
-                <div class="session-info">
-                  <h4>{{ session.sessionName }}</h4>
-                  <p>{{ session.academicYear }}</p>
-                </div>
-                @if (selectedSession?.id === session.id) {
-                  <i-lucide name="check-circle" size="20"></i-lucide>
-                }
-              </div>
-            }
-          </div>
-        }
-        <!-- Update Form -->
-        @if (selectedSession) {
-          <div class="session-update-form">
-            <h4>Update Session</h4>
-            <div class="form-group">
-              <label>Session Name</label>
-              <input [(ngModel)]="sessionForm.sessionName" placeholder="e.g. Winter 2024">
-            </div>
-            <div class="form-group">
-              <label>Academic Year</label>
-              <input [(ngModel)]="sessionForm.academicYear" placeholder="e.g. 2024-2025">
-            </div>
-            @if (sessionUpdateError) {
-              <div class="session-error">
-                <i-lucide name="alert-circle" size="16"></i-lucide>
-                {{ sessionUpdateError }}
-              </div>
-            }
-            @if (sessionUpdateSuccess) {
-              <div class="session-success">
-                <i-lucide name="check-circle" size="16"></i-lucide>
-                Session updated successfully!
-              </div>
-            }
-            <button class="update-btn" [disabled]="isUpdatingSession" (click)="updateSession()">
-              @if (!isUpdatingSession) {
-                <span>Update Session</span>
-              }
-              @if (isUpdatingSession) {
-                <div class="btn-spinner"></div>
-              }
-            </button>
-          </div>
-        }
-      </div>
+      }
     </div>
+  </div>
+  }
+
+  <!-- SHAREABLE LINKS MODAL -->
+  @if (showShareableLinksModal) {
+  <div class="modal-backdrop" style="z-index: 10001;" (click)="closeShareableLinks()"></div>
+  <div class="session-modal" style="z-index: 10002; width: 450px; max-width: 90vw;" (click)="$event.stopPropagation()">
+    <div class="session-modal-header">
+      <div class="session-modal-title">
+        <i-lucide name="link" size="24"></i-lucide>
+        <h3>System Links</h3>
+      </div>
+      <button class="close-btn" (click)="closeShareableLinks()">
+        <i-lucide name="x" size="20"></i-lucide>
+      </button>
+    </div>
+    <div class="session-modal-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+      
+      <!-- Agent Registration Link -->
+      <div class="link-item-container">
+        <label style="font-weight: 600; color: #334155; margin-bottom: 0.5rem; display: block; font-size: 0.95rem;">Agent Public Registration Link</label>
+        <div style="display: flex; gap: 0.5rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.5rem 0.5rem 1rem;">
+          <input type="text" [value]="getLinkPath('agent-apply')" readonly style="flex: 1; border: none; background: transparent; color: #475569; font-size: 0.9rem; outline: none; width: 100%;">
+          <button (click)="copyPublicLink('agent-apply')" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; width: 36px; height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);" title="Copy Link">
+            <i-lucide name="copy" size="16"></i-lucide>
+          </button>
+        </div>
+      </div>
+
+      <!-- Track Application Link -->
+      <div class="link-item-container">
+        <label style="font-weight: 600; color: #334155; margin-bottom: 0.5rem; display: block; font-size: 0.95rem;">Track Application Status Link</label>
+        <div style="display: flex; gap: 0.5rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.5rem 0.5rem 1rem;">
+          <input type="text" [value]="getLinkPath('track-application')" readonly style="flex: 1; border: none; background: transparent; color: #475569; font-size: 0.9rem; outline: none; width: 100%;">
+          <button (click)="copyPublicLink('track-application')" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; width: 36px; height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);" title="Copy Link">
+            <i-lucide name="copy" size="16"></i-lucide>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
   }
 </div>

@@ -39,8 +39,11 @@ import { DocPersonStudentDirectory } from './components/admin/doc-person-student
 import { NewsDashboard } from './components/admin/news-dashboard/news-dashboard';
 import { CollegePerformancesDashbaord } from './components/admin/college-performances-dashbaord/college-performances-dashbaord';
 import { SystemConfigurationDetails } from './components/admin/system-configuration-details/system-configuration-details';
+import { SystemUsersDashboard } from './components/admin/system-users-dashboard/system-users-dashboard';
 import { AgentApply } from './components/agent-apply/agent-apply';
 import { StudentPublicApplyComponent } from './components/student-public-apply/student-public-apply.component';
+import { ManageLocations } from './components/admin/manage-locations/manage-locations';
+import { TrackApplicationComponent } from './components/track-application/track-application';
 
 const routes: Routes = [
   { path: '', component: AdminLogin },
@@ -49,6 +52,7 @@ const routes: Routes = [
   { path: 'admin-login', component: AdminLogin },
   { path: 'agent-apply', component: AgentApply },
   { path: 'apply/:agentId', component: StudentPublicApplyComponent },
+  { path: 'track-application', component: TrackApplicationComponent },
 
   // Admin Dashboard Routes - Protected
   {
@@ -97,7 +101,9 @@ const routes: Routes = [
       { path: 'manage-doc-person', component: DocPersonUpdate, data: { section: 'doc-person' } },
       { path: 'doc-person-student-directory', component: DocPersonStudentDirectory, data: { section: 'doc-person' } },
       { path: 'news-dashboard', component: NewsDashboard, data: { section: 'news-management' } },
-      { path: 'performance', component: CollegePerformancesDashbaord, data: { section: 'performance' } }
+      { path: 'performance', component: CollegePerformancesDashbaord, data: { section: 'performance' } },
+      { path: 'system-users', component: SystemUsersDashboard, data: { section: 'system-users' } },
+      { path: 'locations', component: ManageLocations, data: { section: 'locations' } }
     ]
   },
 
@@ -166,7 +172,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

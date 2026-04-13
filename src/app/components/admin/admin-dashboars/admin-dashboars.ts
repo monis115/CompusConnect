@@ -38,8 +38,12 @@ export class AdminDashboars implements OnInit {
     { id: 'news-management', label: 'News Management', icon: 'file-text' },
     { id: 'payments', label: 'Payments', icon: 'credit-card' },
     { id: 'reports', label: 'System Configuration', icon: 'bar-chart' },
-    { id: 'performance', label: 'Performance', icon: 'trending-up' }
+    { id: 'performance', label: 'Performance', icon: 'trending-up' },
+    { id: 'system-users', label: 'System Users', icon: 'user-check' },
+    { id: 'locations', label: 'Locations', icon: 'map-pin' }
   ];
+
+  showWelcomeMessage = true;
 
   constructor(
     private authService: AdminAuthService,
@@ -52,6 +56,10 @@ export class AdminDashboars implements OnInit {
   ngOnInit() {
     this.admin = this.authService.getUserData();
     console.log('Logged-in Admin:', this.admin);
+
+    setTimeout(() => {
+      this.showWelcomeMessage = false;
+    }, 2500);
 
     // Subscribe to route changes to update activeSection
     this.router.events.pipe(
@@ -214,7 +222,18 @@ export class AdminDashboars implements OnInit {
     });
   }
 
-  logout() {
+  showLogoutConfirmModal = false;
+
+  confirmLogout() {
+    this.showLogoutConfirmModal = true;
+  }
+
+  cancelLogout() {
+    this.showLogoutConfirmModal = false;
+  }
+
+  executeLogout() {
+    this.showLogoutConfirmModal = false;
     this.isLoggingOut = true;
 
     // Show overlay for 1.9 seconds
@@ -232,5 +251,44 @@ export class AdminDashboars implements OnInit {
       // Navigate to admin login
       this.router.navigate(['/admin-login']);
     }, 1900);
+  }
+
+  showShareableLinksModal = false;
+
+  openShareableLinks() {
+    this.showShareableLinksModal = true;
+    this.isConfigOpen = false; // close the menu when modal opens
+  }
+
+  closeShareableLinks() {
+    this.showShareableLinksModal = false;
+  }
+
+  getLinkPath(path: string): string {
+    let base = window.location.href.split('#')[0];
+    if (base.endsWith('/')) {
+      base = base.substring(0, base.length - 1);
+    }
+    return `${base}/#/${path}`;
+  }
+
+  copyPublicLink(path: string) {
+    const link = this.getLinkPath(path);
+    
+    navigator.clipboard.writeText(link).then(() => {
+      const label = path === 'agent-apply' ? 'Agent Registration Link' : 'Track Application Link';
+      this.showToast(`${label} copied!`);
+    }).catch(err => {
+      console.error('Failed to copy link', err);
+      prompt('Copy the link below:', link);
+    });
+  }
+
+  private showToast(msg: string) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = `position:fixed;bottom:20px;right:20px;background:#225062;color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:10000;animation:slideIn .3s ease-out;`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2300);
   }
 }

@@ -94,35 +94,36 @@ export class AdminAgentRegistration implements OnInit {
   loadData() {
     this.loading = true;
     this.dataLoaded = false;
-
-    const colleges$ = this.http.get<College[]>(this.collegesUrl);
-    const locations$ = this.http.get<Location[]>(this.locationsUrl);
+    this.error = '';
 
     console.log('Fetching colleges and locations...');
 
-    Promise.all([
-      colleges$.toPromise(),
-      locations$.toPromise(),
-    ])
-      .then(([colleges, locations]) => {
-        this.colleges = colleges || [];
-        this.locations = locations || [];
+    import('rxjs').then(({ forkJoin }) => {
+      forkJoin({
+        colleges: this.http.get<College[]>(this.collegesUrl),
+        locations: this.http.get<Location[]>(this.locationsUrl)
+      }).subscribe({
+        next: (data) => {
+          this.colleges = data.colleges || [];
+          this.locations = data.locations || [];
 
-        console.log('Colleges loaded:', this.colleges.length);
-        console.log('Locations loaded:', this.locations.length);
+          console.log('Colleges loaded:', this.colleges.length);
+          console.log('Locations loaded:', this.locations.length);
 
-        this.buildStateDistrictMap();
+          this.buildStateDistrictMap();
 
-        this.dataLoaded = true;
-        this.loading = false;
-        this.cdr.detectChanges();
-      })
-      .catch((err) => {
-        console.error('Error loading data:', err);
-        this.error = 'Failed to load required data. Please try again.';
-        this.loading = false;
-        this.cdr.detectChanges();
+          this.dataLoaded = true;
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading data:', err);
+          this.error = 'Failed to load required data. Please try again.';
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
       });
+    });
   }
 
   private buildStateDistrictMap() {
@@ -566,5 +567,16 @@ export class AdminAgentRegistration implements OnInit {
     t.style.cssText = `position:fixed;bottom:20px;right:20px;background:#225062;color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:10000;animation:slideIn .3s ease-out;`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 2300);
+  }
+
+  copyAgentApplyLink() {
+    const origin = window.location.origin;
+    const applyLink = `${origin}/agent-apply`;
+    navigator.clipboard.writeText(applyLink).then(() => {
+      this.showToast('Public Agent Registration Link copied!');
+    }).catch(err => {
+      console.error('Failed to copy link', err);
+      prompt('Copy the link below:', applyLink);
+    });
   }
 }

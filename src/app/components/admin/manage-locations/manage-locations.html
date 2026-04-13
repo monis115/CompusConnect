@@ -1,0 +1,126 @@
+<div class="admin-dashboard mng-loc-container">
+  <!-- Header -->
+  <div class="mng-loc-header">
+    <div class="header-content">
+      <div class="header-icon-box">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="32" height="32" style="color: #0ea5e9;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="mng-loc-title">Geographic Locations</h1>
+        <p class="header-subtitle">Manage States and Districts securely stored in the master database.</p>
+      </div>
+    </div>
+  </div>
+
+  @if (errorMessage) {
+    <div class="error-banner">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      {{ errorMessage }}
+    </div>
+  }
+
+  <div class="mng-loc-flexbox">
+    <!-- Left Column: Form -->
+    <div class="mng-loc-sidebar">
+      <div class="form-card">
+        <h3>{{ editingLocationId ? 'Update Location' : 'Add New Location' }}</h3>
+        
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-field">
+            <label>State Name</label>
+            <input type="text" formControlName="state" placeholder="e.g. Maharashtra" [class.is-invalid]="form.get('state')?.invalid && form.get('state')?.touched">
+            @if (form.get('state')?.invalid && form.get('state')?.touched) {
+              <span class="error-txt">State name is extremely required.</span>
+            }
+          </div>
+
+          <div class="form-field">
+            <label>District / Region</label>
+            <input type="text" formControlName="district" placeholder="e.g. Pune" [class.is-invalid]="form.get('district')?.invalid && form.get('district')?.touched">
+            @if (form.get('district')?.invalid && form.get('district')?.touched) {
+              <span class="error-txt">District name is strictly required.</span>
+            }
+          </div>
+
+          <div class="form-actions">
+            @if (editingLocationId) {
+              <button type="button" class="btn btn-outline" (click)="cancelEdit()">Cancel Edit</button>
+            }
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving">
+              @if (isSaving) { <span>Processing...</span> }
+              @else { <span>{{ editingLocationId ? 'Update Location' : '+ Disburse Location' }}</span> }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Column: Data Table -->
+    <div class="mng-loc-main">
+      <div class="table-card">
+        <div class="table-header">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <h3>Database Locations Database <span class="badge">{{ filteredLocations.length }}</span></h3>
+            <div class="search-box">
+              <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" placeholder="Search state or district...">
+            </div>
+          </div>
+        </div>
+
+        @if (isLoading) {
+          <div class="empty-state">
+            <div class="spinner"></div>
+            <p>Pulling geographical location architecture...</p>
+          </div>
+        } @else if (filteredLocations.length === 0) {
+          <div class="empty-state">
+            <p>No locations detected. Apply criteria broadly.</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="loc-table">
+              <thead>
+                <tr>
+                  <th style="width: 80px;">ID</th>
+                  <th>State Entity</th>
+                  <th>District Jurisdiction</th>
+                  <th style="width: 150px; text-align: right;">Administrator Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (loc of paginatedLocations; track loc.id) {
+                  <tr>
+                    <td class="text-gray">#{{ loc.id }}</td>
+                    <td style="font-weight: 500; color: #1e293b;">{{ loc.state }}</td>
+                    <td>{{ loc.district }}</td>
+                    <td style="text-align: right;">
+                      <button class="action-btn edit-btn" (click)="editLocation(loc)" title="Secure Edit">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                      </button>
+                      <button class="action-btn del-btn" (click)="deleteLocation(loc.id)" title="Wipe Jurisidiction">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination-footer">
+            <span class="page-info">Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to {{ math.min(currentPage * itemsPerPage, filteredLocations.length) }} of {{ filteredLocations.length }} results</span>
+            <div class="pagination-controls">
+              <button class="page-btn" [disabled]="currentPage === 1" (click)="previousPage()">Previous</button>
+              <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

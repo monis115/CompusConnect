@@ -1,0 +1,192 @@
+<div class="track-page">
+  <!-- Top Navigation Header (like login page) -->
+  <header class="top-header">
+    <div class="header-content">
+      <a href="https://rareeducation.in" target="_blank" class="logo-link">
+        <img src="rare-education-logo.png" alt="Rare Education" class="logo-image">
+      </a>
+      <nav class="nav-links">
+        <a href="https://rareeducation.in" target="_blank" class="nav-link">Home</a>
+        <a href="https://rareeducation.in/#enquiry" target="_blank" class="nav-link">Get Enquiry</a>
+        <a href="https://rareeducation.in/#contact" target="_blank" class="nav-link">Contact Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Subtle Background -->
+  <div class="bg-pattern"></div>
+
+  <div class="track-container">
+    <!-- Title Section -->
+    <div class="title-section">
+      <h1 class="page-heading">Application Tracking Portal</h1>
+      <p class="page-subheading">Track the real-time status of your admission application</p>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-card">
+      <div class="search-header">
+        <div class="search-icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+        </div>
+        <div>
+          <h2>Track Your Application</h2>
+          <p>Enter your Application ID or Email address to check the current status.</p>
+        </div>
+      </div>
+
+      <div class="search-input-group">
+        <input type="text" [(ngModel)]="query" placeholder="Application ID or Email..."
+          (keyup.enter)="trackApplication()" [disabled]="isLoading" class="search-input" />
+        <button class="search-btn" (click)="trackApplication()" [disabled]="isLoading || !query.trim()">
+          @if (isLoading) {
+          <div class="spinner"></div>
+          } @else {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <span>Track</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading) {
+    <div class="loading-card">
+      <div class="loading-pulse"></div>
+      <p>Searching for your application...</p>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (error && !isLoading) {
+    <div class="error-card">
+      <div class="error-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
+          <line x1="9" y1="9" x2="9.01" y2="9" />
+          <line x1="15" y1="9" x2="15.01" y2="9" />
+        </svg>
+      </div>
+      <h3>No Results Found</h3>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="query = ''; error = null; searched = false;">Try Again</button>
+    </div>
+    }
+
+    <!-- Result Section -->
+    @if (result && !isLoading) {
+    <div class="result-section">
+      <!-- Student Info Card -->
+      <div class="info-card">
+        <div class="info-header">
+          <div class="student-avatar">
+            {{ result.fullName?.charAt(0)?.toUpperCase() || 'S' }}
+          </div>
+          <div class="student-details">
+            <h2>{{ result.fullName }}</h2>
+            <span class="app-id-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              {{ result.applicationId }}
+            </span>
+          </div>
+          <div class="status-badge" [class.rejected]="isRejected()"
+            [class.completed]="result.currentStatus === 'COMPLETED' || result.currentStatus === 'TRAVELLING'">
+            {{ formatStatus(result.currentStatus) }}
+          </div>
+        </div>
+
+        <!-- Progress Pipeline -->
+        @if (!isRejected()) {
+        <div class="progress-section">
+          <div class="progress-label">
+            <span>Progress</span>
+            <span class="progress-percent">{{ getProgressPercent() }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="getProgressPercent()"></div>
+          </div>
+          <div class="phase-indicators">
+            <div class="phase" [class.active]="getPhaseIndex(result.currentStatus) >= 0"
+              [class.current]="getPhaseIndex(result.currentStatus) === 0">
+              <div class="phase-dot"></div>
+              <span>Registration</span>
+            </div>
+            <div class="phase" [class.active]="getPhaseIndex(result.currentStatus) >= 1"
+              [class.current]="getPhaseIndex(result.currentStatus) === 1">
+              <div class="phase-dot"></div>
+              <span>Admission Letter</span>
+            </div>
+            <div class="phase" [class.active]="getPhaseIndex(result.currentStatus) >= 2"
+              [class.current]="getPhaseIndex(result.currentStatus) === 2">
+              <div class="phase-dot"></div>
+              <span>Telex</span>
+            </div>
+            <div class="phase" [class.active]="getPhaseIndex(result.currentStatus) >= 3"
+              [class.current]="getPhaseIndex(result.currentStatus) === 3">
+              <div class="phase-dot"></div>
+              <span>Visa</span>
+            </div>
+            <div class="phase" [class.active]="getPhaseIndex(result.currentStatus) >= 4"
+              [class.current]="getPhaseIndex(result.currentStatus) === 4">
+              <div class="phase-dot"></div>
+              <span>Complete</span>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- Timeline (reversed — oldest first) -->
+      @if (result.history && result.history.length > 0) {
+      <div class="timeline-card">
+        <h3 class="timeline-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          Application Timeline
+        </h3>
+        <div class="timeline">
+          @for (item of result.history.slice().reverse(); track item; let i = $index; let last = $last) {
+          <div class="timeline-item" [class.latest]="last">
+            <div class="timeline-marker">
+              <div class="marker-dot" [class.active]="last"></div>
+              @if (!$last) {
+              <div class="marker-line"></div>
+              }
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-status">{{ formatStatus(item.status) }}</div>
+              <div class="timeline-meta">
+                <span class="timeline-date">{{ formatDate(item.updatedAt) }}</span>
+              </div>
+              @if (item.comments) {
+              <div class="timeline-comment">{{ item.comments }}</div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+
+  <!-- Orange Footer -->
+  <footer class="page-footer">
+    <p>Copyright © 2025 | Rare Education | All Rights Reserved</p>
+    <p class="footer-credit">Designed and Developed by <a href="https://www.zorixlab.com" target="_blank"
+        class="footer-link">Zorix Lab</a></p>
+  </footer>
+</div>

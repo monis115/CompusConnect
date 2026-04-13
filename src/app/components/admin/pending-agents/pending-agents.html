@@ -1,11 +1,13 @@
 <div class="admin-dashboard pa-container">
   <div class="pa-header">
     <h1 class="pa-title">Pending Agent Approvals</h1>
-    <button class="pa-refresh-btn" (click)="refreshData()" [style.transform]="'rotate(' + refreshRotation + 'deg)'">
-      <svg class="pa-refresh-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-      </svg>
-    </button>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <button class="pa-refresh-btn" (click)="refreshData()" [style.transform]="'rotate(' + refreshRotation + 'deg)'">
+        <svg class="pa-refresh-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </button>
+    </div>
   </div>
 
   @if (isLoading) {
@@ -184,6 +186,52 @@
                       <button type="button" class="pa-btn-remove" (click)="removeCollegeAccess(entry.collegeId)" title="Remove">
                         ✕
                       </button>
+                    </div>
+                  </div>
+
+                  <!-- DEAL PRICE COMMISSION PANEL -->
+                  <div class="pa-commission-panel" style="padding: 1.25rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                    <h4 style="margin-top: 0; margin-bottom: 1rem; font-size: 0.95rem; color: #334155; font-weight: 600;">Pricing & Deal Price</h4>
+                    <div style="display: grid; gap: 1rem; margin-bottom: 1rem;" [style.opacity]="entry.isSlabApplicable ? '0.5' : '1'">
+                      <div>
+                        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Standard Deal Price / Student (₹)</label>
+                        <input type="number" [(ngModel)]="entry.dealPrice" placeholder="e.g. 500" min="0" [disabled]="entry.isSlabApplicable" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                      </div>
+                    </div>
+
+                    <!-- SLAB TOGGLE -->
+                    <div style="background: white; padding: 1.25rem; border-radius: 6px; border: 1px dashed #cbd5e1;">
+                      <label class="pa-switch-label" style="margin-bottom: 0;">
+                        <span style="font-weight: 600; color: #334155;">Apply Deal Price Levels?</span>
+                        <input type="checkbox" class="pa-switch-input" [checked]="entry.isSlabApplicable" (change)="toggleSlabApplicable(entry.collegeId, $event)">
+                        <span class="pa-switch-slider"></span>
+                      </label>
+
+                      @if (entry.isSlabApplicable) {
+                      <div style="margin-top: 1.25rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 32px; gap: 0.5rem; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">
+                          <div>Min Students</div>
+                          <div>Max Students (Blank for N+)</div>
+                          <div>Deal Price / Student (₹)</div>
+                          <div></div>
+                        </div>
+
+                        @for (slab of entry.slabs; track $index) {
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 32px; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                          <input type="number" [(ngModel)]="slab.minStudents" min="1" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                          <input type="number" [(ngModel)]="slab.maxStudents" min="1" placeholder="N+" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                          <input type="number" [(ngModel)]="slab.dealPricePerStudent" min="0" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                          <button type="button" class="pa-btn-remove" style="width: 32px; height: 32px; padding: 0; display:flex; justify-content:center; align-items:center;" (click)="removeSlab(entry.collegeId, $index)" title="Remove Slab">
+                            ✕
+                          </button>
+                        </div>
+                        }
+
+                        <button type="button" class="pa-btn pa-btn-secondary" style="margin-top: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.8rem;" (click)="addSlab(entry.collegeId)">
+                          + Add Deal Price Level
+                        </button>
+                      </div>
+                      }
                     </div>
                   </div>
 

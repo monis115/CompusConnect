@@ -128,31 +128,55 @@
   /* Larger touch targets */
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: #e2e8f0; /* Brighter default text */
   border-radius: 1rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.33, 1); /* Ultra smooth easing */
   margin-bottom: 0.75rem;
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 500;
   white-space: nowrap;
   position: relative;
   overflow: hidden;
 }
 
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #0ea5e9;
+  border-radius: 0 4px 4px 0;
+  transform: scaleY(0);
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.33, 1);
+  transform-origin: center;
+}
+
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
-  transform: translateX(5px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
+  color: #ffffff;
+  font-weight: 600;
+  transform: translateX(6px);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.nav-item:hover::before {
+  transform: scaleY(1);
 }
 
 .nav-item.active {
-  background: white;
-  color: black;
+  background: linear-gradient(90deg, rgba(14, 165, 233, 0.2) 0%, transparent 100%);
+  color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.25);
-  transform: translateX(5px);
+  transform: translateX(6px);
+}
+
+.nav-item.active::before {
+  transform: scaleY(1);
+  background: #38bdf8;
+  box-shadow: 0 0 12px #38bdf8;
 }
 
 .sidebar.collapsed .nav-item {
@@ -249,112 +273,119 @@
   letter-spacing: -0.03em;
 }
 
-.header-right {
+/* Floating Top Right Smart Profile Block */
+.floating-action-block-row {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  z-index: 1000;
   display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
   align-items: center;
-  gap: 1.5rem;
 }
 
-/* Icon Buttons */
-.btn-icon {
+/* Smart Profile Button */
+.smart-profile-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  padding: 0.35rem;
+  cursor: pointer;
+  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+  overflow: hidden;
+  max-width: 3.25rem; /* Only show avatar initially */
+}
+
+/* Avatar Icon overrides */
+.smart-profile-btn .avatar-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #fbbf24;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.1);
+  z-index: 2;
+}
+
+/* User Info Text Container */
+.smart-profile-btn .user-info-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.welcome-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.smart-profile-btn .user-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--primary-navy);
+  letter-spacing: -0.2px;
+}
+
+/* Hover and active 'Show Welcome' mechanics */
+.smart-profile-btn:hover,
+.smart-profile-btn.show-welcome {
+  max-width: 200px;
+  padding-right: 1.25rem;
+}
+
+.smart-profile-btn:hover .user-info-text,
+.smart-profile-btn.show-welcome .user-info-text {
+  opacity: 1;
+  transform: translateX(0);
+  padding-left: 0.75rem;
+}
+
+/* Smart Logout Button below */
+.smart-logout-btn {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  /* Circular for premium feel */
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  background: white;
-  color: var(--secondary-navy);
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  position: relative;
-  transition: var(--transition-base);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.33, 1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
 }
 
-.btn-icon:hover {
-  border-color: rgba(0, 0, 0, 0.1);
-  color: black;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-.badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: black;
+.smart-logout-btn:hover {
+  background: #ef4444;
   color: white;
-  font-size: 0.7rem;
-  font-weight: 700;
-  height: 1.25rem;
-  min-width: 1.25rem;
-  padding: 0 0.35rem;
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-color: #ef4444;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
 }
 
-/* User Profile */
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  cursor: pointer;
-  padding: 0.5rem 0.75rem;
-  border-radius: 2rem;
-  /* Pill shape */
-  transition: var(--transition-base);
-  border: 1px solid transparent;
-}
-
-.user-profile:hover {
-  background: white;
-  border-color: rgba(0, 0, 0, 0.05);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-.avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  background: var(--primary-navy);
-  color: var(--accent-gold);
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.875rem;
-}
-
-.user-name {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--primary-navy);
-}
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border: 1px solid #f1f5f9;
-  background: white;
-  border-radius: 0.75rem;
-  color: #ef4444;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: var(--transition-base);
-}
-
-.logout-btn:hover {
-  background: #fef2f2;
-  border-color: #fee2e2;
+.smart-logout-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Content Area Shell */

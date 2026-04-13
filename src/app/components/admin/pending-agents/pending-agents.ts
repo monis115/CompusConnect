@@ -50,13 +50,25 @@ interface Location {
   district: string;
 }
 
-// Per-college location access entry (same as admin-agent-registration)
+// New Commission Slab Interface
+export interface CommissionSlab {
+  minStudents: number;
+  maxStudents: number | null;
+  dealPricePerStudent: number;
+}
+
+// Per-college location access entry
 interface CollegeAccessEntry {
   collegeId: number;
   collegeName: string;
   city: string;
   accessAllLocations: boolean;
   locationIds: number[];
+
+  // Dynamic Commission Slabs Settings
+  dealPrice: number | null;
+  isSlabApplicable: boolean;
+  slabs: CommissionSlab[];
 }
 
 @Component({
@@ -237,7 +249,10 @@ export class PendingAgents implements OnInit {
       collegeName: college.collegeName,
       city: college.city,
       accessAllLocations: false,
-      locationIds: []
+      locationIds: [],
+      dealPrice: null,
+      isSlabApplicable: false,
+      slabs: []
     });
 
     this.selectedCollegeToAdd = '';
@@ -252,6 +267,45 @@ export class PendingAgents implements OnInit {
         delete this.expandedStates[key];
       }
     });
+    this.cdr.detectChanges();
+  }
+
+  // --- Dynamic Deal Price Slabs Handlers ---
+
+  toggleSlabApplicable(collegeId: number, event: Event) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+    const checked = (event.target as HTMLInputElement).checked;
+    entry.isSlabApplicable = checked;
+    
+    if (checked && entry.slabs.length === 0) {
+      this.addSlab(collegeId);
+    }
+    this.cdr.detectChanges();
+  }
+
+  addSlab(collegeId: number) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+    
+    let nextMin = 1;
+    if (entry.slabs.length > 0) {
+      const lastMax = entry.slabs[entry.slabs.length - 1].maxStudents;
+      nextMin = lastMax ? lastMax + 1 : 1;
+    }
+
+    entry.slabs.push({
+      minStudents: nextMin,
+      maxStudents: null, 
+      dealPricePerStudent: entry.dealPrice || 0
+    });
+    this.cdr.detectChanges();
+  }
+
+  removeSlab(collegeId: number, index: number) {
+    const entry = this.collegeAccessList.find(e => e.collegeId === collegeId);
+    if (!entry) return;
+    entry.slabs.splice(index, 1);
     this.cdr.detectChanges();
   }
 
@@ -368,7 +422,10 @@ export class PendingAgents implements OnInit {
     const collegeAccessListPayload = this.collegeAccessList.map(entry => ({
       collegeId: entry.collegeId,
       accessAllLocations: entry.accessAllLocations,
-      locationIds: entry.locationIds
+      locationIds: entry.locationIds,
+      dealPrice: entry.dealPrice,
+      isSlabApplicable: entry.isSlabApplicable,
+      commissionSlabs: entry.slabs
     }));
 
     const payload = {
@@ -417,5 +474,17 @@ export class PendingAgents implements OnInit {
   refreshData() {
     this.refreshRotation += 360;
     this.loadData();
+  }
+
+  copyAgentApplyLink() {
+    const origin = window.location.origin;
+    const applyLink = `${origin}/agent-apply`;
+    navigator.clipboard.writeText(applyLink).then(() => {
+      alert('Public Agent Registration Link copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy link', err);
+      // Fallback
+      prompt('Copy the link below:', applyLink);
+    });
   }
 }

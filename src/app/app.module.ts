@@ -158,6 +158,7 @@ import {
   Wand2,
   LayoutGrid,
   UsersRound,
+  Link,
   Ban,
   BookOpen,
   MinusCircle,
@@ -233,6 +234,9 @@ import { SystemConfigurationDetails } from './components/admin/system-configurat
 import { AgentApply } from './components/agent-apply/agent-apply';
 import { StudentPublicApplyComponent } from './components/student-public-apply/student-public-apply.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { SystemUsersDashboard } from './components/admin/system-users-dashboard/system-users-dashboard';
+import { ManageLocations } from './components/admin/manage-locations/manage-locations';
+import { TrackApplicationComponent } from './components/track-application/track-application';
 
 @NgModule({
   declarations: [
@@ -279,7 +283,9 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     ReportsGeneratedDashbaord,
     SystemConfigurationDetails,
     AgentApply,
-
+    SystemUsersDashboard,
+    ManageLocations,
+    TrackApplicationComponent
   ],
   imports: [
     BrowserModule,
@@ -403,6 +409,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
       Power,
       LayoutGrid,
       UsersRound,
+      Link,
       Ban,
       BookOpen,
       MinusCircle,
