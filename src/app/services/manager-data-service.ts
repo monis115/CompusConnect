@@ -17,6 +17,8 @@ export interface College {
 
 /** Student – the **only** definition used everywhere */
 export interface Student {
+  affidavitPath?: string;
+  neetMarksheetPath?: string;
   id: number;
   fullName: string;
   email?: string;

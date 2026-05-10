@@ -15,6 +15,8 @@ export interface College {
 }
 
 export interface Student {
+  affidavitPath?: string;
+  neetMarksheetPath?: string;
   id: number;
   applicationId?: string; // PRIMARY IDENTIFIER per API spec
   fullName: string;

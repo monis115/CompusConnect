@@ -42,6 +42,7 @@ interface College {
   collegeName: string;
   city: string;
   country: string;
+  logoUrl?: string;
   active?: boolean;
 }
 
@@ -70,7 +71,9 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
   showSuccessMessage = false;
   notificationType: 'success' | 'info' = 'success';
   successMessage = '';
-  newCollege: College = { collegeName: '', city: '', country: '' };
+  newCollege: College = { collegeName: '', city: '', country: '', logoUrl: '' };
+  collegeLogoFile: File | null = null;
+  collegeLogoPreview: string | null = null;
   isAdding = false;
 
   isHeaderLoaded = false;
@@ -371,15 +374,31 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
     }
     this.isAdding = true;
     this.cdr.detectChanges();
-    this.http.post<College>(this.apiUrl, this.newCollege).subscribe({
+    // First create the college (without logo)
+    const payload = { collegeName: this.newCollege.collegeName, city: this.newCollege.city, country: this.newCollege.country };
+    this.http.post<College>(this.apiUrl, payload).subscribe({
       next: (college) => {
-        this.colleges.unshift(college);
-        this.searchTerm = '';
-        this.searchCollege();
-        this.closeModal();
-        this.showSuccess('College added successfully!');
-        this.isAdding = false;
-        this.cdr.detectChanges();
+        // If a logo file was selected, upload it
+        if (this.collegeLogoFile && college.id) {
+          this.uploadLogoForCollege(college.id, this.collegeLogoFile, (updatedLogoUrl) => {
+            college.logoUrl = updatedLogoUrl;
+            this.colleges.unshift(college);
+            this.searchTerm = '';
+            this.searchCollege();
+            this.closeModal();
+            this.showSuccess('College added with logo!');
+            this.isAdding = false;
+            this.cdr.detectChanges();
+          });
+        } else {
+          this.colleges.unshift(college);
+          this.searchTerm = '';
+          this.searchCollege();
+          this.closeModal();
+          this.showSuccess('College added successfully!');
+          this.isAdding = false;
+          this.cdr.detectChanges();
+        }
       },
       error: (err) => {
         alert('Failed to add college. Please try again.');
@@ -388,6 +407,59 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onLogoFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.collegeLogoFile = input.files[0];
+      // Generate preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.collegeLogoPreview = e.target.result;
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(this.collegeLogoFile);
+    }
+  }
+
+  uploadLogoForCollege(collegeId: number, file: File, onSuccess: (logoUrl: string) => void) {
+    const formData = new FormData();
+    formData.append('file', file);
+    this.http.post<any>(`${this.apiUrl}/${collegeId}/logo`, formData).subscribe({
+      next: (res) => {
+        onSuccess(res.logoUrl);
+      },
+      error: (err) => {
+        console.error('Logo upload error:', err);
+        this.showSuccess('College created but logo upload failed.', 'info');
+        onSuccess('');
+      }
+    });
+  }
+
+  triggerLogoUpload(college: College) {
+    // Create a hidden file input programmatically
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (event: any) => {
+      const file = event.target.files?.[0];
+      if (file && college.id) {
+        this.uploadLogoForCollege(college.id, file, (logoUrl) => {
+          college.logoUrl = logoUrl;
+          this.showSuccess('Logo updated for ' + college.collegeName);
+          this.cdr.detectChanges();
+        });
+      }
+    };
+    input.click();
+  }
+
+  getLogoUrl(path: string): string {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return environment.apiUrl + '/api/file/serve?path=' + encodeURIComponent(path);
   }
 
   toggleCollegeStatus(college: College, event: Event) {
@@ -459,7 +531,9 @@ export class AdminDashboardOverview implements OnInit, AfterViewInit {
   }
 
   resetBlob() { // Renaming this to resetForm would be clearer
-    this.newCollege = { collegeName: '', city: '', country: '' };
+    this.newCollege = { collegeName: '', city: '', country: '', logoUrl: '' };
+    this.collegeLogoFile = null;
+    this.collegeLogoPreview = null;
   }
 
   getStatusClass(status: string): string {

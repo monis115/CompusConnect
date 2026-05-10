@@ -10,7 +10,7 @@ describe('ActiveAdmissionManager', () => {
     await TestBed.configureTestingModule({
       declarations: [ActiveAdmissionManager]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(ActiveAdmissionManager);
     component = fixture.componentInstance;

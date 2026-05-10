@@ -13,6 +13,7 @@ interface VisaManSummaryDTO {
 interface LastHistoryDTO {
   status: string;
   updatedBy: string;
+  updatedByName?: string;
   updatedAt: string;
   remarks: string | null;
 }

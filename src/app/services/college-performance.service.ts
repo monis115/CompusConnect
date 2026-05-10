@@ -91,6 +91,7 @@ export interface RecentActivity {
     previousStatus?: string;
     newStatus: string;
     updatedBy: string;
+    updatedByName?: string;
     updatedAt: string;
     remarks?: string;
 }

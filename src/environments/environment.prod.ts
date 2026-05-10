@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://api.qarshistateuniversity.com'
+    apiUrl: 'https://api.rareeduportal.com'
 };

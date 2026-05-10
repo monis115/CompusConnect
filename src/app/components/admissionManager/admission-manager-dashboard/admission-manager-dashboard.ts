@@ -8,6 +8,7 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { environment } from '../../../../environments/environment';
 import { FileService } from '../../../services/file.service';
+import * as XLSX from 'xlsx';
 
 // --- Interfaces ---
 interface User {
@@ -15,18 +16,21 @@ interface User {
   fullName: string;
   email: string;
   username: string;
+  userId?: string;
 }
 
 interface StatusHistory {
   id: number;
   studentApplicationStatus: string;
   updatedBy: string;
+  updatedByName?: string;
   updatedAt: string;
   newStatus: string;
   remarks?: string;
 }
 
 interface Student {
+  affidavitPath: any;
   action: any;
   actionOnUser: string;
   id: number;
@@ -63,7 +67,7 @@ interface Student {
   // Application
   intake: string;
   appliedFor: string;
-  college: { id: number; collegeName: string } | null;
+  college: { id: number; collegeName: string; logoUrl?: string } | null;
   nextStep: string | null;
   // Docs - Basic
   confirmationPagePath: string | null;
@@ -132,6 +136,12 @@ interface Student {
   docReturnMethod: string | null;
   docReturnTrackingId: string | null;
   readyForDocReturn: boolean | null;
+  // Travel Details
+  travelDoj: string | null;
+  travelAirlines: string | null;
+  travelSource: string | null;
+  travelDestination: string | null;
+  travelTicketPdfPath: string | null;
   // Payment Details
   hasPaid: boolean | null;
   paidAmount: number | null;
@@ -140,6 +150,13 @@ interface Student {
   paymentConfirmationPath: string | null;
   paymentDueDate: string | null;
   paymentType: string | null;
+  // Payment Components
+  telexTuitionFee: boolean | null;
+  telexHostelFee: boolean | null;
+  telexMessFee: boolean | null;
+  telexContractFee: boolean | null;
+  telexRegistrationFee: boolean | null;
+  telexOneTimeCharge: boolean | null;
   // Workflow
   telexMan: User | null;
   visaMan: User | null;
@@ -149,6 +166,7 @@ interface Student {
   admissionManager: User | null;
   canRequestDocReturn: boolean | null;
   hasRaiseReturnRequest: boolean | null;
+  documentReturnRequest: any;
   docPersonAssignedDate: string | null;
   paymentStatus: string | null;
   // History
@@ -194,6 +212,13 @@ interface NewsDTO {
   createdAt?: string;
   updatedAt?: string;
   active?: boolean;
+}
+
+interface SessionDTO {
+  id?: number;
+  sessionName: string;
+  academicYear: string;
+  status: string;
 }
 
 interface DashboardStats {
@@ -243,19 +268,94 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   managerData: ManagerData | null = null;
   dashboardStats: DashboardStats | null = null;
   selectedStudent: Student | null = null;
+  isEditingStudent = false;
+  editStudentData: any = {};
+  editDocuments: any = {
+    adhaar: null,
+    class12thMarksheet: null,
+    photograph: null,
+    neetMarksheet: null,
+    passport: null
+  };
 
   // Dropdown Data
   availableTelexManagers: { username: string; studentCount: number }[] = [];
   availableVisaManagers: { username: string; studentCount: number }[] = [];
 
   // Views & Lists
-  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' = 'dashboard';
+  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' | 'sessions' | 'travel' | 'travelling' = 'dashboard';
   isSidebarCollapsed = false;
   actionRequiredStudents: Student[] = [];
   pendingUniversityStudents: Student[] = [];
   processingStudents: Student[] = [];
   allStudents: Student[] = [];
   filteredList: Student[] = [];
+
+  get getTravellingCount(): number {
+    return this.allStudents.filter(s => s.travelDoj || s.travelAirlines || s.hasRaiseReturnRequest).length;
+  }
+
+  get getTravelLogisticsCount(): number {
+    return this.travelStudents.length + this.docReturnStudents.length;
+  }
+
+  // --- Travel & Logistics ---
+  travelTab: 'travel' | 'docs' = 'travel';
+  travelStudents: Student[] = [];
+  docReturnStudents: Student[] = [];
+
+  travelFilterAgent = '';
+  travelFilterCollege = '';
+  travelFilterStartDate = '';
+  travelFilterEndDate = '';
+
+  get filteredTravelStudents(): Student[] {
+    return this.travelStudents.filter(s => {
+      if (this.travelFilterAgent && s.agent?.fullName !== this.travelFilterAgent) return false;
+      if (this.travelFilterCollege && s.college?.collegeName !== this.travelFilterCollege) return false;
+      if (this.travelFilterStartDate && s.travelDoj) {
+        if (new Date(s.travelDoj) < new Date(this.travelFilterStartDate)) return false;
+      }
+      if (this.travelFilterEndDate && s.travelDoj) {
+        if (new Date(s.travelDoj) > new Date(this.travelFilterEndDate)) return false;
+      }
+      return true;
+    });
+  }
+
+  get filteredDocReturnStudents(): Student[] {
+    return this.docReturnStudents.filter(s => {
+      if (this.travelFilterAgent && s.agent?.fullName !== this.travelFilterAgent) return false;
+      if (this.travelFilterCollege && s.college?.collegeName !== this.travelFilterCollege) return false;
+      if (this.travelFilterStartDate && s.documentReturnRequest?.travelDate) {
+        if (new Date(s.documentReturnRequest.travelDate) < new Date(this.travelFilterStartDate)) return false;
+      }
+      if (this.travelFilterEndDate && s.documentReturnRequest?.travelDate) {
+        if (new Date(s.documentReturnRequest.travelDate) > new Date(this.travelFilterEndDate)) return false;
+      }
+      return true;
+    });
+  }
+
+  clearTravelFilters(): void {
+    this.travelFilterAgent = '';
+    this.travelFilterCollege = '';
+    this.travelFilterStartDate = '';
+    this.travelFilterEndDate = '';
+  }
+
+  // --- Session Management ---
+  sessionList: SessionDTO[] = [];
+  isLoadingSessions = false;
+  showSessionModal = false;
+  isEditingSession = false;
+  currentSessionId: number | null = null;
+  sessionForm = {
+    sessionName: '',
+    academicYear: '',
+    status: 'ACTIVE'
+  };
+  private readonly SESSION_API_URL = environment.apiUrl + '/api/sessions';
 
   // State
   isLoading = true;
@@ -265,15 +365,59 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   isFullscreen = false;
   isLoadingMessages = false;
 
+  // Smart Filters
+  filterAgent = '';
+  filterCollege = '';
+  filterStatus = '';
+  filterStartDate = '';
+  filterEndDate = '';
+  uniqueAgents: { fullName: string; username: string }[] = [];
+  uniqueColleges: string[] = [];
+  uniqueStatuses: string[] = [];
+
   getMessagesCount(): number {
-    return 0; // Placeholder for now
+    return 0;
   }
+
+  // --- Reports ---
+  reportFilterAgent = '';
+  reportFilterCollege = '';
+  reportFilterStatus = '';
+  reportFilterStartDate = '';
+  reportFilterEndDate = '';
+  reportList: Student[] = [];
 
   // Modals
   showStudentDetail = false;
   showActionModal = false;
   showSuccessModal = false;
   successModalMessage = '';
+  showExportModal = false;
+  exportColumns = [
+    { key: 'Student Name', selected: true },
+    { key: 'Email', selected: true },
+    { key: 'Contact', selected: true },
+    { key: 'Agent', selected: true },
+    { key: 'Agent Username', selected: true },
+    { key: 'College', selected: true },
+    { key: 'Intake', selected: true },
+    { key: 'Applied For', selected: true },
+    { key: 'Status', selected: true },
+    { key: 'Passport No', selected: true },
+    { key: 'DOB', selected: true },
+    { key: 'Address', selected: true },
+    { key: 'Father', selected: true },
+    { key: 'Mother', selected: true },
+  ];
+
+  get allColumnsSelected(): boolean {
+    return this.exportColumns.every(c => c.selected);
+  }
+
+  toggleAllColumns(event: any): void {
+    const checked = event.target.checked;
+    this.exportColumns.forEach(c => c.selected = checked);
+  }
 
   // --- News Management ---
   newsList: NewsDTO[] = [];
@@ -340,8 +484,9 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   // Action Logic
   studentForAction: Student | null = null;
-  actionType: 'forward' | 'approve' | 'assign-telex' | 'assign-visa' | null = null;
+  actionType: 'forward' | 'approve' | 'assign-telex' | 'assign-visa' | 'reject' | null = null;
   selectedManagerUsername: string = '';
+  rejectionReason: string = '';
 
   // Coordinator Validation
   coordinatorValidationError: string = '';
@@ -550,6 +695,163 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  // UNIVERSITY-CENTRIC DASHBOARD (single university at a time)
+  // ═══════════════════════════════════════════════════════════════
+
+  selectedDashboardCollege = '';
+  dashboardStartDate = '';
+  dashboardEndDate = '';
+
+  get selectedCollegeLogo(): string {
+    if (!this.selectedDashboardCollege) return '';
+    const student = this.allStudents.find(s => s.college?.collegeName === this.selectedDashboardCollege && s.college?.logoUrl);
+    const path = student?.college?.logoUrl || '';
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return environment.apiUrl + '/api/file/serve?path=' + encodeURIComponent(path);
+  }
+
+  get dashboardCollegeOptions(): string[] {
+    const set = new Set<string>();
+    for (const s of this.allStudents) {
+      if (s.college?.collegeName) set.add(s.college.collegeName);
+    }
+    return Array.from(set).sort();
+  }
+
+  // Auto-select first college if none selected
+  private ensureCollegeSelected(): void {
+    if (!this.selectedDashboardCollege && this.dashboardCollegeOptions.length > 0) {
+      this.selectedDashboardCollege = this.dashboardCollegeOptions[0];
+    }
+  }
+
+  get filteredByCollege(): Student[] {
+    this.ensureCollegeSelected();
+    let students = this.allStudents;
+    if (this.selectedDashboardCollege) {
+      students = students.filter(s => s.college?.collegeName === this.selectedDashboardCollege);
+    }
+    if (this.dashboardStartDate) {
+      const start = new Date(this.dashboardStartDate);
+      start.setHours(0, 0, 0, 0);
+      students = students.filter(s => s.createdAt && new Date(s.createdAt) >= start);
+    }
+    if (this.dashboardEndDate) {
+      const end = new Date(this.dashboardEndDate);
+      end.setHours(23, 59, 59, 999);
+      students = students.filter(s => s.createdAt && new Date(s.createdAt) <= end);
+    }
+    return students;
+  }
+
+  get dashboardKPIs() {
+    const students = this.filteredByCollege;
+    const total = students.length;
+    const telexCount = students.filter(s => ['TELEX_PAYMENT_DOCS_SUBMITTED', 'TELEX_INITIATED', 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY', 'TELEX_APPLICATION_SUBMITTED_TO_MEA', 'TELEX_NUMBER_ISSUED'].includes(s.applicationStatus)).length;
+    const paymentCount = students.filter(s => s.hasPaid).length;
+    const paymentTotal = students.reduce((sum, s) => sum + (s.paidAmount || 0), 0);
+    const visaStamped = students.filter(s => s.applicationStatus === 'VISA_STAMPED').length;
+    const rejected = students.filter(s => s.applicationStatus === 'REJECTED').length;
+    const newApps = students.filter(s => s.applicationStatus === 'REGISTERED').length;
+    const admissionLetters = students.filter(s => s.applicationStatus === 'ADMISSION_LETTER_GENERATED').length;
+    const underReview = students.filter(s => ['UNDER_REVIEW', 'FORWARDED_TO_UNI'].includes(s.applicationStatus)).length;
+    return { total, telexCount, paymentCount, paymentTotal, visaStamped, rejected, newApps, admissionLetters, underReview };
+  }
+
+  get collegeStatusBreakdown(): { status: string; label: string; count: number; color: string }[] {
+    const students = this.filteredByCollege;
+    const statusMap = new Map<string, number>();
+    for (const s of students) {
+      statusMap.set(s.applicationStatus, (statusMap.get(s.applicationStatus) || 0) + 1);
+    }
+    return Array.from(statusMap.entries())
+      .map(([status, count]) => ({ status, label: this.getStatusLabel(status), count, color: this.getStatusColor(status) }))
+      .sort((a, b) => b.count - a.count);
+  }
+
+  get intakeBreakdown(): { intake: string; count: number }[] {
+    const students = this.filteredByCollege;
+    const map = new Map<string, number>();
+    for (const s of students) {
+      const intake = s.intake || 'Unknown';
+      map.set(intake, (map.get(intake) || 0) + 1);
+    }
+    return Array.from(map.entries()).map(([intake, count]) => ({ intake, count })).sort((a, b) => b.count - a.count);
+  }
+
+  get courseBreakdown(): { course: string; count: number }[] {
+    const students = this.filteredByCollege;
+    const map = new Map<string, number>();
+    for (const s of students) {
+      const course = s.appliedFor || 'Unknown';
+      map.set(course, (map.get(course) || 0) + 1);
+    }
+    return Array.from(map.entries()).map(([course, count]) => ({ course, count })).sort((a, b) => b.count - a.count);
+  }
+
+  get collegePipelineChartData(): ChartData<'doughnut'> {
+    const kpi = this.dashboardKPIs;
+    const other = kpi.total - kpi.telexCount - kpi.paymentCount - kpi.visaStamped - kpi.rejected;
+    return {
+      labels: ['Telex', 'Payments', 'Visa Stamped', 'Rejected', 'Other'],
+      datasets: [{
+        data: [kpi.telexCount, kpi.paymentCount, kpi.visaStamped, kpi.rejected, Math.max(other, 0)],
+        backgroundColor: ['#f59e0b', '#10b981', '#8b5cf6', '#ef4444', '#e2e8f0'],
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    };
+  }
+
+  collegePipelineChartOptions: ChartConfiguration<'doughnut'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { display: true, position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyleWidth: 10, font: { size: 11, weight: 'bold' } } }
+    }
+  };
+  collegePipelineChartType: 'doughnut' = 'doughnut';
+
+  get recentActivityTimeline(): { student: string; action: string; time: string; status: string; agent: string; college: string }[] {
+    const students = this.filteredByCollege;
+    const timeline: { student: string; action: string; time: string; status: string; agent: string; college: string }[] = [];
+    for (const s of students) {
+      if (s.studentStatusHistory && s.studentStatusHistory.length > 0) {
+        for (const h of s.studentStatusHistory.slice(0, 2)) {
+          timeline.push({
+            student: s.fullName,
+            action: h.remarks || this.getStatusLabel(h.studentApplicationStatus || h.newStatus),
+            time: h.updatedAt,
+            status: h.studentApplicationStatus || h.newStatus,
+            agent: s.agent?.fullName || 'N/A',
+            college: s.college?.collegeName || 'N/A'
+          });
+        }
+      }
+    }
+    return timeline.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 15);
+  }
+
+  get agentPerformance(): { name: string; username: string; total: number; paid: number; telex: number; visa: number; completed: number }[] {
+    const students = this.filteredByCollege;
+    const agentMap = new Map<string, { name: string; username: string; total: number; paid: number; telex: number; visa: number; completed: number }>();
+    for (const s of students) {
+      const key = s.agent?.fullName || 'Unknown';
+      if (!agentMap.has(key)) agentMap.set(key, { name: key, username: s.agent?.username || s.agent?.userId || '', total: 0, paid: 0, telex: 0, visa: 0, completed: 0 });
+      const a = agentMap.get(key)!;
+      a.total++;
+      if (s.hasPaid) a.paid++;
+      const st = s.applicationStatus;
+      if (['TELEX_PAYMENT_DOCS_SUBMITTED', 'TELEX_INITIATED', 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY', 'TELEX_APPLICATION_SUBMITTED_TO_MEA', 'TELEX_NUMBER_ISSUED'].includes(st)) a.telex++;
+      if (['VISA_FEE_PENDING', 'VISA_FEE_RECEIVED', 'VISA_APPLIED', 'PASSPORT_SUBMITTED_TO_EMBASSY', 'VISA_STAMPED'].includes(st)) a.visa++;
+      if (st === 'VISA_STAMPED') a.completed++;
+    }
+    return Array.from(agentMap.values()).sort((a, b) => b.total - a.total);
+  }
+
   loadStaffLists(): void {
     this.admissionService.getTelexManagerUsernames().subscribe(u => {
       this.availableTelexManagers = u;
@@ -595,11 +897,34 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       s.actionOnUser !== 'UniversityCoordinator' &&
       s.actionOnUser !== null
     );
+
+    this.travelStudents = this.allStudents.filter(s => (s.travelDoj || s.travelAirlines) && !s.hasRaiseReturnRequest);
+    this.docReturnStudents = this.allStudents.filter(s => !!s.hasRaiseReturnRequest);
+
+    // Build unique filter options
+    const agentMap = new Map<string, { fullName: string; username: string }>();
+    const collegeSet = new Set<string>();
+    const statusSet = new Set<string>();
+    for (const s of this.allStudents) {
+      if (s.agent?.fullName) {
+        agentMap.set(s.agent.fullName, { fullName: s.agent.fullName, username: s.agent.username || s.agent.userId || '' });
+      }
+      if (s.college?.collegeName) collegeSet.add(s.college.collegeName);
+      if (s.applicationStatus) statusSet.add(s.applicationStatus);
+    }
+    this.uniqueAgents = Array.from(agentMap.values()).sort((a, b) => a.fullName.localeCompare(b.fullName));
+    this.uniqueColleges = Array.from(collegeSet).sort();
+    this.uniqueStatuses = Array.from(statusSet).sort();
   }
 
   switchView(view: typeof this.activeView): void {
     this.activeView = view;
-    this.searchTerm = '';
+    if (view === 'actions-required' || view === 'pending-university' || view === 'processing' || view === 'completed' || view === 'travelling') {
+      this.searchTerm = '';
+      this.filterAgent = '';
+      this.filterCollege = '';
+      this.filterStatus = '';
+    }
 
     if (view === 'messages') {
       this.isLoadingMessages = true;
@@ -614,10 +939,105 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       if (username) this.loadDashboardStats(username);
     } else if (view === 'news') {
       this.loadMyNews();
+    } else if (view === 'sessions') {
+      this.loadSessions();
     } else {
       this.filterStudents();
     }
     this.cdr.detectChanges();
+  }
+
+  // --- Session Management Methods ---
+  loadSessions(): void {
+    this.isLoadingSessions = true;
+    this.cdr.detectChanges();
+    this.http.get<SessionDTO[]>(this.SESSION_API_URL).subscribe({
+      next: (data) => {
+        this.sessionList = data;
+        this.isLoadingSessions = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading sessions', err);
+        this.isLoadingSessions = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openCreateSessionModal(): void {
+    this.isEditingSession = false;
+    this.currentSessionId = null;
+    this.sessionForm = { sessionName: '', academicYear: '', status: 'ACTIVE' };
+    this.showSessionModal = true;
+    this.cdr.detectChanges();
+  }
+
+  openEditSessionModal(session: SessionDTO): void {
+    this.isEditingSession = true;
+    this.currentSessionId = session.id!;
+    this.sessionForm = {
+      sessionName: session.sessionName,
+      academicYear: session.academicYear,
+      status: session.status
+    };
+    this.showSessionModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeSessionModal(): void {
+    this.showSessionModal = false;
+    this.cdr.detectChanges();
+  }
+
+  saveSession(): void {
+    if (!this.sessionForm.sessionName || !this.sessionForm.academicYear) {
+      alert('Please fill all required fields');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+
+    if (this.isEditingSession && this.currentSessionId) {
+      this.http.put(`${this.SESSION_API_URL}/${this.currentSessionId}`, this.sessionForm).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.closeSessionModal();
+          this.loadSessions();
+        },
+        error: (err) => {
+          console.error(err);
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+        }
+      });
+    } else {
+      this.http.post(this.SESSION_API_URL, this.sessionForm).subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.closeSessionModal();
+          this.loadSessions();
+        },
+        error: (err) => {
+          console.error(err);
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+        }
+      });
+    }
+  }
+
+  toggleSessionStatus(session: SessionDTO): void {
+    const newStatus = session.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    this.http.put(`${this.SESSION_API_URL}/${session.id}`, { ...session, status: newStatus }).subscribe({
+      next: () => this.loadSessions(),
+      error: (err) => console.error(err)
+    });
+  }
+
+  getActiveSessionCount(): number {
+    return this.sessionList.filter(s => s.status === 'ACTIVE').length;
   }
 
   toggleSidebar(): void {
@@ -632,15 +1052,203 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       case 'pending-university': sourceList = this.pendingUniversityStudents; break;
       case 'processing': sourceList = this.processingStudents; break;
       case 'completed': sourceList = this.allStudents; break;
+      case 'travelling': sourceList = this.allStudents.filter(s => s.travelDoj || s.travelAirlines || s.hasRaiseReturnRequest); break;
     }
 
     const term = this.searchTerm.toLowerCase();
-    this.filteredList = sourceList.filter(student =>
-      !term ||
-      student.fullName?.toLowerCase().includes(term) ||
-      student.email?.toLowerCase().includes(term) ||
-      student.passportNo?.toLowerCase().includes(term)
-    );
+    this.filteredList = sourceList.filter(student => {
+      // Text search
+      if (term && !(
+        student.fullName?.toLowerCase().includes(term) ||
+        student.email?.toLowerCase().includes(term) ||
+        student.passportNo?.toLowerCase().includes(term)
+      )) return false;
+
+      // Agent filter
+      if (this.filterAgent && student.agent?.fullName !== this.filterAgent) return false;
+
+      // College filter
+      if (this.filterCollege && student.college?.collegeName !== this.filterCollege) return false;
+
+      // Status filter
+      if (this.filterStatus && student.applicationStatus !== this.filterStatus) return false;
+
+      // Date range filter (createdAt)
+      if (!this.isInDateRange(student.createdAt, this.filterStartDate, this.filterEndDate)) return false;
+
+      return true;
+    });
+  }
+
+  clearAllFilters(): void {
+    this.searchTerm = '';
+    this.filterAgent = '';
+    this.filterCollege = '';
+    this.filterStatus = '';
+    this.filterStartDate = '';
+    this.filterEndDate = '';
+    this.filterStudents();
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!(this.filterAgent || this.filterCollege || this.filterStatus || this.filterStartDate || this.filterEndDate);
+  }
+
+  // Shared helper for createdAt date range check
+  private isInDateRange(createdAt: string, start: string, end: string): boolean {
+    if (!start && !end) return true;
+    if (!createdAt) return false;
+    const d = new Date(createdAt);
+    if (start && d < new Date(start)) return false;
+    if (end) {
+      const endDate = new Date(end);
+      endDate.setHours(23, 59, 59, 999);
+      if (d > endDate) return false;
+    }
+    return true;
+  }
+
+  // --- Reports ---
+  filterReportStudents(): void {
+    this.reportList = this.allStudents.filter(s => {
+      if (this.reportFilterAgent && s.agent?.fullName !== this.reportFilterAgent) return false;
+      if (this.reportFilterCollege && s.college?.collegeName !== this.reportFilterCollege) return false;
+      if (this.reportFilterStatus && s.applicationStatus !== this.reportFilterStatus) return false;
+      if (!this.isInDateRange(s.createdAt, this.reportFilterStartDate, this.reportFilterEndDate)) return false;
+      return true;
+    });
+  }
+
+  clearReportFilters(): void {
+    this.reportFilterAgent = '';
+    this.reportFilterCollege = '';
+    this.reportFilterStatus = '';
+    this.reportFilterStartDate = '';
+    this.reportFilterEndDate = '';
+    this.reportList = [];
+  }
+
+  get hasReportFilters(): boolean {
+    return !!(this.reportFilterAgent || this.reportFilterCollege || this.reportFilterStatus || this.reportFilterStartDate || this.reportFilterEndDate);
+  }
+
+  openExportModal(): void {
+    if (this.reportList.length === 0) return;
+    this.showExportModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeExportModal(): void {
+    this.showExportModal = false;
+    this.cdr.detectChanges();
+  }
+
+  exportToExcel(): void {
+    if (this.reportList.length === 0) return;
+
+    const selectedKeys = this.exportColumns.filter(c => c.selected).map(c => c.key);
+    if (selectedKeys.length === 0) {
+      alert('Please select at least one column to export.');
+      return;
+    }
+
+    const data = this.reportList.map(s => {
+      const allCols: any = {
+        'Student Name': s.fullName || '',
+        'Email': s.email || '',
+        'Contact': s.contactNo || '',
+        'Agent': s.agent?.fullName || 'Direct',
+        'Agent Username': s.agent?.username || s.agent?.userId || '',
+        'College': s.college?.collegeName || 'Not Assigned',
+        'Intake': s.intake || '',
+        'Applied For': s.appliedFor || '',
+        'Status': this.getStatusLabel(s.applicationStatus),
+        'Passport No': s.passportNo || '',
+        'DOB': s.dob || '',
+        'Address': s.address || '',
+        'Father': s.fathersName || '',
+        'Mother': s.mothersName || ''
+      };
+      const filteredRow: any = {};
+      selectedKeys.forEach(k => {
+        filteredRow[k] = allCols[k];
+      });
+      return filteredRow;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Student Report');
+
+    const colWidths = selectedKeys.map(key => ({
+      wch: Math.max(key.length, ...data.map(row => String((row as any)[key] || '').length)) + 2
+    }));
+    ws['!cols'] = colWidths;
+
+    const fileName = `Student_Report_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    this.closeExportModal();
+  }
+
+  // --- Payments ---
+  paymentSearchQuery = '';
+  paymentFilterAgent = '';
+  paymentFilterCollege = '';
+  paymentFilterStatus = '';
+  paymentFilterAccount = '';
+  paymentFilterStartDate = '';
+  paymentFilterEndDate = '';
+
+  clearPaymentFilters(): void {
+    this.paymentSearchQuery = '';
+    this.paymentFilterAgent = '';
+    this.paymentFilterCollege = '';
+    this.paymentFilterStatus = '';
+    this.paymentFilterAccount = '';
+    this.paymentFilterStartDate = '';
+    this.paymentFilterEndDate = '';
+  }
+
+  get hasPaymentFilters(): boolean {
+    return !!(this.paymentSearchQuery || this.paymentFilterAgent || this.paymentFilterCollege || this.paymentFilterStatus || this.paymentFilterAccount || this.paymentFilterStartDate || this.paymentFilterEndDate);
+  }
+
+  getStudentsWithPayments(): Student[] {
+    return this.allStudents.filter(s => {
+      const hasPaymentData = s.hasPaid === true ||
+        (s.paidAmount && s.paidAmount > 0) ||
+        s.paidTo ||
+        s.paymentDueDate ||
+        s.ttCopyPath ||
+        s.paymentConfirmationPath;
+
+      if (!hasPaymentData) return false;
+
+      if (this.paymentSearchQuery) {
+        const query = this.paymentSearchQuery.toLowerCase();
+        const matchesName = s.fullName?.toLowerCase().includes(query);
+        const matchesEmail = s.email?.toLowerCase().includes(query);
+        if (!matchesName && !matchesEmail) return false;
+      }
+
+      if (this.paymentFilterAgent && s.agent?.fullName !== this.paymentFilterAgent) return false;
+      if (this.paymentFilterCollege && s.college?.collegeName !== this.paymentFilterCollege) return false;
+      if (this.paymentFilterStatus && s.applicationStatus !== this.paymentFilterStatus) return false;
+      if (this.paymentFilterAccount && s.paidTo !== this.paymentFilterAccount) return false;
+      if (!this.isInDateRange(s.createdAt, this.paymentFilterStartDate, this.paymentFilterEndDate)) return false;
+
+      return true;
+    }).sort((a, b) => b.id - a.id); // Newest first
+  }
+
+  getPaymentStats() {
+    const students = this.getStudentsWithPayments();
+    return {
+      totalRecords: students.length,
+      paidAmount: students.reduce((sum, s) => sum + (s.paidAmount || 0), 0),
+      pendingCount: students.filter(s => !s.hasPaid).length,
+      paidCount: students.filter(s => s.hasPaid).length
+    };
   }
 
   // --- Action Handling (Fixing the Modal Bug) ---
@@ -696,6 +1304,14 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  initiateRejectStudent(student: Student): void {
+    this.studentForAction = student;
+    this.actionType = 'reject';
+    this.rejectionReason = '';
+    this.showActionModal = true;
+    this.cdr.detectChanges();
+  }
+
   initiateAssignManager(student: Student, type: 'telex' | 'visa'): void {
     this.studentForAction = student;
     this.actionType = type === 'telex' ? 'assign-telex' : 'assign-visa';
@@ -733,6 +1349,14 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       console.log('Assigning Visa Manager - StudentId:', studentId, 'Payload:', payload);
       this.cdr.detectChanges();
       actionObs = this.admissionService.assignVisaManager(studentId, payload);
+    } else if (this.actionType === 'reject') {
+      if (!this.rejectionReason || this.rejectionReason.trim() === '') {
+        alert('Please provide a reason for rejection.');
+        this.isSubmitting = false;
+        this.cdr.detectChanges();
+        return;
+      }
+      actionObs = this.admissionService.rejectStudent(studentId, { admissionManagerUsername: managerUsername, reason: this.rejectionReason });
     }
 
     if (actionObs) {
@@ -748,6 +1372,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
           if (this.actionType === 'approve') msg = 'Admission Letter Approved!';
           if (this.actionType === 'assign-telex') msg = 'Telex Manager Assigned!';
           if (this.actionType === 'assign-visa') msg = 'Visa Manager Assigned Successfully!';
+          if (this.actionType === 'reject') msg = 'Student Rejected Successfully!';
 
           // Fix: Ensure this runs inside Angular's zone and updates the view
           this.finishAction(msg);
@@ -811,8 +1436,56 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   closeStudentDetail(): void {
     this.showStudentDetail = false;
+    this.isEditingStudent = false;
     setTimeout(() => { this.selectedStudent = null; }, 200);
     this.cdr.detectChanges();
+  }
+
+  toggleEditMode(): void {
+    this.isEditingStudent = !this.isEditingStudent;
+    if (this.isEditingStudent && this.selectedStudent) {
+      this.editStudentData = { ...this.selectedStudent };
+    }
+    this.cdr.detectChanges();
+  }
+
+  onFileSelect(event: any, type: string): void {
+    if (event.target.files.length > 0) {
+      this.editDocuments[type] = event.target.files[0];
+    }
+  }
+
+  submitStudentUpdate(): void {
+    if (!this.selectedStudent) return;
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+
+    const formData = new FormData();
+    formData.append('student', JSON.stringify(this.editStudentData));
+    if (this.editDocuments.passport) formData.append('passportFile', this.editDocuments.passport);
+    if (this.editDocuments.adhaar) formData.append('adhaarFile', this.editDocuments.adhaar);
+    if (this.editDocuments.class12thMarksheet) formData.append('marksheetFile', this.editDocuments.class12thMarksheet);
+    if (this.editDocuments.photograph) formData.append('profileImage', this.editDocuments.photograph);
+    if (this.editDocuments.neetMarksheet) formData.append('neetMarksheetFile', this.editDocuments.neetMarksheet);
+
+    this.http.put(`${environment.apiUrl}/students/update/${this.selectedStudent.id}`, formData).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        this.isEditingStudent = false;
+        this.closeStudentDetail();
+        this.refreshData();
+        // Option to show success modal instead of alert if wanted
+        this.successModalMessage = 'Student details updated successfully.';
+        this.showSuccessModal = true;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.isSubmitting = false;
+        alert('Failed to update student.');
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   closeSuccessModal(): void {
@@ -920,6 +1593,15 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   getAvatarColor(name: string): string {
     if (!name) return this.avatarColors[0];
     return this.avatarColors[name.charCodeAt(0) % this.avatarColors.length];
+  }
+
+  getStatusColor(status: string): string {
+    if (!status) return '#94a3b8';
+    if (status.includes('REJECTED')) return '#ef4444';
+    if (status.includes('APPROVED') || status.includes('STAMPED') || status.includes('GENERATED') || status.includes('ISSUED') || status.includes('RECEIVED') || status.includes('COMPLETE')) return '#10b981';
+    if (status.includes('PENDING') || status.includes('UNDER_REVIEW')) return '#f59e0b';
+    if (status.includes('TELEX') || status.includes('FORWARDED') || status.includes('SUBMITTED') || status.includes('APPLIED') || status.includes('INITIATED')) return '#3b82f6';
+    return '#64748b';
   }
 
   // --- News Management Methods ---
@@ -1127,5 +1809,16 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     const forAgents = this.newsList.filter(n => n.forUser === 'AGENT').length;
     const forStudents = this.newsList.filter(n => n.forUser === 'STUDENT').length;
     return { total, active, forAgents, forStudents };
+  }
+
+  viewDocReturnDetails(student: Student): void {
+    // Basic implementation: open full student profile
+    this.selectStudent(student);
+  }
+
+  viewDocument(path: string | null): void {
+    if (path) {
+      window.open(this.getDocUrl(path), '_blank');
+    }
   }
 }

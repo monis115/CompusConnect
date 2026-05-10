@@ -18,6 +18,14 @@ export interface TelexApplicationDTO {
     paymentType?: 'FULL' | 'SEMESTER_WISE';
     paymentDueDate?: string;
 
+    // Payment Components
+    telexTuitionFee?: boolean;
+    telexHostelFee?: boolean;
+    telexMessFee?: boolean;
+    telexContractFee?: boolean;
+    telexRegistrationFee?: boolean;
+    telexOneTimeCharge?: boolean;
+
     // Personal info
     surname?: string;
     firstName?: string;

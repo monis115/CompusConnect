@@ -1,4 +1,5 @@
 export interface Student {
+  affidavitPath?: string;
     id: number;
     fullName: string;
     applicationId: string;
@@ -47,6 +48,7 @@ export interface Student {
     conditionalOfferLetterPath?: string;
     profileImagePath?: string;
     updatedBy?: string;
+    updatedByName?: string;
 
     universityPerson?: any;
     agent?: any;
@@ -74,6 +76,13 @@ export interface Student {
     isTelexAccountantApproved?: boolean;
     isTelexDocApproved?: boolean;
     docPersonComment?: string;
+
+    telexTuitionFee?: boolean;
+    telexHostelFee?: boolean;
+    telexMessFee?: boolean;
+    telexContractFee?: boolean;
+    telexRegistrationFee?: boolean;
+    telexOneTimeCharge?: boolean;
 
     studentStatusHistory: StudentStatusHistory[];
 
@@ -159,6 +168,7 @@ export interface StudentStatusHistory {
     status?: string; // Alias
     newStatus?: string;
     updatedBy: string;
+    updatedByName?: string;
     updatedAt: string; // LocalDateTime
     remarks?: string;
 }

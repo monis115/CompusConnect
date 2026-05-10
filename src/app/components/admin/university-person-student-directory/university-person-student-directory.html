@@ -171,7 +171,7 @@
                       <span class="date-text">{{ formatDate(student.lastHistory?.updatedAt || null) }}</span>
                     </td>
                     <td>
-                      <span class="updated-by">{{ student.lastHistory?.updatedBy || '-' }}</span>
+                      <span class="updated-by">{{ student.lastHistory?.updatedByName || student.lastHistory?.updatedBy || '-' }}</span>
                     </td>
                   </tr>
                 }

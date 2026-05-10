@@ -132,6 +132,10 @@ export class AdmissionManagerService {
         return this.http.post(`${this.apiBaseUrl}/api/managers/forward-student/${studentId}`, payload);
     }
 
+    rejectStudent(studentId: number, payload: any): Observable<any> {
+        return this.http.post(`${this.apiBaseUrl}/api/managers/reject-student/${studentId}`, payload);
+    }
+
     approveAdmissionLetter(studentId: number, payload: any): Observable<any> {
         // FIX: Changed from /api/admission-manager to /api/managers
         return this.http.post(`${this.apiBaseUrl}/api/managers/approve-admission-letter/${studentId}`, payload);

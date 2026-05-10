@@ -623,7 +623,8 @@
   font-size: 13px;
   color: var(--text-muted);
   margin-top: 6px;
-  margin-left: 30px; /* Aligned with the icon */
+  margin-left: 30px;
+  /* Aligned with the icon */
 }
 
 .share-link-body {
@@ -6446,3 +6447,465 @@ router-outlet+* {
   font-size: 0.75rem;
   font-weight: 600;
 }
+
+/* === Sidebar Section Label & Divider === */
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 16px;
+}
+
+.sidebar-section-label {
+  padding: 8px 20px 4px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.pulse-badge {
+  animation: pulseBadge 2s ease-in-out infinite;
+}
+
+@keyframes pulseBadge {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* === Telex Split Layout === */
+.telex-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  height: 100%;
+}
+
+.telex-main-panel {
+  min-width: 0;
+}
+
+.telex-side-panel {
+  min-width: 0;
+}
+
+.telex-tracker-card {
+  position: sticky;
+  top: 0;
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+.telex-tracker-body {
+  padding: 0 !important;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.telex-tracker-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.telex-tracker-body::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 2px;
+}
+
+.telex-tracker-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.telex-tracker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.telex-tracker-item:last-child {
+  border-bottom: none;
+}
+
+.telex-tracker-item:hover {
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.telex-tracker-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.telex-tracker-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.telex-tracker-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.telex-tracker-status {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+.telex-tracker-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 12px;
+}
+
+.telex-tracker-empty p {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* === Empty State Modern === */
+.empty-state-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  gap: 16px;
+  color: var(--text-muted);
+}
+
+.empty-state-modern h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.empty-state-modern p {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 360px;
+}
+
+/* === Responsive: Telex Split Layout === */
+@media (max-width: 900px) {
+  .telex-split-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Payment Summary Row === */
+.payment-summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.payment-summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.payment-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.payment-summary-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.payment-summary-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.payment-summary-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* === Payment Records List === */
+.payment-records-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-record-card {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payment-record-card:last-child {
+  border-bottom: none;
+}
+
+.payment-record-card:hover {
+  background: rgba(99, 102, 241, 0.03);
+}
+
+.payment-record-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.payment-record-student {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.payment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.payment-student-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-student-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.payment-student-college {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* === Payment Amount Badge === */
+.payment-amount-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.payment-amount-badge.paid {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+.payment-amount-badge.pending {
+  background: rgba(245, 158, 11, 0.12);
+  color: #D97706;
+}
+
+/* === Payment Detail Grid === */
+.payment-record-details {
+  margin-left: 52px;
+  /* Aligned with name after avatar */
+}
+
+.payment-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px 24px;
+}
+
+.payment-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 0;
+}
+
+.payment-detail-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.payment-detail-value {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.payment-detail-value.amount {
+  font-size: 16px;
+  font-weight: 800;
+  color: #059669;
+  letter-spacing: -0.3px;
+}
+
+.payment-detail-value.tx-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'SF Mono', 'Cascadia Code', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.payment-detail-value.tx-id:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* === Paid To Badge === */
+.paid-to-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.paid-to-badge.university {
+  background: rgba(99, 102, 241, 0.1);
+  color: #4F46E5;
+}
+
+.paid-to-badge.company {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+/* === Payment Doc Link === */
+.payment-doc-link {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.btn-view-receipt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-view-receipt:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: var(--primary);
+}
+
+/* === Initiate Telex Button === */
+.btn-initiate-telex {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.25);
+}
+
+.btn-initiate-telex:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.35);
+}
+
+/* === Payment Responsive === */
+@media (max-width: 768px) {
+  .payment-summary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-detail-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .payment-record-details {
+    margin-left: 0;
+  }
+}@keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }

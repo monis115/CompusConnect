@@ -6,6 +6,8 @@ import { environment } from '../../environments/environment';
 // --- Interfaces ---
 
 export interface Student {
+    affidavitPath?: string;
+    neetMarksheetPath?: string;
     id: number;
     studentId?: number; // Alias for id, used in some contexts
     applicationId: string;

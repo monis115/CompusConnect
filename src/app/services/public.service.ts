@@ -7,6 +7,7 @@ export interface ApplicationHistory {
     status: string;
     updatedAt: string;
     updatedBy: string;
+    updatedByName?: string;
     remarks: string | null;
 }
 

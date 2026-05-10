@@ -146,6 +146,7 @@
           Loading sessions...
         </div>
       }
+
       @if (!isLoadingSessions && sessions.length === 0) {
         <div class="reg-form-info" style="margin-bottom: 1rem;">
           No sessions available. Please contact admin.
@@ -511,20 +512,73 @@
               </div>
             }
           </div>
-          <div class="reg-form-group">
-            <label for="adhaarCardNo">
-              Aadhaar Card Number
-            </label>
-            <input type="text" id="adhaarCardNo" name="adhaarCardNo" [(ngModel)]="student.adhaarCardNo" maxlength="12"
-              pattern="[0-9]{12}" #adhaarInput="ngModel" placeholder="123456789012 (Optional)">
-            @if (adhaarInput.invalid && adhaarInput.touched) {
-              <div class="reg-form-error">
-                Valid 12-digit Aadhaar Number is required if provided.
-              </div>
-            }
-          </div>
         </div>
       }
+      <!-- Aadhaar Card is always visible -->
+      <div class="reg-form-grid" style="margin-top: 1rem; align-items: start;">
+        <div class="reg-form-group">
+          <label for="adhaarCardNo">
+            Aadhaar Card Number<span class="required" *ngIf="!hasPassport">*</span>
+          </label>
+          <input type="text" id="adhaarCardNo" name="adhaarCardNo" [(ngModel)]="student.adhaarCardNo" maxlength="12"
+            pattern="[0-9]{12}" [required]="!hasPassport" #adhaarInput="ngModel" placeholder="123456789012">
+          @if (adhaarInput.invalid && adhaarInput.touched) {
+            <div class="reg-form-error">
+              @if (adhaarInput.errors?.['required']) {
+                <span>Aadhaar Number is required if Passport is not provided.</span>
+              } @else {
+                <span>Valid 12-digit Aadhaar Number is required.</span>
+              }
+            </div>
+          }
+        </div>
+        
+        <div class="reg-form-group">
+          <label>Aadhaar Card Document<span class="required" *ngIf="!hasPassport">*</span></label>
+          <div class="reg-upload-card" style="margin: 0;">
+            <div class="reg-upload-body" style="padding: 1rem;">
+              <input type="file" id="adhaarFile" accept="image/*,.pdf" (change)="onFileSelect($event, 'adhaar')"
+                #adhaarFileInput style="display: none;">
+              @if (!documents.adhaar) {
+                <div class="reg-upload-dropzone" (click)="adhaarFileInput.click()" style="padding: 1rem;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <p style="font-size: 0.85rem; margin-top: 0.5rem;">Click to upload Aadhaar</p>
+                </div>
+              }
+              @if (documents.adhaar) {
+                <div class="reg-upload-preview" style="padding: 0.5rem;">
+                  @if (documentPreviews.adhaar !== 'pdf-icon') {
+                    <img [src]="documentPreviews.adhaar" alt="Aadhaar Preview" style="max-height: 80px;">
+                  }
+                  @if (documentPreviews.adhaar === 'pdf-icon') {
+                    <div class="reg-pdf-icon" style="height: 60px;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                      </svg>
+                      <span>PDF</span>
+                    </div>
+                  }
+                  <div class="reg-upload-file-info" style="margin-top: 0.5rem;">
+                    <span class="reg-file-name" style="font-size: 0.8rem;">{{ getFileName('adhaar') }}</span>
+                    <button type="button" class="reg-btn-remove" (click)="removeDocument('adhaar')" style="padding: 0.25rem;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
       <h3 class="reg-section-header" style="margin-top: 2rem;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
@@ -752,56 +806,61 @@
             </div>
           </div>
         }
-        <div class="reg-upload-card">
-          <div class="reg-upload-header">
-            <h4>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-              </svg>
-              Aadhaar Card
-            </h4>
-          </div>
-          <div class="reg-upload-body">
-            <input type="file" id="adhaarFile" accept="image/*,.pdf" (change)="onFileSelect($event, 'adhaar')"
-              #adhaarFileInput style="display: none;">
-            @if (!documents.adhaar) {
-              <div class="reg-upload-dropzone" (click)="adhaarFileInput.click()">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
+
+
+        @if (!student.hasGivenNEET) {
+          <div class="reg-upload-card">
+            <div class="reg-upload-header">
+              <h4>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
                 </svg>
-                <p>Click to upload</p>
-              </div>
-            }
-            @if (documents.adhaar) {
-              <div class="reg-upload-preview">
-                @if (documentPreviews.adhaar !== 'pdf-icon') {
-                  <img [src]="documentPreviews.adhaar" alt="Aadhaar Preview">
-                }
-                @if (documentPreviews.adhaar === 'pdf-icon') {
-                  <div class="reg-pdf-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
-                    <span>PDF</span>
-                  </div>
-                }
-                <div class="reg-upload-file-info">
-                  <span class="reg-file-name">{{ getFileName('adhaar') }}</span>
-                  <button type="button" class="reg-btn-remove" (click)="removeDocument('adhaar')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </button>
+                Affidavit (NEET Not Given)<span class="required">*</span>
+              </h4>
+            </div>
+            <div class="reg-upload-body">
+              <input type="file" id="affidavitFile" accept="image/*,.pdf" (change)="onFileSelect($event, 'affidavit')"
+                #affidavitFileInput style="display: none;">
+              @if (!documents.affidavit) {
+                <div class="reg-upload-dropzone" (click)="affidavitFileInput.click()">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <p>Click to upload</p>
                 </div>
-              </div>
-            }
+              }
+              @if (documents.affidavit) {
+                <div class="reg-upload-preview">
+                  @if (documentPreviews.affidavit !== 'pdf-icon') {
+                    <img [src]="documentPreviews.affidavit" alt="Affidavit Preview">
+                  }
+                  @if (documentPreviews.affidavit === 'pdf-icon') {
+                    <div class="reg-pdf-icon">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                      </svg>
+                      <span>PDF</span>
+                    </div>
+                  }
+                  <div class="reg-upload-file-info">
+                    <span class="reg-file-name">{{ getFileName('affidavit') }}</span>
+                    <button type="button" class="reg-btn-remove" (click)="removeDocument('affidavit')">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
-        </div>
+        }
+
         <div class="reg-upload-card">
           <div class="reg-upload-header">
             <h4>

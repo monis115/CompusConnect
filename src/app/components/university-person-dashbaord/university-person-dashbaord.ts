@@ -6,6 +6,7 @@ import { UniversityService, DashboardStats, StatusBreakdown, AdmittedStudent } f
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { environment } from '../../../environments/environment';
 import { FileService } from '../../services/file.service';
+import * as XLSX from 'xlsx';
 
 // Interfaces
 interface College {
@@ -13,6 +14,7 @@ interface College {
   collegeName: string;
   city: string;
   country: string;
+  logoUrl?: string;
 }
 
 interface Student {
@@ -98,6 +100,40 @@ export class UniversityPersonDashboard implements OnInit {
   statusBreakdown = signal<StatusBreakdown[]>([]);
   admittedStudentsList = signal<AdmittedStudent[]>([]);
   admittedStudentsSearch = signal<string>('');
+
+  // Reports State
+  reportStartDate = signal<string>('');
+  reportEndDate = signal<string>('');
+  reportStatus = signal<string>('ALL');
+
+  uniqueStatuses = computed(() => {
+    const students = this.universityData()?.students || [];
+    const statuses = new Set(students.map(s => s.applicationStatus).filter(s => s));
+    return Array.from(statuses).sort();
+  });
+
+  filteredReportStudents = computed(() => {
+    let students = this.universityData()?.students || [];
+
+    const start = this.reportStartDate();
+    const end = this.reportEndDate();
+    const status = this.reportStatus();
+
+    if (start) {
+      const startDate = new Date(start);
+      students = students.filter(s => s.createdAt && new Date(s.createdAt) >= startDate);
+    }
+    if (end) {
+      const endDate = new Date(end);
+      endDate.setHours(23, 59, 59, 999);
+      students = students.filter(s => s.createdAt && new Date(s.createdAt) <= endDate);
+    }
+    if (status !== 'ALL') {
+      students = students.filter(s => s.applicationStatus === status);
+    }
+
+    return students;
+  });
 
   stats = computed(() => {
     const students = this.universityData()?.students || [];
@@ -401,6 +437,81 @@ export class UniversityPersonDashboard implements OnInit {
     );
   });
 
+  courseBreakdown = computed(() => {
+    const students = this.universityData()?.students || [];
+    const counts = new Map<string, number>();
+    students.forEach(s => {
+      const course = s.appliedFor || 'Unknown';
+      counts.set(course, (counts.get(course) || 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count, percentage: Math.round((count / (students.length || 1)) * 100) }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5); // top 5
+  });
+
+  intakeBreakdown = computed(() => {
+    const students = this.universityData()?.students || [];
+    const counts = new Map<string, number>();
+    students.forEach(s => {
+      const intake = s.intake || 'Unknown';
+      counts.set(intake, (counts.get(intake) || 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count, percentage: Math.round((count / (students.length || 1)) * 100) }))
+      .sort((a, b) => b.count - a.count);
+  });
+
+  performanceMetrics = computed(() => {
+    const students = this.universityData()?.students || [];
+    if (students.length === 0) return { admissionRate: 0, visaRate: 0, thisMonthCount: 0, growth: 0, isPositiveGrowth: true };
+
+    const total = students.length;
+    const admitted = students.filter(s =>
+      s.applicationStatus === 'ADMISSION_LETTER_GENERATED' ||
+      s.applicationStatus === 'VISA_STAMPED' ||
+      s.admissionLetterPath
+    ).length;
+    const admissionRate = Math.round((admitted / total) * 100);
+
+    const visaStamped = students.filter(s => s.applicationStatus === 'VISA_STAMPED').length;
+    const visaRate = admitted > 0 ? Math.round((visaStamped / admitted) * 100) : 0;
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+    let thisMonthCount = 0;
+    let lastMonthCount = 0;
+
+    students.forEach(s => {
+      if (!s.createdAt) return;
+      const date = new Date(s.createdAt);
+      if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+        thisMonthCount++;
+      } else if (date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear) {
+        lastMonthCount++;
+      }
+    });
+
+    let growth = 0;
+    if (lastMonthCount > 0) {
+      growth = Math.round(((thisMonthCount - lastMonthCount) / lastMonthCount) * 100);
+    } else if (thisMonthCount > 0) {
+      growth = 100;
+    }
+
+    return {
+      admissionRate,
+      visaRate,
+      thisMonthCount,
+      growth,
+      isPositiveGrowth: growth >= 0
+    };
+  });
+
   // Upload Logic
   openUploadModal(student: Student) {
     this.selectedStudentForUpload.set(student);
@@ -563,5 +674,58 @@ export class UniversityPersonDashboard implements OnInit {
   formatPercentage(value: number, total: number): string {
     if (total === 0) return '0%';
     return `${Math.round((value / total) * 100)}%`;
+  }
+
+  getCollegeLogo(): string | null {
+    const path = this.universityData()?.college?.logoUrl;
+    if (path) {
+      return this.fileService.getFileUrl(path);
+    }
+    return null;
+  }
+
+  // Reports Actions
+  exportToExcel() {
+    const data = this.filteredReportStudents().map(s => ({
+      'Application ID': s.applicationId || 'N/A',
+      'Full Name': s.fullName,
+      'Passport No.': s.passportNo,
+      'Email': s.email,
+      'Applied For': s.appliedFor,
+      'Intake': s.intake,
+      'Status': s.applicationStatus,
+      'Applied Date': s.createdAt ? new Date(s.createdAt).toLocaleDateString() : 'N/A'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Report');
+    XLSX.writeFile(wb, `University_Report_${new Date().getTime()}.xlsx`);
+  }
+
+  exportToPdf() {
+    window.print();
+  }
+
+  updateFilter(filterName: string, event: Event) {
+    const input = event.target as HTMLInputElement | HTMLSelectElement;
+    if (filterName === 'reportStartDate') this.reportStartDate.set(input.value);
+    if (filterName === 'reportEndDate') this.reportEndDate.set(input.value);
+    if (filterName === 'reportStatus') this.reportStatus.set(input.value);
+  }
+
+  clearFilters() {
+    this.reportStartDate.set('');
+    this.reportEndDate.set('');
+    this.reportStatus.set('ALL');
+  }
+
+  formatDate(dateString: string | undefined): string {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString();
+  }
+
+  getCurrentDate(): string {
+    return new Date().toLocaleString();
   }
 }

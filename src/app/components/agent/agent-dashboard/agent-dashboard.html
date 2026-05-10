@@ -22,6 +22,15 @@
         </svg>
         <span>Dashboard</span>
       </button>
+      <button class="nav-item" [class.active]="currentView === 'register'" (click)="navigateTo('register')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="8.5" cy="7" r="4" />
+          <line x1="20" y1="8" x2="20" y2="14" />
+          <line x1="23" y1="11" x2="17" y2="11" />
+        </svg>
+        <span>Register New</span>
+      </button>
       <button class="nav-item" [class.active]="currentView === 'students'" (click)="navigateTo('students')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -32,12 +41,79 @@
         <span>All Students</span>
         <span class="sidebar-badge">{{ getAllStudentsCount() }}</span>
       </button>
-      <button class="nav-item" [class.active]="currentView === 'in-process'" (click)="navigateTo('in-process')">
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">ACTION REQUIRED</div>
+      <button class="nav-item" [class.active]="currentView === 'action'" (click)="navigateTo('action')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
-        <span>In Process</span>
-        <span class="sidebar-badge">{{ getInProcessCount() }}</span>
+        <span>All Actions</span>
+        @if (getActionRequiredCount() > 0) {
+        <span class="sidebar-badge pulse-badge">{{ getActionRequiredCount() }}</span>
+        }
+      </button>
+      <button class="nav-item" [class.active]="currentView === 'apply-telex'" (click)="navigateTo('apply-telex')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="12" y1="18" x2="12" y2="12" />
+          <line x1="9" y1="15" x2="15" y2="15" />
+        </svg>
+        <span>Apply Telex</span>
+        @if (getTelexEligibleStudents().length > 0) {
+        <span class="sidebar-badge">{{ getTelexEligibleStudents().length }}</span>
+        }
+      </button>
+      <button class="nav-item" [class.active]="currentView === 'visa-payment'" (click)="navigateTo('visa-payment')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+          <line x1="1" y1="10" x2="23" y2="10" />
+        </svg>
+        <span>VISA Payment</span>
+        @if (getVisaPaymentStudents().length > 0) {
+        <span class="sidebar-badge">{{ getVisaPaymentStudents().length }}</span>
+        }
+      </button>
+      <button class="nav-item" [class.active]="currentView === 'doc-return'" (click)="navigateTo('doc-return')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        <span>Doc Return</span>
+        @if (getDocReturnEligibleStudents().length > 0) {
+        <span class="sidebar-badge">{{ getDocReturnEligibleStudents().length }}</span>
+        }
+      </button>
+      <button class="nav-item" [class.active]="currentView === 'rejected'" (click)="navigateTo('rejected')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="15" y1="9" x2="9" y2="15" />
+          <line x1="9" y1="9" x2="15" y2="15" />
+        </svg>
+        <span>Reapply/Reject</span>
+        @if (getRejectedStudents().length > 0) {
+        <span class="sidebar-badge" style="background: #ef4444;">{{ getRejectedStudents().length }}</span>
+        }
+      </button>
+      <button class="nav-item" [class.active]="currentView === 'payments'" (click)="navigateTo('payments')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+        <span>Payments</span>
+        @if (getStudentsWithPayments().length > 0) {
+        <span class="sidebar-badge">{{ getStudentsWithPayments().length }}</span>
+        }
+      </button>
+      <div class="sidebar-divider"></div>
+      <button class="nav-item" [class.active]="currentView === 'travel-details'" (click)="navigateTo('travel-details')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 2L11 13" />
+          <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+        </svg>
+        <span>Update Travel Details</span>
       </button>
       <button class="nav-item" [class.active]="currentView === 'visa-stamped'" (click)="navigateTo('visa-stamped')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -47,42 +123,13 @@
         <span>Visa Stamped</span>
         <span class="sidebar-badge">{{ getVisaStampedCount() }}</span>
       </button>
-      <button class="nav-item" [class.active]="currentView === 'action'" (click)="navigateTo('action')">
+      <button class="nav-item" [class.active]="currentView === 'travelling'" (click)="navigateTo('travelling')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
+          <path d="M22 2L11 13" />
+          <path d="M22 2l-7 20-4-9-9-4 20-7z" />
         </svg>
-        <span>Action Required</span>
-        @if (getActionRequiredCount() > 0) {
-        <span class="sidebar-badge">{{ getActionRequiredCount() }}</span>
-        }
-      </button>
-      <button class="nav-item" [class.active]="currentView === 'reports'" (click)="navigateTo('reports')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-          <line x1="16" y1="13" x2="8" y2="13" />
-          <line x1="16" y1="17" x2="8" y2="17" />
-          <polyline points="10 9 9 9 8 9" />
-        </svg>
-        <span>Reports</span>
-      </button>
-      <button class="nav-item" [class.active]="currentView === 'payments'" (click)="navigateTo('payments')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-          <line x1="1" y1="10" x2="23" y2="10" />
-        </svg>
-        <span>Payments</span>
-      </button>
-      <button class="nav-item" [class.active]="currentView === 'register'" (click)="navigateTo('register')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-          <circle cx="8.5" cy="7" r="4" />
-          <line x1="20" y1="8" x2="20" y2="14" />
-          <line x1="23" y1="11" x2="17" y2="11" />
-        </svg>
-        <span>Register New</span>
+        <span>Travelling</span>
+        <span class="sidebar-badge" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">{{ getTravellingCount }}</span>
       </button>
       <button class="nav-item" [class.active]="currentView === 'messages'" (click)="navigateTo('messages')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -122,7 +169,17 @@
           }}</h1>
         <p class="header-subtitle">{{ getCurrentDate() }}</p>
       </div>
-      <div class="header-right">
+      <div class="header-right" style="display: flex; align-items: center; gap: 16px;">
+        
+        <button class="notification-btn" (click)="isNewsModalOpen = true" style="background: white; border: 1px solid #E2E8F0; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
+            <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path><path d="M7 7h10"></path><path d="M7 11h10"></path><path d="M7 15h6"></path>
+            
+          </svg>
+          @if (newsItems.length > 0) {
+          <span style="position: absolute; top: -2px; right: -2px; background-color: #EF4444; color: white; border-radius: 12px; font-size: 10px; font-weight: 700; padding: 2px 6px; min-width: 16px; text-align: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);">{{ newsItems.length }}</span>
+          }
+        </button>
         <div class="user-pill">
           <div class="avatar">{{ agentData.fullName.charAt(0) }}</div>
           <div class="info">
@@ -325,188 +382,6 @@
           </div>
         </div>
       </div>
-      <!-- News Section - Hanging Notes Style (Premium Animated) -->
-      @if (newsItems.length > 0) {
-      <div class="news-section">
-        <!-- Sparkle Decorations -->
-        <div class="sparkle sparkle-1"></div>
-        <div class="sparkle sparkle-2"></div>
-        <div class="sparkle sparkle-3"></div>
-        <div class="sparkle sparkle-4"></div>
-        <div class="news-header">
-          <div class="news-title">
-            <div class="news-icon-wrapper">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-              </svg>
-            </div>
-            <h2>Latest Announcements</h2>
-          </div>
-          <div class="news-badge-wrapper">
-            <span class="news-badge pulse">NEW</span>
-            <span class="badge-glow"></span>
-          </div>
-        </div>
-        <div class="hanging-notes-container">
-          <!-- String Line with Knots (now spans full width) -->
-          <div class="string-line">
-            <div class="string-knot knot-left"></div>
-            <div class="string-knot knot-right"></div>
-          </div>
-          <!-- Scrolling Track - Contains duplicated items for seamless infinite scroll -->
-          <div class="news-track">
-            <!-- First set of news items -->
-            @for (news of newsItems; track news; let i = $index) {
-            <div class="hanging-note" [ngClass]="'note-' + ((i % 5) + 1)">
-              <div class="string"></div>
-              <div class="pin">
-                <div class="pin-head"></div>
-                <div class="pin-shine"></div>
-                <div class="pin-shadow"></div>
-              </div>
-              <div class="note-card" [ngClass]="getNoteColorClass(i)">
-                <div class="note-shine"></div>
-                <div class="note-fold"></div>
-                <div class="note-content">
-                  <div class="note-icon">
-                    <!-- Clock Icon for admission/time-related -->
-                    @if (getNewsIcon(news.tag) === 'clock') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10" />
-                      <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                    }
-                    <!-- Info Icon for general -->
-                    @if (getNewsIcon(news.tag) === 'info') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="16" x2="12" y2="12" />
-                      <line x1="12" y1="8" x2="12.01" y2="8" />
-                    </svg>
-                    }
-                    <!-- Calendar Icon for holiday -->
-                    @if (getNewsIcon(news.tag) === 'calendar') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                    }
-                    <!-- Stamp Icon for visa -->
-                    @if (getNewsIcon(news.tag) === 'stamp') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                      <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                    }
-                    <!-- Document Icon (default) -->
-                    @if (getNewsIcon(news.tag) === 'document') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                    </svg>
-                    }
-                  </div>
-                  <span class="note-date">{{ formatNewsDate(news.createdAt) }}</span>
-                  <h3 class="note-title">{{ news.heading }}</h3>
-                  <p class="note-text">{{ news.content }}</p>
-                  <div class="note-footer">
-                    <div class="note-tag">
-                      <span class="tag-dot"></span>
-                      {{ formatTag(news.tag) }}
-                    </div>
-                    <div class="read-more-hint">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            }
-            <!-- Duplicate set for seamless infinite scroll -->
-            @for (news of newsItems; track news; let i = $index) {
-            <div class="hanging-note" [ngClass]="'note-' + ((i % 5) + 1)">
-              <div class="string"></div>
-              <div class="pin">
-                <div class="pin-head"></div>
-                <div class="pin-shine"></div>
-                <div class="pin-shadow"></div>
-              </div>
-              <div class="note-card" [ngClass]="getNoteColorClass(i)">
-                <div class="note-shine"></div>
-                <div class="note-fold"></div>
-                <div class="note-content">
-                  <div class="note-icon">
-                    <!-- Clock Icon for admission/time-related -->
-                    @if (getNewsIcon(news.tag) === 'clock') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10" />
-                      <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                    }
-                    <!-- Info Icon for general -->
-                    @if (getNewsIcon(news.tag) === 'info') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="16" x2="12" y2="12" />
-                      <line x1="12" y1="8" x2="12.01" y2="8" />
-                    </svg>
-                    }
-                    <!-- Calendar Icon for holiday -->
-                    @if (getNewsIcon(news.tag) === 'calendar') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                    }
-                    <!-- Stamp Icon for visa -->
-                    @if (getNewsIcon(news.tag) === 'stamp') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                      <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                    }
-                    <!-- Document Icon (default) -->
-                    @if (getNewsIcon(news.tag) === 'document') {
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                    </svg>
-                    }
-                  </div>
-                  <span class="note-date">{{ formatNewsDate(news.createdAt) }}</span>
-                  <h3 class="note-title">{{ news.heading }}</h3>
-                  <p class="note-text">{{ news.content }}</p>
-                  <div class="note-footer">
-                    <div class="note-tag">
-                      <span class="tag-dot"></span>
-                      {{ formatTag(news.tag) }}
-                    </div>
-                    <div class="read-more-hint">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            }
-          </div>
-        </div>
-      </div>
-      }
       <!-- Action Items Section -->
       @if (dashboardTasks.length > 0) {
       <div class="action-section">
@@ -863,9 +738,248 @@
     </div>
     }
 
-    <!-- Students List View (Shared for Students, Action, In Process, Visa Stamped) -->
-    @if (!isLoading && (currentView === 'students' || currentView === 'action' || currentView === 'in-process' ||
-    currentView === 'visa-stamped')) {
+    <!-- Update Travel Details View -->
+    @if (!isLoading && currentView === 'travel-details') {
+    <div class="content-body">
+      <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+
+        <div class="card-header-modern"
+          style="border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 20px; margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div
+              style="width: 48px; height: 48px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13" />
+                <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+              </svg>
+            </div>
+            <div>
+              <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0;">Student Travel </h2>
+              <p style="font-size: 13px; color: #64748b; margin: 0;">Submit self-arranged travel details for your
+                registered students.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body-modern">
+
+          @if (!selectedTravelStudent) {
+          <div class="search-student-section animate-fade-in">
+            <div class="search-box-premium" style="position: relative; margin-bottom: 24px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"
+                style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%);">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" [(ngModel)]="travelSearchQuery"
+                placeholder="Search by Student Name, Passport No, or Application ID..."
+                style="width: 100%; height: 54px; padding: 0 20px 0 48px; font-size: 15px; border: 2px solid #e2e8f0; border-radius: 12px; transition: all 0.2s ease; outline: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02);"
+                onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 4px rgba(59,130,246,0.1)'"
+                onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)'">
+            </div>
+
+            @if (travelSearchResults.length > 0) {
+            <div class="search-results-list"
+              style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+              @for (student of travelSearchResults; track student) {
+              <div class="search-result-item hover-bg-light" (click)="selectTravelStudent(student)"
+                style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  <div class="avatar"
+                    style="width: 44px; height: 44px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); color: #0369a1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    {{ student.fullName.charAt(0) }}
+                  </div>
+                  <div>
+                    <div style="font-weight: 600; color: #0f172a; font-size: 15px; margin-bottom: 2px;">{{
+                      student.fullName }}</div>
+                    <div style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 8px;">
+                      <span>{{ student.passportNo || 'No Passport' }}</span>
+                      <span style="width: 4px; height: 4px; border-radius: 50%; background: #cbd5e1;"></span>
+                      <span>{{ student.applicationId }}</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn-outline btn-sm"
+                  style="border-radius: 20px; padding: 6px 16px; font-weight: 600; font-size: 12px; color: #3b82f6; border-color: #bfdbfe; background: #eff6ff;">
+                  Select Student
+                </button>
+              </div>
+              }
+            </div>
+            } @else if (travelSearchQuery.trim() !== '') {
+            <div
+              style="padding: 32px; text-align: center; color: #64748b; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"
+                style="margin: 0 auto 12px auto;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <p style="margin: 0; font-weight: 500;">No students found matching your search.</p>
+              <p style="margin: 4px 0 0 0; font-size: 13px;">Try searching by Application ID or Passport number.</p>
+            </div>
+            }
+          </div>
+          }
+
+          @if (selectedTravelStudent) {
+          <div class="selected-student-banner animate-fade-in"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: linear-gradient(to right, #f8fafc, #ffffff); border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 32px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div class="avatar"
+                style="width: 52px; height: 52px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
+                {{ selectedTravelStudent.fullName.charAt(0) }}
+              </div>
+              <div>
+                <div style="font-weight: 700; color: #0f172a; font-size: 18px; margin-bottom: 2px;">{{
+                  selectedTravelStudent.fullName }}</div>
+                <div style="font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 8px;">
+                  <span><strong style="color:#475569">Passport:</strong> {{ selectedTravelStudent.passportNo || 'N/A'
+                    }}</span>
+                  <span style="width: 4px; height: 4px; border-radius: 50%; background: #cbd5e1;"></span>
+                  <span><strong style="color:#475569">ID:</strong> {{ selectedTravelStudent.applicationId }}</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-outline" (click)="clearTravelSelection()"
+              style="border-radius: 8px; font-weight: 600; font-size: 13px;">
+              Change Student
+            </button>
+          </div>
+
+          <form [formGroup]="travelForm" (ngSubmit)="submitTravelDetails()" class="animate-fade-in">
+            <div class="form-grid-modern" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+              <div class="form-group-modern" style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 13px; font-weight: 600; color: #334155;">Date of Journey (DOJ) <span
+                    style="color: #ef4444;">*</span></label>
+                <div class="input-with-icon" style="position: relative;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"
+                    style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%);">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <input type="date" formControlName="travelDoj"
+                    style="width: 100%; height: 48px; padding: 0 16px 0 44px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;"
+                    onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
+                    onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+                </div>
+              </div>
+
+              <div class="form-group-modern" style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 13px; font-weight: 600; color: #334155;">Airlines <span
+                    style="color: #ef4444;">*</span></label>
+                <div class="input-with-icon" style="position: relative;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"
+                    style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%);">
+                    <path d="M22 2L11 13" />
+                    <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                  </svg>
+                  <input type="text" formControlName="travelAirlines" placeholder="e.g. Emirates, Air India"
+                    style="width: 100%; height: 48px; padding: 0 16px 0 44px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;"
+                    onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
+                    onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+                </div>
+              </div>
+
+              <div class="form-group-modern" style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 13px; font-weight: 600; color: #334155;">Source / Origin <span
+                    style="color: #ef4444;">*</span></label>
+                <div class="input-with-icon" style="position: relative;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"
+                    style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%);">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <input type="text" formControlName="travelSource" placeholder="e.g. New Delhi (DEL)"
+                    style="width: 100%; height: 48px; padding: 0 16px 0 44px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;"
+                    onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
+                    onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+                </div>
+              </div>
+
+              <div class="form-group-modern" style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 13px; font-weight: 600; color: #334155;">Destination <span
+                    style="color: #ef4444;">*</span></label>
+                <div class="input-with-icon" style="position: relative;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"
+                    style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%);">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  <input type="text" formControlName="travelDestination" placeholder="e.g. Tashkent (TAS)"
+                    style="width: 100%; height: 48px; padding: 0 16px 0 44px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;"
+                    onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
+                    onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+                </div>
+              </div>
+
+              <div class="form-group-modern full-width"
+                style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 13px; font-weight: 600; color: #334155;">Upload E-Ticket (PDF) <span
+                    style="color: #94a3b8; font-weight: 400;">(Optional)</span></label>
+
+                <div class="file-drop-zone" [class.has-file]="travelTicketFile" (click)="travelFileInput.click()"
+                  style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: #f8fafc;"
+                  onmouseover="this.style.borderColor='#3b82f6'; this.style.background='#eff6ff'"
+                  onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'">
+
+                  <input type="file" #travelFileInput class="file-input-hidden"
+                    (change)="onTravelTicketSelected($event)" accept="application/pdf" style="display: none;">
+
+                  <div class="upload-icon-container"
+                    style="margin-bottom: 12px; display: flex; justify-content: center;">
+                    <div
+                      style="width: 48px; height: 48px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); color: #3b82f6;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  @if (travelTicketFile) {
+                  <div style="color: #0f172a; font-weight: 600; font-size: 15px; margin-bottom: 4px;">{{
+                    travelTicketFile.name }}</div>
+                  <div style="color: #64748b; font-size: 13px;">{{ (travelTicketFile.size / 1024).toFixed(2) }} KB</div>
+                  <div style="color: #3b82f6; font-size: 13px; font-weight: 500; margin-top: 8px;">Click to change file
+                  </div>
+                  } @else {
+                  <div style="color: #0f172a; font-weight: 600; font-size: 15px; margin-bottom: 4px;">Click to upload
+                    E-Ticket</div>
+                  <div style="color: #64748b; font-size: 13px;">PDF documents only (Max 5MB)</div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions-modern"
+              style="margin-top: 32px; display: flex; justify-content: flex-end; gap: 16px; border-top: 1px solid #e2e8f0; padding-top: 24px;">
+              <button type="button" class="btn btn-text" (click)="clearTravelSelection()"
+                style="padding: 12px 24px; font-weight: 600; color: #64748b; border-radius: 8px;">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="travelForm.invalid || isSubmittingTravel"
+                style="padding: 12px 28px; font-weight: 600; border-radius: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);">
+                @if (isSubmittingTravel) {
+                <span class="spinner-small" style="margin-right: 8px;"></span>
+                }
+                Save Travel Details
+              </button>
+            </div>
+          </form>
+          }
+
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Students List View (Shared for Students, Action, Visa Stamped) -->
+    @if (!isLoading && (currentView === 'students' || currentView === 'action' ||
+    currentView === 'visa-stamped' || currentView === 'doc-return' || currentView === 'visa-payment' || currentView ===
+    'travelling' || currentView ===
+    'rejected')) {
     <div class="content-body">
       <div class="glass-card">
         <div class="card-header-with-search">
@@ -912,6 +1026,12 @@
                     [style.color]="getStatusColor(s.applicationStatus)">
                     {{ formatStatus(s.applicationStatus) }}
                   </span>
+                  @if (s.applicationStatus === 'REJECTED') {
+                  <div
+                    style="margin-top: 8px; font-size: 12px; color: #DC2626; background-color: #FEF2F2; padding: 6px 8px; border-radius: 6px; border: 1px solid #FEE2E2; max-width: 200px;">
+                    <strong>Reason:</strong> {{ getRejectionReason(s) }}
+                  </div>
+                  }
                 </td>
                 <td>
                   <div class="action-buttons">
@@ -925,6 +1045,16 @@
                         <circle cx="12" cy="12" r="3" />
                       </svg>
                     </button>
+                    @if (s.applicationStatus === 'REJECTED') {
+                    <button class="btn-icon-modern primary" style="background: #ef4444; color: white; border: none;"
+                      (click)="editStudent(s)" title="Edit / Reapply">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    }
                     @if (showInitiateTelexButton(s)) {
                     <button class="btn-icon-modern primary" (click)="openTelexModal(s)" title="Initiate Telex">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -966,16 +1096,352 @@
       </div>
     </div>
     }
+
+    <!-- Apply Telex View with Side Panel -->
+    @if (!isLoading && currentView === 'apply-telex') {
+    <div class="content-body">
+      <div class="telex-split-layout">
+        <!-- Main: Eligible Students -->
+        <div class="telex-main-panel">
+          <div class="glass-card">
+            <div class="card-header-with-search">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="12" y1="18" x2="12" y2="12" />
+                  <line x1="9" y1="15" x2="15" y2="15" />
+                </svg>
+                Eligible for Telex Application
+              </h3>
+              <span class="badge-count" style="background: rgba(99, 102, 241, 0.2); color: #6366F1;">{{
+                getTelexEligibleStudents().length }}</span>
+            </div>
+            <div class="modern-table-container">
+              @if (getTelexEligibleStudents().length > 0) {
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Contact</th>
+                    <th>College</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (s of getTelexEligibleStudents(); track s) {
+                  <tr [@listAnimation]>
+                    <td>
+                      <div class="student-cell">
+                        <div class="avatar-sm">{{ s.fullName.charAt(0) }}</div>
+                        <div class="student-info-cell">
+                          <span class="student-name">{{ s.fullName }}</span>
+                          <span class="student-email">{{ s.email }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ s.contactNo }}</td>
+                    <td>
+                      <div class="college-cell">
+                        <span>{{ s.college?.collegeName }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="modern-status-badge" [style.background]="getStatusColor(s.applicationStatus) + '20'"
+                        [style.color]="getStatusColor(s.applicationStatus)">
+                        {{ formatStatus(s.applicationStatus) }}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn-initiate-telex" (click)="openTelexModal(s)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Initiate Telex
+                      </button>
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+              } @else {
+              <div class="empty-state-modern">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <h4>No Students Eligible</h4>
+                <p>All admission letters need to be approved before telex can be initiated.</p>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+        <!-- Side Panel: Telex Applications Tracker -->
+        <div class="telex-side-panel">
+          <div class="glass-card telex-tracker-card">
+            <div class="card-header-modern"
+              style="background: rgba(139, 92, 246, 0.08); border-bottom-color: rgba(139, 92, 246, 0.2);">
+              <h3 style="font-size: 15px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+                Telex Applications
+              </h3>
+            </div>
+            <div class="card-body-modern telex-tracker-body">
+              @if (getTelexApplicationStudents().length > 0) {
+              <div class="telex-tracker-list">
+                @for (s of getTelexApplicationStudents(); track s) {
+                <div class="telex-tracker-item" (click)="viewStudentDetails(s)">
+                  <div class="telex-tracker-avatar">{{ s.fullName.charAt(0) }}</div>
+                  <div class="telex-tracker-info">
+                    <span class="telex-tracker-name">{{ s.fullName }}</span>
+                    <span class="telex-tracker-status" [style.color]="getStatusColor(s.applicationStatus)">
+                      {{ formatStatus(s.applicationStatus) }}
+                    </span>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="color: #94a3b8; flex-shrink: 0;">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </div>
+                }
+              </div>
+              } @else {
+              <div class="telex-tracker-empty">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <p>No telex applications yet</p>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
     <!-- Message Dashboard -->
     @if (currentView === 'messages') {
     <app-message-dashboard></app-message-dashboard>
     }
 
 
-    @if (currentView === 'reports' || currentView === 'payments') {
+    <!-- Payments View -->
+    @if (!isLoading && currentView === 'payments') {
+    <div class="content-body">
+      <!-- Payment Summary Cards -->
+      <div class="payment-summary-row">
+        <div class="payment-summary-card">
+          <div class="payment-summary-icon" style="background: rgba(16, 185, 129, 0.12);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+              <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </div>
+          <div>
+            <span class="payment-summary-value">{{ getStudentsWithPayments().length }}</span>
+            <span class="payment-summary-label">Total Records</span>
+          </div>
+        </div>
+        <div class="payment-summary-card">
+          <div class="payment-summary-icon" style="background: rgba(99, 102, 241, 0.12);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <div>
+            <span class="payment-summary-value">${{ getTotalPaymentsAmount() | number:'1.0-0' }}</span>
+            <span class="payment-summary-label">Total Amount</span>
+          </div>
+        </div>
+        <div class="payment-summary-card">
+          <div class="payment-summary-icon" style="background: rgba(245, 158, 11, 0.12);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div>
+            <span class="payment-summary-value">{{ getPendingPaymentsCount() }}</span>
+            <span class="payment-summary-label">Pending</span>
+          </div>
+        </div>
+      </div>
+      <!-- Payment Records -->
+      <div class="glass-card">
+        <div class="card-header-modern">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            Telex Payment Records
+          </h3>
+        </div>
+        <div class="card-body-modern" style="padding: 0;">
+          @if (getStudentsWithPayments().length > 0) {
+          <div class="payment-records-list">
+            @for (s of getStudentsWithPayments(); track s) {
+            <div class="payment-record-card" (click)="viewStudentDetails(s)">
+              <div class="payment-record-header">
+                <div class="payment-record-student">
+                  <div class="payment-avatar">{{ s.fullName.charAt(0) }}</div>
+                  <div class="payment-student-info">
+                    <span class="payment-student-name">{{ s.fullName }}</span>
+                    <span class="payment-student-college">{{ s.college?.collegeName }}</span>
+                  </div>
+                </div>
+                <div class="payment-amount-badge" [class.paid]="s.hasPaid" [class.pending]="!s.hasPaid">
+                  @if (s.hasPaid) {
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  PAID
+                  } @else {
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  PENDING
+                  }
+                </div>
+              </div>
+              <div class="payment-record-details">
+                <div class="payment-detail-grid">
+                  @if (s.paidAmount || s.telexPaymentAmount) {
+                  <div class="payment-detail-item">
+                    <span class="payment-detail-label">Amount</span>
+                    <span class="payment-detail-value amount">${{ (s.paidAmount || s.telexPaymentAmount || 0) |
+                      number:'1.2-2' }}</span>
+                  </div>
+                  }
+                  @if (s.paidTo) {
+                  <div class="payment-detail-item">
+                    <span class="payment-detail-label">Paid To</span>
+                    <span class="payment-detail-value">
+                      <span class="paid-to-badge" [class.university]="s.paidTo === 'UNIVERSITY'"
+                        [class.company]="s.paidTo === 'COMPANY'">
+                        @if (s.paidTo === 'UNIVERSITY') {
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                          <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                        </svg>
+                        } @else {
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <path d="M3 21h18" />
+                          <path d="M5 21V7l8-4 8 4v14" />
+                        </svg>
+                        }
+                        {{ s.paidTo }}
+                      </span>
+                    </span>
+                  </div>
+                  }
+                  @if (s.paymentType) {
+                  <div class="payment-detail-item">
+                    <span class="payment-detail-label">Payment Type</span>
+                    <span class="payment-detail-value">{{ s.paymentType === 'FULL' ? 'Full Payment' : 'Semester Wise'
+                      }}</span>
+                  </div>
+                  }
+                  @if (s.paymentDueDate) {
+                  <div class="payment-detail-item">
+                    <span class="payment-detail-label">Due Date</span>
+                    <span class="payment-detail-value">{{ s.paymentDueDate | date:'dd MMM yyyy' }}</span>
+                  </div>
+                  }
+                  @if (s.telexPaymentTxId) {
+                  <div class="payment-detail-item">
+                    <span class="payment-detail-label">Transaction ID</span>
+                    <span class="payment-detail-value tx-id"
+                      (click)="copyToClipboard(s.telexPaymentTxId); $event.stopPropagation()">
+                      {{ s.telexPaymentTxId }}
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                    </span>
+                  </div>
+                  }
+                  <div class="payment-detail-item">
+                    <span class="payment-detail-label">Status</span>
+                    <span class="payment-detail-value">
+                      <span class="modern-status-badge" [style.background]="getStatusColor(s.applicationStatus) + '20'"
+                        [style.color]="getStatusColor(s.applicationStatus)" style="font-size: 10px; padding: 3px 8px;">
+                        {{ formatStatus(s.applicationStatus) }}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                @if (s.telexTuitionFee || s.telexHostelFee || s.telexMessFee || s.telexContractFee || s.telexRegistrationFee || s.telexOneTimeCharge) {
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9;">
+                  <span style="font-size: 11px; font-weight: 600; color: #64748b; display: block; margin-bottom: 6px;">Fee Components</span>
+                  <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                    @if (s.telexTuitionFee) {
+                    <span style="font-size: 10px; padding: 3px 8px; border-radius: 12px; background: #eff6ff; color: #3b82f6; font-weight: 600;">Tuition</span>
+                    }
+                    @if (s.telexHostelFee) {
+                    <span style="font-size: 10px; padding: 3px 8px; border-radius: 12px; background: #f0fdf4; color: #22c55e; font-weight: 600;">Hostel</span>
+                    }
+                    @if (s.telexMessFee) {
+                    <span style="font-size: 10px; padding: 3px 8px; border-radius: 12px; background: #fffbeb; color: #f59e0b; font-weight: 600;">Mess</span>
+                    }
+                    @if (s.telexContractFee) {
+                    <span style="font-size: 10px; padding: 3px 8px; border-radius: 12px; background: #faf5ff; color: #a855f7; font-weight: 600;">Contract</span>
+                    }
+                    @if (s.telexRegistrationFee) {
+                    <span style="font-size: 10px; padding: 3px 8px; border-radius: 12px; background: #fdf2f8; color: #ec4899; font-weight: 600;">Registration</span>
+                    }
+                    @if (s.telexOneTimeCharge) {
+                    <span style="font-size: 10px; padding: 3px 8px; border-radius: 12px; background: #f0fdfa; color: #14b8a6; font-weight: 600;">One-time</span>
+                    }
+                  </div>
+                </div>
+                }
+                @if (s.telexPaymentScreenshotPath || s.paymentConfirmationPath) {
+                <div class="payment-doc-link">
+                  <button class="btn-view-receipt"
+                    (click)="downloadFile(s.telexPaymentScreenshotPath || s.paymentConfirmationPath); $event.stopPropagation()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                    View Receipt
+                  </button>
+                </div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="empty-state-modern">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5">
+              <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            <h4>No Payment Records</h4>
+            <p>Payment details will appear here once students submit their telex applications with payment information.
+            </p>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+    }
+
+    @if (currentView === 'reports') {
     <div class="placeholder-container">
       <div class="placeholder-icon">
-        @if (currentView === 'reports') {
         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
           <polyline points="14 2 14 8 20 8" />
@@ -983,15 +1449,8 @@
           <line x1="16" y1="17" x2="8" y2="17" />
           <polyline points="10 9 9 9 8 9" />
         </svg>
-        }
-        @if (currentView === 'payments') {
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-          <line x1="1" y1="10" x2="23" y2="10" />
-        </svg>
-        }
       </div>
-      <h2>{{ currentView | titlecase }} Coming Soon</h2>
+      <h2>Reports Coming Soon</h2>
       <p>This feature is currently under development.</p>
     </div>
     }
@@ -1218,6 +1677,27 @@
         <!-- Right Column -->
         <div class="detail-right">
           <!-- Action Card -->
+          @if (selectedStudent.applicationStatus === 'REJECTED') {
+          <div class="glass-card action-card-modern">
+            <div class="action-alert" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            </div>
+            <h3 style="color: #ef4444;">Application Rejected</h3>
+            <p>This application was rejected by the Admission Manager. Please review the remarks in the timeline,
+              correct the details, and reapply.</p>
+            <button class="btn-primary-large" style="background: #ef4444;" (click)="editStudent(selectedStudent)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Edit & Reapply
+            </button>
+          </div>
+          }
           @if (showInitiateTelexButton(selectedStudent)) {
           <div class="glass-card action-card-modern">
             <div class="action-alert">
@@ -1258,7 +1738,7 @@
                     <h4 [style.color]="getStatusColor(log.newStatus)">{{ formatStatus(log.newStatus) }}</h4>
                     <p class="timeline-date">{{ log.updatedAt | date:'medium' }}</p>
                     @if (log.updatedBy) {
-                    <p class="timeline-user">Updated by: {{ log.updatedBy }}</p>
+                    <p class="timeline-user">Updated by: {{ log.updatedByName || log.updatedBy }}</p>
                     }
                     @if (log.remarks) {
                     <p class="timeline-remark">{{ log.remarks }}</p>
@@ -1575,6 +2055,16 @@
     </div>
     }
 
+    <!-- Edit Student View -->
+    @if (currentView === 'edit-student' && agentData && studentToEdit) {
+    <div class="content-body">
+      <app-agent-student-resgistration [collegeAccess]="agentData.collegeAccess" [agentUserName]="agentData.userId"
+        [editMode]="true" [studentToEdit]="studentToEdit"
+        (onRegistrationSuccess)="refreshDashboard(); navigateTo('students')" (onCancel)="navigateTo('students')">
+      </app-agent-student-resgistration>
+    </div>
+    }
+
     <!-- Floating Refresh Button -->
     <button class="floating-refresh-btn" (click)="refreshDashboard()" [class.spinning]="isReloadingData"
       title="Refresh Data">
@@ -1737,6 +2227,36 @@
               <option value="UNIVERSITY">University</option>
               <option value="COMPANY">Company</option>
             </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 12px;">
+          <label style="font-weight: 600; margin-bottom: 8px; display: block;">Payment Components</label>
+          <p style="font-size: 12px; color: #64748b; margin-bottom: 12px;">Select the fee components included in this payment</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <label class="checkbox-card" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" formControlName="telexTuitionFee" style="width: 16px; height: 16px; accent-color: #6366f1;">
+              <span style="font-size: 13px; font-weight: 500; color: #334155;">Tuition Fees</span>
+            </label>
+            <label class="checkbox-card" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" formControlName="telexHostelFee" style="width: 16px; height: 16px; accent-color: #6366f1;">
+              <span style="font-size: 13px; font-weight: 500; color: #334155;">Hostel Fees</span>
+            </label>
+            <label class="checkbox-card" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" formControlName="telexMessFee" style="width: 16px; height: 16px; accent-color: #6366f1;">
+              <span style="font-size: 13px; font-weight: 500; color: #334155;">Mess Fees</span>
+            </label>
+            <label class="checkbox-card" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" formControlName="telexContractFee" style="width: 16px; height: 16px; accent-color: #6366f1;">
+              <span style="font-size: 13px; font-weight: 500; color: #334155;">Contract Fees</span>
+            </label>
+            <label class="checkbox-card" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" formControlName="telexRegistrationFee" style="width: 16px; height: 16px; accent-color: #6366f1;">
+              <span style="font-size: 13px; font-weight: 500; color: #334155;">Registration Fees</span>
+            </label>
+            <label class="checkbox-card" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" formControlName="telexOneTimeCharge" style="width: 16px; height: 16px; accent-color: #6366f1;">
+              <span style="font-size: 13px; font-weight: 500; color: #334155;">One Time Charge</span>
+            </label>
           </div>
         </div>
         @if (telexForm.get('paidTo')?.value === 'UNIVERSITY') {
@@ -2556,6 +3076,107 @@
 </div>
 }
 
+
+  
+  <!-- News Modal -->
+  @if (isNewsModalOpen) {
+  <div class="modal-overlay telex-modal" (click)="isNewsModalOpen = false" style="background: rgba(15, 23, 42, 0.4); z-index: 9999; display: flex; justify-content: flex-end;">
+    <div class="modal-content-modern" style="width: 400px; height: 100vh; max-height: 100vh; overflow-y: auto; background: white; border-radius: 0; box-shadow: -4px 0 25px rgba(0, 0, 0, 0.1); padding: 0; margin: 0; animation: slideInRight 0.3s ease-out;" (click)="$event.stopPropagation()">
+      
+      <!-- Header -->
+      <div style="padding: 20px 24px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 10;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 10px; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path><path d="M7 7h10"></path><path d="M7 11h10"></path><path d="M7 15h6"></path>
+              
+            </svg>
+          </div>
+          <div>
+            <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #0F172A;">Announcements & Updates</h2>
+            <p style="margin: 4px 0 0; font-size: 13px; color: #64748B;">Stay informed with the latest news</p>
+          </div>
+        </div>
+        <button class="btn-close" (click)="isNewsModalOpen = false" style="background: transparent; border: none; padding: 8px; cursor: pointer; color: #64748B; border-radius: 8px; transition: all 0.2s;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Content List -->
+      <div style="padding: 16px 24px; background: #F8FAFC; min-height: 300px;">
+        @if (newsItems.length > 0) {
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            @for (news of newsItems; track news.id) {
+              <div style="background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                <div style="display: flex; gap: 16px; align-items: flex-start;">
+                  
+                  <!-- Icon Column -->
+                  <div style="flex-shrink: 0;">
+                    @if (getNewsIcon(news.tag) === 'clock') {
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #FFF7ED; color: #EA580C; display: flex; align-items: center; justify-content: center;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    }
+                    @if (getNewsIcon(news.tag) === 'info') {
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    </div>
+                    }
+                    @if (getNewsIcon(news.tag) === 'calendar') {
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #ECFDF5; color: #059669; display: flex; align-items: center; justify-content: center;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    }
+                    @if (getNewsIcon(news.tag) === 'stamp') {
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    }
+                    @if (getNewsIcon(news.tag) === 'document') {
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #F5F3FF; color: #7C3AED; display: flex; align-items: center; justify-content: center;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    }
+                  </div>
+
+                  <!-- Text Column -->
+                  <div style="flex-grow: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                      <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #1E293B; line-height: 1.4;">{{ news.heading }}</h3>
+                      <span style="font-size: 12px; font-weight: 500; color: #94A3B8; white-space: nowrap; margin-left: 12px;">{{ formatNewsDate(news.createdAt) }}</span>
+                    </div>
+                    <p style="margin: 0 0 12px 0; font-size: 14px; color: #475569; line-height: 1.5;">{{ news.content }}</p>
+                    <div style="display: flex; gap: 8px;">
+                      <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 12px; background: #F1F5F9; color: #475569; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 6px; opacity: 0.5;"></span>
+                        {{ formatTag(news.tag) }}
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            }
+          </div>
+        }
+        @if (newsItems.length === 0) {
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; text-align: center;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5" style="margin-bottom: 16px;">
+              <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path><path d="M7 7h10"></path><path d="M7 11h10"></path><path d="M7 15h6"></path>
+              
+            </svg>
+            <h3 style="margin: 0 0 8px; font-size: 16px; font-weight: 600; color: #475569;">No Recent Announcements</h3>
+            <p style="margin: 0; font-size: 14px; color: #94A3B8;">Check back later for updates and news.</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
+
 <!-- Toast Notification -->
 <div class="toast-notification" [class.show]="showToast" [class.success]="toastType === 'success'"
   [class.error]="toastType === 'error'">
@@ -2609,7 +3230,8 @@
           <label>Contact Person Name <span class="required" style="color: #ef4444;">*</span></label>
           <input type="text" formControlName="contactPersonName" class="form-control"
             placeholder="Who will collect/receive?">
-          @if (requestDocsForm.get('contactPersonName')?.touched && requestDocsForm.get('contactPersonName')?.invalid) {
+          @if (requestDocsForm.get('contactPersonName')?.touched &&
+          requestDocsForm.get('contactPersonName')?.invalid) {
           <div class="error-msg" style="color: #ef4444; font-size: 0.8rem; margin-top: 4px;">
             Required
           </div>

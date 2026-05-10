@@ -397,8 +397,7 @@
                   <div class="timeline-meta">
                     <span class="timeline-date">{{ history.updatedAt | date:'MMM d, y, h:mm a' }}</span>
                     @if (history.updatedBy) {
-                      <span class="timeline-user">by {{ history.updatedBy
-                      }}</span>
+                      <span class="timeline-user">by {{ history.updatedByName || history.updatedBy }}</span>
                     }
                   </div>
                   @if (history.remarks) {
@@ -1170,7 +1169,7 @@
           <div class="metadata-grid">
             <div class="metadata-item">
               <span class="meta-label">Updated By</span>
-              <span class="meta-value">{{ selectedStudent.updatedBy || 'System' }}</span>
+              <span class="meta-value">{{ selectedStudent.updatedByName || selectedStudent.updatedBy || 'System' }}</span>
             </div>
             <div class="metadata-item">
               <span class="meta-label">Created At</span>

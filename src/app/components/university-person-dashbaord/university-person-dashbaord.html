@@ -30,9 +30,13 @@
         </button>
 
         <div class="sidebar-header">
+            @if(getCollegeLogo()) {
+            <img [src]="getCollegeLogo()" class="uni-logo" alt="Logo">
+            } @else {
             <div class="uni-crest">
                 {{ getInitials(universityData()?.college?.collegeName || 'University') }}
             </div>
+            }
             <div class="brand-info">
                 <h1>{{ universityData()?.college?.collegeName || 'University' }}</h1>
                 <p>Coordinator Portal</p>
@@ -147,7 +151,12 @@
             @if(activeSection() === 'dashboard') {
             <div class="page-title">
                 <h2>Dashboard Overview</h2>
-                <p>Monitor and manage student applications</p>
+                <p>Monitor and manage student applications for <strong>{{ universityData()?.college?.collegeName ||
+                        'your institution' }}</strong>
+                    @if(universityData()?.college?.city && universityData()?.college?.country) {
+                    <span>&nbsp;({{ universityData()?.college?.city }}, {{ universityData()?.college?.country }})</span>
+                    }
+                </p>
             </div>
 
             <div class="stats-grid">
@@ -167,6 +176,47 @@
                     <div class="stat-value">{{ stats().actionRequired }}</div>
                     <div class="stat-label">Action Required</div>
                 </div>
+                <div class="stat-card info">
+                    <div class="stat-value">{{ stats().visaStamped }}</div>
+                    <div class="stat-label">Visa Stamped</div>
+                </div>
+            </div>
+
+            <div class="performance-row">
+                <div class="perf-metric">
+                    <span class="perf-label">Admission Rate</span>
+                    <span class="perf-val">{{ performanceMetrics()?.admissionRate }}%</span>
+                </div>
+                <div class="perf-divider"></div>
+                <div class="perf-metric">
+                    <span class="perf-label">Visa Success Rate</span>
+                    <span class="perf-val">{{ performanceMetrics()?.visaRate }}%</span>
+                </div>
+                <div class="perf-divider"></div>
+                <div class="perf-metric">
+                    <span class="perf-label">Apps This Month</span>
+                    <span class="perf-val">{{ performanceMetrics()?.thisMonthCount }}</span>
+                </div>
+                <div class="perf-divider"></div>
+                <div class="perf-metric">
+                    <span class="perf-label">Monthly Growth</span>
+                    <span class="perf-val" [class.positive]="performanceMetrics()?.isPositiveGrowth"
+                        [class.negative]="!performanceMetrics()?.isPositiveGrowth">
+                        @if(performanceMetrics()?.isPositiveGrowth) {
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                        +{{ performanceMetrics()?.growth }}%
+                        } @else {
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"></path>
+                        </svg>
+                        {{ performanceMetrics()?.growth }}%
+                        }
+                    </span>
+                </div>
             </div>
 
             <div class="charts-section">
@@ -182,6 +232,50 @@
                     <div class="chart-container">
                         <canvas baseChart [data]="barChartData" [type]="barChartType" [options]="barChartOptions">
                         </canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-heading">
+                <h3>University Insights</h3>
+            </div>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <h4>Top Courses Applied</h4>
+                    <div class="insight-list">
+                        @for(course of courseBreakdown(); track course.name) {
+                        <div class="insight-item">
+                            <div class="insight-info">
+                                <span class="insight-name">{{ course.name }}</span>
+                                <span class="insight-count">{{ course.count }} students</span>
+                            </div>
+                            <div class="progress-bar-small">
+                                <div class="progress-fill-small" [style.width.%]="course.percentage"></div>
+                            </div>
+                        </div>
+                        }
+                        @if(courseBreakdown().length === 0) {
+                        <p class="empty-text">No course data available.</p>
+                        }
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <h4>Intake Distribution</h4>
+                    <div class="insight-list">
+                        @for(intake of intakeBreakdown(); track intake.name) {
+                        <div class="insight-item">
+                            <div class="insight-info">
+                                <span class="insight-name">{{ intake.name }}</span>
+                                <span class="insight-count">{{ intake.count }} students</span>
+                            </div>
+                            <div class="progress-bar-small">
+                                <div class="progress-fill-small intake-fill" [style.width.%]="intake.percentage"></div>
+                            </div>
+                        </div>
+                        }
+                        @if(intakeBreakdown().length === 0) {
+                        <p class="empty-text">No intake data available.</p>
+                        }
                     </div>
                 </div>
             </div>
@@ -444,59 +538,96 @@
 
             <!-- Reports Section -->
             @if(activeSection() === 'reports') {
-            <div class="under-development-section">
-                <div class="dev-container">
-                    <div class="dev-icon-wrapper">
-                        <svg class="dev-icon" width="120" height="120" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div class="dev-tools">
-                            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <h2 class="dev-title">Reports Module Coming Soon! 🚀</h2>
-                    <p class="dev-message">
-                        Our talented developers are crafting something extraordinary for you. The Reports module is
-                        currently in active development and will be available soon with comprehensive analytics and
-                        insights.
-                    </p>
-                    <div class="dev-features">
-                        <div class="dev-feature-item">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            <span>Advanced Analytics</span>
-                        </div>
-                        <div class="dev-feature-item">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                            </svg>
-                            <span>Custom Reports</span>
-                        </div>
-                        <div class="dev-feature-item">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <span>Export to PDF/Excel</span>
-                        </div>
-                    </div>
-                    <div class="dev-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <p class="progress-text">Development in progress...</p>
-                    </div>
+            <div class="page-title print-hide">
+                <h2>Advanced Reports & Analytics</h2>
+                <p>Generate custom reports and export data</p>
+            </div>
+
+            <div class="report-filters print-hide">
+                <div class="filter-group">
+                    <label>Start Date</label>
+                    <input type="date" class="filter-input" [value]="reportStartDate()"
+                        (change)="updateFilter('reportStartDate', $event)">
                 </div>
+                <div class="filter-group">
+                    <label>End Date</label>
+                    <input type="date" class="filter-input" [value]="reportEndDate()"
+                        (change)="updateFilter('reportEndDate', $event)">
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select class="filter-input" [value]="reportStatus()"
+                        (change)="updateFilter('reportStatus', $event)">
+                        <option value="ALL">All Statuses</option>
+                        @for(status of uniqueStatuses(); track status) {
+                        <option [value]="status">{{ formatStatusLabel(status) }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn-cancel" (click)="clearFilters()">Clear</button>
+                    <button class="btn-download primary" (click)="exportToExcel()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        Excel
+                    </button>
+                    <button class="btn-download" (click)="exportToPdf()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                            </path>
+                        </svg>
+                        PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="report-summary print-hide">
+                <div class="summary-card">
+                    <div class="summary-label">Total Records</div>
+                    <div class="summary-value">{{ filteredReportStudents().length }}</div>
+                </div>
+            </div>
+
+            <div class="table-container report-table">
+                <div class="print-only report-header">
+                    <h2>Custom Report: Student Analytics</h2>
+                    <p>Generated on: {{ getCurrentDate() }}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Application ID</th>
+                            <th>Full Name</th>
+                            <th>Passport No.</th>
+                            <th>Course</th>
+                            <th>Intake</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for(student of filteredReportStudents(); track student.id) {
+                        <tr>
+                            <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
+                            <td>{{ student.fullName }}</td>
+                            <td>{{ student.passportNo }}</td>
+                            <td>{{ student.appliedFor }}</td>
+                            <td>{{ student.intake || 'N/A' }}</td>
+                            <td><span class="badge info">{{ formatStatusLabel(student.applicationStatus) }}</span></td>
+                            <td>{{ formatDate(student.createdAt) }}</td>
+                        </tr>
+                        }
+                        @if(filteredReportStudents().length === 0) {
+                        <tr>
+                            <td colspan="7" class="empty-table">No records match your filters.</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
             }
 

@@ -1,4 +1,5 @@
 export interface Student {
+  affidavitPath?: string;
     fullName: string;
     dob: string;
     age: number;

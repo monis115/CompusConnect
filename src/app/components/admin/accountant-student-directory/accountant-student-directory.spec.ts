@@ -10,7 +10,7 @@ describe('AccountantStudentDirectory', () => {
     await TestBed.configureTestingModule({
       declarations: [AccountantStudentDirectory]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AccountantStudentDirectory);
     component = fixture.componentInstance;

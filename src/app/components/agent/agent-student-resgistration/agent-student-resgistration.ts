@@ -39,6 +39,8 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
 
   @Input() collegeAccess: CollegeAccess[] = [];
   @Input() agentUserName: string = ''; // Passed from session in parent component
+  @Input() editMode: boolean = false;
+  @Input() studentToEdit: any = null;
 
   @Output() onRegistrationSuccess = new EventEmitter<StudentRegistrationResponse>();
   @Output() onCancel = new EventEmitter<void>();
@@ -116,7 +118,8 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     class12thMarksheet: null as File | null,
     photograph: null as File | null,
     neetMarksheet: null as File | null,
-    passport: null as File | null
+    passport: null as File | null,
+    affidavit: null as File | null
   };
 
   documentPreviews = {
@@ -124,7 +127,8 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     class12thMarksheet: null as string | null,
     photograph: null as string | null,
     neetMarksheet: null as string | null,
-    passport: null as string | null
+    passport: null as string | null,
+    affidavit: null as string | null
   };
 
   boardOptions = [
@@ -218,11 +222,51 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
   ngOnInit(): void {
     this.processCollegeAccess();
     this.loadSessions();
+    if (this.editMode && this.studentToEdit) {
+      this.prefillEditData();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['collegeAccess']) {
       this.processCollegeAccess();
+    }
+    if (changes['studentToEdit'] && this.editMode && this.studentToEdit) {
+      this.prefillEditData();
+    }
+  }
+
+  prefillEditData(): void {
+    const s = this.studentToEdit;
+    // Basic fields
+    this.student.fullName = s.fullName || '';
+    this.student.dob = s.dob || '';
+    this.student.age = s.age || null;
+    this.student.email = s.email || '';
+    this.student.contactNo = s.contactNo || '';
+    // Simplify address filling
+    this.student.address = s.address ? s.address.split(',')[0] : '';
+    this.student.selectedState = s.selectedState || '';
+    this.student.mothersName = s.mothersName || '';
+    this.student.fathersName = s.fathersName || '';
+    this.student.emergencyContactNo = s.emergencyContactNo || '';
+    this.student.emergencyRelation = s.emergencyRelation || '';
+    this.student.passportNo = s.passportNo || '';
+    this.student.passportValidTill = s.passportValidTill || '';
+    this.student.adhaarCardNo = s.adhaarCardNo || '';
+    this.student.class12thPassingYear = s.class12thPassingYear || '';
+    this.student.baords = s.baords || '';
+    this.student.class12thMarks = s.class12thMarks || null;
+    this.student.maxMarks = s.maxMarks || null;
+    this.student.hasGivenNEET = s.hasGivenNEET || false;
+    this.student.neetYear = s.neetYear || '';
+    this.student.neetScore = s.neetScore || null;
+    this.student.appliedFor = s.appliedFor || 'MBBS';
+
+    this.selectedCollegeId = s.college?.id || null;
+    if (s.intake) {
+      const match = this.sessions.find(session => `${session.sessionName} (${session.academicYear})` === s.intake);
+      if (match) this.selectedSessionId = match.id;
     }
   }
 
@@ -275,7 +319,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
 
   loadSessions(): void {
     this.isLoadingSessions = true;
-    this.http.get<Session[]>(`${this.baseUrl}/api/sessions`).subscribe({
+    this.http.get<Session[]>(`${this.baseUrl}/api/sessions/active`).subscribe({
       next: (data) => {
         console.log('Sessions loaded:', data);
         this.sessions = data || [];
@@ -589,6 +633,14 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     //   this.errorMessage = 'Please upload photograph';
     //   return false;
     // }
+    if (!this.student.hasGivenNEET && !this.documents.affidavit) {
+      this.errorMessage = 'Please upload the required Affidavit since NEET is not given';
+      return false;
+    }
+    if (!this.hasPassport && !this.documents.adhaar) {
+      this.errorMessage = 'Please upload Aadhaar card document since Passport is not available';
+      return false;
+    }
     if (this.student.hasGivenNEET && !this.documents.neetMarksheet) {
       this.errorMessage = 'Please upload NEET marksheet';
       return false;
@@ -650,10 +702,14 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     if (this.documents.photograph) formData.append('profileImage', this.documents.photograph);
     if (this.documents.neetMarksheet) formData.append('neetMarksheetFile', this.documents.neetMarksheet);
     if (this.hasPassport && this.documents.passport) formData.append('passportFile', this.documents.passport);
+    if (!this.student.hasGivenNEET && this.documents.affidavit) formData.append('affidavitFile', this.documents.affidavit);
 
     const startTime = Date.now();
+    const requestObs = this.editMode
+      ? this.http.put<StudentRegistrationResponse>(`${this.baseUrl}/students/update/${this.studentToEdit.id}`, formData)
+      : this.http.post<StudentRegistrationResponse>(this.registrationApiUrl, formData);
 
-    this.http.post<StudentRegistrationResponse>(this.registrationApiUrl, formData)
+    requestObs
       .pipe(
         finalize(() => {
           const elapsedTime = Date.now() - startTime;
@@ -748,7 +804,8 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
       class12thMarksheet: null,
       photograph: null,
       neetMarksheet: null,
-      passport: null
+      passport: null,
+      affidavit: null
     };
 
     this.documentPreviews = {
@@ -756,7 +813,8 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
       class12thMarksheet: null,
       photograph: null,
       neetMarksheet: null,
-      passport: null
+      passport: null,
+      affidavit: null
     };
 
     this.errorMessage = null;

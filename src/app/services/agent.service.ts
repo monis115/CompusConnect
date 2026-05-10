@@ -40,6 +40,8 @@ export interface Student {
     telexPaymentScreenshotPath: string | undefined;
     adhaarPath: any;
     markseetPath: string | undefined;
+    neetMarksheetPath?: string;
+    affidavitPath?: string;
     passportPath: string | undefined;
     conditionalOfferLetterPath: any;
     id: number;
@@ -74,6 +76,49 @@ export interface Student {
     actionOnUser?: string;
     applicationId?: string;
     canRequestDocReturn?: boolean;
+
+    // Travel Details
+    travelDoj?: string;
+    travelAirlines?: string;
+    travelSource?: string;
+    travelDestination?: string;
+    travelTicketPdfPath?: string;
+
+    // Telex Payment Fields
+    hasPaid?: boolean;
+    paidAmount?: number;
+    paidTo?: string; // UNIVERSITY or COMPANY
+    paymentType?: string; // FULL or SEMESTER_WISE
+    paymentDueDate?: string;
+    telexPaymentAmount?: number;
+    telexPaymentTxId?: string;
+    paymentConfirmationPath?: string;
+
+    // Telex Payment Components
+    telexTuitionFee?: boolean;
+    telexHostelFee?: boolean;
+    telexMessFee?: boolean;
+    telexContractFee?: boolean;
+    telexRegistrationFee?: boolean;
+    telexOneTimeCharge?: boolean;
+
+    // Document Return
+    hasRaiseReturnRequest?: boolean;
+    documentReturnRequest?: {
+      travelDate?: string;
+      pnrNumber?: string;
+      fromAirport?: string;
+      toAirport?: string;
+      fromCountry?: string;
+      toCountry?: string;
+      ticketPdfPath?: string;
+    };
+
+    // Agent Info
+    agent?: {
+      fullName?: string;
+      username?: string;
+    };
 }
 
 export interface AgentData {

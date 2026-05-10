@@ -40,6 +40,7 @@ export interface Student {
     telexDocumentsPath?: string;
     telexPaymentScreenshotPath?: string;
     neetMarksheetPath?: string;
+  affidavitPath?: string;
     conditionalOfferLetterPath?: string;
     ttCopyPath?: string;
     paymentConfirmationPath?: string;
