@@ -163,6 +163,62 @@ export class DocPersonDashbaord implements OnInit {
     actionFilter: 'all'
   };
 
+  filterAgent: string = '';
+  filterCollege: string = '';
+
+  get uniqueColleges(): string[] {
+    return [...new Set(this.students.map(s => s.college?.collegeName).filter(Boolean))] as string[];
+  }
+
+  get uniqueAgents(): any[] {
+    return Array.from(new Map(this.students.filter(s => s.agent).map(s => [s.agent.username, s.agent])).values());
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!this.filterAgent || !!this.filterCollege || !!this.filters.searchQuery || !!this.receiveSearchQuery || !!this.verifySearchQuery || !!this.returnSearchQuery;
+  }
+  
+  onGlobalFilterChange(): void {
+    this.pagination.currentPage = 1;
+    this.filterReceiveList();
+    this.filterVerifyList();
+    this.filterReturnList();
+    this.applyFilters();
+  }
+
+  get topUniversities() {
+    const uniCounts = new Map<string, number>();
+    const sourceList = this.filteredStudents?.length > 0 ? this.filteredStudents : this.students;
+    sourceList.forEach(s => {
+      const name = s.college?.collegeName || 'Not Assigned';
+      uniCounts.set(name, (uniCounts.get(name) || 0) + 1);
+    });
+    return Array.from(uniCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count]) => ({ name, count, percentage: Math.round((count / (sourceList.length || 1)) * 100) || 0 }));
+  }
+
+  get agentBreakdown() {
+    const agentCounts = new Map<string, { total: number, stamped: number }>();
+    const sourceList = this.filteredStudents?.length > 0 ? this.filteredStudents : this.students;
+    sourceList.forEach(s => {
+      const name = s.agent?.fullName || 'Direct';
+      const stats = agentCounts.get(name) || { total: 0, stamped: 0 };
+      stats.total++;
+      if (s.applicationStatus === 'VISA_STAMPED') stats.stamped++;
+      agentCounts.set(name, stats);
+    });
+    return Array.from(agentCounts.entries())
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 5)
+      .map(([name, stats]) => ({
+        name,
+        total: stats.total,
+        successRate: Math.round((stats.stamped / (stats.total || 1)) * 100) || 0
+      }));
+  }
+
   // ============================================
   // ERROR HANDLING & NOTIFICATIONS
   // ============================================
@@ -233,7 +289,15 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   approvalTrendsChart: ChartData = { labels: [], datasets: [] };
   statusDistributionChart: ChartData = { labels: [], datasets: [] };
-  recentActivities: { time: string; message: string; type: string }[] = [];
+  
+  get recentActivities() {
+    const sourceList = this.filteredStudents?.length > 0 ? this.filteredStudents : this.students;
+    return sourceList.slice(0, 4).map(s => ({
+      message: `${s.fullName} - ${s.applicationStatus}`,
+      type: s.applicationStatus === 'VISA_STAMPED' ? 'success' : 'info',
+      time: 'Recently Updated'
+    }));
+  }
 
   // ============================================
   // SORTING
@@ -479,6 +543,13 @@ export class DocPersonDashbaord implements OnInit {
       );
     }
 
+    if (this.filterAgent) {
+      results = results.filter(s => s.agent?.fullName === this.filterAgent);
+    }
+    if (this.filterCollege) {
+      results = results.filter(s => s.college?.collegeName === this.filterCollege);
+    }
+
     this.filteredStudents = results;
     this.updatePagination();
   }
@@ -497,13 +568,23 @@ export class DocPersonDashbaord implements OnInit {
   }
 
   private filterList(list: Student[], query: string): Student[] {
-    if (!query.trim()) return [...list];
-    const q = query.toLowerCase();
-    return list.filter(s =>
-      (s.applicationId && s.applicationId.toString().toLowerCase().includes(q)) ||
-      (s.id && s.id.toString().toLowerCase().includes(q)) ||
-      (s.fullName && s.fullName.toLowerCase().includes(q))
-    );
+    let results = list;
+    if (this.filterAgent) {
+      results = results.filter(s => s.agent?.fullName === this.filterAgent);
+    }
+    if (this.filterCollege) {
+      results = results.filter(s => s.college?.collegeName === this.filterCollege);
+    }
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      results = results.filter(s =>
+        (s.applicationId && s.applicationId.toString().toLowerCase().includes(q)) ||
+        (s.id && s.id.toString().toLowerCase().includes(q)) ||
+        (s.fullName && s.fullName.toLowerCase().includes(q)) ||
+        (s.passportNo && s.passportNo.toLowerCase().includes(q))
+      );
+    }
+    return results;
   }
 
   onSearchChange(): void {
@@ -519,7 +600,12 @@ export class DocPersonDashbaord implements OnInit {
   clearFilters(): void {
     this.filters.searchQuery = '';
     this.filters.statusFilter = 'all';
-    this.applyFilters();
+    this.filterAgent = '';
+    this.filterCollege = '';
+    this.receiveSearchQuery = '';
+    this.verifySearchQuery = '';
+    this.returnSearchQuery = '';
+    this.onGlobalFilterChange();
   }
 
   // ============================================

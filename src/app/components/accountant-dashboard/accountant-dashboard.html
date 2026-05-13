@@ -15,15 +15,13 @@
     </button>
 
     <div class="sidebar-header">
-      <div class="brand">
-        <div class="brand-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-            <line x1="1" y1="10" x2="23" y2="10"></line>
-          </svg>
-        </div>
+      <div class="logo" style="display: flex; justify-content: center; width: 100%; padding: 10px 0;">
         @if (!isSidebarCollapsed) {
-        <span class="brand-name">CampusConnect</span>
+        <img src="rare-education-logo.png" alt="Rare Education"
+          style="max-height: 45px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+        } @else {
+        <img src="rare-education-logo.png" alt="Rare Education"
+          style="max-height: 28px; max-width: 28px; object-fit: cover; object-position: left; border-radius: 4px;">
         }
       </div>
     </div>
@@ -93,7 +91,17 @@
           }
           <span class="nav-badge warning">{{pendingFundRequestsCount}}</span>
         </a>
-
+        <a class="nav-link hover-purple" [class.active]="activeView === 'subaccounts'"
+          (click)="switchView('subaccounts')">
+          <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+          @if (!isSidebarCollapsed) {
+          <span>Bank Accounts</span>
+          }
+        </a>
         <a class="nav-link hover-blue" [class.active]="activeView === 'all-students'"
           (click)="switchView('all-students')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -120,7 +128,7 @@
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
           @if (!isSidebarCollapsed) {
-          <span>Visa Accounts</span>
+          <span>Accounts</span>
           }
         </a>
 
@@ -134,6 +142,18 @@
           }
           @if (credits.length > 0) {
           <span class="nav-badge success">{{credits.length}}</span>
+          }
+        </a>
+
+        <a class="nav-link hover-blue" [class.active]="activeView === 'reports'" (click)="switchView('reports')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          @if (!isSidebarCollapsed) {
+          <span>Financial Reports</span>
           }
         </a>
 
@@ -201,11 +221,23 @@
         @if (activeView === 'profile') {
         <h1>My Profile</h1>
         }
+        @if (activeView === 'visa-accounts') {
+        <h1>Accounts</h1>
+        }
+        @if (activeView === 'credit-ledger') {
+        <h1>Credit Ledger</h1>
+        }
+        @if (activeView === 'reports') {
+        <h1>Financial Reports</h1>
+        }
+        @if (activeView === 'subaccounts') {
+        <h1>Bank Accounts</h1>
+        }
         <p>Manage and verify student payments</p>
       </div>
 
       @if (activeView !== 'dashboard' && activeView !== 'profile' && activeView !== 'funds' && activeView !==
-      'credit-ledger') {
+      'credit-ledger' && activeView !== 'subaccounts') {
       <div class="search-wrapper">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2">
@@ -259,301 +291,150 @@
       <!-- Dashboard View -->
       @if (!isLoading && activeView === 'dashboard') {
       <div class="dashboard-view" [@fadeIn]>
-        <!-- ═══════════ FINANCIAL COMMAND CENTER ═══════════ -->
-        <div class="fin-command-center">
+        <!-- ═══════════ FINANCIAL COMMAND CENTER (ANALYTICAL P&L) ═══════════ -->
+        <!-- ═══════════ DETAILED LIGHT AESTHETIC BANKING DASHBOARD ═══════════ -->
+        <div class="fin-command-center" style="max-width: 1050px; margin: 0 auto; font-family: 'Inter', system-ui, sans-serif;">
 
-          <!-- ── Top Row: 4 KPI Pills ── -->
-          <div class="kpi-pills-row">
-            <div class="kpi-pill kpi-blue" (click)="switchView('all-students')">
-              <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg></div>
-              <div class="kpi-data">
-                <span class="kpi-value">{{animatedStats.totalStudentsAssigned}}</span>
-                <span class="kpi-label">Students</span>
+          <!-- ── Global Flow Overview ── -->
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 24px;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #f1f5f9;">
+              <div>
+                <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                  Consolidated Bank Balance
+                </div>
+                <div style="font-size: 2.2rem; font-weight: 800; color: #1e293b; line-height: 1; letter-spacing: -0.5px;">
+                  ₹{{totalBankBalance | number:'1.0-2'}}
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Total Accounts</div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: #334155;">{{subAccounts.length}} Active</div>
               </div>
             </div>
-            <div class="kpi-pill kpi-amber" (click)="switchView('pending')">
-              <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg></div>
-              <div class="kpi-data">
-                <span class="kpi-value">{{animatedStats.pendingPayments}}</span>
-                <span class="kpi-label">Pending</span>
+
+            <!-- Detailed Aggregates Grid -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+              
+              <!-- Inflow: Agent -->
+              <div style="background: #fafafa; border: 1px solid #f4f4f5; padding: 16px; border-radius: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fafafa'">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                  <div style="width: 22px; height: 22px; background: #ecfdf5; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                  <span style="font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px;">Agent Collections</span>
+                </div>
+                <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 4px;">₹{{getTotalConfirmedFromAgents() | number:'1.0-0'}}</div>
+                <div style="font-size: 0.6rem; color: #10b981; font-weight: 700; display: flex; align-items: center; gap: 3px;">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                  CREDIT (INFLOW)
+                </div>
               </div>
-            </div>
-            <div class="kpi-pill kpi-green" (click)="switchView('approved')">
-              <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg></div>
-              <div class="kpi-data">
-                <span class="kpi-value">{{animatedStats.paymentsReceived}}</span>
-                <span class="kpi-label">Received</span>
+
+              <!-- Inflow: Credits/Loans -->
+              <div style="background: #fafafa; border: 1px solid #f4f4f5; padding: 16px; border-radius: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fafafa'">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                  <div style="width: 22px; height: 22px; background: #eff6ff; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="3"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                  </div>
+                  <span style="font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px;">Credit/Loans Taken</span>
+                </div>
+                <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 4px;">₹{{getTotalBorrowedFunds() | number:'1.0-0'}}</div>
+                <div style="font-size: 0.6rem; color: #3b82f6; font-weight: 700; display: flex; align-items: center; gap: 3px;">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                  CREDIT (INFLOW)
+                </div>
               </div>
-            </div>
-            <div class="kpi-pill kpi-red" (click)="switchView('rejected')">
-              <div class="kpi-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="15" y1="9" x2="9" y2="15" />
-                  <line x1="9" y1="9" x2="15" y2="15" />
-                </svg></div>
-              <div class="kpi-data">
-                <span class="kpi-value">{{animatedStats.paymentsNotReceived}}</span>
-                <span class="kpi-label">Rejected</span>
+
+              <!-- Outflow: VisaMan -->
+              <div style="background: #fafafa; border: 1px solid #f4f4f5; padding: 16px; border-radius: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fafafa'">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                  <div style="width: 22px; height: 22px; background: #fef2f2; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  </div>
+                  <span style="font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px;">Visa Req Released</span>
+                </div>
+                <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 4px;">₹{{getTotalPaidToVisaMan() | number:'1.0-0'}}</div>
+                <div style="font-size: 0.6rem; color: #ef4444; font-weight: 700; display: flex; align-items: center; gap: 3px;">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                  DEBIT (OUTFLOW)
+                </div>
               </div>
+
+              <!-- Outflow: Funds Requested -->
+              <div style="background: #fafafa; border: 1px solid #f4f4f5; padding: 16px; border-radius: 10px; transition: background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fafafa'">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                  <div style="width: 22px; height: 22px; background: #fff7ed; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="3"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  </div>
+                  <span style="font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px;">Funds Req Released</span>
+                </div>
+                <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 4px;">₹{{getTotalPaidToFundRequests() | number:'1.0-0'}}</div>
+                <div style="font-size: 0.6rem; color: #f97316; font-weight: 700; display: flex; align-items: center; gap: 3px;">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                  DEBIT (OUTFLOW)
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <!-- ── Two Financial Summary Cards ── -->
-          <div class="fin-summary-grid">
-
-            <!-- Card 1: Agent Transactions (Money IN) -->
-            <div class="fin-card fin-card-agent">
-              <div class="fin-card-header agent-header">
-                <div class="fin-card-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                </div>
-                <div>
-                  <h3>Agent Transactions</h3>
-                  <p>Money received from agents</p>
-                </div>
-                <span class="fin-badge fin-badge-in">INCOMING</span>
-              </div>
-              <div class="fin-card-body">
-                <div class="fin-metric-row">
-                  <div class="fin-metric">
-                    <span class="fin-metric-label">Total Requested</span>
-                    <span class="fin-metric-value">₹{{getTotalRequestedFromAgents() | number:'1.0-0'}}</span>
-                  </div>
-                  <div class="fin-metric">
-                    <span class="fin-metric-label">Total Received</span>
-                    <span class="fin-metric-value fin-green">₹{{getTotalReceivedFromAgents() | number:'1.0-0'}}</span>
-                  </div>
-                </div>
-                <div class="fin-metric-row">
-                  <div class="fin-metric">
-                    <span class="fin-metric-label">Confirmed</span>
-                    <span class="fin-metric-value fin-blue">₹{{getTotalConfirmedFromAgents() | number:'1.0-0'}}</span>
-                  </div>
-                  <div class="fin-metric">
-                    <span class="fin-metric-label">Pending from Agents</span>
-                    <span class="fin-metric-value fin-amber">₹{{getPendingFromAgents() | number:'1.0-0'}}</span>
-                  </div>
-                </div>
-                <div class="fin-progress-section">
-                  <div class="fin-progress-header">
-                    <span>Collection Rate</span>
-                    <span class="fin-progress-pct">{{getAgentCollectionRate() | number:'1.0-0'}}%</span>
-                  </div>
-                  <div class="fin-progress-bar">
-                    <div class="fin-progress-fill agent-fill" [style.width.%]="getAgentCollectionRate()"></div>
-                  </div>
-                </div>
-                <div class="fin-txn-count">
-                  <span>{{agentPassbooks.length}} transactions</span>
-                </div>
-              </div>
+          <!-- ── Specific Bank Accounts Directory ── -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 0 4px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M2 15h10"></path><path d="M5 12l-3 3 3 3"></path></svg>
+              <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: #1e293b; letter-spacing: 0.2px;">Account Directory</h3>
             </div>
-
-            <!-- Card 2: VisaMan Payouts (Money OUT) -->
-            <div class="fin-card fin-card-visaman">
-              <div class="fin-card-header visaman-header">
-                <div class="fin-card-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                </div>
-                <div>
-                  <h3>VisaMan Payouts</h3>
-                  <p>Payments made to Visa Managers</p>
-                </div>
-                <span class="fin-badge fin-badge-out">OUTGOING</span>
-              </div>
-              <div class="fin-card-body">
-                <div class="fin-metric-row">
-                  <div class="fin-metric">
-                    <span class="fin-metric-label">Total Visa Fee Requested</span>
-                    <span class="fin-metric-value">₹{{getTotalVisaFeeRequested() | number:'1.0-0'}}</span>
-                  </div>
-                  <div class="fin-metric">
-                    <span class="fin-metric-label">Total Service Charge</span>
-                    <span class="fin-metric-value">₹{{getTotalServiceCharge() | number:'1.0-0'}}</span>
-                  </div>
-                </div>
-                <div class="fin-metric-row">
-                  <div class="fin-metric">
-                    <span class="fin-metric-label">Total Owed (Fee + SC)</span>
-                    <span class="fin-metric-value fin-blue">₹{{getTotalOwedToVisaMan() | number:'1.0-0'}}</span>
-                  </div>
-                  <div class="fin-metric">
-                    <span class="fin-metric-label">Total Paid to VisaMan</span>
-                    <span class="fin-metric-value fin-green">₹{{getTotalPaidToVisaMan() | number:'1.0-0'}}</span>
-                  </div>
-                </div>
-                <div class="fin-metric-row">
-                  <div class="fin-metric full-width">
-                    <span class="fin-metric-label">Pending Payout</span>
-                    <span class="fin-metric-value fin-amber">₹{{getPendingToVisaMan() | number:'1.0-0'}}</span>
-                  </div>
-                </div>
-                <div class="fin-progress-section">
-                  <div class="fin-progress-header">
-                    <span>Payout Rate</span>
-                    <span class="fin-progress-pct">{{getVisaManPayoutRate() | number:'1.0-0'}}%</span>
-                  </div>
-                  <div class="fin-progress-bar">
-                    <div class="fin-progress-fill visaman-fill" [style.width.%]="getVisaManPayoutRate()"></div>
-                  </div>
-                </div>
-                <div class="fin-txn-count">
-                  <span>{{visaManPassbooks.length}} transactions</span>
-                </div>
-              </div>
-            </div>
+            <button (click)="openAddSubAccountModal()" style="background: transparent; border: 1px solid #cbd5e1; color: #475569; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Add Account
+            </button>
           </div>
 
-          <!-- ── Bottom: Net Balance Summary ── -->
-          <div class="fin-net-balance-card">
-            <div class="fin-net-row">
-              <div class="fin-net-item">
-                <span class="fin-net-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                </span>
-                <div class="fin-net-data">
-                  <span class="fin-net-label">Total Collected from Agents</span>
-                  <span class="fin-net-value fin-green">₹{{getTotalConfirmedFromAgents() | number:'1.0-0'}}</span>
-                </div>
-              </div>
-              <div class="fin-net-divider">−</div>
-              <div class="fin-net-item">
-                <span class="fin-net-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                </span>
-                <div class="fin-net-data">
-                  <span class="fin-net-label">Total Paid to VisaMan</span>
-                  <span class="fin-net-value fin-red">₹{{getTotalPaidToVisaMan() | number:'1.0-0'}}</span>
-                </div>
-              </div>
-              <div class="fin-net-divider">−</div>
-              <div class="fin-net-item">
-                <span class="fin-net-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                </span>
-                <div class="fin-net-data">
-                  <span class="fin-net-label">Fund Requests Payouts</span>
-                  <span class="fin-net-value fin-amber">₹{{getTotalPaidToFundRequests() | number:'1.0-0'}}</span>
-                </div>
-              </div>
-              <div class="fin-net-divider" [style.opacity]="includeCreditInBalance ? '1' : '0.4'">+</div>
-              <div class="fin-net-item"
-                style="display: flex; flex-direction: column; align-items: stretch; padding: 14px 20px; min-width: 260px; position: relative;">
-                <div
-                  style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px;">
-                  <span class="fin-net-label" style="margin: 0;">Borrowed Funds (Credit)</span>
-                  <label
-                    style="display: flex; align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: 600; gap: 8px; user-select: none;"
-                    [style.color]="includeCreditInBalance ? '#059669' : '#9ca3af'">
-                    {{includeCreditInBalance ? 'Included' : 'Excluded'}}
-                    <div (click)="toggleCreditInclusion()"
-                      [style.background]="includeCreditInBalance ? '#10b981' : '#e5e7eb'"
-                      style="width: 36px; height: 20px; border-radius: 20px; position: relative; transition: background 0.3s; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
-                      <div [style.left]="includeCreditInBalance ? '18px' : '2px'"
-                        style="width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
-                      </div>
-                    </div>
-                  </label>
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px; transition: all 0.3s ease;"
-                  [style.opacity]="includeCreditInBalance ? '1' : '0.4'"
-                  [style.filter]="includeCreditInBalance ? 'none' : 'grayscale(1)'">
-                  <span class="fin-net-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 40px;">
+            @for (acc of subAccounts; track acc.id) {
+            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);" onmouseover="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.04)'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.02)'">
+              
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div style="width: 32px; height: 32px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                      <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="2" y1="10" x2="22" y2="10"></line>
                     </svg>
-                  </span>
-                  <div class="fin-net-data">
-                    <span class="fin-net-value fin-emerald"
-                      [style.text-decoration]="!includeCreditInBalance ? 'line-through' : 'none'"
-                      style="font-size: 1.5rem; line-height: 1;">
-                      ₹{{getTotalBorrowedFunds() | number:'1.0-0'}}
-                    </span>
+                  </div>
+                  <div>
+                    <h4 style="margin: 0; font-size: 0.85rem; font-weight: 700; color: #1e293b;">{{acc.bankName}}</h4>
+                    <div style="font-size: 0.65rem; color: #64748b; font-family: monospace; letter-spacing: 0.5px; margin-top: 2px;">{{acc.accountNumber}}</div>
                   </div>
                 </div>
+                <button (click)="viewTransactions(acc)" style="background: #f1f5f9; border: none; color: #475569; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                  Ledger
+                </button>
               </div>
-              <div class="fin-net-divider">=</div>
-              <div class="fin-net-item result" [class.positive]="getNetCashBalance() >= 0"
-                [class.negative]="getNetCashBalance() < 0">
-                <span class="fin-net-icon">
-                  @if (getNetCashBalance() >= 0) {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="2" y="5" width="20" height="14" rx="2" />
-                    <line x1="2" y1="10" x2="22" y2="10" />
-                  </svg>
-                  } @else {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  }
-                </span>
-                <div class="fin-net-data">
-                  <span class="fin-net-label">Net Cash Balance</span>
-                  <span class="fin-net-value">₹{{getNetCashBalance() | number:'1.0-0'}}</span>
+              
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 12px; border-top: 1px solid #f1f5f9;">
+                <div>
+                  <div style="font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 2px;">Available Balance</div>
+                  <div style="font-size: 1.3rem; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">₹{{acc.balance || 0 | number:'1.0-2'}}</div>
+                </div>
+                <!-- Small indicator that ledger has full breakdown -->
+                <div style="font-size: 0.6rem; color: #cbd5e1; display: flex; align-items: center; gap: 4px;" title="Full debit/credit breakdown available in ledger">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  Details inside
                 </div>
               </div>
+
             </div>
-            <div class="fin-net-footer">
-              <button class="fin-quick-btn" (click)="switchView('visa-accounts')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                </svg>
-                View Passbooks
-              </button>
-              <button class="fin-quick-btn" (click)="switchView('funds')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                  <line x1="1" y1="10" x2="23" y2="10" />
-                </svg>
-                Fund Requests
-              </button>
-              <button class="fin-quick-btn" (click)="refreshData(); loadPassbooks()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M23 4v6h-6" />
-                  <path d="M1 20v-6h6" />
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                </svg>
-                Refresh
-              </button>
+            }
+            @if(subAccounts.length === 0) {
+            <div style="grid-column: 1 / -1; background: #fafafa; border: 1px dashed #cbd5e1; border-radius: 10px; padding: 30px; text-align: center;">
+              <h4 style="margin: 0 0 6px; font-size: 0.85rem; font-weight: 600; color: #475569;">No Accounts Found</h4>
+              <p style="margin: 0 0 12px; font-size: 0.75rem; color: #94a3b8;">You need to add a bank account to track deposits and payouts.</p>
+              <button (click)="openAddSubAccountModal()" style="background: #fff; color: #3b82f6; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer;">+ Add Account</button>
             </div>
+            }
           </div>
 
         </div>
@@ -664,7 +545,7 @@
                   </svg></span>
               </div>
               <div class="tab-text">
-                <span class="tab-title"> Fee Verification</span>
+                <span class="tab-title"> Package</span>
                 <span class="tab-subtitle">Verify student payments</span>
               </div>
               <span class="tab-count amber">{{telexPendingStudents.length}}</span>
@@ -717,6 +598,34 @@
                   <div class="pvc-paid-to">
                     <span class="pvc-label">Paid To</span>
                     <span class="pvc-value">{{student.paidTo}}</span>
+                  </div>
+                  }
+                  @if (student.ttCopyPath) {
+                  <div class="pvc-paid-to">
+                    <span class="pvc-label">TT Copy</span>
+                    <a [href]="student.ttCopyPath" target="_blank"
+                      style="color: #2563eb; font-weight: 500; font-size: 0.82rem; text-decoration: underline;">View TT
+                      Copy</a>
+                  </div>
+                  }
+                  @if (student.confirmationPagePath) {
+                  <div class="pvc-paid-to">
+                    <span class="pvc-label">Confirmation</span>
+                    <a [href]="student.confirmationPagePath" target="_blank"
+                      style="color: #2563eb; font-weight: 500; font-size: 0.82rem; text-decoration: underline;">View
+                      Confirmation</a>
+                  </div>
+                  }
+                  @if (student.agentFullName) {
+                  <div class="pvc-paid-to">
+                    <span class="pvc-label">Agent</span>
+                    <span class="pvc-value">{{student.agentFullName}}</span>
+                  </div>
+                  }
+                  @if (student.collegeName) {
+                  <div class="pvc-paid-to">
+                    <span class="pvc-label">College</span>
+                    <span class="pvc-value">{{student.collegeName}}</span>
                   </div>
                   }
                 </div>
@@ -1029,8 +938,50 @@
 
       <!-- Student List View (Approved, Rejected, All - NOT Pending anymore) -->
       @if (!isLoading && activeView !== 'dashboard' && activeView !== 'profile' && activeView !== 'pending' &&
-      activeView !== 'funds' && activeView !== 'visa-accounts' && activeView !== 'credit-ledger') {
+      activeView !== 'funds' && activeView !== 'visa-accounts' && activeView !== 'credit-ledger' && activeView !==
+      'reports' && activeView !== 'subaccounts') {
       <div class="list-view-container" [@fadeIn]>
+        <!-- Filters -->
+        <div
+          style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; align-items: flex-end;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label
+              style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Agent</label>
+            <select [(ngModel)]="listAgentFilter" (change)="filterStudents()"
+              style="padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; font-weight: 500; color: #334155; background: #fff; min-width: 180px;">
+              <option value="ALL">All Agents</option>
+              @for (agent of uniqueAgents; track agent) {
+              <option [value]="agent">{{agent}}</option>
+              }
+            </select>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label
+              style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">College</label>
+            <select [(ngModel)]="listCollegeFilter" (change)="filterStudents()"
+              style="padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; font-weight: 500; color: #334155; background: #fff; min-width: 180px;">
+              <option value="ALL">All Colleges</option>
+              @for (college of uniqueColleges; track college) {
+              <option [value]="college">{{college}}</option>
+              }
+            </select>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label
+              style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Date
+              From</label>
+            <input type="date" [(ngModel)]="listDateFrom" (change)="filterStudents()"
+              style="padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; font-weight: 500; color: #334155; background: #fff;">
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label
+              style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Date
+              To</label>
+            <input type="date" [(ngModel)]="listDateTo" (change)="filterStudents()"
+              style="padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; font-weight: 500; color: #334155; background: #fff;">
+          </div>
+        </div>
+
         <!-- Section Header with Status Info -->
         @if (activeView === 'approved') {
         <div class="section-header">
@@ -1073,8 +1024,8 @@
               <tr>
                 <th>Student</th>
                 <th>Application ID</th>
-                <th>Status</th>
-                <th>Contact</th>
+                <th>Agent</th>
+                <th>College</th>
                 <th>Payment Status</th>
                 <th class="text-right">Actions</th>
               </tr>
@@ -1097,12 +1048,10 @@
                   <span class="app-id">{{student.applicationId || 'N/A'}}</span>
                 </td>
                 <td>
-                  <span class="status-pill" [ngClass]="getStatusClass(student.applicationStatus)">
-                    {{getStatusLabel(student.applicationStatus)}}
-                  </span>
+                  <span style="font-weight: 500; color: #374151;">{{student.agentFullName || 'N/A'}}</span>
                 </td>
                 <td>
-                  <span class="contact">{{student.contactNo || 'N/A'}}</span>
+                  <span style="font-weight: 500; color: #374151;">{{student.collegeName || 'N/A'}}</span>
                 </td>
                 <td>
                   <span class="payment-badge" [ngClass]="getPaymentStatusClass(student)">
@@ -1285,88 +1234,6 @@
               <div class="credit-summary-value" style="color: #3b82f6;">{{credits.length}}</div>
             </div>
           </div>
-          <div class="credit-summary-card">
-            <div class="credit-summary-icon" style="background: #fef3c7; color: #d97706;">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </div>
-            <div>
-              <div class="credit-summary-label">Net Balance (Before Credit)</div>
-              <div class="credit-summary-value"
-                [style.color]="(getTotalConfirmedFromAgents() - getTotalPaidToVisaMan() - getTotalPaidToFundRequests()) >= 0 ? '#059669' : '#dc2626'">
-                ₹{{(getTotalConfirmedFromAgents() - getTotalPaidToVisaMan() - getTotalPaidToFundRequests()) |
-                number:'1.0-0'}}
-              </div>
-            </div>
-          </div>
-          <div class="credit-summary-card">
-            <div class="credit-summary-icon" [style.background]="getNetCashBalance() >= 0 ? '#ecfdf5' : '#fef2f2'"
-              [style.color]="getNetCashBalance() >= 0 ? '#10b981' : '#ef4444'">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                @if (getNetCashBalance() >= 0) {
-                <polyline points="20 6 9 17 4 12"></polyline>
-                } @else {
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                }
-              </svg>
-            </div>
-            <div>
-              <div class="credit-summary-label">Net Balance (After Credit)</div>
-              <div class="credit-summary-value" [style.color]="getNetCashBalance() >= 0 ? '#059669' : '#dc2626'">
-                ₹{{getNetCashBalance() | number:'1.0-0'}}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Balance Calculation Breakdown -->
-        <div class="credit-calc-box">
-          <div class="credit-calc-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
-              <rect x="4" y="2" width="16" height="20" rx="2"></rect>
-              <line x1="8" y1="6" x2="16" y2="6"></line>
-              <line x1="8" y1="10" x2="16" y2="10"></line>
-              <line x1="8" y1="14" x2="12" y2="14"></line>
-            </svg>
-            Balance Calculation
-          </div>
-          <div class="credit-calc-rows">
-            <div class="credit-calc-row">
-              <span>Total Collected from Agents</span>
-              <span style="color: #059669; font-weight: 600;">+ ₹{{getTotalConfirmedFromAgents() |
-                number:'1.0-0'}}</span>
-            </div>
-            <div class="credit-calc-row">
-              <span>Total Paid to VisaMan</span>
-              <span style="color: #dc2626; font-weight: 600;">− ₹{{getTotalPaidToVisaMan() | number:'1.0-0'}}</span>
-            </div>
-            <div class="credit-calc-row">
-              <span>Fund Request Payouts</span>
-              <span style="color: #dc2626; font-weight: 600;">− ₹{{getTotalPaidToFundRequests() |
-                number:'1.0-0'}}</span>
-            </div>
-            <div class="credit-calc-row" style="background: #ecfdf5; border-radius: 8px; padding: 10px 16px;">
-              <span style="font-weight: 600; color: #059669;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                  style="vertical-align: middle; margin-right: 6px;">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                Borrowed Funds (Credit)
-              </span>
-              <span style="color: #059669; font-weight: 700; font-size: 1.05rem;">+ ₹{{getTotalBorrowedFunds() |
-                number:'1.0-0'}}</span>
-            </div>
-            <div class="credit-calc-divider"></div>
-            <div class="credit-calc-row credit-calc-total"
-              [style.color]="getNetCashBalance() >= 0 ? '#059669' : '#dc2626'">
-              <span style="font-weight: 700;">NET CASH BALANCE</span>
-              <span style="font-weight: 800; font-size: 1.2rem;">₹{{getNetCashBalance() | number:'1.0-0'}}</span>
-            </div>
-          </div>
         </div>
 
         <!-- Credit Table -->
@@ -1466,9 +1333,369 @@
       </div>
       }
 
+      <!-- ======================= SUB ACCOUNTS ======================= -->
+      @if (activeView === 'subaccounts') {
+      <div class="credit-ledger-container" [@fadeIn]>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+
+          <button class="add-funds-btn" (click)="openAddSubAccountModal()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Bank Account
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+          @for (acc of subAccounts; track acc.id) {
+          <div
+            style="background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s;">
+            <!-- Card Header -->
+            <div
+              style="padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #334155;">{{acc.bankName}}</h3>
+                <p style="margin: 4px 0 0; font-size: 0.8rem; color: #64748b; font-family: monospace;">A/C:
+                  {{acc.accountNumber}}</p>
+              </div>
+              <div
+                style="background: #ecfdf5; color: #10b981; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">
+                ₹{{acc.balance | number:'1.0-2'}}
+              </div>
+            </div>
+            <!-- Card Body -->
+            <div style="padding: 16px 20px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div>
+                  <span
+                    style="display: block; font-size: 0.7rem; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Beneficiary</span>
+                  <span
+                    style="display: block; font-size: 0.85rem; font-weight: 500; color: #1e293b; margin-top: 2px;">{{acc.beneficiaryName}}</span>
+                </div>
+                <div>
+                  <span
+                    style="display: block; font-size: 0.7rem; font-weight: 600; color: #94a3b8; text-transform: uppercase;">SWIFT/BIC</span>
+                  <span
+                    style="display: block; font-size: 0.85rem; font-weight: 500; color: #1e293b; margin-top: 2px;">{{acc.swiftBic}}</span>
+                </div>
+              </div>
+              <div>
+                <span
+                  style="display: block; font-size: 0.7rem; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Branch</span>
+                <span
+                  style="display: block; font-size: 0.85rem; font-weight: 500; color: #1e293b; margin-top: 2px;">{{acc.branchAddress}}</span>
+              </div>
+            </div>
+            <!-- Card Footer -->
+            <div style="padding: 10px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: right;">
+              <button (click)="viewTransactions(acc)"
+                style="background: transparent; border: none; color: #3b82f6; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                View Transactions
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+
+        @if (subAccounts.length === 0) {
+        <div
+          style="text-align: center; padding: 48px 20px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; border-style: dashed;">
+          <div
+            style="width: 48px; height: 48px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+          </div>
+          <h3 style="margin: 0 0 8px; font-size: 1.1rem; color: #334155; font-weight: 600;">No Bank Accounts</h3>
+          <p style="margin: 0; font-size: 0.9rem; color: #64748b;">Add your first bank account to start tracking
+            sub-balances.</p>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- ======================= FINANCIAL REPORTS ======================= -->
+      @if (activeView === 'reports') {
+      <div class="credit-ledger-container" [@fadeIn]>
+        <!-- Filters Bar -->
+        <div
+          style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; padding: 16px 20px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 14px; border: 1px solid #e2e8f0; align-items: flex-end;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label
+              style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px;">Agent</label>
+            <select [(ngModel)]="reportAgentFilter"
+              style="padding: 7px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.82rem; font-weight: 500; color: #334155; background: #fff; min-width: 170px;">
+              <option value="ALL">All Agents</option>
+              @for (agent of uniqueAgents; track agent) {
+              <option [value]="agent">{{agent}}</option>
+              }
+            </select>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label
+              style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px;">Paid
+              To</label>
+            <select [(ngModel)]="reportPaidToFilter"
+              style="padding: 7px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.82rem; font-weight: 500; color: #334155; background: #fff; min-width: 140px;">
+              <option value="ALL">All</option>
+              <option value="COMPANY">To Company</option>
+              <option value="UNIVERSITY">To University</option>
+            </select>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label
+              style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px;">From</label>
+            <input type="date" [(ngModel)]="reportDateFrom"
+              style="padding: 7px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.82rem; color: #334155; background: #fff;">
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label
+              style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px;">To</label>
+            <input type="date" [(ngModel)]="reportDateTo"
+              style="padding: 7px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.82rem; color: #334155; background: #fff;">
+          </div>
+        </div>
+
+        <!-- Summary Strip -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px;">
+          <div
+            style="background: #fff; border-radius: 12px; padding: 16px 18px; border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 14px;">
+            <div
+              style="width: 38px; height: 38px; border-radius: 10px; background: #f0fdf4; display: flex; align-items: center; justify-content: center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div>
+              <div
+                style="font-size: 0.7rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                Total Collected</div>
+              <div style="font-size: 1.25rem; font-weight: 800; color: #111827;">₹{{reportGrandTotal | number:'1.0-0'}}
+              </div>
+              <div style="font-size: 0.72rem; color: #9ca3af;">{{reportTotalStudents}} students</div>
+            </div>
+          </div>
+          <div
+            style="background: #fff; border-radius: 12px; padding: 16px 18px; border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 14px;">
+            <div
+              style="width: 38px; height: 38px; border-radius: 10px; background: #fffbeb; display: flex; align-items: center; justify-content: center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </div>
+            <div>
+              <div
+                style="font-size: 0.7rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                To University</div>
+              <div style="font-size: 1.25rem; font-weight: 800; color: #111827;">₹{{reportTotalToUniversity |
+                number:'1.0-0'}}</div>
+            </div>
+          </div>
+          <div
+            style="background: #fff; border-radius: 12px; padding: 16px 18px; border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 14px;">
+            <div
+              style="width: 38px; height: 38px; border-radius: 10px; background: #eff6ff; display: flex; align-items: center; justify-content: center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+            <div>
+              <div
+                style="font-size: 0.7rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                To Company</div>
+              <div style="font-size: 1.25rem; font-weight: 800; color: #111827;">₹{{reportTotalToCompany |
+                number:'1.0-0'}}</div>
+            </div>
+          </div>
+          <div
+            style="background: #fff; border-radius: 12px; padding: 16px 18px; border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 14px;">
+            <div
+              style="width: 38px; height: 38px; border-radius: 10px; background: #f5f3ff; display: flex; align-items: center; justify-content: center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div>
+              <div
+                style="font-size: 0.7rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                Active Agents</div>
+              <div style="font-size: 1.25rem; font-weight: 800; color: #111827;">{{reportAgentRows.length}}</div>
+              <div style="font-size: 0.72rem; color: #9ca3af;">across {{reportCollegeRows.length}} colleges</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View Mode Tabs -->
+        <div
+          style="display: flex; gap: 4px; margin-bottom: 20px; background: #f1f5f9; border-radius: 10px; padding: 4px; width: fit-content;">
+          <button (click)="reportViewMode = 'agent'"
+            style="padding: 8px 20px; border-radius: 8px; border: none; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+            [style.background]="reportViewMode === 'agent' ? '#1e293b' : 'transparent'"
+            [style.color]="reportViewMode === 'agent' ? '#fff' : '#64748b'">
+            Agent Wise
+          </button>
+          <button (click)="reportViewMode = 'college'"
+            style="padding: 8px 20px; border-radius: 8px; border: none; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+            [style.background]="reportViewMode === 'college' ? '#1e293b' : 'transparent'"
+            [style.color]="reportViewMode === 'college' ? '#fff' : '#64748b'">
+            College Wise
+          </button>
+        </div>
+
+        <!-- AGENT WISE VIEW -->
+        @if (reportViewMode === 'agent') {
+        @if (reportAgentRows.length > 0) {
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          @for (row of reportAgentRows; track row.agent) {
+          <div
+            style="background: #fff; border-radius: 14px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <!-- Agent Header Row (clickable) -->
+            <div (click)="toggleReportAgent(row.agent)"
+              style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; padding: 16px 20px; cursor: pointer; align-items: center; transition: background 0.15s;"
+              [style.background]="expandedReportAgents.has(row.agent) ? '#f8fafc' : '#fff'">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div
+                  style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
+                  {{row.agent.charAt(0)}}
+                </div>
+                <div>
+                  <div style="font-weight: 600; font-size: 0.88rem; color: #111827;">{{row.agent}}</div>
+                  <div style="font-size: 0.75rem; color: #9ca3af;">{{row.students}} students · {{row.colleges.length}}
+                    colleges</div>
+                </div>
+                <svg [style.transform]="expandedReportAgents.has(row.agent) ? 'rotate(180deg)' : 'rotate(0)'"
+                  style="transition: transform 0.2s; margin-left: 8px;" width="16" height="16" viewBox="0 0 24 24"
+                  fill="none" stroke="#9ca3af" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;">To
+                  Company</div>
+                <div style="font-weight: 700; font-size: 0.92rem; color: #2563eb;">₹{{row.toCompany | number:'1.0-0'}}
+                </div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;">To
+                  University</div>
+                <div style="font-weight: 700; font-size: 0.92rem; color: #b45309;">₹{{row.toUniversity |
+                  number:'1.0-0'}}</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Students</div>
+                <div style="font-weight: 700; font-size: 0.92rem; color: #374151;">{{row.students}}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;">Total
+                </div>
+                <div style="font-weight: 800; font-size: 1.05rem; color: #059669;">₹{{row.total | number:'1.0-0'}}</div>
+              </div>
+            </div>
+            <!-- College Breakdown (expanded) -->
+            @if (expandedReportAgents.has(row.agent)) {
+            <div style="border-top: 1px solid #f1f5f9; background: #fafbfc;">
+              <div
+                style="padding: 10px 20px 6px; font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px;">
+                College Breakdown</div>
+              @for (c of row.colleges; track c.name) {
+              <div
+                style="display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 10px 20px 10px 68px; align-items: center; border-top: 1px solid #f1f5f9;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 8px; height: 8px; border-radius: 3px; background: #6366f1;"></div>
+                  <span style="font-size: 0.84rem; font-weight: 500; color: #334155;">{{c.name}}</span>
+                </div>
+                <div style="font-size: 0.82rem; color: #6b7280; text-align: center;">{{c.students}} students</div>
+                <div style="font-size: 0.88rem; font-weight: 700; color: #059669; text-align: right;">₹{{c.amount |
+                  number:'1.0-0'}}</div>
+              </div>
+              }
+            </div>
+            }
+          </div>
+          }
+        </div>
+        } @else {
+        <div class="credit-empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+          <h3 style="margin: 16px 0 6px; color: #6b7280; font-weight: 600;">No payment data</h3>
+          <p style="color: #9ca3af; font-size: 0.9rem; margin: 0;">Adjust filters or verify that fee payments are
+            recorded.</p>
+        </div>
+        }
+        }
+
+        <!-- COLLEGE WISE VIEW -->
+        @if (reportViewMode === 'college') {
+        @if (reportCollegeRows.length > 0) {
+        <div class="credit-table-wrapper">
+          <table class="credit-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>College</th>
+                <th>Students</th>
+                <th>To Company</th>
+                <th>To University</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of reportCollegeRows; track row.college; let i = $index) {
+              <tr>
+                <td style="color: #9ca3af; font-family: monospace; font-size: 0.82rem;">{{i + 1}}</td>
+                <td style="font-weight: 600; color: #111827; font-size: 0.88rem;">{{row.college}}</td>
+                <td style="text-align: center; font-weight: 600; color: #374151;">{{row.students}}</td>
+                <td style="font-weight: 700; color: #2563eb;">₹{{row.toCompany | number:'1.0-0'}}</td>
+                <td style="font-weight: 700; color: #b45309;">₹{{row.toUniversity | number:'1.0-0'}}</td>
+                <td style="font-weight: 800; color: #059669; font-size: 0.95rem;">₹{{row.total | number:'1.0-0'}}</td>
+              </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr style="background: #f8fafc; border-top: 2px solid #e2e8f0;">
+                <td></td>
+                <td style="font-weight: 700; color: #111827;">Grand Total</td>
+                <td style="text-align: center; font-weight: 700;">{{reportTotalStudents}}</td>
+                <td style="font-weight: 800; color: #2563eb;">₹{{reportTotalToCompany | number:'1.0-0'}}</td>
+                <td style="font-weight: 800; color: #b45309;">₹{{reportTotalToUniversity | number:'1.0-0'}}</td>
+                <td style="font-weight: 800; color: #059669; font-size: 1rem;">₹{{reportGrandTotal | number:'1.0-0'}}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        } @else {
+        <div class="credit-empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          </svg>
+          <h3 style="margin: 16px 0 6px; color: #6b7280; font-weight: 600;">No college data</h3>
+          <p style="color: #9ca3af; font-size: 0.9rem; margin: 0;">Adjust filters to see results.</p>
+        </div>
+        }
+        }
+      </div>
+      }
+
       @if (activeView === 'visa-accounts') {
       <div class="passbook-master-container">
-        <!-- Passbook Tabs Header -->
+        <!-- Passbook Header with Filter -->
         <div class="passbook-topbar">
           <div class="pb-title">
             <i class="fas fa-book"></i>
@@ -1478,26 +1705,25 @@
             </div>
           </div>
           <div class="pb-tabs">
-            <button class="pb-tab-btn" [class.active]="activePassbookTab === 'visaman'"
-              (click)="activePassbookTab = 'visaman'">
-              <i class="fas fa-user-tie"></i> Visa Manager Book
-            </button>
-            <button class="pb-tab-btn" [class.active]="activePassbookTab === 'agent'"
-              (click)="activePassbookTab = 'agent'">
-              <i class="fas fa-user-friends"></i> Agent Book
-            </button>
+            <select [(ngModel)]="accountsFilterType"
+              style="padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; font-weight: 500; color: #334155; background: #fff; cursor: pointer;">
+              <option value="ALL">Show All</option>
+              <option value="VISA">Visa Manager Only</option>
+              <option value="AGENT">Agent Only</option>
+            </select>
           </div>
         </div>
 
-        @if (activePassbookTab === 'visaman') {
+        <!-- Visa Manager Ledger -->
+        @if (accountsFilterType === 'ALL' || accountsFilterType === 'VISA') {
         <div class="passbook-booklet" [@fadeIn]>
-          <div class="pb-book-header visa-bg">
-            <div class="pb-bank-details">
-              <h3>CampusConnect Bank</h3>
-              <p>Account Type: Visa Manager Central Ledger</p>
-              <p>Date Generated: {{ getCurrentDate() }}</p>
-            </div>
-            <div class="pb-stamp">OFFICIAL LEDGER</div>
+          <div
+            style="padding: 14px 20px; background: #fff; border-bottom: 1px solid #e2e8f0; border-radius: 12px 12px 0 0; font-weight: 700; font-size: 0.85rem; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Visa Manager Ledger
           </div>
           <div class="pb-table-wrap">
             <table class="pb-table">
@@ -1506,7 +1732,7 @@
                   <th>Date</th>
                   <th>Particulars (Student/UID)</th>
                   <th>Visa Man</th>
-                  <th class="pb-num-th">Requested</th>
+                  <th class="pb-num-th">Requested (Total)</th>
                   <th class="pb-num-th">Service Charge</th>
                   <th class="pb-num-th">Paid</th>
                   <th class="pb-num-th">Balance</th>
@@ -1524,13 +1750,19 @@
                     <strong>{{record.studentName}}</strong><br>
                     <span class="pb-sub">{{record.applicationId}}</span>
                   </td>
-                  <td>{{record.requesterName || 'N/A'}}</td>
-                  <td class="pb-debit">{{record.visaAmountRequest ? record.visaAmountRequest : 0}}</td>
+                  <td>
+                    <strong>{{record.requesterFullName || record.requesterName || 'N/A'}}</strong>
+                    @if (record.requesterFullName && record.requesterName) {
+                    <br><span class="pb-sub">{{record.requesterName}}</span>
+                    }
+                  </td>
+                  <td class="pb-debit">{{(record.visaAmountRequest || 0) + (record.serviceChargeRequested || 0)}}</td>
                   <td class="pb-debit">{{record.serviceChargeRequested ? record.serviceChargeRequested : 0}}</td>
                   <td class="pb-credit">{{record.totalAmountPaidByAccountant ? record.totalAmountPaidByAccountant : 0}}
                   </td>
                   <td class="pb-balance">
-                    {{ (record.visaAmountRequest + record.serviceChargeRequested) - (record.totalAmountPaidByAccountant
+                    {{ ((record.visaAmountRequest || 0) + (record.serviceChargeRequested || 0)) -
+                    (record.totalAmountPaidByAccountant
                     ? record.totalAmountPaidByAccountant : 0) }}
                   </td>
                   <td>
@@ -1571,15 +1803,18 @@
         </div>
         }
 
-        @if (activePassbookTab === 'agent') {
-        <div class="passbook-booklet" [@fadeIn]>
-          <div class="pb-book-header agent-bg">
-            <div class="pb-bank-details">
-              <h3>CampusConnect Bank</h3>
-              <p>Account Type: Agent Received Ledger</p>
-              <p>Date Generated: {{ getCurrentDate() }}</p>
-            </div>
-            <div class="pb-stamp">TRANSACTION TRACER</div>
+        <!-- Agent Ledger -->
+        @if (accountsFilterType === 'ALL' || accountsFilterType === 'AGENT') {
+        <div class="passbook-booklet" [@fadeIn] style="margin-top: 24px;">
+          <div
+            style="padding: 14px 20px; background: #fff; border-bottom: 1px solid #e2e8f0; border-radius: 12px 12px 0 0; font-weight: 700; font-size: 0.85rem; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Agent Ledger
           </div>
           <div class="pb-table-wrap">
             <table class="pb-table">
@@ -1604,7 +1839,12 @@
                     <strong>{{record.studentName}}</strong><br>
                     <span class="pb-sub">{{record.applicationId}}</span>
                   </td>
-                  <td>{{record.paidByAgent || 'N/A'}}</td>
+                  <td>
+                    <strong>{{record.paidByAgentFullName || record.paidByAgent || 'N/A'}}</strong>
+                    @if (record.paidByAgentFullName && record.paidByAgent) {
+                    <br><span class="pb-sub">{{record.paidByAgent}}</span>
+                    }
+                  </td>
                   <td class="pb-debit">{{record.requestedAmountByAccountantToAgent ?
                     record.requestedAmountByAccountantToAgent : 0}}</td>
                   <td class="pb-credit">
@@ -1951,21 +2191,45 @@
   </div>
   }
 
+  <!-- Error Modal -->
+  @if (showErrorModal) {
+  <div class="premium-success-overlay" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px);"
+    (click)="closeErrorModal()">
+    <div class="premium-success-modal" style="border-top: 4px solid #ef4444;" (click)="$event.stopPropagation()">
+      <div class="success-icon-wrapper" style="margin-bottom: 20px;">
+        <div class="success-icon-circle" style="background: #fef2f2; border: 2px solid #fee2e2;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+      </div>
+      <div class="premium-success-content">
+        <h2 class="success-title" style="color: #ef4444; font-size: 1.4rem;">Action Failed</h2>
+        <p class="success-subtitle" style="color: #475569; margin-top: 10px; font-size: 0.95rem;">{{errorMessage}}</p>
+      </div>
+      <button class="premium-continue-btn" style="background: #ef4444; border: 1px solid #dc2626;"
+        (click)="closeErrorModal()">
+        <span>Dismiss</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+  }
+
 
   <!-- MODAL: Send Bank Details to Agent -->
   @if (showSendBankDetailsModal) {
   <div class="modal-backdrop z-high" (click)="closeSendBankDetailsModal()">
-    <div class="modal-dialog visa-modal" (click)="$event.stopPropagation()" [@scaleIn]>
-      <div class="dialog-header visa-header">
-        <div class="visa-header-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-            <line x1="1" y1="10" x2="23" y2="10"></line>
-          </svg>
-        </div>
+    <div class="modal-dialog visa-modal" style="max-width: 450px;" (click)="$event.stopPropagation()" [@scaleIn]>
+      <div class="dialog-header visa-header" style="padding: 15px 20px;">
         <div class="visa-header-text">
-          <h3>Send Bank Details to Agent</h3>
-          <p class="visa-subtitle">Provide payment details for visa processing</p>
+          <h3 style="font-size: 1.1rem; margin: 0;">Send Bank Details to Agent</h3>
         </div>
         <button class="dialog-close-btn" (click)="closeSendBankDetailsModal()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1974,165 +2238,86 @@
           </svg>
         </button>
       </div>
-      <div class="dialog-body visa-body">
-        <!-- Student Info Card -->
-        <div class="visa-student-card">
-          <div class="visa-student-avatar" [style.background-color]="getAvatarColor(selectedStudent?.fullName || '')">
-            {{selectedStudent?.fullName?.charAt(0) || '?'}}
+      <div class="dialog-body visa-body" style="padding: 15px 20px;">
+        <!-- Compact Student Info -->
+        <div
+          style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-weight: 600; font-size: 0.95rem; color: #1e293b;">{{selectedStudent?.fullName}}</div>
+            <div style="font-size: 0.75rem; color: #64748b;">ID: {{selectedStudent?.applicationId || 'N/A'}}</div>
           </div>
-          <div class="visa-student-info">
-            <span class="visa-student-name">{{selectedStudent?.fullName}}</span>
-            <span class="visa-student-id">{{selectedStudent?.applicationId || 'N/A'}}</span>
-          </div>
-        </div>
-        <!-- Requested Amount Info -->
-        @if (selectedStudent?.visaPaymentRequestedAmount) {
-        <div class="visa-info-box">
-          <div class="info-box-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-          </div>
-          <div class="info-box-content" style="width: 100%;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span class="info-box-label">Visa Fee:</span>
-              <span class="info-box-value">{{selectedStudent?.visaPaymentRequestedAmount}}
-                {{selectedStudent?.visaPaymentRequestedCurrency}}</span>
-            </div>
-            @if (selectedStudent?.visaManServiceCharge) {
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span class="info-box-label">Service Charge:</span>
-              <span class="info-box-value">{{selectedStudent?.visaManServiceCharge}}
-                {{selectedStudent?.visaPaymentRequestedCurrency}}</span>
-            </div>
-            }
-            <div
-              style="display: flex; justify-content: space-between; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 4px; margin-top: 4px;">
-              <span class="info-box-label" style="font-weight: 600;">Total Requested:</span>
-              <span class="info-box-value"
-                style="font-weight: 600; color: #059669;">{{(selectedStudent?.visaPaymentRequestedAmount
-                ||
-                0) + (selectedStudent?.visaManServiceCharge || 0)}}
-                {{selectedStudent?.visaPaymentRequestedCurrency}}</span>
+          <div style="text-align: right;">
+            <div style="font-size: 0.75rem; color: #64748b;">Total Requested</div>
+            <div style="font-weight: 700; color: #059669; font-size: 1rem;">
+              {{(selectedStudent?.visaPaymentRequestedAmount || 0) + (selectedStudent?.visaManServiceCharge || 0)}}
+              {{selectedStudent?.visaPaymentRequestedCurrency}}
             </div>
           </div>
         </div>
-        }
-        <!-- Section: Payment Details -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-            <span>Payment Details</span>
-          </div>
-          <div class="form-row two-col">
-            <div class="visa-form-group">
-              <label class="visa-label">
-                Amount <span class="required">*</span>
-              </label>
-              <div class="visa-input-wrapper">
-                <input type="number" class="visa-input" [(ngModel)]="bankDetailsAmount" placeholder="Enter amount"
-                  step="0.01" min="0">
-              </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <div class="visa-form-group" style="flex: 1; margin: 0;">
+            <label class="visa-label" style="font-size: 0.8rem; margin-bottom: 4px;">Amount *</label>
+            <div class="visa-input-wrapper" style="min-height: 36px;">
+              <input type="number" class="visa-input" style="padding: 6px 10px; font-size: 0.9rem;"
+                [(ngModel)]="bankDetailsAmount" placeholder="0.00" step="0.01" min="0">
             </div>
-            <div class="visa-form-group">
-              <label class="visa-label">
-                Currency <span class="required">*</span>
-              </label>
-              <div class="visa-select-wrapper">
-                <select class="visa-select" [(ngModel)]="bankDetailsCurrency">
-                  <option value="USD">🇺🇸 USD - US Dollar</option>
-                  <option value="EUR">🇪🇺 EUR - Euro</option>
-                  <option value="INR">🇮🇳 INR - Indian Rupee</option>
-                  <option value="AED">🇦🇪 AED - UAE Dirham</option>
-                  <option value="GBP">🇬🇧 GBP - British Pound</option>
-                  <option value="UZS">🇺🇿 UZS - Uzbek Sum</option>
-                </select>
-                <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </div>
+          </div>
+          <div class="visa-form-group" style="flex: 1; margin: 0;">
+            <label class="visa-label" style="font-size: 0.8rem; margin-bottom: 4px;">Currency *</label>
+            <div class="visa-select-wrapper" style="min-height: 36px;">
+              <select class="visa-select" style="padding: 6px 10px; font-size: 0.9rem;"
+                [(ngModel)]="bankDetailsCurrency">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="INR">INR</option>
+                <option value="AED">AED</option>
+                <option value="GBP">GBP</option>
+                <option value="UZS">UZS</option>
+              </select>
+              <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </div>
           </div>
         </div>
-        <!-- Section: Bank Information -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-              <line x1="1" y1="10" x2="23" y2="10"></line>
+
+        <div class="visa-form-group" style="margin: 0 0 5px 0;">
+          <label class="visa-label" style="font-size: 0.8rem; margin-bottom: 4px;">Select Bank Account (SubAccount)
+            *</label>
+          <div class="visa-select-wrapper" style="min-height: 36px;">
+            <select class="visa-select" style="padding: 6px 10px; font-size: 0.9rem;"
+              [(ngModel)]="selectedSubAccountId">
+              <option [ngValue]="null" disabled selected>Select an account...</option>
+              @for (acc of subAccounts; track acc.id) {
+              <option [ngValue]="acc.id">{{acc.bankName}} - A/C: {{acc.accountNumber}}</option>
+              }
+            </select>
+            <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
-            <span>Bank Information</span>
-          </div>
-          <div class="visa-form-group">
-            <label class="visa-label">
-              Bank Name <span class="required">*</span>
-            </label>
-            <div class="visa-input-wrapper">
-              <input type="text" class="visa-input" [(ngModel)]="bankName"
-                placeholder="e.g., National Bank of Uzbekistan">
-            </div>
-          </div>
-          <div class="visa-form-group">
-            <label class="visa-label">
-              Account Number <span class="required">*</span>
-            </label>
-            <div class="visa-input-wrapper">
-              <input type="text" class="visa-input" [(ngModel)]="accountNumber" placeholder="e.g., 1234567890123456">
-            </div>
-          </div>
-          <div class="form-row two-col">
-            <div class="visa-form-group">
-              <label class="visa-label">
-                SWIFT/BIC Code
-                <span class="optional-tag">Optional</span>
-              </label>
-              <div class="visa-input-wrapper">
-                <input type="text" class="visa-input" [(ngModel)]="swiftCode" placeholder="e.g., NBUZUZ2X">
-              </div>
-            </div>
-            <div class="visa-form-group">
-              <label class="visa-label">
-                Beneficiary Name
-                <span class="optional-tag">Optional</span>
-              </label>
-              <div class="visa-input-wrapper">
-                <input type="text" class="visa-input" [(ngModel)]="beneficiaryName"
-                  placeholder="e.g., Campus Connect Visa Services">
-              </div>
-            </div>
-          </div>
-          <div class="visa-form-group">
-            <label class="visa-label">
-              Bank Branch Address
-              <span class="optional-tag">Optional</span>
-            </label>
-            <div class="visa-input-wrapper">
-              <input type="text" class="visa-input" [(ngModel)]="branchAddress"
-                placeholder="e.g., Tashkent, Uzbekistan">
-            </div>
           </div>
         </div>
       </div>
-      <div class="dialog-footer visa-footer">
-        <button class="btn-visa-cancel" (click)="closeSendBankDetailsModal()" [disabled]="processingId !== null">
+
+      <div class="dialog-footer visa-footer" style="padding: 12px 20px;">
+        <button class="btn-visa-cancel" style="padding: 6px 16px; font-size: 0.9rem;"
+          (click)="closeSendBankDetailsModal()" [disabled]="processingId !== null">
           Cancel
         </button>
-        <button class="btn-visa-primary"
+        <button class="btn-visa-success" style="padding: 6px 16px; font-size: 0.9rem;"
           (click)="sendBankDetailsToAgent($any(selectedStudent?.studentId || selectedStudent?.id))"
-          [disabled]="processingId !== null || !bankDetailsAmount || !bankName || !accountNumber">
+          [disabled]="processingId !== null || !selectedSubAccountId">
           @if (processingId === null) {
           <span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="margin-right: 6px; display: inline-block; vertical-align: middle;">
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
-            Send to Agent
+            Send Details
           </span>
           }
           @if (processingId !== null) {
@@ -2385,6 +2570,23 @@
           </div>
 
           <div class="visa-form-group" style="margin-top: 15px;">
+            <label class="visa-label">Debit from Bank Account <span class="required">*</span></label>
+            <div class="visa-select-wrapper">
+              <select class="visa-select" [(ngModel)]="payVisaManForm.subAccountId">
+                <option [ngValue]="null" disabled selected>Select an account...</option>
+                @for (acc of subAccounts; track acc.id) {
+                <option [ngValue]="acc.id">{{acc.bankName}} - A/C: {{acc.accountNumber}} (Bal: ₹{{acc.balance}})
+                </option>
+                }
+              </select>
+              <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+
+          <div class="visa-form-group" style="margin-top: 15px;">
             <label class="visa-label">Transfer Mode</label>
             <div class="visa-select-wrapper">
               <select class="visa-select" [(ngModel)]="payVisaManForm.mode">
@@ -2407,7 +2609,7 @@
           Cancel
         </button>
         <button class="gov-btn-primary" (click)="confirmPayVisaMan()"
-          [disabled]="isSubmitting || !payVisaManForm.amountToPay || !payVisaManForm.paymentDate || !payVisaManForm.mode">
+          [disabled]="isSubmitting || !payVisaManForm.amountToPay || !payVisaManForm.paymentDate || !payVisaManForm.mode || !payVisaManForm.subAccountId">
           @if (!isSubmitting) {
           <span>Submit to Ledger</span>
           }
@@ -2535,325 +2737,653 @@
                 placeholder="Enter amount">
             </div>
           </div>
-          @if (fundPaymentForm.paymentMode === 'ONLINE') {
-          <div class="visa-form-group">
+
+          <!-- SubAccount Selection -->
+          <div class="visa-form-group" style="margin-top: 12px;">
             <label class="visa-label">
-              Transaction ID <span class="required">*</span>
+              Pay from Bank Account <span class="required">*</span>
             </label>
-            <div class="visa-input-wrapper">
-              <input type="text" class="visa-input" [(ngModel)]="fundPaymentForm.transactionId"
-                placeholder="Enter transaction ref">
+            <div class="visa-select-wrapper">
+              <select class="visa-select" [(ngModel)]="fundPaymentForm.subAccountId">
+                <option [ngValue]="null" disabled selected>Select a bank account...</option>
+                @for (acc of subAccounts; track acc.id) {
+                <option [ngValue]="acc.id">{{acc.bankName}} — A/C: {{acc.accountNumber}} (₹{{acc.balance |
+                  number:'1.0-2'}})</option>
+                }
+              </select>
+              <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </div>
           </div>
-          }
-        </div>
-        <div class="dialog-footer visa-footer">
-          <button class="btn-visa-cancel" (click)="closeFundPaymentModal()">
-            Cancel
-          </button>
-          <button class="btn-visa-success" (click)="submitFundPayment()" [disabled]="isFundSubmitting">
-            @if (!isFundSubmitting) {
-            <span>Confirm Payment</span>
-            }
-            @if (isFundSubmitting) {
-            <span class="visa-spinner"></span>
-            }
-          </button>
-        </div>
-      </div>
-      <!-- Large QR Code Panel (Outside Modal, for scanning) -->
-      @if (selectedFundRequest?.qrCode) {
-      <div class="qr-scan-panel">
-        <div class="qr-scan-header">
-          <i class="fas fa-qrcode"></i>
-          <span>Scan QR to Pay</span>
-        </div>
-        <div class="qr-scan-image">
-          <img [src]="selectedFundRequest?.qrCode || ''" alt="Payment QR Code">
-        </div>
-        <div class="qr-scan-info">
-          <span class="qr-amount">{{formatCurrency(selectedFundRequest?.requestedAmount)}}</span>
-          <span class="qr-label">{{(selectedFundRequest?.bankDetails || '').split('\n')[0]}}</span>
-        </div>
-      </div>
-      }
-    </div>
-  </div>
-  }
 
-  <!-- Logout Confirmation Modal -->
-  @if (isLogoutModalOpen) {
-  <div class="logout-modal-overlay" (click)="cancelLogout()">
-    <div class="logout-modal-content" (click)="$event.stopPropagation()" [@scaleIn]>
-      <div class="logout-modal-header">
-        <div class="logout-icon-container">
-          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
+          <!-- Insufficient Balance Warning -->
+          @if (fundPaymentForm.subAccountId && fundPaymentForm.amountPaid > 0) {
+          @for (acc of subAccounts; track acc.id) {
+          @if (acc.id === fundPaymentForm.subAccountId && (acc.balance || 0) < fundPaymentForm.amountPaid) { <div
+            style="margin-top: 10px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <div style="font-size: 0.82rem; color: #991b1b;">
+              <strong>Insufficient Balance</strong> — {{acc.bankName}} has only
+              ₹{{acc.balance | number:'1.0-2'}} available.
+              You need ₹{{fundPaymentForm.amountPaid | number:'1.0-2'}}.
+            </div>
         </div>
-        <h2>Confirm Logout</h2>
-        <p class="logout-modal-subtitle">Are you sure you want to log out?</p>
-      </div>
-      <div class="logout-modal-footer">
-        <button class="btn-logout-cancel" (click)="cancelLogout()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
+        }
+        @if (acc.id === fundPaymentForm.subAccountId && (acc.balance || 0) >= fundPaymentForm.amountPaid) {
+        <div
+          style="margin-top: 10px; padding: 10px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
+          <div style="font-size: 0.82rem; color: #166534;">
+            <strong>Sufficient Balance</strong> — ₹{{acc.balance | number:'1.0-2'}} available
+            in {{acc.bankName}}. After payment: ₹{{((acc.balance || 0) - fundPaymentForm.amountPaid) |
+            number:'1.0-2'}}
+          </div>
+        </div>
+        }
+        }
+        }
+
+        @if (fundPaymentForm.paymentMode === 'ONLINE') {
+        <div class="visa-form-group">
+          <label class="visa-label">
+            Transaction ID <span class="required">*</span>
+          </label>
+          <div class="visa-input-wrapper">
+            <input type="text" class="visa-input" [(ngModel)]="fundPaymentForm.transactionId"
+              placeholder="Enter transaction ref">
+          </div>
+        </div>
+        }
+      </div>
+      <div class="dialog-footer visa-footer">
+        <button class="btn-visa-cancel" (click)="closeFundPaymentModal()">
           Cancel
         </button>
-        <button class="btn-logout-confirm" (click)="confirmLogout()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"></polyline>
+        <button class="btn-visa-success" (click)="submitFundPayment()"
+          [disabled]="isFundSubmitting || !fundPaymentForm.subAccountId || fundPaymentForm.amountPaid <= 0">
+          @if (!isFundSubmitting) {
+          <span>Confirm Payment</span>
+          }
+          @if (isFundSubmitting) {
+          <span class="visa-spinner"></span>
+          }
+        </button>
+      </div>
+    </div>
+    <!-- Large QR Code Panel (Outside Modal, for scanning) -->
+    @if (selectedFundRequest?.qrCode) {
+    <div class="qr-scan-panel">
+      <div class="qr-scan-header">
+        <i class="fas fa-qrcode"></i>
+        <span>Scan QR to Pay</span>
+      </div>
+      <div class="qr-scan-image">
+        <img [src]="selectedFundRequest?.qrCode || ''" alt="Payment QR Code">
+      </div>
+      <div class="qr-scan-info">
+        <span class="qr-amount">{{formatCurrency(selectedFundRequest?.requestedAmount)}}</span>
+        <span class="qr-label">{{(selectedFundRequest?.bankDetails || '').split('\n')[0]}}</span>
+      </div>
+    </div>
+    }
+  </div>
+</div>
+}
+
+<!-- Logout Confirmation Modal -->
+@if (isLogoutModalOpen) {
+<div class="logout-modal-overlay" (click)="cancelLogout()">
+  <div class="logout-modal-content" (click)="$event.stopPropagation()" [@scaleIn]>
+    <div class="logout-modal-header">
+      <div class="logout-icon-container">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </div>
+      <h2>Confirm Logout</h2>
+      <p class="logout-modal-subtitle">Are you sure you want to log out?</p>
+    </div>
+    <div class="logout-modal-footer">
+      <button class="btn-logout-cancel" (click)="cancelLogout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Cancel
+      </button>
+      <button class="btn-logout-confirm" (click)="confirmLogout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Yes, Logout
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Logout Animation Overlay -->
+@if (isLoggingOut) {
+<div class="logout-animation-overlay">
+  <div class="logout-animation-content">
+    <div class="logout-spinner"></div>
+    <h2>Logging Out...</h2>
+    <p>{{currentLogoutMessage}}</p>
+  </div>
+</div>
+}
+<!-- HISTORY MODAL -->
+@if (showHistoryModal) {
+<div class="modal-backdrop" (click)="closeHistoryModal()">
+  <div class="modal-content" style="max-width: 700px;" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-history"></i> Payment History</h3>
+      <button class="close-btn" (click)="closeHistoryModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    @if (selectedHistoryRequest) {
+    <div class="modal-body">
+      <!-- Header Info -->
+      <div
+        style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-size: 0.85rem; color: #6b7280;">Request ID</div>
+          <div style="font-weight: 600; font-family: monospace;">#{{selectedHistoryRequest.id}}
+          </div>
+        </div>
+        <div>
+          <div style="font-size: 0.85rem; color: #6b7280;">Purpose</div>
+          <div style="font-weight: 600;">{{selectedHistoryRequest.purpose}}</div>
+        </div>
+        <div>
+          <span [ngClass]="getFundStatusClass(selectedHistoryRequest.status)"
+            class="status-badge">{{selectedHistoryRequest.status}}</span>
+        </div>
+      </div>
+      <!-- Transaction Table -->
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 20px;">
+        <thead>
+          <tr style="background: #f3f4f6; text-align: left;">
+            <th style="padding: 12px; color: #4b5563; font-weight: 600;">Date</th>
+            <th style="padding: 12px; color: #4b5563; font-weight: 600;">Mode</th>
+            <th style="padding: 12px; color: #4b5563; font-weight: 600;">Ref ID</th>
+            <th style="padding: 12px; color: #4b5563; font-weight: 600; text-align: right;">
+              Amount
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (txn of selectedHistoryRequest.transactions; track txn) {
+          <tr style="border-bottom: 1px solid #f3f4f6;">
+            <td style="padding: 12px; color: #374151;">{{(txn.paymentDate | date:'MMM d, y') || 'N/A'}}
+            </td>
+            <td style="padding: 12px;">
+              <span style="padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 500;"
+                [style.background]="txn.paymentMode === 'CASH' ? '#f3f4f6' : '#eff6ff'"
+                [style.color]="txn.paymentMode === 'CASH' ? '#374151' : '#1d4ed8'">
+                {{txn.paymentMode}}
+              </span>
+            </td>
+            <td style="padding: 12px; font-family: monospace; color: #6b7280;">
+              {{txn.transactionId || 'N/A'}}
+            </td>
+            <td style="padding: 12px; text-align: right; font-weight: 600; color: #059669;">
+              {{ formatCurrency(txn.amount) }}
+            </td>
+          </tr>
+          }
+          @if (!selectedHistoryRequest.transactions?.length) {
+          <tr>
+            <td colspan="4" style="padding: 30px; text-align: center; color: #9ca3af; font-style: italic;">
+              No transactions found for this request.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+      <!-- Summary Footer -->
+      <div
+        style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; display: flex; justify-content: flex-end; gap: 30px;">
+        <div style="text-align: right;">
+          <div style="font-size: 0.8rem; color: #6b7280;">Total Requested</div>
+          <div style="font-weight: 600; font-size: 1.1rem; color: #111827;">
+            {{ formatCurrency(selectedHistoryRequest.requestedAmount) }}</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 0.8rem; color: #6b7280;">Total Paid</div>
+          <div style="font-weight: 600; font-size: 1.1rem; color: #059669;">
+            {{ formatCurrency(selectedHistoryRequest.amountPaid) }}</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 0.8rem; color: #6b7280;">Pending</div>
+          <div style="font-weight: 600; font-size: 1.1rem; color: #d97706;">
+            {{ formatCurrency(getPendingAmount(selectedHistoryRequest)) }}</div>
+        </div>
+      </div>
+    </div>
+    }
+    <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb;">
+    </div>
+  </div>
+</div>
+}
+
+<!-- Add Funds (Credit) Modal -->
+@if (showAddFundsModal) {
+<div class="modal-backdrop" (click)="closeAddFundsModal()">
+  <div class="modal-content" style="max-width: 500px;" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-wrapper" style="display: flex; align-items: center; gap: 12px;">
+        <div class="icon-box"
+          style="background: #ecfdf5; color: #10b981; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
           </svg>
-          Yes, Logout
-        </button>
-      </div>
-    </div>
-  </div>
-  }
-
-  <!-- Logout Animation Overlay -->
-  @if (isLoggingOut) {
-  <div class="logout-animation-overlay">
-    <div class="logout-animation-content">
-      <div class="logout-spinner"></div>
-      <h2>Logging Out...</h2>
-      <p>{{currentLogoutMessage}}</p>
-    </div>
-  </div>
-  }
-  <!-- HISTORY MODAL -->
-  @if (showHistoryModal) {
-  <div class="modal-backdrop" (click)="closeHistoryModal()">
-    <div class="modal-content" style="max-width: 700px;" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3><i class="fas fa-history"></i> Payment History</h3>
-        <button class="close-btn" (click)="closeHistoryModal()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      @if (selectedHistoryRequest) {
-      <div class="modal-body">
-        <!-- Header Info -->
-        <div
-          style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <div style="font-size: 0.85rem; color: #6b7280;">Request ID</div>
-            <div style="font-weight: 600; font-family: monospace;">#{{selectedHistoryRequest.id}}
-            </div>
-          </div>
-          <div>
-            <div style="font-size: 0.85rem; color: #6b7280;">Purpose</div>
-            <div style="font-weight: 600;">{{selectedHistoryRequest.purpose}}</div>
-          </div>
-          <div>
-            <span [ngClass]="getFundStatusClass(selectedHistoryRequest.status)"
-              class="status-badge">{{selectedHistoryRequest.status}}</span>
-          </div>
         </div>
-        <!-- Transaction Table -->
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 20px;">
-          <thead>
-            <tr style="background: #f3f4f6; text-align: left;">
-              <th style="padding: 12px; color: #4b5563; font-weight: 600;">Date</th>
-              <th style="padding: 12px; color: #4b5563; font-weight: 600;">Mode</th>
-              <th style="padding: 12px; color: #4b5563; font-weight: 600;">Ref ID</th>
-              <th style="padding: 12px; color: #4b5563; font-weight: 600; text-align: right;">
-                Amount
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (txn of selectedHistoryRequest.transactions; track txn) {
-            <tr style="border-bottom: 1px solid #f3f4f6;">
-              <td style="padding: 12px; color: #374151;">{{(txn.paymentDate | date:'MMM d, y') || 'N/A'}}
-              </td>
-              <td style="padding: 12px;">
-                <span style="padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 500;"
-                  [style.background]="txn.paymentMode === 'CASH' ? '#f3f4f6' : '#eff6ff'"
-                  [style.color]="txn.paymentMode === 'CASH' ? '#374151' : '#1d4ed8'">
-                  {{txn.paymentMode}}
-                </span>
-              </td>
-              <td style="padding: 12px; font-family: monospace; color: #6b7280;">
-                {{txn.transactionId || 'N/A'}}
-              </td>
-              <td style="padding: 12px; text-align: right; font-weight: 600; color: #059669;">
-                {{ formatCurrency(txn.amount) }}
-              </td>
-            </tr>
-            }
-            @if (!selectedHistoryRequest.transactions?.length) {
-            <tr>
-              <td colspan="4" style="padding: 30px; text-align: center; color: #9ca3af; font-style: italic;">
-                No transactions found for this request.
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
-        <!-- Summary Footer -->
-        <div
-          style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; display: flex; justify-content: flex-end; gap: 30px;">
-          <div style="text-align: right;">
-            <div style="font-size: 0.8rem; color: #6b7280;">Total Requested</div>
-            <div style="font-weight: 600; font-size: 1.1rem; color: #111827;">
-              {{ formatCurrency(selectedHistoryRequest.requestedAmount) }}</div>
-          </div>
-          <div style="text-align: right;">
-            <div style="font-size: 0.8rem; color: #6b7280;">Total Paid</div>
-            <div style="font-weight: 600; font-size: 1.1rem; color: #059669;">
-              {{ formatCurrency(selectedHistoryRequest.amountPaid) }}</div>
-          </div>
-          <div style="text-align: right;">
-            <div style="font-size: 0.8rem; color: #6b7280;">Pending</div>
-            <div style="font-weight: 600; font-size: 1.1rem; color: #d97706;">
-              {{ formatCurrency(getPendingAmount(selectedHistoryRequest)) }}</div>
-          </div>
+        <div>
+          <h2 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #111827;">Add Borrowed Funds</h2>
+          <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">Log incoming loans to offset cash balances.</p>
         </div>
       </div>
-      }
-      <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb;">
+      <button class="close-btn" (click)="closeAddFundsModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body" style="padding: 24px;">
+      <div class="form-group">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Credit Method</label>
+        <div class="radio-group" style="display: flex; gap: 12px; margin-bottom: 16px;">
+          <label class="radio-label"
+            style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer;"
+            [style.border-color]="creditForm.method === 'FRIEND' ? '#3b82f6' : '#e5e7eb'"
+            [style.background]="creditForm.method === 'FRIEND' ? '#eff6ff' : 'transparent'">
+            <input type="radio" name="creditMethod" value="FRIEND" [(ngModel)]="creditForm.method" style="display:none">
+            Friend
+          </label>
+          <label class="radio-label"
+            style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer;"
+            [style.border-color]="creditForm.method === 'LOAN' ? '#3b82f6' : '#e5e7eb'"
+            [style.background]="creditForm.method === 'LOAN' ? '#eff6ff' : 'transparent'">
+            <input type="radio" name="creditMethod" value="LOAN" [(ngModel)]="creditForm.method" style="display:none">
+            Bank Loan
+          </label>
+          <label class="radio-label"
+            style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer;"
+            [style.border-color]="creditForm.method === 'CREDIT_CARD' ? '#3b82f6' : '#e5e7eb'"
+            [style.background]="creditForm.method === 'CREDIT_CARD' ? '#eff6ff' : 'transparent'">
+            <input type="radio" name="creditMethod" value="CREDIT_CARD" [(ngModel)]="creditForm.method"
+              style="display:none">
+            Credit Card
+          </label>
+        </div>
       </div>
+
+      <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group" style="flex: 1;">
+          <label>Amount (₹)*</label>
+          <input type="number" class="modal-input" [(ngModel)]="creditForm.amount" placeholder="Enter Amount">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label>Due Date</label>
+          <input type="date" class="modal-input" [(ngModel)]="creditForm.dueDate">
+        </div>
+      </div>
+
+      <!-- Dynamic Fields -->
+      <div
+        style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #f1f5f9;">
+        @if (creditForm.method === 'FRIEND') {
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>Friend's Name*</label>
+          <input type="text" class="modal-input" [(ngModel)]="creditForm.friendName" placeholder="Enter Full Name">
+        </div>
+        <div class="form-group">
+          <label>Phone Number*</label>
+          <input type="text" class="modal-input" [(ngModel)]="creditForm.friendPhone" placeholder="Enter Contact Info">
+        </div>
+        }
+
+        @if (creditForm.method === 'LOAN') {
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>Bank Name*</label>
+          <input type="text" class="modal-input" [(ngModel)]="creditForm.bankName" placeholder="e.g. HDFC, SBI">
+        </div>
+        <div class="form-row" style="display: flex; gap: 16px;">
+          <div class="form-group" style="flex: 1;">
+            <label>Tenure (Months)</label>
+            <input type="number" class="modal-input" [(ngModel)]="creditForm.loanTenureMonths" placeholder="e.g. 24">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Interest Rate (%)</label>
+            <input type="number" class="modal-input" [(ngModel)]="creditForm.interestRate" placeholder="e.g. 9.5">
+          </div>
+        </div>
+        }
+
+        @if (creditForm.method === 'CREDIT_CARD') {
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>Card Info / Emitting Bank*</label>
+          <input type="text" class="modal-input" [(ngModel)]="creditForm.cardInfo"
+            placeholder="e.g. ICICI Platinum ending 1234">
+        </div>
+        <div class="form-group">
+          <label>EMI Details (Optional)</label>
+          <input type="text" class="modal-input" [(ngModel)]="creditForm.emiDetails"
+            placeholder="e.g. ₹5000/mo over 6 months">
+        </div>
+        }
+      </div>
+
+      <!-- Select Bank Account to Credit To -->
+      <div class="form-group">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Credit to Bank
+          Account*</label>
+        <div class="visa-select-wrapper">
+          <select class="visa-select" [(ngModel)]="creditForm.subAccountId">
+            <option [ngValue]="null" disabled selected>Select a bank account...</option>
+            @for (acc of subAccounts; track acc.id) {
+            <option [ngValue]="acc.id">{{acc.bankName}} — A/C: {{acc.accountNumber}}</option>
+            }
+          </select>
+          <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer"
+      style="padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb; display: flex; justify-content: flex-end; gap: 12px;">
+      <button class="btn btn-secondary" (click)="closeAddFundsModal()" [disabled]="isSubmitting">Cancel</button>
+      <button class="btn btn-primary" (click)="submitCredit()" [disabled]="isSubmitting">
+        @if(isSubmitting) {
+        <svg class="modal-spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;">
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+        </svg>
+        Processing...
+        } @else {
+        Submit
+        }
+      </button>
     </div>
   </div>
-  }
+</div>
+}
 
-  <!-- Add Funds (Credit) Modal -->
-  @if (showAddFundsModal) {
-  <div class="modal-backdrop" (click)="closeAddFundsModal()">
-    <div class="modal-content" style="max-width: 500px;" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title-wrapper" style="display: flex; align-items: center; gap: 12px;">
-          <div class="icon-box"
-            style="background: #ecfdf5; color: #10b981; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+<!-- Add SubAccount Modal -->
+@if (showAddSubAccountModal) {
+<div class="modal-overlay" [@fadeIn]>
+  <div class="modal-content" [@scaleIn]
+    style="max-width: 520px; width: 90%; padding: 0; overflow: hidden; border-radius: 14px; background: #fff; box-shadow: 0 25px 50px rgba(0,0,0,0.15);">
+
+    <!-- Header -->
+    <div
+      style="padding: 20px 24px; background: linear-gradient(135deg, #0f172a, #1e293b); display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #fff;">Add Bank Account</h2>
+        <p style="margin: 4px 0 0; font-size: 0.78rem; color: #94a3b8;">Register a new company bank account</p>
+      </div>
+      <button (click)="closeAddSubAccountModal()"
+        style="background: rgba(255,255,255,0.1); border: none; border-radius: 8px; padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 24px;">
+      <div style="margin-bottom: 18px;">
+        <label
+          style="font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 6px; display: block; letter-spacing: 0.3px;">Bank
+          Name <span style="color: #ef4444;">*</span></label>
+        <input type="text" [(ngModel)]="newSubAccount.bankName" placeholder="e.g. ICICI Bank"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; color: #334155; background: #f8fafc; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <label
+          style="font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 6px; display: block; letter-spacing: 0.3px;">Account
+          Number <span style="color: #ef4444;">*</span></label>
+        <input type="text" [(ngModel)]="newSubAccount.accountNumber" placeholder="Enter Account Number"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; color: #334155; background: #f8fafc; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px;">
+        <div>
+          <label
+            style="font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 6px; display: block; letter-spacing: 0.3px;">SWIFT
+            / BIC Code</label>
+          <input type="text" [(ngModel)]="newSubAccount.swiftBic" placeholder="e.g. ICICINBB"
+            style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; color: #334155; background: #f8fafc; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
+        </div>
+        <div>
+          <label
+            style="font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 6px; display: block; letter-spacing: 0.3px;">Beneficiary
+            Name</label>
+          <input type="text" [(ngModel)]="newSubAccount.beneficiaryName" placeholder="Account Holder"
+            style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; color: #334155; background: #f8fafc; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 4px;">
+        <label
+          style="font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 6px; display: block; letter-spacing: 0.3px;">Branch
+          Address</label>
+        <input type="text" [(ngModel)]="newSubAccount.branchAddress" placeholder="Enter Branch Address"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; color: #334155; background: #f8fafc; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div
+      style="padding: 16px 24px; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 12px;">
+      <button (click)="closeAddSubAccountModal()" [disabled]="isSubmitting"
+        style="padding: 10px 20px; border-radius: 8px; background: #fff; color: #475569; font-weight: 600; font-size: 0.85rem; border: 1px solid #e2e8f0; cursor: pointer;">Cancel</button>
+      <button (click)="submitSubAccount()"
+        [disabled]="isSubmitting || !newSubAccount.bankName || !newSubAccount.accountNumber"
+        style="padding: 10px 24px; border-radius: 8px; background: #059669; color: #fff; font-weight: 600; font-size: 0.85rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; opacity: 1; transition: opacity 0.2s;"
+        [style.opacity]="isSubmitting || !newSubAccount.bankName || !newSubAccount.accountNumber ? '0.5' : '1'">
+        @if(isSubmitting) {
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          style="animation: spin 1s linear infinite;">
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+        </svg>
+        Processing...
+        } @else {
+        Save Account
+        }
+      </button>
+    </div>
+
+  </div>
+</div>
+}
+
+<!-- Transactions Modal -->
+@if (selectedSubAccountForTx) {
+<div class="modal-overlay" [@fadeIn] (click)="closeTransactionsModal()">
+  <div class="modal-content" [@scaleIn]
+    style="max-width: 800px; width: 95%; padding: 0; overflow: hidden; border-radius: 16px; background: #f8fafc; box-shadow: 0 25px 50px rgba(0,0,0,0.15);"
+    (click)="$event.stopPropagation()">
+
+    <!-- Premium Bank Header -->
+    <div style="padding: 24px 30px; background: linear-gradient(135deg, #0f172a, #1e293b); position: relative; overflow: hidden;">
+      <!-- Decorative Background Elements -->
+      <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.03); border-radius: 50%;"></div>
+      <div style="position: absolute; bottom: -30px; right: 40px; width: 100px; height: 100px; background: rgba(255,255,255,0.03); border-radius: 50%;"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1;">
+        <div style="display: flex; gap: 16px; align-items: center;">
+          <div style="width: 54px; height: 54px; background: rgba(255,255,255,0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
+              <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
               <line x1="2" y1="10" x2="22" y2="10"></line>
             </svg>
           </div>
           <div>
-            <h2 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #111827;">Add Borrowed Funds</h2>
-            <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">Log incoming loans to offset cash balances.</p>
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 700; color: #fff; letter-spacing: -0.5px;">{{selectedSubAccountForTx.bankName}} Account Ledger</h2>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+              <span style="font-size: 0.85rem; color: #94a3b8; font-family: monospace; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 6px;">
+                A/C: {{selectedSubAccountForTx.accountNumber}}
+              </span>
+              @if(selectedSubAccountForTx.swiftBic) {
+                <span style="font-size: 0.75rem; color: #64748b; border: 1px solid rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 4px;">
+                  SWIFT: {{selectedSubAccountForTx.swiftBic}}
+                </span>
+              }
+            </div>
           </div>
         </div>
-        <button class="close-btn" (click)="closeAddFundsModal()">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button (click)="closeTransactionsModal()"
+          style="background: rgba(255,255,255,0.1); border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
       </div>
+    </div>
 
-      <div class="modal-body" style="padding: 24px;">
-        <div class="form-group">
-          <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Credit Method</label>
-          <div class="radio-group" style="display: flex; gap: 12px; margin-bottom: 16px;">
-            <label class="radio-label"
-              style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer;"
-              [style.border-color]="creditForm.method === 'FRIEND' ? '#3b82f6' : '#e5e7eb'"
-              [style.background]="creditForm.method === 'FRIEND' ? '#eff6ff' : 'transparent'">
-              <input type="radio" name="creditMethod" value="FRIEND" [(ngModel)]="creditForm.method"
-                style="display:none">
-              Friend
-            </label>
-            <label class="radio-label"
-              style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer;"
-              [style.border-color]="creditForm.method === 'LOAN' ? '#3b82f6' : '#e5e7eb'"
-              [style.background]="creditForm.method === 'LOAN' ? '#eff6ff' : 'transparent'">
-              <input type="radio" name="creditMethod" value="LOAN" [(ngModel)]="creditForm.method" style="display:none">
-              Bank Loan
-            </label>
-            <label class="radio-label"
-              style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer;"
-              [style.border-color]="creditForm.method === 'CREDIT_CARD' ? '#3b82f6' : '#e5e7eb'"
-              [style.background]="creditForm.method === 'CREDIT_CARD' ? '#eff6ff' : 'transparent'">
-              <input type="radio" name="creditMethod" value="CREDIT_CARD" [(ngModel)]="creditForm.method"
-                style="display:none">
-              Credit Card
-            </label>
-          </div>
-        </div>
-
-        <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px;">
-          <div class="form-group" style="flex: 1;">
-            <label>Amount (₹)*</label>
-            <input type="number" class="modal-input" [(ngModel)]="creditForm.amount" placeholder="Enter Amount">
-          </div>
-          <div class="form-group" style="flex: 1;">
-            <label>Due Date</label>
-            <input type="date" class="modal-input" [(ngModel)]="creditForm.dueDate">
-          </div>
-        </div>
-
-        <!-- Dynamic Fields -->
-        <div
-          style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #f1f5f9;">
-          @if (creditForm.method === 'FRIEND') {
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label>Friend's Name*</label>
-            <input type="text" class="modal-input" [(ngModel)]="creditForm.friendName" placeholder="Enter Full Name">
-          </div>
-          <div class="form-group">
-            <label>Phone Number*</label>
-            <input type="text" class="modal-input" [(ngModel)]="creditForm.friendPhone"
-              placeholder="Enter Contact Info">
-          </div>
-          }
-
-          @if (creditForm.method === 'LOAN') {
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label>Bank Name*</label>
-            <input type="text" class="modal-input" [(ngModel)]="creditForm.bankName" placeholder="e.g. HDFC, SBI">
-          </div>
-          <div class="form-row" style="display: flex; gap: 16px;">
-            <div class="form-group" style="flex: 1;">
-              <label>Tenure (Months)</label>
-              <input type="number" class="modal-input" [(ngModel)]="creditForm.loanTenureMonths" placeholder="e.g. 24">
+    <!-- Filter & Summary Section -->
+    <div style="padding: 20px 30px; background: #fff; border-bottom: 1px solid #e2e8f0;">
+      <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+        
+        <!-- Filters -->
+        <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 12px;">
+          <h4 style="margin: 0; font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Filter Statement</h4>
+          <div style="display: flex; gap: 12px;">
+            <div style="flex: 1;">
+              <select [(ngModel)]="txFilterType" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 0.9rem; color: #334155; font-weight: 500; outline: none;">
+                <option value="ALL">All Transactions</option>
+                <option value="CREDIT">Money In (Credit)</option>
+                <option value="DEBIT">Money Out (Debit)</option>
+              </select>
             </div>
-            <div class="form-group" style="flex: 1;">
-              <label>Interest Rate (%)</label>
-              <input type="number" class="modal-input" [(ngModel)]="creditForm.interestRate" placeholder="e.g. 9.5">
+            <div style="flex: 1;">
+              <input type="date" [(ngModel)]="txFilterStartDate" placeholder="Start Date" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 0.9rem; color: #334155; outline: none; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1;">
+              <input type="date" [(ngModel)]="txFilterEndDate" placeholder="End Date" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 0.9rem; color: #334155; outline: none; box-sizing: border-box;">
             </div>
           </div>
-          }
-
-          @if (creditForm.method === 'CREDIT_CARD') {
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label>Card Info / Emitting Bank*</label>
-            <input type="text" class="modal-input" [(ngModel)]="creditForm.cardInfo"
-              placeholder="e.g. ICICI Platinum ending 1234">
-          </div>
-          <div class="form-group">
-            <label>EMI Details (Optional)</label>
-            <input type="text" class="modal-input" [(ngModel)]="creditForm.emiDetails"
-              placeholder="e.g. ₹5000/mo over 6 months">
-          </div>
-          }
         </div>
 
-      </div>
+        <!-- Summary Cards -->
+        <div style="display: flex; gap: 12px; min-width: 280px;">
+          <div style="flex: 1; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 12px 16px;">
+            <div style="font-size: 0.75rem; font-weight: 600; color: #059669; text-transform: uppercase; margin-bottom: 4px;">Total Credit</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #047857; letter-spacing: -0.5px;">₹{{totalFilteredCredit | number:'1.0-2'}}</div>
+          </div>
+          <div style="flex: 1; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 12px 16px;">
+            <div style="font-size: 0.75rem; font-weight: 600; color: #dc2626; text-transform: uppercase; margin-bottom: 4px;">Total Debit</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #b91c1c; letter-spacing: -0.5px;">₹{{totalFilteredDebit | number:'1.0-2'}}</div>
+          </div>
+        </div>
 
-      <div class="modal-footer"
-        style="padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb; display: flex; justify-content: flex-end; gap: 12px;">
-        <button class="btn btn-secondary" (click)="closeAddFundsModal()" [disabled]="isSubmitting">Cancel</button>
-        <button class="btn btn-primary" (click)="submitCredit()" [disabled]="isSubmitting">
-          @if(isSubmitting) {
-          <svg class="modal-spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;">
-            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
-            <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
-          </svg>
-          Processing...
-          } @else {
-          Submit
-          }
-        </button>
       </div>
     </div>
+
+    <!-- Body / Statement List -->
+    <div style="padding: 0; max-height: 400px; overflow-y: auto; background: #f8fafc;">
+      @if (isTxLoading) {
+      <div style="padding: 60px; text-align: center;">
+        <svg class="modal-spinner" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3b82f6"
+          stroke-width="2" style="animation: spin 1s linear infinite; margin: 0 auto;">
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+        </svg>
+        <p style="margin-top: 16px; color: #64748b; font-weight: 500;">Retrieving transaction records...</p>
+      </div>
+      } @else if (filteredTransactions.length === 0) {
+      <div style="padding: 60px 40px; text-align: center; color: #64748b;">
+        <div style="width: 64px; height: 64px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <h3 style="margin: 0 0 8px; font-size: 1.1rem; color: #334155;">No transactions found</h3>
+        <p style="margin: 0; font-size: 0.9rem;">No records match your selected filters.</p>
+      </div>
+      } @else {
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead style="position: sticky; top: 0; background: #f1f5f9; box-shadow: 0 1px 2px rgba(0,0,0,0.05); z-index: 10;">
+          <tr>
+            <th style="padding: 12px 30px; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Date</th>
+            <th style="padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Description</th>
+            <th style="padding: 12px 16px; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Type</th>
+            <th style="padding: 12px 30px; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; text-align: right;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (tx of filteredTransactions; track tx.id) {
+          <tr style="border-bottom: 1px solid #e2e8f0; background: #fff; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+            <td style="padding: 16px 30px;">
+              <div style="font-size: 0.85rem; font-weight: 600; color: #334155;">{{tx.transactionDate | date:'MMM d, yyyy'}}</div>
+              <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">{{tx.transactionDate | date:'shortTime'}}</div>
+            </td>
+            <td style="padding: 16px 16px;">
+              <div style="font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 4px;">{{tx.description}}</div>
+              @if(tx.referenceId) {
+              <div style="font-size: 0.75rem; color: #64748b; display: inline-flex; align-items: center; gap: 4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                REF: {{tx.referenceId}}
+              </div>
+              }
+            </td>
+            <td style="padding: 16px 16px;">
+              @if (tx.transactionType === 'CREDIT') {
+              <span style="display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; background: #ecfdf5; color: #059669; border-radius: 6px; border: 1px solid #d1fae5; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.2px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                CREDIT
+              </span>
+              } @else {
+              <span style="display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; background: #fef2f2; color: #dc2626; border-radius: 6px; border: 1px solid #fee2e2; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.2px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                DEBIT
+              </span>
+              }
+            </td>
+            <td style="padding: 16px 30px; text-align: right;">
+              <div style="font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px;"
+                [style.color]="tx.transactionType === 'CREDIT' ? '#059669' : '#dc2626'">
+                {{tx.transactionType === 'CREDIT' ? '+' : '-'}}₹{{tx.amount | number:'1.0-2'}}
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+      }
+    </div>
+
   </div>
-  }
+</div>
+}
 </div>

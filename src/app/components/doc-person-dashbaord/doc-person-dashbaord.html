@@ -17,9 +17,8 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-icon">DM</div>
-      <span class="logo-text">DocManager</span>
+    <div class="sidebar-header" style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px 0;">
+      <img src="rare-education-logo.png" alt="Rare Education" style="max-height: 45px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
     </div>
 
     <nav class="sidebar-nav">
@@ -160,6 +159,30 @@
       </div>
       }
 
+      @if (!isLoading && activeTab !== 'funds' && activeTab !== 'profile') {
+      <!-- Smart Filter Bar -->
+      <div class="filter-bar" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <i class="fas fa-filter" style="color: #64748b; font-size: 14px;"></i>
+        <select [(ngModel)]="filterAgent" (change)="onGlobalFilterChange()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
+          <option value="">All Agents</option>
+          @for (agent of uniqueAgents; track agent.fullName) {
+          <option [value]="agent.fullName">{{ agent.fullName }}</option>
+          }
+        </select>
+        <select [(ngModel)]="filterCollege" (change)="onGlobalFilterChange()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
+          <option value="">All Universities</option>
+          @for (col of uniqueColleges; track col) {
+          <option [value]="col">{{ col }}</option>
+          }
+        </select>
+        @if (hasActiveFilters) {
+        <button (click)="clearFilters()" style="padding: 8px 14px; border: 1px solid #fee2e2; border-radius: 8px; font-size: 12px; font-weight: 600; background: #fef2f2; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+          <i class="fas fa-times"></i> Clear Filters
+        </button>
+        }
+      </div>
+      }
+
       <!-- ALL STUDENTS DIRECTORY - PRODUCTION READY -->
       @if (activeTab === 'all-students') {
       <section class="dashboard-section premium-section">
@@ -198,6 +221,7 @@
               <tr>
                 <th>Application ID</th>
                 <th>Student Name</th>
+                <th>Agent & University</th>
                 <th>Passport No.</th>
                 <th>Applied For</th>
                 <th>Status</th>
@@ -214,6 +238,18 @@
                     <div class="user-info-pro">
                       <span class="name-pro">{{ student.fullName }}</span>
                       <span class="email-pro">{{ student.email }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <div style="font-size: 0.85rem; color: #334155; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                      <i class="fas fa-user-tie" style="color: #64748b;"></i>
+                      <span>{{ student.agent?.fullName || 'Direct' }}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
+                      <i class="fas fa-university"></i>
+                      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned' }}</span>
                     </div>
                   </div>
                 </td>
@@ -257,145 +293,139 @@
 
       <!-- DASHBOARD VIEW -->
       @if (activeTab === 'dashboard' && !isLoading && !errorState.hasError) {
-      <div class="dashboard-view animate-fade-in">
-        <div class="stats-grid">
-          <!-- Featured Card (Green) -->
-          <div class="stat-card blue hover-lift" (click)="setActiveTab('stamped')">
-            <div class="stat-content">
-              <div class="stat-header">
-                <h3>Total Students</h3>
-                <span class="live-indicator" title="Live Data"></span>
-              </div>
-              <p class="count count-up">{{ stats.totalStudents }}</p>
-              <div class="trend-indicator">
-                <i class="fas fa-arrow-up"></i> <span>+12% from last month</span>
-              </div>
-            </div>
-            <div class="stat-icon">
-              <i class="fas fa-arrow-right"></i>
+      <div class="lurni-dashboard fade-in">
+        <div class="lurni-header">
+          <h1>Welcome back, {{ docPerson?.fullName || 'Doc Person' }}</h1>
+        </div>
+
+        <div class="lurni-stats-grid">
+          <div class="lurni-stat-card" (click)="setActiveTab('receive')">
+            <div class="lurni-stat-icon icon-blue"><i class="fas fa-inbox"></i></div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">To Receive</p>
+              <h3 class="lurni-stat-value">{{ receiveCount }}</h3>
             </div>
           </div>
-          <!-- Secondary Cards -->
-          <!-- Secondary Cards -->
-          <div class="stat-card red hover-lift" (click)="setActiveTab('receive')">
-            <div class="stat-content">
-              <div class="stat-header">
-                <h3>To Receive</h3>
-                @if (receiveCount > 0) {
-                <span class="priority-badge high">!</span>
-                }
-              </div>
-              <p class="count count-up">{{ receiveCount }}</p>
-              <div class="trend-indicator">
-                <i class="fas fa-inbox"></i> <span>Physical Docs</span>
-              </div>
-            </div>
-            <div class="stat-icon">
-              <i class="fas fa-arrow-right"></i>
+          <div class="lurni-stat-card" (click)="setActiveTab('verify')">
+            <div class="lurni-stat-icon icon-orange"><i class="fas fa-file-contract"></i></div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">To Verify</p>
+              <h3 class="lurni-stat-value">{{ verifyCount }}</h3>
             </div>
           </div>
-          <div class="stat-card orange hover-lift" (click)="setActiveTab('verify')">
-            <div class="stat-content">
-              <div class="stat-header">
-                <h3>To Verify</h3>
-                @if (verifyCount > 0) {
-                <span class="priority-badge medium">!</span>
-                }
-              </div>
-              <p class="count count-up">{{ verifyCount }}</p>
-              <div class="trend-indicator">
-                <i class="fas fa-file-contract"></i> <span>Verification</span>
-              </div>
-            </div>
-            <div class="stat-icon">
-              <i class="fas fa-arrow-right"></i>
+          <div class="lurni-stat-card" (click)="setActiveTab('return')">
+            <div class="lurni-stat-icon icon-green"><i class="fas fa-reply"></i></div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">To Return</p>
+              <h3 class="lurni-stat-value">{{ returnCount }}</h3>
             </div>
           </div>
-          <div class="stat-card purple hover-lift" (click)="setActiveTab('return')">
-            <div class="stat-content">
-              <div class="stat-header">
-                <h3>To Return</h3>
-                @if (returnCount > 0) {
-                <span class="priority-badge low">!</span>
-                }
-              </div>
-              <p class="count count-up">{{ returnCount }}</p>
-              <div class="trend-indicator">
-                <i class="fas fa-reply"></i> <span>Dispatch</span>
-              </div>
-            </div>
-            <div class="stat-icon">
-              <i class="fas fa-arrow-right"></i>
-            </div>
-          </div>
-          <div class="stat-card green hover-lift" (click)="setActiveTab('stamped')">
-            <div class="stat-content">
-              <div class="stat-header">
-                <h3>Approved</h3>
-              </div>
-              <p class="count count-up">{{ stats.approved }}</p>
-              <div class="trend-indicator">
-                <i class="fas fa-check"></i> <span>{{ stats.approved > 0 ? 'Great progress!' : 'No
-                  approvals yet' }}</span>
-              </div>
-            </div>
-            <div class="stat-icon">
-              <i class="fas fa-arrow-right"></i>
-            </div>
-          </div>
-          <div class="stat-card purple hover-lift" (click)="setActiveTab('pipeline')">
-            <div class="stat-content">
-              <div class="stat-header">
-                <h3>In Pipeline</h3>
-              </div>
-              <p class="count count-up">{{ stats.inPipeline }}</p>
-              <div class="trend-indicator">
-                <i class="fas fa-clock"></i> <span>In progress</span>
-              </div>
-            </div>
-            <div class="stat-icon">
-              <i class="fas fa-arrow-right"></i>
+          <div class="lurni-stat-card" (click)="setActiveTab('stamped')">
+            <div class="lurni-stat-icon icon-red"><i class="fas fa-check-circle"></i></div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">Approved Docs</p>
+              <h3 class="lurni-stat-value">{{ stats.approved }}</h3>
             </div>
           </div>
         </div>
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-          <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-          <div class="action-buttons">
-            <button class="action-btn action-receive" (click)="setActiveTab('receive')">
-              <i class="fas fa-inbox"></i>
-              <span>Receive Docs</span>
-            </button>
-            <button class="action-btn action-verify" (click)="setActiveTab('verify')">
-              <i class="fas fa-file-check"></i>
-              <span>Verify Docs</span>
-            </button>
-            <button class="action-btn action-return" (click)="setActiveTab('return')">
-              <i class="fas fa-reply"></i>
-              <span>Return Docs</span>
-            </button>
-            <button class="action-btn action-export" (click)="exportToCSV()">
-              <i class="fas fa-download"></i>
-              <span>Export Data</span>
-            </button>
+
+        <div class="lurni-main-grid">
+          <!-- Left: Top Engaged Courses (Top Universities) -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Top Universities (Documents)</h3>
+            </div>
+            <div class="lurni-chart-container">
+              <div style="position: absolute; left: 0; bottom: 20px;">
+                <h2 style="margin:0; font-size: 24px; font-weight: 700; color: #111827;">{{ stats.totalStudents }}</h2>
+                <p style="margin:0; font-size: 13px; color: #16a34a; font-weight: 500;"><i class="fas fa-arrow-up"></i> Total Students</p>
+              </div>
+              
+              @for(uni of topUniversities; track uni.name; let i = $index) {
+                <div class="lurni-bar-wrapper">
+                  <div class="lurni-bar" [style.height]="uni.percentage + '%'" [class.active]="i === 0" [title]="uni.name + ': ' + uni.count"></div>
+                  <span class="lurni-bar-label" [title]="uni.name" style="width: 40px; overflow: hidden; text-overflow: ellipsis;">{{ uni.name }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Right: Recent Activity -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Recent Activity</h3>
+            </div>
+            <div class="lurni-activity-tabs">
+              <div class="lurni-activity-tab active">All</div>
+              <div class="lurni-activity-tab">Updates</div>
+            </div>
+            <div class="lurni-activity-list" style="max-height: 250px; overflow-y: auto;">
+              @for(act of recentActivities.slice(0, 4); track act.time + $index) {
+                <div class="lurni-activity-item">
+                  <div class="lurni-activity-avatar"><i [class]="'fas ' + (act.type === 'success' ? 'fa-check' : act.type === 'warning' ? 'fa-exclamation' : 'fa-info')"></i></div>
+                  <div class="lurni-activity-content">
+                    <h4 class="lurni-activity-title">{{ act.message }}</h4>
+                    <p class="lurni-activity-desc">{{ act.type | titlecase }} Update</p>
+                    <span class="lurni-activity-time"><i class="far fa-clock"></i> {{ act.time }}</span>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         </div>
-        <!-- Recent Updates -->
-        <div class="recent-section">
-          <h3><i class="fas fa-history"></i> Recent Activity</h3>
-          <div class="activity-timeline">
-            @for (activity of recentActivities; track activity) {
-            <div class="activity-item">
-              <div class="activity-icon" [ngClass]="'icon-' + activity.type">
-                <i
-                  [class]="'fas ' + (activity.type === 'success' ? 'fa-check' : activity.type === 'warning' ? 'fa-exclamation' : 'fa-info')"></i>
-              </div>
-              <div class="activity-content">
-                <p class="activity-message">{{ activity.message }}</p>
-                <span class="activity-time"><i class="fas fa-clock"></i> {{ activity.time }}</span>
-              </div>
+
+        <div class="lurni-main-grid">
+          <!-- Left: Table Engagement Breakdown (Agent Breakdown) -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Agent Performance Breakdown</h3>
             </div>
-            }
+            <table class="lurni-table">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>Total Students</th>
+                  <th>Success Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(agent of agentBreakdown; track agent.name) {
+                  <tr>
+                    <td>{{ agent.name }}</td>
+                    <td>{{ agent.total }}</td>
+                    <td style="color: #16a34a;">{{ agent.successRate }}%</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right: Progress Overview -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Pipeline Overview</h3>
+            </div>
+            <div class="lurni-progress-item">
+              <div class="lurni-progress-header">
+                <span class="lurni-progress-title">To Receive</span>
+                <span class="lurni-progress-stats" style="color: #0284c7;">{{ receiveCount }} / {{ stats.totalStudents }}</span>
+              </div>
+              <div class="lurni-progress-bar-bg"><div class="lurni-progress-bar-fill" style="background: #0284c7;" [style.width]="(receiveCount / (stats.totalStudents || 1) * 100) + '%'"></div></div>
+            </div>
+            <div class="lurni-progress-item">
+              <div class="lurni-progress-header">
+                <span class="lurni-progress-title">To Verify</span>
+                <span class="lurni-progress-stats" style="color: #ea580c;">{{ verifyCount }} / {{ stats.totalStudents }}</span>
+              </div>
+              <div class="lurni-progress-bar-bg"><div class="lurni-progress-bar-fill" style="background: #ea580c;" [style.width]="(verifyCount / (stats.totalStudents || 1) * 100) + '%'"></div></div>
+            </div>
+            <div class="lurni-progress-item">
+              <div class="lurni-progress-header">
+                <span class="lurni-progress-title">Approved Docs</span>
+                <span class="lurni-progress-stats" style="color: #16a34a;">{{ stats.approved }} / {{ stats.totalStudents }}</span>
+              </div>
+              <div class="lurni-progress-bar-bg"><div class="lurni-progress-bar-fill" style="background: #16a34a;" [style.width]="(stats.approved / (stats.totalStudents || 1) * 100) + '%'"></div></div>
+            </div>
           </div>
         </div>
       </div>
@@ -467,6 +497,14 @@
                     <span class="chip chip-id">
                       <i class="fas fa-hashtag"></i>
                       {{ student.applicationId || student.id }}
+                    </span>
+                    <span class="chip" style="background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0;">
+                      <i class="fas fa-user-tie"></i>
+                      {{ student.agent?.fullName || 'Direct' }}
+                    </span>
+                    <span class="chip" style="background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="student.college?.collegeName || 'Not Assigned'">
+                      <i class="fas fa-university"></i>
+                      {{ student.college?.collegeName || 'Not Assigned' }}
                     </span>
                     @if (student.email) {
                     <span class="chip chip-email">
@@ -589,7 +627,8 @@
                 <div class="student-meta-inline">
                   <span class="meta-badge highlight-badge"><i class="fas fa-id-badge"></i> {{
                     student.applicationId || student.id }}</span>
-                  <span class="meta-badge"><i class="fas fa-envelope"></i> {{ student.email }}</span>
+                  <span class="meta-badge"><i class="fas fa-user-tie"></i> {{ student.agent?.fullName || 'Direct' }}</span>
+                  <span class="meta-badge" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="student.college?.collegeName || 'Not Assigned'"><i class="fas fa-university"></i> {{ student.college?.collegeName || 'Not Assigned' }}</span>
                 </div>
               </div>
             </div>
@@ -653,7 +692,8 @@
                 <div class="student-meta-inline">
                   <span class="meta-badge highlight-badge"><i class="fas fa-id-badge"></i> {{
                     student.applicationId || student.id }}</span>
-                  <span class="meta-badge"><i class="fas fa-envelope"></i> {{ student.email }}</span>
+                  <span class="meta-badge"><i class="fas fa-user-tie"></i> {{ student.agent?.fullName || 'Direct' }}</span>
+                  <span class="meta-badge" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="student.college?.collegeName || 'Not Assigned'"><i class="fas fa-university"></i> {{ student.college?.collegeName || 'Not Assigned' }}</span>
                 </div>
               </div>
             </div>
@@ -764,6 +804,7 @@
                 Email <i class="fas"
                   [ngClass]="sortConfig.column === 'email' ? (sortConfig.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'"></i>
               </th>
+              <th>Agent & University</th>
               <th>Application Status</th>
               <th>Date</th>
             </tr>
@@ -779,6 +820,18 @@
                 </div>
               </td>
               <td>{{ student.email }}</td>
+              <td>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <div style="font-size: 0.85rem; color: #334155; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-user-tie" style="color: #64748b;"></i>
+                    <span>{{ student.agent?.fullName || 'Direct' }}</span>
+                  </div>
+                  <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-university"></i>
+                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned' }}</span>
+                  </div>
+                </div>
+              </td>
               <td>
                 <span class="app-status-text">
                   {{ student.applicationStatus || 'N/A' }}

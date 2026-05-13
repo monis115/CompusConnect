@@ -169,6 +169,7 @@ interface Student {
   documentReturnRequest: any;
   docPersonAssignedDate: string | null;
   paymentStatus: string | null;
+  visaTalabNumaPath: string | null;
   // History
   studentStatusHistory: StatusHistory[];
 }
@@ -283,13 +284,17 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   availableVisaManagers: { username: string; studentCount: number }[] = [];
 
   // Views & Lists
-  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' | 'sessions' | 'travel' | 'travelling' = 'dashboard';
+  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' | 'sessions' | 'travel' | 'travelling' | 'requested-docs' = 'dashboard';
   isSidebarCollapsed = false;
   actionRequiredStudents: Student[] = [];
   pendingUniversityStudents: Student[] = [];
   processingStudents: Student[] = [];
   allStudents: Student[] = [];
   filteredList: Student[] = [];
+  docRequests: any[] = [];
+  isForwardingRequest = false;
+  isRejectingRequest = false;
+  selectedRequestForReject: any = null;
 
   get getTravellingCount(): number {
     return this.allStudents.filter(s => s.travelDoj || s.travelAirlines || s.hasRaiseReturnRequest).length;
@@ -934,6 +939,8 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
         this.isLoadingMessages = false;
         this.cdr.detectChanges();
       }, 800);
+    } else if (view === 'requested-docs') {
+      this.loadDocRequests();
     } else if (view === 'dashboard') {
       const username = sessionStorage.getItem('userId');
       if (username) this.loadDashboardStats(username);
@@ -1819,6 +1826,102 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   viewDocument(path: string | null): void {
     if (path) {
       window.open(this.getDocUrl(path), '_blank');
+    }
+  }
+
+  // --- Doc Request Methods ---
+
+  loadDocRequests(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/api/doc-requests/pending`).subscribe({
+      next: (requests) => {
+        this.docRequests = requests;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to load doc requests', err)
+    });
+  }
+
+  getPendingDocRequestsCount(): number {
+    return this.docRequests.filter(r => r.status === 'PENDING').length;
+  }
+
+  forwardDocRequest(request: any): void {
+    this.isForwardingRequest = true;
+    const authUser = sessionStorage.getItem('userId') || '';
+    const payload = {
+      forwardedBy: authUser,
+      forwardedByName: this.managerData?.fullName || authUser
+    };
+
+    this.http.put(`${environment.apiUrl}/api/doc-requests/${request.id}/forward`, payload).subscribe({
+      next: () => {
+        this.successModalMessage = 'Request forwarded to university successfully!';
+        this.showSuccessModal = true;
+        this.isForwardingRequest = false;
+        this.loadDocRequests();
+      },
+      error: (err) => {
+        alert('Failed to forward request: ' + (err.error || err.message));
+        this.isForwardingRequest = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openRejectDocRequestModal(request: any): void {
+    this.selectedRequestForReject = request;
+    this.rejectionReason = '';
+    this.cdr.detectChanges();
+  }
+
+  closeRejectDocRequestModal(): void {
+    this.selectedRequestForReject = null;
+    this.rejectionReason = '';
+    this.cdr.detectChanges();
+  }
+
+  submitRejectDocRequest(): void {
+    if (!this.rejectionReason.trim()) {
+      alert('Please enter a reason for rejection.');
+      return;
+    }
+
+    this.isRejectingRequest = true;
+    const authUser = sessionStorage.getItem('userId') || '';
+    const payload = {
+      rejectedBy: authUser,
+      rejectedByName: this.managerData?.fullName || authUser,
+      reason: this.rejectionReason
+    };
+
+    this.http.put(`${environment.apiUrl}/api/doc-requests/${this.selectedRequestForReject.id}/reject`, payload).subscribe({
+      next: () => {
+        this.successModalMessage = 'Request rejected successfully.';
+        this.showSuccessModal = true;
+        this.isRejectingRequest = false;
+        this.closeRejectDocRequestModal();
+        this.loadDocRequests();
+      },
+      error: (err) => {
+        alert('Failed to reject request: ' + (err.error || err.message));
+        this.isRejectingRequest = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getDocTypeLabel(docType: string, customName?: string): string {
+    if (docType === 'OTHER' && customName) return customName;
+    return docType.replace(/_/g, ' ');
+  }
+
+  getDocRequestStatusBadgeClass(status: string): string {
+    switch (status) {
+      case 'PENDING': return 'badge-warn';
+      case 'FORWARDED': return 'badge-info';
+      case 'COMPLETED': return 'badge-success';
+      case 'REJECTED': return 'badge-danger';
+      default: return 'badge-info';
     }
   }
 }

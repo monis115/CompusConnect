@@ -13,7 +13,8 @@ import {
   CollectionSummary,
   RecentActivity,
   AssignedStudent,
-  AccountantCredit
+  AccountantCredit,
+  SubAccount
 } from '../../services/accountant.service';
 import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
 import { environment } from '../../../environments/environment';
@@ -71,6 +72,10 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   activities: RecentActivity[] = [];
   students: AssignedStudent[] = [];
   filteredStudents: AssignedStudent[] = [];
+  listAgentFilter: string = 'ALL';
+  listCollegeFilter: string = 'ALL';
+  listDateFrom: string = '';
+  listDateTo: string = '';
   selectedStudent: Student | null = null;
   credits: AccountantCredit[] = [];
   includeCreditInBalance: boolean = true;
@@ -92,8 +97,51 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     totalAccToVisaManPaidAmount: 0
   };
 
+  // SubAccounts
+  subAccounts: SubAccount[] = [];
+  showAddSubAccountModal = false;
+  newSubAccount: SubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '' };
+
+  // --- Transactions Modal ---
+  selectedSubAccountForTx: any = null;
+  subAccountTransactions: any[] = [];
+  isTxLoading = false;
+  txFilterType: 'ALL' | 'CREDIT' | 'DEBIT' = 'ALL';
+  txFilterStartDate: string = '';
+  txFilterEndDate: string = '';
+
+  get filteredTransactions(): any[] {
+    return this.subAccountTransactions.filter(tx => {
+      const matchType = this.txFilterType === 'ALL' || tx.transactionType === this.txFilterType;
+      const txDate = new Date(tx.transactionDate);
+      const matchStart = !this.txFilterStartDate || txDate >= new Date(this.txFilterStartDate);
+      
+      // End date should include the whole day
+      let matchEnd = true;
+      if (this.txFilterEndDate) {
+         const endDate = new Date(this.txFilterEndDate);
+         endDate.setHours(23, 59, 59, 999);
+         matchEnd = txDate <= endDate;
+      }
+      
+      return matchType && matchStart && matchEnd;
+    });
+  }
+
+  get totalFilteredCredit(): number {
+    return this.filteredTransactions
+      .filter(tx => tx.transactionType === 'CREDIT')
+      .reduce((sum, tx) => sum + tx.amount, 0);
+  }
+
+  get totalFilteredDebit(): number {
+    return this.filteredTransactions
+      .filter(tx => tx.transactionType === 'DEBIT')
+      .reduce((sum, tx) => sum + tx.amount, 0);
+  }
+
   // UI State
-  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger' = 'dashboard';
+  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger' | 'reports' | 'subaccounts' = 'dashboard';
   isSidebarCollapsed = false;
 
   // History Modal State
@@ -119,6 +167,23 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   searchTerm = '';
   isFullscreen = false;
   activeVerificationTab: 'telex' | 'visa' = 'telex';
+
+  // Rejection Remarks
+  rejectionRemarks: string = '';
+
+  // Verification Filters
+  verificationFilterPaidTo: string = 'ALL';
+
+  // Accounts Section Filters
+  accountsFilterType: string = 'ALL'; // ALL, VISA, AGENT
+  reportViewMode: 'agent' | 'college' = 'agent';
+  accountsSearchTerm: string = '';
+
+  // Reports Section
+  reportAgentFilter: string = 'ALL';
+  reportDateFrom: string = '';
+  reportDateTo: string = '';
+  reportPaidToFilter: string = 'ALL';
 
   // Modals
   showDetailModal = false;
@@ -148,6 +213,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   swiftCode: string = '';
   beneficiaryName: string = '';
   branchAddress: string = '';
+  selectedSubAccountId: number | null = null;
   receivedAmount: number = 0;
   receivedDate: string = '';
 
@@ -157,7 +223,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     amountToPay: null as number | null,
     mode: 'UPI',
     txId: '',
-    paymentDate: ''
+    paymentDate: '',
+    subAccountId: null as number | null
   };
 
   // Add Funds (Credit) Modal State
@@ -200,6 +267,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.username = sessionStorage.getItem('userId') || '';
     this.loadDashboardData();
+    this.loadSubAccounts();
   }
 
   ngOnDestroy(): void {
@@ -235,6 +303,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   loadDashboardData(): void {
     this.loadPassbooks();
     this.loadFundRequests();
+    this.loadSubAccounts();
     if (!this.username) {
       this.isLoading = false;
       this.router.navigate(['/AdminLogin']);
@@ -323,7 +392,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
               accToVisaManTxId: s.accToVisaManTxId,
               accToVisaManMode: s.accToVisaManMode,
               accToVisaManStatus: s.accToVisaManStatus || 'PENDING',
-              visaMan: s.visaMan
+              visaMan: s.visaMan,
+              agentFullName: s.agentFullName || s.agent?.fullName,
+              collegeName: s.collegeName || s.college?.collegeName,
+              appliedFor: s.appliedFor,
+              paymentRejectionRemarks: s.paymentRejectionRemarks,
+              visaManFullName: s.visaManFullName || s.visaMan?.fullName,
+              agentUserFullName: s.agentUserFullName || s.agent?.fullName
             }));
             this.filteredStudents = [...this.students];
           }
@@ -404,7 +479,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
             accToVisaManTxId: (s as any).accToVisaManTxId,
             accToVisaManMode: (s as any).accToVisaManMode,
             accToVisaManStatus: (s as any).accToVisaManStatus || 'PENDING',
-            visaMan: (s as any).visaMan
+            visaMan: (s as any).visaMan,
+            agentFullName: (s as any).agentFullName || (s as any).agent?.fullName,
+            collegeName: (s as any).collegeName || (s as any).college?.collegeName,
+            appliedFor: (s as any).appliedFor,
+            paymentRejectionRemarks: (s as any).paymentRejectionRemarks,
+            visaManFullName: (s as any).visaManFullName || (s as any).visaMan?.fullName,
+            agentUserFullName: (s as any).agentUserFullName || (s as any).agent?.fullName
           }));
           this.filteredStudents = [...this.students];
 
@@ -413,6 +494,84 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         },
         error: (err) => console.error('Error loading fallback data:', err)
       });
+  }
+
+  loadSubAccounts(): void {
+    this.accountantService.getSubAccounts().subscribe({
+      next: (data: SubAccount[]) => {
+        this.subAccounts = data;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Error fetching SubAccounts', err);
+      }
+    });
+  }
+
+  // Add/Update SubAccount
+  openAddSubAccountModal(): void {
+    this.newSubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '' };
+    this.showAddSubAccountModal = true;
+  }
+
+  closeAddSubAccountModal(): void {
+    this.showAddSubAccountModal = false;
+  }
+
+  submitSubAccount(): void {
+    if (!this.newSubAccount.bankName || !this.newSubAccount.accountNumber) return;
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+
+    this.accountantService.createSubAccount(this.newSubAccount)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (saved: SubAccount) => {
+          this.subAccounts.push(saved);
+          this.closeAddSubAccountModal();
+          this.showSuccess('Bank account has been added successfully!', 'Bank Account Added!');
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.error('Error saving subaccount', err);
+          this.showErrorToast('Failed to create Bank Account. Please try again.');
+        }
+      });
+  }
+
+  // --- Transactions Modal ---
+  viewTransactions(acc: any): void {
+    this.selectedSubAccountForTx = acc;
+    this.subAccountTransactions = [];
+    this.isTxLoading = true;
+    this.cdr.detectChanges();
+
+    this.http.get<any[]>(`http://localhost:8080/api/accountant/subaccounts/${acc.id}/transactions`)
+      .pipe(finalize(() => { this.isTxLoading = false; this.cdr.detectChanges(); }))
+      .subscribe({
+        next: (res) => {
+          this.subAccountTransactions = res;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to fetch transactions', err);
+          this.showErrorToast('Failed to load transaction history');
+        }
+      });
+  }
+
+  closeTransactionsModal(): void {
+    this.selectedSubAccountForTx = null;
+    this.subAccountTransactions = [];
+    this.txFilterType = 'ALL';
+    this.txFilterStartDate = '';
+    this.txFilterEndDate = '';
+    this.cdr.detectChanges();
   }
 
   animateCounters(): void {
@@ -463,7 +622,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // --- Navigation ---
 
-  switchView(view: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger'): void {
+  switchView(view: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger' | 'reports' | 'subaccounts'): void {
     this.activeView = view;
     this.searchTerm = '';
     if (view === 'funds') {
@@ -529,14 +688,165 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       sourceList = this.students.filter(s => s.paymentStatus === 'Not Received');
     }
 
-    this.filteredStudents = sourceList.filter(student =>
-      !term ||
-      student.fullName?.toLowerCase().includes(term) ||
-      student.email?.toLowerCase().includes(term) ||
-      student.applicationId?.toLowerCase().includes(term)
-    );
+    this.filteredStudents = sourceList.filter(student => {
+      const matchSearch = !term ||
+        student.fullName?.toLowerCase().includes(term) ||
+        student.email?.toLowerCase().includes(term) ||
+        student.applicationId?.toLowerCase().includes(term);
+
+      const matchAgent = this.listAgentFilter === 'ALL' || student.agentFullName === this.listAgentFilter;
+      const matchCollege = this.listCollegeFilter === 'ALL' || student.collegeName === this.listCollegeFilter;
+
+      const dateStr = (student as any).paymentReceivedDate || (student as any).visaPaymentReceivedDate;
+      const dateVal = dateStr ? new Date(dateStr) : null;
+      const matchDateFrom = !this.listDateFrom || !dateVal || dateVal >= new Date(this.listDateFrom);
+      const matchDateTo = !this.listDateTo || !dateVal || dateVal <= new Date(this.listDateTo);
+
+      return matchSearch && matchAgent && matchCollege && matchDateFrom && matchDateTo;
+    });
 
     this.cdr.detectChanges();
+  }
+
+  // --- Reports Logic (Agent×College Aggregate Tracking) ---
+
+  /** Only fee-payment students (hasPaid or paymentStatus set) filtered by controls */
+  get reportBaseStudents(): any[] {
+    return this.students.filter(s => {
+      if (!s.paidAmount || s.paidAmount <= 0) return false;
+      const matchAgent = this.reportAgentFilter === 'ALL' || s.agentFullName === this.reportAgentFilter;
+      const matchPaidTo = this.reportPaidToFilter === 'ALL' || s.paidTo === this.reportPaidToFilter;
+      // Use a generic date field — try payment received or fallback
+      const dateStr = (s as any).paymentReceivedDate || (s as any).visaPaymentReceivedDate;
+      const dateVal = dateStr ? new Date(dateStr) : null;
+      const matchDateFrom = !this.reportDateFrom || !dateVal || dateVal >= new Date(this.reportDateFrom);
+      const matchDateTo = !this.reportDateTo || !dateVal || dateVal <= new Date(this.reportDateTo);
+      return matchAgent && matchPaidTo && matchDateFrom && matchDateTo;
+    });
+  }
+
+  get uniqueAgents(): string[] {
+    return [...new Set(this.students.map(s => s.agentFullName).filter(Boolean))] as string[];
+  }
+
+  get uniqueColleges(): string[] {
+    return [...new Set(this.students.map(s => s.collegeName).filter(Boolean))] as string[];
+  }
+
+  /** Agent-wise aggregate rows */
+  get reportAgentRows(): { agent: string, students: number, toCompany: number, toUniversity: number, total: number, colleges: { name: string, students: number, amount: number }[] }[] {
+    const map = new Map<string, { students: number, toCompany: number, toUniversity: number, total: number, collegeMap: Map<string, { students: number, amount: number }> }>();
+
+    for (const s of this.reportBaseStudents) {
+      const agentName = s.agentFullName || 'Unknown Agent';
+      if (!map.has(agentName)) {
+        map.set(agentName, { students: 0, toCompany: 0, toUniversity: 0, total: 0, collegeMap: new Map() });
+      }
+      const row = map.get(agentName)!;
+      row.students++;
+      row.total += (s.paidAmount || 0);
+      if (s.paidTo === 'COMPANY') row.toCompany += (s.paidAmount || 0);
+      if (s.paidTo === 'UNIVERSITY') row.toUniversity += (s.paidAmount || 0);
+
+      const collegeName = s.collegeName || 'Unassigned';
+      if (!row.collegeMap.has(collegeName)) {
+        row.collegeMap.set(collegeName, { students: 0, amount: 0 });
+      }
+      const cRow = row.collegeMap.get(collegeName)!;
+      cRow.students++;
+      cRow.amount += (s.paidAmount || 0);
+    }
+
+    return Array.from(map.entries()).map(([agent, data]) => ({
+      agent,
+      students: data.students,
+      toCompany: data.toCompany,
+      toUniversity: data.toUniversity,
+      total: data.total,
+      colleges: Array.from(data.collegeMap.entries())
+        .map(([name, c]) => ({ name, students: c.students, amount: c.amount }))
+        .sort((a, b) => b.amount - a.amount)
+    })).sort((a, b) => b.total - a.total);
+  }
+
+  /** College-wise aggregate rows */
+  get reportCollegeRows(): { college: string, students: number, toCompany: number, toUniversity: number, total: number }[] {
+    const map = new Map<string, { students: number, toCompany: number, toUniversity: number, total: number }>();
+
+    for (const s of this.reportBaseStudents) {
+      const collegeName = s.collegeName || 'Unassigned';
+      if (!map.has(collegeName)) {
+        map.set(collegeName, { students: 0, toCompany: 0, toUniversity: 0, total: 0 });
+      }
+      const row = map.get(collegeName)!;
+      row.students++;
+      row.total += (s.paidAmount || 0);
+      if (s.paidTo === 'COMPANY') row.toCompany += (s.paidAmount || 0);
+      if (s.paidTo === 'UNIVERSITY') row.toUniversity += (s.paidAmount || 0);
+    }
+
+    return Array.from(map.entries()).map(([college, data]) => ({
+      college,
+      ...data
+    })).sort((a, b) => b.total - a.total);
+  }
+
+  /** Grand totals for the report */
+  get reportGrandTotal(): number {
+    return this.reportBaseStudents.reduce((sum, s) => sum + (s.paidAmount || 0), 0);
+  }
+  get reportTotalToCompany(): number {
+    return this.reportBaseStudents.filter(s => s.paidTo === 'COMPANY').reduce((sum, s) => sum + (s.paidAmount || 0), 0);
+  }
+  get reportTotalToUniversity(): number {
+    return this.reportBaseStudents.filter(s => s.paidTo === 'UNIVERSITY').reduce((sum, s) => sum + (s.paidAmount || 0), 0);
+  }
+  get reportTotalStudents(): number {
+    return this.reportBaseStudents.length;
+  }
+
+  // Track expanded agent rows in the report
+  expandedReportAgents: Set<string> = new Set();
+  toggleReportAgent(agent: string): void {
+    if (this.expandedReportAgents.has(agent)) {
+      this.expandedReportAgents.delete(agent);
+    } else {
+      this.expandedReportAgents.add(agent);
+    }
+    this.cdr.detectChanges();
+  }
+
+  // --- Dashboard Detailed Summaries ---
+  get dashboardTotalToCompany(): number {
+    return this.students.filter(s => s.paidTo === 'COMPANY' && s.paymentStatus === 'Received')
+      .reduce((sum, s) => sum + (s.paidAmount || 0), 0);
+  }
+
+  get dashboardTotalToUniversity(): number {
+    return this.students.filter(s => s.paidTo === 'UNIVERSITY' && s.paymentStatus === 'Received')
+      .reduce((sum, s) => sum + (s.paidAmount || 0), 0);
+  }
+
+  get dashboardTopAgents(): { name: string, amount: number }[] {
+    const agentMap = new Map<string, number>();
+    this.students.filter(s => s.paymentStatus === 'Received' && s.agentFullName).forEach(s => {
+      agentMap.set(s.agentFullName!, (agentMap.get(s.agentFullName!) || 0) + (s.paidAmount || 0));
+    });
+    return Array.from(agentMap.entries())
+      .map(([name, amount]) => ({ name, amount }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5); // Top 5
+  }
+
+  get dashboardTopColleges(): { name: string, amount: number }[] {
+    const collegeMap = new Map<string, number>();
+    this.students.filter(s => s.paymentStatus === 'Received' && s.collegeName).forEach(s => {
+      collegeMap.set(s.collegeName!, (collegeMap.get(s.collegeName!) || 0) + (s.paidAmount || 0));
+    });
+    return Array.from(collegeMap.entries())
+      .map(([name, amount]) => ({ name, amount }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5); // Top 5
   }
 
   // --- Collection Summary Helpers ---
@@ -647,12 +957,14 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     if (this.isActionDisabled(student)) return;
 
     this.selectedStudent = student;
+    this.rejectionRemarks = '';
     this.showRejectModal = true;
     this.cdr.detectChanges();
   }
 
   closeRejectModal(): void {
     this.showRejectModal = false;
+    this.rejectionRemarks = '';
     this.cdr.detectChanges();
   }
 
@@ -672,7 +984,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       amountToPay: remaining > 0 ? remaining : null,
       mode: 'UPI',
       txId: '',
-      paymentDate: this.formatDateForInput(new Date())
+      paymentDate: this.formatDateForInput(new Date()),
+      subAccountId: null
     };
     this.showPayVisaManModal = true;
     this.cdr.detectChanges();
@@ -705,7 +1018,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     };
 
     if (!studentLike.id) {
-      alert('Cannot find the matching student record. Please ensure the student data is loaded.');
+      this.showErrorToast('Cannot find the matching student record. Please ensure the student data is loaded.');
       return;
     }
 
@@ -717,7 +1030,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   confirmApprove(): void {
     if (!this.selectedStudent || !this.accountantData) return;
     if (!this.approveForm.receivedAmount || !this.approveForm.receivedDate) {
-      alert('Please fill in all required fields.');
+      this.showErrorToast('Please fill in all required fields.');
       return;
     }
 
@@ -747,7 +1060,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Approve error:', err);
-          alert('Failed to approve payment. Please try again.');
+          this.showErrorToast('Failed to approve payment. Please try again.');
         }
       });
   }
@@ -761,7 +1074,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     const studentId = (this.selectedStudent as any).studentId || this.selectedStudent.id;
 
     const payload: RejectPaymentPayload = {
-      accountantUsername: this.accountantData.username
+      accountantUsername: this.accountantData.username,
+      rejectionRemarks: this.rejectionRemarks
     };
 
     this.accountantService.rejectPayment(studentId, payload)
@@ -779,7 +1093,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Reject error:', err);
-          alert('Failed to reject payment. Please try again.');
+          this.showErrorToast('Failed to reject payment. Please try again.');
         }
       });
   }
@@ -787,7 +1101,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   confirmPayVisaMan(): void {
     if (!this.selectedStudent || !this.accountantData) return;
     if (!this.payVisaManForm.amountToPay || !this.payVisaManForm.paymentDate || !this.payVisaManForm.mode) {
-      alert('Please fill in all required fields.');
+      this.showErrorToast('Please fill in all required fields.');
+      return;
+    }
+    if (!this.payVisaManForm.subAccountId) {
+      this.showErrorToast('Please select a Bank Account to debit from.');
       return;
     }
 
@@ -801,6 +1119,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       paymentDate: this.payVisaManForm.paymentDate,
       mode: this.payVisaManForm.mode,
       txId: this.payVisaManForm.txId,
+      subAccountId: this.payVisaManForm.subAccountId,
       accountantUsername: this.accountantData.username
     };
 
@@ -820,7 +1139,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Pay Visa Man error:', err);
-          alert(err.error || 'Failed to pay Visa Man.');
+          const errorMsg = typeof err.error === 'string' ? err.error : (err.error?.message || 'Failed to pay Visa Man.');
+          this.showErrorToast(errorMsg);
         }
       });
   }
@@ -1102,12 +1422,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       this.showErrorToast('Please enter a valid amount');
       return;
     }
-    if (!this.bankName || this.bankName.trim() === '') {
-      this.showErrorToast('Bank Name is required');
-      return;
-    }
-    if (!this.accountNumber || this.accountNumber.trim() === '') {
-      this.showErrorToast('Account Number is required');
+    if (!this.selectedSubAccountId) {
+      this.showErrorToast('Please select a SubAccount');
       return;
     }
 
@@ -1118,11 +1434,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       accountantUsername: this.username,
       amount: this.bankDetailsAmount,
       currency: this.bankDetailsCurrency,
-      bankName: this.bankName.trim(),
-      accountNumber: this.accountNumber.trim(),
-      swiftCode: this.swiftCode?.trim() || null,
-      beneficiaryName: this.beneficiaryName?.trim() || null,
-      branchAddress: this.branchAddress?.trim() || null
+      subAccountId: this.selectedSubAccountId
     };
 
     this.http.post(`${environment.apiUrl}/api/visa/send-bank-details/${studentId}`, body)
@@ -1191,11 +1503,20 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   /**
-   * Show error toast message
+   * Show error modal message
    */
+  showErrorModal = false;
+  errorMessage = '';
+
   showErrorToast(message: string): void {
-    // Show error as alert for now - can be replaced with a toast service
-    alert(message);
+    this.errorMessage = message;
+    this.showErrorModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeErrorModal(): void {
+    this.showErrorModal = false;
+    this.cdr.detectChanges();
   }
 
   /**
@@ -1246,7 +1567,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   fundPaymentForm = {
     amountPaid: 0,
     transactionId: '',
-    paymentMode: 'CASH'
+    paymentMode: 'CASH',
+    subAccountId: null as number | null
   };
   isFundSubmitting = false;
 
@@ -1292,7 +1614,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.fundPaymentForm = {
       amountPaid: remaining > 0 ? remaining : 0,
       transactionId: '',
-      paymentMode: 'CASH'
+      paymentMode: 'CASH',
+      subAccountId: null
     };
     this.showFundPaymentModal = true;
     this.cdr.detectChanges();
@@ -1309,11 +1632,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
     // Validation
     if (this.fundPaymentForm.paymentMode === 'ONLINE' && !this.fundPaymentForm.transactionId) {
-      alert('Transaction ID is required for online payments.');
+      this.showErrorToast('Transaction ID is required for online payments.');
       return;
     }
     if (this.fundPaymentForm.amountPaid <= 0) {
-      alert('Please enter a valid amount.');
+      this.showErrorToast('Please enter a valid amount.');
       return;
     }
 
@@ -1322,15 +1645,27 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       : ((this.selectedFundRequest.requestedAmount || 0) - (this.selectedFundRequest.amountPaid || 0));
 
     if (this.fundPaymentForm.amountPaid > remaining) {
-      alert(`Amount cannot exceed the remaining balance of ₹${remaining}`);
+      this.showErrorToast(`Amount cannot exceed the remaining balance of ₹${remaining}`);
+      return;
+    }
+
+    // SubAccount balance validation
+    if (!this.fundPaymentForm.subAccountId) {
+      this.showErrorToast('Please select a Bank Account to pay from.');
+      return;
+    }
+    const selectedAcc = this.subAccounts.find(a => a.id === this.fundPaymentForm.subAccountId);
+    if (selectedAcc && (selectedAcc.balance || 0) < this.fundPaymentForm.amountPaid) {
+      this.showErrorToast(`Insufficient balance in ${selectedAcc.bankName}. Available: ₹${selectedAcc.balance?.toFixed(2)}, Required: ₹${this.fundPaymentForm.amountPaid}`);
       return;
     }
 
     this.isFundSubmitting = true;
     const payload = {
       amountPaid: this.fundPaymentForm.amountPaid,
-      accountantPaymentMode: this.fundPaymentForm.paymentMode, // Mapped to paymentMode in backend Transaction
-      transactionId: this.fundPaymentForm.paymentMode === 'CASH' ? null : this.fundPaymentForm.transactionId
+      accountantPaymentMode: this.fundPaymentForm.paymentMode,
+      transactionId: this.fundPaymentForm.paymentMode === 'CASH' ? null : this.fundPaymentForm.transactionId,
+      subAccountId: this.fundPaymentForm.subAccountId
     };
 
     this.paymentRequestService.payRequest(this.selectedFundRequest.id, payload).subscribe({
@@ -1343,7 +1678,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Error processing payment', err);
         this.isFundSubmitting = false;
-        alert('Failed to process payment');
+        this.showErrorToast('Failed to process payment');
       }
     });
   }
@@ -1370,8 +1705,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     // dateStr might be an array if LocalDateTime is serialized as array by Jackson, but usually it's string.
     // Let's assume standard ISO string from backend since it's typically configured so in modern Spring Boot
     if (Array.isArray(dateStr)) {
-        // [year, month, day, hour, minute]
-        dateStr = `${dateStr[0]}-${String(dateStr[1]).padStart(2, '0')}-${String(dateStr[2]).padStart(2, '0')}T${String(dateStr[3]).padStart(2, '0')}:${String(dateStr[4]).padStart(2, '0')}`;
+      // [year, month, day, hour, minute]
+      dateStr = `${dateStr[0]}-${String(dateStr[1]).padStart(2, '0')}-${String(dateStr[2]).padStart(2, '0')}T${String(dateStr[3]).padStart(2, '0')}:${String(dateStr[4]).padStart(2, '0')}`;
     }
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', {
@@ -1392,7 +1727,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   getPassbookStatusClass(status: string): string {
-    if(!status) return 'pb-status-pending';
+    if (!status) return 'pb-status-pending';
     switch (status) {
       case 'INITIATED': return 'pb-status-initiated';
       case 'SENT_TO_AGENT': return 'pb-status-warning';
@@ -1475,6 +1810,10 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     return balance;
   }
 
+  get totalBankBalance(): number {
+    return this.subAccounts.reduce((sum, acc) => sum + (acc.balance || 0), 0);
+  }
+
   toggleCreditInclusion(): void {
     this.includeCreditInBalance = !this.includeCreditInBalance;
   }
@@ -1492,7 +1831,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       bankName: '',
       loanTenureMonths: 0,
       cardInfo: '',
-      emiDetails: ''
+      emiDetails: '',
+      subAccountId: null
     };
     this.showAddFundsModal = true;
     this.cdr.detectChanges();
@@ -1505,21 +1845,25 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   submitCredit(): void {
     if (!this.creditForm.amount || this.creditForm.amount <= 0) {
-      alert('Amount must be greater than 0.');
+      this.showErrorToast('Amount must be greater than 0.');
       return;
     }
-    
+    if (!this.creditForm.subAccountId) {
+      this.showErrorToast('Please select a Bank Account to credit to.');
+      return;
+    }
+
     // Set basic validation based on method
     if (this.creditForm.method === 'FRIEND' && (!this.creditForm.friendName || !this.creditForm.friendPhone)) {
-      alert('Please fill out Friend Name and Phone.');
+      this.showErrorToast('Please fill out Friend Name and Phone.');
       return;
     }
     if (this.creditForm.method === 'LOAN' && !this.creditForm.bankName) {
-      alert('Please provide the Bank Name for the loan.');
+      this.showErrorToast('Please provide the Bank Name for the loan.');
       return;
     }
     if (this.creditForm.method === 'CREDIT_CARD' && !this.creditForm.cardInfo) {
-      alert('Please provide the Credit Card info.');
+      this.showErrorToast('Please provide the Credit Card info.');
       return;
     }
 
@@ -1537,7 +1881,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Failed to add credit', err);
-          alert('Failed to add funds. Please check your inputs.');
+          this.showErrorToast('Failed to add funds. Please check your inputs.');
         }
       });
   }

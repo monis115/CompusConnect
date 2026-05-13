@@ -72,6 +72,7 @@ export interface Student {
     visaMan?: { fullName: string };
     accountant?: { fullName: string };
     college?: { collegeName: string; city: string; country: string };
+    agent?: any;
     course?: string;
     appliedFor?: string;
     studentStatusHistory?: any[];

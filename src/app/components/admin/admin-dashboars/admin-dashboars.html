@@ -40,12 +40,13 @@
   <!-- Sidebar -->
   <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
     <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-icon">
-          <i-lucide name="graduation-cap" size="28"></i-lucide>
-        </div>
+      <div class="logo" style="display: flex; justify-content: center; width: 100%; padding: 10px 0;">
         @if (!sidebarCollapsed) {
-        <span class="logo-text">CampusConnect</span>
+        <img src="rare-education-logo.png" alt="Rare Education"
+          style="max-height: 45px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+        } @else {
+        <img src="rare-education-logo.png" alt="Rare Education"
+          style="max-height: 28px; max-width: 28px; object-fit: cover; object-position: left; border-radius: 4px;">
         }
       </div>
     </div>
@@ -296,13 +297,19 @@
       </button>
     </div>
     <div class="session-modal-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
-      
+
       <!-- Agent Registration Link -->
       <div class="link-item-container">
-        <label style="font-weight: 600; color: #334155; margin-bottom: 0.5rem; display: block; font-size: 0.95rem;">Agent Public Registration Link</label>
-        <div style="display: flex; gap: 0.5rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.5rem 0.5rem 1rem;">
-          <input type="text" [value]="getLinkPath('agent-apply')" readonly style="flex: 1; border: none; background: transparent; color: #475569; font-size: 0.9rem; outline: none; width: 100%;">
-          <button (click)="copyPublicLink('agent-apply')" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; width: 36px; height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);" title="Copy Link">
+        <label
+          style="font-weight: 600; color: #334155; margin-bottom: 0.5rem; display: block; font-size: 0.95rem;">Agent
+          Public Registration Link</label>
+        <div
+          style="display: flex; gap: 0.5rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.5rem 0.5rem 1rem;">
+          <input type="text" [value]="getLinkPath('agent-apply')" readonly
+            style="flex: 1; border: none; background: transparent; color: #475569; font-size: 0.9rem; outline: none; width: 100%;">
+          <button (click)="copyPublicLink('agent-apply')"
+            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; width: 36px; height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);"
+            title="Copy Link">
             <i-lucide name="copy" size="16"></i-lucide>
           </button>
         </div>
@@ -310,10 +317,16 @@
 
       <!-- Track Application Link -->
       <div class="link-item-container">
-        <label style="font-weight: 600; color: #334155; margin-bottom: 0.5rem; display: block; font-size: 0.95rem;">Track Application Status Link</label>
-        <div style="display: flex; gap: 0.5rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.5rem 0.5rem 1rem;">
-          <input type="text" [value]="getLinkPath('track-application')" readonly style="flex: 1; border: none; background: transparent; color: #475569; font-size: 0.9rem; outline: none; width: 100%;">
-          <button (click)="copyPublicLink('track-application')" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; width: 36px; height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);" title="Copy Link">
+        <label
+          style="font-weight: 600; color: #334155; margin-bottom: 0.5rem; display: block; font-size: 0.95rem;">Track
+          Application Status Link</label>
+        <div
+          style="display: flex; gap: 0.5rem; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.5rem 0.5rem 1rem;">
+          <input type="text" [value]="getLinkPath('track-application')" readonly
+            style="flex: 1; border: none; background: transparent; color: #475569; font-size: 0.9rem; outline: none; width: 100%;">
+          <button (click)="copyPublicLink('track-application')"
+            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; width: 36px; height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);"
+            title="Copy Link">
             <i-lucide name="copy" size="16"></i-lucide>
           </button>
         </div>

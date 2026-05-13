@@ -77,6 +77,8 @@ interface Student {
 
   // College
   collegePreferences: any[];
+  agent?: any;
+  college?: any;
 }
 
 interface TelexManagerProfile {
@@ -107,8 +109,29 @@ export class TelexManagerDashboard implements OnInit {
   loading: boolean = false;
   processingId: number | null = null;
 
-  // Search
+  // Search & Filters
   searchQuery: string = '';
+  filterAgent: string = '';
+  filterCollege: string = '';
+
+  get uniqueColleges(): string[] {
+    return [...new Set(this.students.map(s => s.college?.collegeName).filter(Boolean))] as string[];
+  }
+
+  get uniqueAgents(): any[] {
+    return Array.from(new Map(this.students.filter(s => s.agent).map(s => [s.agent.username, s.agent])).values());
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!this.filterAgent || !!this.filterCollege || !!this.searchQuery;
+  }
+
+  clearFilters(): void {
+    this.filterAgent = '';
+    this.filterCollege = '';
+    this.searchQuery = '';
+    this.cdr.detectChanges();
+  }
 
   // File uploads & Telex inputs
   selectedFiles: { [studentId: number]: FileList } = {};
@@ -242,19 +265,71 @@ export class TelexManagerDashboard implements OnInit {
   }
 
   private filterBySearch(list: Student[]): Student[] {
-    if (!this.searchQuery.trim()) return list;
-    const q = this.searchQuery.toLowerCase();
-    return list.filter(s =>
-      s.fullName?.toLowerCase().includes(q) ||
-      s.applicationId?.toLowerCase().includes(q) ||
-      s.passportNo?.toLowerCase().includes(q) ||
-      s.email?.toLowerCase().includes(q)
-    );
+    let filtered = list;
+    if (this.filterAgent) {
+      filtered = filtered.filter(s => s.agent?.fullName === this.filterAgent);
+    }
+    if (this.filterCollege) {
+      filtered = filtered.filter(s => s.college?.collegeName === this.filterCollege);
+    }
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(s =>
+        s.fullName?.toLowerCase().includes(q) ||
+        s.applicationId?.toLowerCase().includes(q) ||
+        s.passportNo?.toLowerCase().includes(q) ||
+        s.email?.toLowerCase().includes(q)
+      );
+    }
+    return filtered;
   }
 
   onSearch(): void {
     // The filtering is reactive via the getter methods
     this.cdr.detectChanges();
+  }
+
+  get topUniversities() {
+    const uniCounts = new Map<string, number>();
+    const students = this.getFilteredAllStudents();
+    students.forEach(s => {
+      const name = s.college?.collegeName || 'Not Assigned';
+      uniCounts.set(name, (uniCounts.get(name) || 0) + 1);
+    });
+    return Array.from(uniCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count]) => ({ name, count, percentage: Math.round((count / (students.length || 1)) * 100) || 0 }));
+  }
+
+  get recentActivitiesList() {
+    const students = this.getFilteredAllStudents();
+    return students.slice(0, 4).map(s => ({
+      title: s.action ? this.formatAction(s.action) : 'Application Updated',
+      desc: `${s.fullName} - ${s.applicationStatus}`,
+      time: 'Recently Updated',
+      initials: this.getInitials(s.fullName)
+    }));
+  }
+  
+  get agentBreakdown() {
+    const agentCounts = new Map<string, { total: number, stamped: number }>();
+    const students = this.getFilteredAllStudents();
+    students.forEach(s => {
+      const name = s.agent?.fullName || 'Direct';
+      const stats = agentCounts.get(name) || { total: 0, stamped: 0 };
+      stats.total++;
+      if (s.applicationStatus === 'VISA_STAMPED') stats.stamped++;
+      agentCounts.set(name, stats);
+    });
+    return Array.from(agentCounts.entries())
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 5)
+      .map(([name, stats]) => ({
+        name,
+        total: stats.total,
+        successRate: Math.round((stats.stamped / (stats.total || 1)) * 100) || 0
+      }));
   }
 
   // ============================================

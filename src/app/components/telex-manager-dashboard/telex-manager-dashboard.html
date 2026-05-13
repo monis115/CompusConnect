@@ -2,97 +2,98 @@
 
   <!-- LOADING OVERLAY -->
   @if (loading) {
-    <div class="loading-overlay">
-      <div class="spinner-container">
-        <div class="spinner-ring"></div>
-        <div class="spinner-ring"></div>
-        <div class="spinner-ring"></div>
-      </div>
-      <p class="loading-text">Loading Dashboard...</p>
+  <div class="loading-overlay">
+    <div class="spinner-container">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
     </div>
+    <p class="loading-text">Loading Dashboard...</p>
+  </div>
   }
 
   <!-- SUCCESS MODAL -->
   @if (showSuccessModal) {
-    <div class="modal-backdrop" (click)="closeSuccessModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="success-icon">
-          <i class="fas fa-check"></i>
-        </div>
-        <h3>{{ successTitle }}</h3>
-        <p>{{ successMessage }}</p>
-        <button class="modal-close-btn" (click)="closeSuccessModal()">
-          <i class="fas fa-check"></i> Continue
-        </button>
+  <div class="modal-backdrop" (click)="closeSuccessModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="success-icon">
+        <i class="fas fa-check"></i>
       </div>
+      <h3>{{ successTitle }}</h3>
+      <p>{{ successMessage }}</p>
+      <button class="modal-close-btn" (click)="closeSuccessModal()">
+        <i class="fas fa-check"></i> Continue
+      </button>
     </div>
+  </div>
   }
 
   <!-- CONFIRMATION MODAL -->
   @if (showConfirmModal) {
-    <div class="modal-backdrop" (click)="closeConfirmModal()">
-      <div class="modal-content confirm-content" (click)="$event.stopPropagation()">
-        <div class="confirm-icon">
-          <i class="fas fa-question"></i>
-        </div>
-        <h3>{{ confirmTitle }}</h3>
-        <p>{{ confirmMessage }}</p>
-        <div class="modal-actions">
-          <button class="modal-cancel-btn" (click)="closeConfirmModal()">
-            <i class="fas fa-times"></i> Cancel
-          </button>
-          <button class="modal-confirm-btn" (click)="confirmAction()">
-            <i class="fas fa-check"></i> Confirm
-          </button>
-        </div>
+  <div class="modal-backdrop" (click)="closeConfirmModal()">
+    <div class="modal-content confirm-content" (click)="$event.stopPropagation()">
+      <div class="confirm-icon">
+        <i class="fas fa-question"></i>
+      </div>
+      <h3>{{ confirmTitle }}</h3>
+      <p>{{ confirmMessage }}</p>
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" (click)="closeConfirmModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button class="modal-confirm-btn" (click)="confirmAction()">
+          <i class="fas fa-check"></i> Confirm
+        </button>
       </div>
     </div>
+  </div>
   }
 
   <!-- PROCESSING OVERLAY (Per-Action) -->
   @if (processingId !== null) {
-    <div class="loading-overlay">
-      <div class="spinner-container">
-        <div class="spinner-ring"></div>
-        <div class="spinner-ring"></div>
-        <div class="spinner-ring"></div>
-      </div>
-      <p class="loading-text">Processing Action...</p>
+  <div class="loading-overlay">
+    <div class="spinner-container">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
     </div>
+    <p class="loading-text">Processing Action...</p>
+  </div>
   }
 
   <!-- PREMIUM LOGOUT OVERLAY -->
   @if (isLoggingOut) {
-    <div class="logout-overlay">
-      <div class="logout-content">
-        <!-- Spinner -->
-        <div class="spinner-container" style="margin: 0 auto 20px;">
-          <div class="spinner-ring"></div>
-          <div class="spinner-ring"></div>
-          <div class="spinner-ring"></div>
-        </div>
-        <!-- Logout icon -->
-        <div class="logout-icon">
-          <i class="fas fa-sign-out-alt"></i>
-        </div>
-        <!-- Messages -->
-        <h2 class="logout-title">Signing Out</h2>
-        <p class="logout-message">Thank you for your dedication today!</p>
-        <p class="logout-subtext">See you soon, {{ currentUsername }} </p>
-        <!-- Progress bar -->
-        <div class="logout-progress">
-          <div class="logout-progress-bar"></div>
-        </div>
+  <div class="logout-overlay">
+    <div class="logout-content">
+      <!-- Spinner -->
+      <div class="spinner-container" style="margin: 0 auto 20px;">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <!-- Logout icon -->
+      <div class="logout-icon">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <!-- Messages -->
+      <h2 class="logout-title">Signing Out</h2>
+      <p class="logout-message">Thank you for your dedication today!</p>
+      <p class="logout-subtext">See you soon, {{ currentUsername }} </p>
+      <!-- Progress bar -->
+      <div class="logout-progress">
+        <div class="logout-progress-bar"></div>
       </div>
     </div>
+  </div>
   }
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-icon">📨</div>
-        <span class="logo-text">Telex<span>Manager</span></span>
+    <div class="sidebar-header"
+      style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px 0;">
+      <div class="logo" style="display: flex; justify-content: center; width: 100%;">
+        <img src="rare-education-logo.png" alt="Rare Education"
+          style="max-height: 45px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
       </div>
     </div>
 
@@ -108,7 +109,7 @@
         <i class="fas fa-bolt"></i>
         <span>Action Required</span>
         @if (actionRequiredStudents.length > 0) {
-          <span class="nav-badge">{{ actionRequiredStudents.length
+        <span class="nav-badge">{{ actionRequiredStudents.length
           }}</span>
         }
       </div>
@@ -117,7 +118,7 @@
         <i class="fas fa-clock"></i>
         <span>In Pipeline</span>
         @if (pipelineStudents.length > 0) {
-          <span class="nav-badge">{{ pipelineStudents.length }}</span>
+        <span class="nav-badge">{{ pipelineStudents.length }}</span>
         }
       </div>
 
@@ -164,22 +165,22 @@
       <div class="header-left">
         <h1>
           @if (activeTab === 'dashboard') {
-            <i class="fas fa-th-large"></i>
+          <i class="fas fa-th-large"></i>
           }
           @if (activeTab === 'actions') {
-            <i class="fas fa-bolt"></i>
+          <i class="fas fa-bolt"></i>
           }
           @if (activeTab === 'pipeline') {
-            <i class="fas fa-clock"></i>
+          <i class="fas fa-clock"></i>
           }
           @if (activeTab === 'visa') {
-            <i class="fas fa-stamp"></i>
+          <i class="fas fa-stamp"></i>
           }
           @if (activeTab === 'records') {
-            <i class="fas fa-folder-open"></i>
+          <i class="fas fa-folder-open"></i>
           }
           @if (activeTab === 'profile') {
-            <i class="fas fa-user-circle"></i>
+          <i class="fas fa-user-circle"></i>
           }
           {{ getTabTitle() }}
         </h1>
@@ -188,8 +189,7 @@
       <div class="header-right">
         <div class="search-box">
           <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery"
-            (ngModelChange)="onSearch()">
+          <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery" (ngModelChange)="onSearch()">
         </div>
         <button class="icon-btn" title="Refresh Data" (click)="refreshData()">
           <i class="fas fa-sync-alt"></i>
@@ -200,214 +200,347 @@
     <!-- CONTENT BODY -->
     <div class="content-body">
 
+      @if (!loading && activeTab !== 'profile') {
+      <!-- Smart Filter Bar -->
+      <div class="filter-bar"
+        style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <i class="fas fa-filter" style="color: #64748b; font-size: 14px;"></i>
+        <select [(ngModel)]="filterAgent" (change)="onSearch()"
+          style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
+          <option value="">All Agents</option>
+          @for (agent of uniqueAgents; track agent.fullName) {
+          <option [value]="agent.fullName">{{ agent.fullName }}</option>
+          }
+        </select>
+        <select [(ngModel)]="filterCollege" (change)="onSearch()"
+          style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
+          <option value="">All Universities</option>
+          @for (col of uniqueColleges; track col) {
+          <option [value]="col">{{ col }}</option>
+          }
+        </select>
+        @if (hasActiveFilters) {
+        <button (click)="clearFilters()"
+          style="padding: 8px 14px; border: 1px solid #fee2e2; border-radius: 8px; font-size: 12px; font-weight: 600; background: #fef2f2; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+          <i class="fas fa-times"></i> Clear Filters
+        </button>
+        }
+      </div>
+      }
+
       <!-- DASHBOARD VIEW -->
       @if (activeTab === 'dashboard' && !loading) {
-        <div class="fade-in">
-          <!-- Stats Row -->
-          <div class="stats-row">
-            <div class="stat-card cyan" (click)="activeTab = 'actions'">
-              <div class="stat-icon"><i class="fas fa-bolt"></i></div>
-              <h3>Pending Actions</h3>
-              <p class="count">{{ actionRequiredStudents.length }}</p>
-            </div>
-            <div class="stat-card violet" (click)="activeTab = 'pipeline'">
-              <div class="stat-icon"><i class="fas fa-clock"></i></div>
-              <h3>In Pipeline</h3>
-              <p class="count">{{ pipelineStudents.length }}</p>
-            </div>
-            <div class="stat-card emerald" (click)="activeTab = 'visa'">
-              <div class="stat-icon"><i class="fas fa-stamp"></i></div>
-              <h3>Visa Stamped</h3>
-              <p class="count">{{ visaStampedStudents.length }}</p>
-            </div>
-            <div class="stat-card amber" (click)="activeTab = 'records'">
-              <div class="stat-icon"><i class="fas fa-users"></i></div>
-              <h3>Total Students</h3>
-              <p class="count">{{ students.length }}</p>
-            </div>
-          </div>
-          <!-- Quick Actions -->
-          <div class="section-header">
-            <div class="section-title">
-              <h2><i class="fas fa-bolt"></i> Recent Action Items</h2>
-              @if (actionRequiredStudents.length > 0) {
-                <span class="count-badge">{{
-                actionRequiredStudents.length }} Pending</span>
-              }
-            </div>
-          </div>
-          <!-- Show first 3 action required students -->
-          @if (actionRequiredStudents.length > 0) {
-            <div class="cards-grid">
-              @for (student of actionRequiredStudents.slice(0, 3); track student) {
-                <ng-container
-                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: true }"></ng-container>
-              }
-            </div>
-          }
-          @if (actionRequiredStudents.length === 0) {
-            <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
-              <h3>All Caught Up!</h3>
-              <p>No pending actions right now. Great job!</p>
-            </div>
-          }
+      <div class="lurni-dashboard fade-in">
+        <div class="lurni-header">
+          <h1>Welcome back, {{ telexManagerProfile?.fullName || currentUsername }}</h1>
         </div>
+
+        <div class="lurni-stats-grid">
+          <div class="lurni-stat-card" (click)="activeTab = 'actions'">
+            <div class="lurni-stat-icon icon-blue"><i class="fas fa-bolt"></i></div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">Pending Actions</p>
+              <h3 class="lurni-stat-value">{{ getFilteredActionStudents().length }}</h3>
+            </div>
+          </div>
+          <div class="lurni-stat-card" (click)="activeTab = 'pipeline'">
+            <div class="lurni-stat-icon icon-green"><i class="fas fa-clock"></i></div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">In Pipeline</p>
+              <h3 class="lurni-stat-value">{{ getFilteredPipelineStudents().length }}</h3>
+            </div>
+          </div>
+          <div class="lurni-stat-card" (click)="activeTab = 'visa'">
+            <div class="lurni-stat-icon icon-orange"><i class="fas fa-stamp"></i></div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">Visa Stamped</p>
+              <h3 class="lurni-stat-value">{{ getFilteredVisaStudents().length }}</h3>
+            </div>
+          </div>
+          <div class="lurni-stat-card" (click)="activeTab = 'records'">
+            <div class="lurni-stat-icon icon-red"><i class="fas fa-users"></i></div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">Total Students</p>
+              <h3 class="lurni-stat-value">{{ getFilteredAllStudents().length }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="lurni-main-grid">
+          <!-- Left: Top Engaged Courses (Top Universities) -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Top Universities (Students)</h3>
+            </div>
+            <div class="lurni-chart-container">
+              <div style="position: absolute; left: 0; bottom: 20px;">
+                <h2 style="margin:0; font-size: 24px; font-weight: 700; color: #111827;">{{
+                  getFilteredAllStudents().length }}</h2>
+                <p style="margin:0; font-size: 13px; color: #16a34a; font-weight: 500;"><i class="fas fa-arrow-up"></i>
+                  Active Students</p>
+              </div>
+
+              @for(uni of topUniversities; track uni.name; let i = $index) {
+              <div class="lurni-bar-wrapper">
+                <!-- Using percentage to set height, e.g., if max is 100%, we set height: uni.percentage% -->
+                <div class="lurni-bar" [style.height]="uni.percentage + '%'" [class.active]="i === 0"
+                  [title]="uni.name + ': ' + uni.count"></div>
+                <span class="lurni-bar-label" [title]="uni.name"
+                  style="width: 40px; overflow: hidden; text-overflow: ellipsis;">{{ uni.name }}</span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Right: Recent Activity -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Recent Activity</h3>
+            </div>
+            <div class="lurni-activity-tabs">
+              <div class="lurni-activity-tab active">All</div>
+              <div class="lurni-activity-tab">Updates</div>
+            </div>
+            <div class="lurni-activity-list">
+              @for(act of recentActivitiesList; track act.title + $index) {
+              <div class="lurni-activity-item">
+                <div class="lurni-activity-avatar">{{ act.initials }}</div>
+                <div class="lurni-activity-content">
+                  <h4 class="lurni-activity-title">{{ act.title }}</h4>
+                  <p class="lurni-activity-desc">{{ act.desc }}</p>
+                  <span class="lurni-activity-time"><i class="far fa-clock"></i> {{ act.time }}</span>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="lurni-main-grid">
+          <!-- Left: Table Engagement Breakdown (Agent Breakdown) -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Agent Performance Breakdown</h3>
+            </div>
+            <table class="lurni-table">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>Total Students</th>
+                  <th>Success Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(agent of agentBreakdown; track agent.name) {
+                <tr>
+                  <td>{{ agent.name }}</td>
+                  <td>{{ agent.total }}</td>
+                  <td style="color: #16a34a;">{{ agent.successRate }}%</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right: Progress Overview -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Pipeline Overview</h3>
+            </div>
+            <div class="lurni-progress-item">
+              <div class="lurni-progress-header">
+                <span class="lurni-progress-title">Action Required</span>
+                <span class="lurni-progress-stats" style="color: #0284c7;">{{ getFilteredActionStudents().length }} / {{
+                  getFilteredAllStudents().length }}</span>
+              </div>
+              <div class="lurni-progress-bar-bg">
+                <div class="lurni-progress-bar-fill" style="background: #0284c7;"
+                  [style.width]="(getFilteredActionStudents().length / (getFilteredAllStudents().length || 1) * 100) + '%'">
+                </div>
+              </div>
+            </div>
+            <div class="lurni-progress-item">
+              <div class="lurni-progress-header">
+                <span class="lurni-progress-title">In Pipeline</span>
+                <span class="lurni-progress-stats" style="color: #ea580c;">{{ getFilteredPipelineStudents().length }} /
+                  {{ getFilteredAllStudents().length }}</span>
+              </div>
+              <div class="lurni-progress-bar-bg">
+                <div class="lurni-progress-bar-fill" style="background: #ea580c;"
+                  [style.width]="(getFilteredPipelineStudents().length / (getFilteredAllStudents().length || 1) * 100) + '%'">
+                </div>
+              </div>
+            </div>
+            <div class="lurni-progress-item">
+              <div class="lurni-progress-header">
+                <span class="lurni-progress-title">Visa Stamped</span>
+                <span class="lurni-progress-stats" style="color: #16a34a;">{{ getFilteredVisaStudents().length }} / {{
+                  getFilteredAllStudents().length }}</span>
+              </div>
+              <div class="lurni-progress-bar-bg">
+                <div class="lurni-progress-bar-fill" style="background: #16a34a;"
+                  [style.width]="(getFilteredVisaStudents().length / (getFilteredAllStudents().length || 1) * 100) + '%'">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       }
 
       <!-- ACTIONS VIEW -->
       @if (activeTab === 'actions' && !loading) {
-        <div class="fade-in">
-          <div class="section-header">
-            <div class="section-title">
-              <h2><i class="fas fa-bolt"></i> Action Required</h2>
-              <span class="count-badge">{{ getFilteredActionStudents().length }} Students</span>
-            </div>
+      <div class="fade-in">
+        <div class="section-header">
+          <div class="section-title">
+            <h2><i class="fas fa-bolt"></i> Action Required</h2>
+            <span class="count-badge">{{ getFilteredActionStudents().length }} Students</span>
           </div>
-          @if (getFilteredActionStudents().length > 0) {
-            <div class="cards-grid">
-              @for (student of getFilteredActionStudents(); track student) {
-                <ng-container
-                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: true }"></ng-container>
-              }
-            </div>
-          }
-          @if (getFilteredActionStudents().length === 0) {
-            <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
-              <h3>All Caught Up!</h3>
-              <p>No pending actions. Excellent work!</p>
-            </div>
+        </div>
+        @if (getFilteredActionStudents().length > 0) {
+        <div class="cards-grid">
+          @for (student of getFilteredActionStudents(); track student) {
+          <ng-container
+            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: true }"></ng-container>
           }
         </div>
+        }
+        @if (getFilteredActionStudents().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+          <h3>All Caught Up!</h3>
+          <p>No pending actions. Excellent work!</p>
+        </div>
+        }
+      </div>
       }
 
       <!-- PIPELINE VIEW -->
       @if (activeTab === 'pipeline' && !loading) {
-        <div class="fade-in">
-          <div class="section-header">
-            <div class="section-title">
-              <h2><i class="fas fa-clock"></i> In Pipeline</h2>
-              <span class="count-badge">{{ getFilteredPipelineStudents().length }} Students</span>
-            </div>
+      <div class="fade-in">
+        <div class="section-header">
+          <div class="section-title">
+            <h2><i class="fas fa-clock"></i> In Pipeline</h2>
+            <span class="count-badge">{{ getFilteredPipelineStudents().length }} Students</span>
           </div>
-          @if (getFilteredPipelineStudents().length > 0) {
-            <div class="cards-grid">
-              @for (student of getFilteredPipelineStudents(); track student) {
-                <ng-container
-                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
-              }
-            </div>
-          }
-          @if (getFilteredPipelineStudents().length === 0) {
-            <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-inbox"></i></div>
-              <h3>Pipeline Empty</h3>
-              <p>No students in processing pipeline.</p>
-            </div>
+        </div>
+        @if (getFilteredPipelineStudents().length > 0) {
+        <div class="cards-grid">
+          @for (student of getFilteredPipelineStudents(); track student) {
+          <ng-container
+            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
           }
         </div>
+        }
+        @if (getFilteredPipelineStudents().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+          <h3>Pipeline Empty</h3>
+          <p>No students in processing pipeline.</p>
+        </div>
+        }
+      </div>
       }
 
       <!-- VISA STAMPED VIEW -->
       @if (activeTab === 'visa' && !loading) {
-        <div class="fade-in">
-          <div class="section-header">
-            <div class="section-title">
-              <h2><i class="fas fa-stamp"></i> Visa Stamped</h2>
-              <span class="count-badge">{{ getFilteredVisaStudents().length }} Completed</span>
-            </div>
+      <div class="fade-in">
+        <div class="section-header">
+          <div class="section-title">
+            <h2><i class="fas fa-stamp"></i> Visa Stamped</h2>
+            <span class="count-badge">{{ getFilteredVisaStudents().length }} Completed</span>
           </div>
-          @if (getFilteredVisaStudents().length > 0) {
-            <div class="cards-grid">
-              @for (student of getFilteredVisaStudents(); track student) {
-                <ng-container
-                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
-              }
-            </div>
-          }
-          @if (getFilteredVisaStudents().length === 0) {
-            <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-passport"></i></div>
-              <h3>No Completed Visas</h3>
-              <p>Visa stamped students will appear here.</p>
-            </div>
+        </div>
+        @if (getFilteredVisaStudents().length > 0) {
+        <div class="cards-grid">
+          @for (student of getFilteredVisaStudents(); track student) {
+          <ng-container
+            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
           }
         </div>
+        }
+        @if (getFilteredVisaStudents().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-passport"></i></div>
+          <h3>No Completed Visas</h3>
+          <p>Visa stamped students will appear here.</p>
+        </div>
+        }
+      </div>
       }
 
       <!-- ALL RECORDS VIEW -->
       @if (activeTab === 'records' && !loading) {
-        <div class="fade-in">
-          <div class="section-header">
-            <div class="section-title">
-              <h2><i class="fas fa-folder-open"></i> All Students</h2>
-              <span class="count-badge">{{ getFilteredAllStudents().length }} Records</span>
-            </div>
+      <div class="fade-in">
+        <div class="section-header">
+          <div class="section-title">
+            <h2><i class="fas fa-folder-open"></i> All Students</h2>
+            <span class="count-badge">{{ getFilteredAllStudents().length }} Records</span>
           </div>
-          @if (getFilteredAllStudents().length > 0) {
-            <div class="cards-grid">
-              @for (student of getFilteredAllStudents(); track student) {
-                <ng-container
-                *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
-              }
-            </div>
-          }
-          @if (getFilteredAllStudents().length === 0) {
-            <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-search"></i></div>
-              <h3>No Results</h3>
-              <p>No students match your search criteria.</p>
-            </div>
+        </div>
+        @if (getFilteredAllStudents().length > 0) {
+        <div class="cards-grid">
+          @for (student of getFilteredAllStudents(); track student) {
+          <ng-container
+            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
           }
         </div>
+        }
+        @if (getFilteredAllStudents().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-search"></i></div>
+          <h3>No Results</h3>
+          <p>No students match your search criteria.</p>
+        </div>
+        }
+      </div>
       }
 
       <!-- PROFILE VIEW -->
       @if (activeTab === 'profile' && !loading) {
-        <div class="fade-in">
-          @if (profileData) {
-            <div class="profile-container">
-              <div class="profile-card">
-                <div class="profile-header">
-                  <div class="profile-avatar" [style.background]="getAvatarColor(profileData.fullName)">
-                    {{ getInitials(profileData.fullName) }}
-                  </div>
-                  <h2 class="profile-name">{{ profileData.fullName }}</h2>
-                  <p class="profile-role">Telex Manager</p>
-                </div>
-                <div class="profile-body">
-                  <div class="profile-row">
-                    <span class="profile-label"><i class="fas fa-user"></i> Username</span>
-                    <span class="profile-value">{{ profileData.username }}</span>
-                  </div>
-                  <div class="profile-row">
-                    <span class="profile-label"><i class="fas fa-envelope"></i> Email</span>
-                    <span class="profile-value">{{ profileData.email }}</span>
-                  </div>
-                  <div class="profile-row">
-                    <span class="profile-label"><i class="fas fa-phone"></i> Contact</span>
-                    <span class="profile-value">{{ profileData.contactNumber || 'N/A' }}</span>
-                  </div>
-                  <div class="profile-row">
-                    <span class="profile-label"><i class="fas fa-shield-alt"></i> Role</span>
-                    <span class="profile-value">{{ profileData.role }}</span>
-                  </div>
-                  <div class="profile-row">
-                    <span class="profile-label"><i class="fas fa-circle"></i> Status</span>
-                    <span class="profile-value active">{{ profileData.status || 'ACTIVE' }}</span>
-                  </div>
-                </div>
+      <div class="fade-in">
+        @if (profileData) {
+        <div class="profile-container">
+          <div class="profile-card">
+            <div class="profile-header">
+              <div class="profile-avatar" [style.background]="getAvatarColor(profileData.fullName)">
+                {{ getInitials(profileData.fullName) }}
+              </div>
+              <h2 class="profile-name">{{ profileData.fullName }}</h2>
+              <p class="profile-role">Telex Manager</p>
+            </div>
+            <div class="profile-body">
+              <div class="profile-row">
+                <span class="profile-label"><i class="fas fa-user"></i> Username</span>
+                <span class="profile-value">{{ profileData.username }}</span>
+              </div>
+              <div class="profile-row">
+                <span class="profile-label"><i class="fas fa-envelope"></i> Email</span>
+                <span class="profile-value">{{ profileData.email }}</span>
+              </div>
+              <div class="profile-row">
+                <span class="profile-label"><i class="fas fa-phone"></i> Contact</span>
+                <span class="profile-value">{{ profileData.contactNumber || 'N/A' }}</span>
+              </div>
+              <div class="profile-row">
+                <span class="profile-label"><i class="fas fa-shield-alt"></i> Role</span>
+                <span class="profile-value">{{ profileData.role }}</span>
+              </div>
+              <div class="profile-row">
+                <span class="profile-label"><i class="fas fa-circle"></i> Status</span>
+                <span class="profile-value active">{{ profileData.status || 'ACTIVE' }}</span>
               </div>
             </div>
-          } @else {
-            <div class="empty-state">
-              <div class="empty-icon"><i class="fas fa-user-slash"></i></div>
-              <h3>Profile Unavailable</h3>
-              <p>Unable to load profile information.</p>
-            </div>
-          }
+          </div>
         </div>
+        } @else {
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-user-slash"></i></div>
+          <h3>Profile Unavailable</h3>
+          <p>Unable to load profile information.</p>
+        </div>
+        }
+      </div>
       }
 
     </div>
@@ -426,9 +559,19 @@
         <span class="student-name">{{ student.fullName }}</span>
       </div>
 
-      <!-- Application ID -->
-      <div class="row-cell id-cell">
-        <span class="app-id">{{ student.applicationId }}</span>
+      <!-- Application ID & Agent/College -->
+      <div class="row-cell info-cell" style="display: flex; flex-direction: column; gap: 4px;">
+        <span class="app-id" style="font-weight: 600; font-size: 0.9rem;">{{ student.applicationId }}</span>
+        <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
+          <i class="fas fa-user-tie" style="font-size: 0.75rem;"></i>
+          <span>{{ student.agent?.fullName || 'Direct' }}</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
+          <i class="fas fa-university" style="font-size: 0.75rem;"></i>
+          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"
+            [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned'
+            }}</span>
+        </div>
       </div>
 
       <!-- Application Status -->
@@ -441,12 +584,12 @@
       <!-- Telex Number (Highlighted) -->
       <div class="row-cell telex-cell">
         @if (student.telexNumber) {
-          <span class="telex-number">
-            <i class="fas fa-certificate"></i> {{ student.telexNumber }}
-          </span>
+        <span class="telex-number">
+          <i class="fas fa-certificate"></i> {{ student.telexNumber }}
+        </span>
         }
         @if (!student.telexNumber) {
-          <span class="no-telex">-</span>
+        <span class="no-telex">-</span>
         }
       </div>
 
@@ -459,364 +602,354 @@
 
         <!-- Workflow Action Buttons (inline) -->
         @if (showActions && student.action) {
-          <!-- UPLOAD_TELEX_DOCS -->
-          @if (student.action === 'UPLOAD_TELEX_DOCS') {
-            <label class="icon-btn upload-btn" title="Upload Documents">
-              <i class="fas fa-upload"></i>
-              <input type="file" multiple (change)="onFileSelected($event, student.id)" hidden>
-            </label>
-            <button class="action-btn" (click)="handleUploadDocs(student)"
-              [disabled]="processingId === student.id || !selectedFiles[student.id]?.length">
-              @if (processingId !== student.id) {
-                <span>Submit</span>
-              }
-              @if (processingId === student.id) {
-                <span><i class="fas fa-spinner fa-spin"></i></span>
-              }
-            </button>
+        <!-- UPLOAD_TELEX_DOCS -->
+        @if (student.action === 'UPLOAD_TELEX_DOCS') {
+        <label class="icon-btn upload-btn" title="Upload Documents">
+          <i class="fas fa-upload"></i>
+          <input type="file" multiple (change)="onFileSelected($event, student.id)" hidden>
+        </label>
+        <button class="action-btn" (click)="handleUploadDocs(student)"
+          [disabled]="processingId === student.id || !selectedFiles[student.id]?.length">
+          @if (processingId !== student.id) {
+          <span>Submit</span>
           }
-          <!-- SUBMIT_TELEX_TO_UNIVERSITY -->
-          @if (student.action === 'SUBMIT_TELEX_TO_UNIVERSITY') {
-            <button class="action-btn university-btn"
-              (click)="handleSubmitToUniversity(student)" [disabled]="processingId === student.id">
-              <i class="fas fa-university"></i>
-              @if (processingId !== student.id) {
-                <span>To University</span>
-              }
-              @if (processingId === student.id) {
-                <span><i class="fas fa-spinner fa-spin"></i></span>
-              }
-            </button>
+          @if (processingId === student.id) {
+          <span><i class="fas fa-spinner fa-spin"></i></span>
           }
-          <!-- SUBMIT_TELEX_TO_MEA -->
-          @if (student.action === 'SUBMIT_TELEX_TO_MEA') {
-            <button class="action-btn mea-btn"
-              (click)="handleSubmitToMEA(student)" [disabled]="processingId === student.id">
-              <i class="fas fa-building"></i>
-              @if (processingId !== student.id) {
-                <span>To MEA</span>
-              }
-              @if (processingId === student.id) {
-                <span><i class="fas fa-spinner fa-spin"></i></span>
-              }
-            </button>
+        </button>
+        }
+        <!-- SUBMIT_TELEX_TO_UNIVERSITY -->
+        @if (student.action === 'SUBMIT_TELEX_TO_UNIVERSITY') {
+        <button class="action-btn university-btn" (click)="handleSubmitToUniversity(student)"
+          [disabled]="processingId === student.id">
+          <i class="fas fa-university"></i>
+          @if (processingId !== student.id) {
+          <span>To University</span>
           }
-          <!-- NEED_TO_ISSUE_TELEX -->
-          @if (student.action === 'NEED_TO_ISSUE_TELEX') {
-            <input type="text" class="inline-input" placeholder="TX-XXXXX"
-              [(ngModel)]="telexInputs[student.id]" [disabled]="processingId === student.id">
-            <button class="action-btn issue-btn" (click)="handleIssueTelex(student)"
-              [disabled]="processingId === student.id || !telexInputs[student.id]">
-              <i class="fas fa-check"></i>
-              @if (processingId !== student.id) {
-                <span>Issue</span>
-              }
-              @if (processingId === student.id) {
-                <span><i class="fas fa-spinner fa-spin"></i></span>
-              }
-            </button>
+          @if (processingId === student.id) {
+          <span><i class="fas fa-spinner fa-spin"></i></span>
           }
+        </button>
+        }
+        <!-- SUBMIT_TELEX_TO_MEA -->
+        @if (student.action === 'SUBMIT_TELEX_TO_MEA') {
+        <button class="action-btn mea-btn" (click)="handleSubmitToMEA(student)"
+          [disabled]="processingId === student.id">
+          <i class="fas fa-building"></i>
+          @if (processingId !== student.id) {
+          <span>To MEA</span>
+          }
+          @if (processingId === student.id) {
+          <span><i class="fas fa-spinner fa-spin"></i></span>
+          }
+        </button>
+        }
+        <!-- NEED_TO_ISSUE_TELEX -->
+        @if (student.action === 'NEED_TO_ISSUE_TELEX') {
+        <input type="text" class="inline-input" placeholder="TX-XXXXX" [(ngModel)]="telexInputs[student.id]"
+          [disabled]="processingId === student.id">
+        <button class="action-btn issue-btn" (click)="handleIssueTelex(student)"
+          [disabled]="processingId === student.id || !telexInputs[student.id]">
+          <i class="fas fa-check"></i>
+          @if (processingId !== student.id) {
+          <span>Issue</span>
+          }
+          @if (processingId === student.id) {
+          <span><i class="fas fa-spinner fa-spin"></i></span>
+          }
+        </button>
+        }
         }
       </div>
     </div>
 
     <!-- Files selected indicator -->
     @if (selectedFiles[student.id]?.length) {
-      <div class="files-indicator">
-        <i class="fas fa-paperclip"></i> {{ getFileNames(student.id) }}
-      </div>
+    <div class="files-indicator">
+      <i class="fas fa-paperclip"></i> {{ getFileNames(student.id) }}
+    </div>
     }
   </div>
 </ng-template>
 
 <!-- STUDENT DETAILS MODAL -->
 @if (selectedStudent) {
-  <div class="modal-overlay" (click)="closeDetailsModal()">
-    <div class="details-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2><i class="fas fa-user"></i> {{ selectedStudent.fullName }}</h2>
-        <button class="close-btn" (click)="closeDetailsModal()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body">
-        <!-- Quick Info Section -->
-        <div class="detail-section">
-          <h3><i class="fas fa-info-circle"></i> Basic Info</h3>
-          <div class="detail-grid">
-            <div class="detail-item"><label>Application ID</label><span>{{ selectedStudent.applicationId
-          }}</span></div>
+<div class="modal-overlay" (click)="closeDetailsModal()">
+  <div class="details-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-user"></i> {{ selectedStudent.fullName }}</h2>
+      <button class="close-btn" (click)="closeDetailsModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Quick Info Section -->
+      <div class="detail-section">
+        <h3><i class="fas fa-info-circle"></i> Basic Info</h3>
+        <div class="detail-grid">
+          <div class="detail-item"><label>Application ID</label><span>{{ selectedStudent.applicationId
+              }}</span></div>
           <div class="detail-item"><label>Status</label><span class="status-badge"
-          [ngClass]="getStatusClass(selectedStudent.applicationStatus)">{{
-        formatStatus(selectedStudent.applicationStatus) }}</span></div>
-        <div class="detail-item"><label>Email</label><span>{{ selectedStudent.email || 'N/A' }}</span></div>
-        <div class="detail-item"><label>Contact</label><span>{{ selectedStudent.contactNo || 'N/A' }}</span>
-      </div>
-      <div class="detail-item"><label>Applied For</label><span>{{ selectedStudent.appliedFor || 'N/A'
-    }}</span></div>
-    <div class="detail-item"><label>Intake</label><span>{{ selectedStudent.intake || 'N/A' }}</span>
-  </div>
-</div>
-</div>
-<!-- Personal Details Section -->
-<div class="detail-section">
-  <h3><i class="fas fa-user-circle"></i> Personal Details</h3>
-  <div class="detail-grid">
-    <div class="detail-item"><label>Date of Birth</label><span>{{ formatDate(selectedStudent.dob)
-  }}</span></div>
-  <div class="detail-item"><label>Age</label><span>{{ selectedStudent.age || 'N/A' }}</span></div>
-  <div class="detail-item"><label>Sex</label><span>{{ selectedStudent.sex || 'N/A' }}</span></div>
-  <div class="detail-item"><label>Father's Name</label><span>{{ selectedStudent.fathersName || 'N/A'
-}}</span></div>
-<div class="detail-item"><label>Mother's Name</label><span>{{ selectedStudent.mothersName || 'N/A'
-}}</span></div>
-<div class="detail-item"><label>Marital Status</label><span>{{ selectedStudent.maritalStatus ||
-'N/A' }}</span></div>
-<div class="detail-item"><label>Citizenship</label><span>{{ selectedStudent.citizenship || 'N/A'
-}}</span></div>
-<div class="detail-item"><label>Address</label><span>{{ selectedStudent.address || 'N/A' }}</span>
-</div>
-</div>
-</div>
-<!-- Passport & Visa Section -->
-<div class="detail-section">
-  <h3><i class="fas fa-passport"></i> Passport & Visa</h3>
-  <div class="detail-grid">
-    <div class="detail-item"><label>Passport No</label><span>{{ selectedStudent.passportNo || 'N/A'
-  }}</span></div>
-  <div class="detail-item"><label>Passport Type</label><span>{{ selectedStudent.passportType || 'N/A'
-}}</span></div>
-<div class="detail-item"><label>Issued By</label><span>{{ selectedStudent.passportIssuedBy || 'N/A'
-}}</span></div>
-<div class="detail-item"><label>Issue Date</label><span>{{
-formatDate(selectedStudent.passportIssueDate) }}</span></div>
-<div class="detail-item"><label>Expiry Date</label><span>{{
-formatDate(selectedStudent.passportExpirationDate) }}</span></div>
-<div class="detail-item"><label>Place of Birth</label><span>{{ selectedStudent.placeOfBirth || 'N/A'
-}}</span></div>
-<div class="detail-item"><label>Country of Birth</label><span>{{ selectedStudent.countryOfBirth ||
-'N/A' }}</span></div>
-</div>
-</div>
-<!-- TELEX FORM INFORMATION (Highlighted) -->
-<div class="detail-section telex-highlight">
-  <h3><i class="fas fa-id-badge"></i> Telex Form Information</h3>
-  <!-- Visa Images -->
-  <div class="image-row">
-    @if (selectedStudent.visaPhotoPath) {
-      <div class="image-card">
-        <label>Visa Photo</label>
-        <img [src]="getDocUrl(selectedStudent.visaPhotoPath)" alt="Visa Photo"
-          (error)="onImageError($event)">
-        <a [href]="getDocUrl(selectedStudent.visaPhotoPath)" target="_blank" download
-          class="download-link">
-          <i class="fas fa-download"></i> Download
-        </a>
-      </div>
-    }
-    @if (selectedStudent.visaPassportCopyPath) {
-      <div class="image-card">
-        <label>Passport Copy</label>
-        <img [src]="getDocUrl(selectedStudent.visaPassportCopyPath)" alt="Passport Copy"
-          (error)="onImageError($event)">
-        <a [href]="getDocUrl(selectedStudent.visaPassportCopyPath)" target="_blank" download
-          class="download-link">
-          <i class="fas fa-download"></i> Download
-        </a>
-      </div>
-    }
-    <!-- Placeholder when no images -->
-    @if (!selectedStudent.visaPhotoPath && !selectedStudent.visaPassportCopyPath) {
-      <div class="image-card no-image-placeholder"
-        >
-        <label>Visa Documents</label>
-        <div class="no-image-box">
-          <i class="fas fa-image"></i>
-          <span>No visa documents uploaded yet</span>
+              [ngClass]="getStatusClass(selectedStudent.applicationStatus)">{{
+              formatStatus(selectedStudent.applicationStatus) }}</span></div>
+          <div class="detail-item"><label>Email</label><span>{{ selectedStudent.email || 'N/A' }}</span></div>
+          <div class="detail-item"><label>Contact</label><span>{{ selectedStudent.contactNo || 'N/A' }}</span>
+          </div>
+          <div class="detail-item"><label>Applied For</label><span>{{ selectedStudent.appliedFor || 'N/A'
+              }}</span></div>
+          <div class="detail-item"><label>Intake</label><span>{{ selectedStudent.intake || 'N/A' }}</span>
+          </div>
         </div>
       </div>
-    }
+      <!-- Personal Details Section -->
+      <div class="detail-section">
+        <h3><i class="fas fa-user-circle"></i> Personal Details</h3>
+        <div class="detail-grid">
+          <div class="detail-item"><label>Date of Birth</label><span>{{ formatDate(selectedStudent.dob)
+              }}</span></div>
+          <div class="detail-item"><label>Age</label><span>{{ selectedStudent.age || 'N/A' }}</span></div>
+          <div class="detail-item"><label>Sex</label><span>{{ selectedStudent.sex || 'N/A' }}</span></div>
+          <div class="detail-item"><label>Father's Name</label><span>{{ selectedStudent.fathersName || 'N/A'
+              }}</span></div>
+          <div class="detail-item"><label>Mother's Name</label><span>{{ selectedStudent.mothersName || 'N/A'
+              }}</span></div>
+          <div class="detail-item"><label>Marital Status</label><span>{{ selectedStudent.maritalStatus ||
+              'N/A' }}</span></div>
+          <div class="detail-item"><label>Citizenship</label><span>{{ selectedStudent.citizenship || 'N/A'
+              }}</span></div>
+          <div class="detail-item"><label>Address</label><span>{{ selectedStudent.address || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+      <!-- Passport & Visa Section -->
+      <div class="detail-section">
+        <h3><i class="fas fa-passport"></i> Passport & Visa</h3>
+        <div class="detail-grid">
+          <div class="detail-item"><label>Passport No</label><span>{{ selectedStudent.passportNo || 'N/A'
+              }}</span></div>
+          <div class="detail-item"><label>Passport Type</label><span>{{ selectedStudent.passportType || 'N/A'
+              }}</span></div>
+          <div class="detail-item"><label>Issued By</label><span>{{ selectedStudent.passportIssuedBy || 'N/A'
+              }}</span></div>
+          <div class="detail-item"><label>Issue Date</label><span>{{
+              formatDate(selectedStudent.passportIssueDate) }}</span></div>
+          <div class="detail-item"><label>Expiry Date</label><span>{{
+              formatDate(selectedStudent.passportExpirationDate) }}</span></div>
+          <div class="detail-item"><label>Place of Birth</label><span>{{ selectedStudent.placeOfBirth || 'N/A'
+              }}</span></div>
+          <div class="detail-item"><label>Country of Birth</label><span>{{ selectedStudent.countryOfBirth ||
+              'N/A' }}</span></div>
+        </div>
+      </div>
+      <!-- TELEX FORM INFORMATION (Highlighted) -->
+      <div class="detail-section telex-highlight">
+        <h3><i class="fas fa-id-badge"></i> Telex Form Information</h3>
+        <!-- Visa Images -->
+        <div class="image-row">
+          @if (selectedStudent.visaPhotoPath) {
+          <div class="image-card">
+            <label>Visa Photo</label>
+            <img [src]="getDocUrl(selectedStudent.visaPhotoPath)" alt="Visa Photo" (error)="onImageError($event)">
+            <a [href]="getDocUrl(selectedStudent.visaPhotoPath)" target="_blank" download class="download-link">
+              <i class="fas fa-download"></i> Download
+            </a>
+          </div>
+          }
+          @if (selectedStudent.visaPassportCopyPath) {
+          <div class="image-card">
+            <label>Passport Copy</label>
+            <img [src]="getDocUrl(selectedStudent.visaPassportCopyPath)" alt="Passport Copy"
+              (error)="onImageError($event)">
+            <a [href]="getDocUrl(selectedStudent.visaPassportCopyPath)" target="_blank" download class="download-link">
+              <i class="fas fa-download"></i> Download
+            </a>
+          </div>
+          }
+          <!-- Placeholder when no images -->
+          @if (!selectedStudent.visaPhotoPath && !selectedStudent.visaPassportCopyPath) {
+          <div class="image-card no-image-placeholder">
+            <label>Visa Documents</label>
+            <div class="no-image-box">
+              <i class="fas fa-image"></i>
+              <span>No visa documents uploaded yet</span>
+            </div>
+          </div>
+          }
+        </div>
+        <!-- Copyable Fields - Personal Info -->
+        <div class="copyable-grid">
+          <div class="copy-field">
+            <label>Surname</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.surname || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.surname, 'surname')"
+                [class.copied]="copiedField === 'surname'">
+                <i [class]="copiedField === 'surname' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>First Name</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.firstName || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.firstName, 'firstName')"
+                [class.copied]="copiedField === 'firstName'">
+                <i [class]="copiedField === 'firstName' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Middle Name</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.middleName || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.middleName, 'middleName')"
+                [class.copied]="copiedField === 'middleName'">
+                <i [class]="copiedField === 'middleName' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Sex</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.sex || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.sex, 'sex')"
+                [class.copied]="copiedField === 'sex'">
+                <i [class]="copiedField === 'sex' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Country of Birth</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.countryOfBirth || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.countryOfBirth, 'countryOfBirth')"
+                [class.copied]="copiedField === 'countryOfBirth'">
+                <i [class]="copiedField === 'countryOfBirth' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Place of Birth</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.placeOfBirth || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.placeOfBirth, 'placeOfBirth')"
+                [class.copied]="copiedField === 'placeOfBirth'">
+                <i [class]="copiedField === 'placeOfBirth' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Marital Status</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.maritalStatus || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.maritalStatus, 'maritalStatus')"
+                [class.copied]="copiedField === 'maritalStatus'">
+                <i [class]="copiedField === 'maritalStatus' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Citizenship</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.citizenship || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.citizenship, 'citizenship')"
+                [class.copied]="copiedField === 'citizenship'">
+                <i [class]="copiedField === 'citizenship' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Previous Citizenship</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.previousCitizenship || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.previousCitizenship, 'previousCitizenship')"
+                [class.copied]="copiedField === 'previousCitizenship'">
+                <i [class]="copiedField === 'previousCitizenship' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Passport Details Section -->
+        <h4 class="subsection-title"><i class="fas fa-passport"></i> Passport Details</h4>
+        <div class="copyable-grid">
+          <div class="copy-field">
+            <label>Passport Type</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.passportType || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.passportType, 'passportType')"
+                [class.copied]="copiedField === 'passportType'">
+                <i [class]="copiedField === 'passportType' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Passport Issued By</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.passportIssuedBy || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.passportIssuedBy, 'passportIssuedBy')"
+                [class.copied]="copiedField === 'passportIssuedBy'">
+                <i [class]="copiedField === 'passportIssuedBy' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Passport Issue Date</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.passportIssueDate || 'Not Set' }}</span>
+              <button class="copy-icon" (click)="copyField(selectedStudent.passportIssueDate, 'passportIssueDate')"
+                [class.copied]="copiedField === 'passportIssueDate'">
+                <i [class]="copiedField === 'passportIssueDate' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="copy-field">
+            <label>Passport Expiration Date</label>
+            <div class="copy-value">
+              <span>{{ selectedStudent.passportExpirationDate || 'Not Set' }}</span>
+              <button class="copy-icon"
+                (click)="copyField(selectedStudent.passportExpirationDate, 'passportExpirationDate')"
+                [class.copied]="copiedField === 'passportExpirationDate'">
+                <i [class]="copiedField === 'passportExpirationDate' ? 'fas fa-check' : 'fas fa-copy'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Copy All Button -->
+        <button class="copy-all-btn" (click)="copyAllTelexFormFields(selectedStudent)"
+          [class.copied]="copiedField === 'all'">
+          <i [class]="copiedField === 'all' ? 'fas fa-check' : 'fas fa-copy'"></i>
+          {{ copiedField === 'all' ? 'Copied!' : 'Copy All Fields' }}
+        </button>
+      </div>
+      <!-- Academic Section -->
+      <div class="detail-section">
+        <h3><i class="fas fa-graduation-cap"></i> Academic</h3>
+        <div class="detail-grid">
+          <div class="detail-item"><label>12th Marks</label><span>{{ selectedStudent.class12thMarks || 'N/A'
+              }}</span></div>
+          <div class="detail-item"><label>12th Year</label><span>{{ selectedStudent.class12thPassingYear ||
+              'N/A' }}</span></div>
+          @if (selectedStudent.hasGivenNEET) {
+          <div class="detail-item"><label>NEET Score</label><span>{{
+              selectedStudent.neetScore || 'N/A' }}</span></div>
+          }
+        </div>
+      </div>
+      <!-- Telex Status Section -->
+      @if (selectedStudent.telexNumber) {
+      <div class="detail-section">
+        <h3><i class="fas fa-certificate"></i> Telex Status</h3>
+        <div class="detail-grid">
+          <div class="detail-item"><label>Telex Number</label><span class="telex-highlight-value">{{
+              selectedStudent.telexNumber }}</span></div>
+          <div class="detail-item"><label>Issue Date</label><span>{{
+              formatDate(selectedStudent.telexIssueDate) }}</span></div>
+          @if (selectedStudent.telexPaymentAmount) {
+          <div class="detail-item"><label>Payment</label><span>{{
+              selectedStudent.telexPaymentAmount }}</span></div>
+          }
+        </div>
+      </div>
+      }
+    </div>
   </div>
-  <!-- Copyable Fields - Personal Info -->
-  <div class="copyable-grid">
-    <div class="copy-field">
-      <label>Surname</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.surname || 'Not Set' }}</span>
-        <button class="copy-icon" (click)="copyField(selectedStudent.surname, 'surname')"
-          [class.copied]="copiedField === 'surname'">
-          <i [class]="copiedField === 'surname' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>First Name</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.firstName || 'Not Set' }}</span>
-        <button class="copy-icon" (click)="copyField(selectedStudent.firstName, 'firstName')"
-          [class.copied]="copiedField === 'firstName'">
-          <i [class]="copiedField === 'firstName' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Middle Name</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.middleName || 'Not Set' }}</span>
-        <button class="copy-icon" (click)="copyField(selectedStudent.middleName, 'middleName')"
-          [class.copied]="copiedField === 'middleName'">
-          <i [class]="copiedField === 'middleName' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Sex</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.sex || 'Not Set' }}</span>
-        <button class="copy-icon" (click)="copyField(selectedStudent.sex, 'sex')"
-          [class.copied]="copiedField === 'sex'">
-          <i [class]="copiedField === 'sex' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Country of Birth</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.countryOfBirth || 'Not Set' }}</span>
-        <button class="copy-icon"
-          (click)="copyField(selectedStudent.countryOfBirth, 'countryOfBirth')"
-          [class.copied]="copiedField === 'countryOfBirth'">
-          <i [class]="copiedField === 'countryOfBirth' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Place of Birth</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.placeOfBirth || 'Not Set' }}</span>
-        <button class="copy-icon" (click)="copyField(selectedStudent.placeOfBirth, 'placeOfBirth')"
-          [class.copied]="copiedField === 'placeOfBirth'">
-          <i [class]="copiedField === 'placeOfBirth' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Marital Status</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.maritalStatus || 'Not Set' }}</span>
-        <button class="copy-icon"
-          (click)="copyField(selectedStudent.maritalStatus, 'maritalStatus')"
-          [class.copied]="copiedField === 'maritalStatus'">
-          <i [class]="copiedField === 'maritalStatus' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Citizenship</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.citizenship || 'Not Set' }}</span>
-        <button class="copy-icon" (click)="copyField(selectedStudent.citizenship, 'citizenship')"
-          [class.copied]="copiedField === 'citizenship'">
-          <i [class]="copiedField === 'citizenship' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Previous Citizenship</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.previousCitizenship || 'Not Set' }}</span>
-        <button class="copy-icon"
-          (click)="copyField(selectedStudent.previousCitizenship, 'previousCitizenship')"
-          [class.copied]="copiedField === 'previousCitizenship'">
-          <i [class]="copiedField === 'previousCitizenship' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-  <!-- Passport Details Section -->
-  <h4 class="subsection-title"><i class="fas fa-passport"></i> Passport Details</h4>
-  <div class="copyable-grid">
-    <div class="copy-field">
-      <label>Passport Type</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.passportType || 'Not Set' }}</span>
-        <button class="copy-icon" (click)="copyField(selectedStudent.passportType, 'passportType')"
-          [class.copied]="copiedField === 'passportType'">
-          <i [class]="copiedField === 'passportType' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Passport Issued By</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.passportIssuedBy || 'Not Set' }}</span>
-        <button class="copy-icon"
-          (click)="copyField(selectedStudent.passportIssuedBy, 'passportIssuedBy')"
-          [class.copied]="copiedField === 'passportIssuedBy'">
-          <i [class]="copiedField === 'passportIssuedBy' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Passport Issue Date</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.passportIssueDate || 'Not Set' }}</span>
-        <button class="copy-icon"
-          (click)="copyField(selectedStudent.passportIssueDate, 'passportIssueDate')"
-          [class.copied]="copiedField === 'passportIssueDate'">
-          <i [class]="copiedField === 'passportIssueDate' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-    <div class="copy-field">
-      <label>Passport Expiration Date</label>
-      <div class="copy-value">
-        <span>{{ selectedStudent.passportExpirationDate || 'Not Set' }}</span>
-        <button class="copy-icon"
-          (click)="copyField(selectedStudent.passportExpirationDate, 'passportExpirationDate')"
-          [class.copied]="copiedField === 'passportExpirationDate'">
-          <i
-          [class]="copiedField === 'passportExpirationDate' ? 'fas fa-check' : 'fas fa-copy'"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-  <!-- Copy All Button -->
-  <button class="copy-all-btn" (click)="copyAllTelexFormFields(selectedStudent)"
-    [class.copied]="copiedField === 'all'">
-    <i [class]="copiedField === 'all' ? 'fas fa-check' : 'fas fa-copy'"></i>
-    {{ copiedField === 'all' ? 'Copied!' : 'Copy All Fields' }}
-  </button>
-</div>
-<!-- Academic Section -->
-<div class="detail-section">
-  <h3><i class="fas fa-graduation-cap"></i> Academic</h3>
-  <div class="detail-grid">
-    <div class="detail-item"><label>12th Marks</label><span>{{ selectedStudent.class12thMarks || 'N/A'
-  }}</span></div>
-  <div class="detail-item"><label>12th Year</label><span>{{ selectedStudent.class12thPassingYear ||
-'N/A' }}</span></div>
-@if (selectedStudent.hasGivenNEET) {
-  <div class="detail-item"><label>NEET Score</label><span>{{
-selectedStudent.neetScore || 'N/A' }}</span></div>
-}
-</div>
-</div>
-<!-- Telex Status Section -->
-@if (selectedStudent.telexNumber) {
-  <div class="detail-section">
-    <h3><i class="fas fa-certificate"></i> Telex Status</h3>
-    <div class="detail-grid">
-      <div class="detail-item"><label>Telex Number</label><span class="telex-highlight-value">{{
-    selectedStudent.telexNumber }}</span></div>
-    <div class="detail-item"><label>Issue Date</label><span>{{
-  formatDate(selectedStudent.telexIssueDate) }}</span></div>
-  @if (selectedStudent.telexPaymentAmount) {
-    <div class="detail-item"><label>Payment</label><span>{{
-  selectedStudent.telexPaymentAmount }}</span></div>
-}
-</div>
-</div>
-}
-</div>
-</div>
 </div>
 }

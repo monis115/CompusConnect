@@ -205,9 +205,12 @@
             <tr>
               <td>
                 @if (college.logoUrl) {
-                <img [src]="getLogoUrl(college.logoUrl)" alt="Logo" style="width: 36px; height: 36px; border-radius: 8px; object-fit: contain; background: #f8fafc; padding: 2px; border: 1px solid #e2e8f0;">
+                <img [src]="getLogoUrl(college.logoUrl)" alt="Logo"
+                  style="width: 36px; height: 36px; border-radius: 8px; object-fit: contain; background: #f8fafc; padding: 2px; border: 1px solid #e2e8f0;">
                 } @else {
-                <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700;">{{ college.collegeName.charAt(0) }}</div>
+                <div
+                  style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700;">
+                  {{ college.collegeName.charAt(0) }}</div>
                 }
               </td>
               <td><strong>{{ college.collegeName }}</strong></td>
@@ -220,7 +223,8 @@
                       (change)="toggleCollegeStatus(college, $event)">
                     <span class="toggle-slider"></span>
                   </label>
-                  <button class="btn-icon-sm" title="Upload / Update Logo" (click)="triggerLogoUpload(college)" style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #64748b; font-size: 11px; display: flex; align-items: center; gap: 4px;">
+                  <button class="btn-icon-sm" title="Upload / Update Logo" (click)="triggerLogoUpload(college)"
+                    style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #64748b; font-size: 11px; display: flex; align-items: center; gap: 4px;">
                     <i-lucide name="image" size="14"></i-lucide>
                   </button>
                 </div>
@@ -287,10 +291,12 @@
           <div style="display: flex; align-items: center; gap: 12px;">
             <input type="file" accept="image/*" (change)="onLogoFileSelected($event)" style="font-size: 13px;">
             @if (collegeLogoPreview) {
-            <img [src]="collegeLogoPreview" alt="Preview" style="width: 44px; height: 44px; border-radius: 10px; object-fit: contain; background: #f8fafc; border: 1px solid #e2e8f0; padding: 2px;">
+            <img [src]="collegeLogoPreview" alt="Preview"
+              style="width: 44px; height: 44px; border-radius: 10px; object-fit: contain; background: #f8fafc; border: 1px solid #e2e8f0; padding: 2px;">
             }
           </div>
-          <span style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">Optional — PNG or JPG recommended</span>
+          <span style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">Optional — PNG or JPG
+            recommended</span>
         </div>
       </div>
       <div class="modal-footer">

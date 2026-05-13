@@ -13,15 +13,13 @@
       }
     </button>
     <div class="sidebar-header">
-      <div class="brand">
-        <div class="brand-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-            <path d="M6 12v5c3 3 9 3 12 0v-5" />
-          </svg>
-        </div>
+      <div class="brand" style="display: flex; align-items: center; justify-content: center; width: 100%;">
         @if (!isSidebarCollapsed) {
-        <span class="brand-name">CampusConnect</span>
+        <img src="rare-education-logo.png" alt="Rare Education"
+          style="max-height: 45px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+        } @else {
+        <img src="rare-education-logo.png" alt="Rare Education"
+          style="max-height: 28px; max-width: 28px; object-fit: cover; object-position: left; border-radius: 4px;">
         }
       </div>
     </div>
@@ -127,6 +125,21 @@
           }
           @if (getMessagesCount() > 0) {
           <span class="nav-badge">{{ getMessagesCount() }}</span>
+          }
+        </a>
+
+        <a class="nav-link" [class.active]="activeView === 'requested-docs'" (click)="switchView('requested-docs')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          @if (!isSidebarCollapsed) {
+          <span>Requested Docs</span>
+          }
+          @if (getPendingDocRequestsCount() > 0) {
+          <span class="nav-badge" style="background-color: var(--warning-color);">{{ getPendingDocRequestsCount() }}</span>
           }
         </a>
 
@@ -677,7 +690,7 @@
       }
       @if (!isLoading && activeView !== 'dashboard' && activeView !== 'messages' && activeView !== 'profile' &&
       activeView !== 'reports' && activeView !== 'payment' && activeView !== 'news' && activeView !== 'sessions' &&
-      activeView !== 'travel') {
+      activeView !== 'travel' && activeView !== 'requested-docs') {
       <div class="list-view-container">
 
         <!-- Smart Filter Bar -->
@@ -891,6 +904,109 @@
       @if (!isLoading && activeView === 'messages' && !isLoadingMessages) {
       <div class="message-view-container">
         <app-message-dashboard-admission-manager></app-message-dashboard-admission-manager>
+      </div>
+      }
+
+      <!-- Requested Docs View -->
+      @if (!isLoading && activeView === 'requested-docs') {
+      <div class="content-body" style="padding: 24px; max-width: 1200px; margin: 0 auto;" [@fadeIn]>
+        <div class="glass-card">
+          <div class="card-header-modern">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              Pending Document Requests
+            </h3>
+            <span class="badge-count" style="background: var(--warning-color);">{{ getPendingDocRequestsCount() }}</span>
+          </div>
+          <div class="card-body-modern" style="padding: 0; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+              <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                  <th style="padding: 16px; text-align: left; font-weight: 600; color: #475569;">Student & College</th>
+                  <th style="padding: 16px; text-align: left; font-weight: 600; color: #475569;">Document</th>
+                  <th style="padding: 16px; text-align: left; font-weight: 600; color: #475569;">Requested By</th>
+                  <th style="padding: 16px; text-align: left; font-weight: 600; color: #475569;">Date</th>
+                  <th style="padding: 16px; text-align: left; font-weight: 600; color: #475569;">Status</th>
+                  <th style="padding: 16px; text-align: right; font-weight: 600; color: #475569;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(req of docRequests; track req.id) {
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 16px;">
+                    <div style="font-weight: 600; color: #0f172a;">{{ req.student?.fullName || 'N/A' }}</div>
+                    <div style="font-size: 12px; color: #64748b; margin-top: 2px;">{{ req.college?.collegeName || 'N/A' }}</div>
+                  </td>
+                  <td style="padding: 16px;">
+                    <div style="font-weight: 500;">{{ getDocTypeLabel(req.docType, req.customDocName) }}</div>
+                    @if(req.remarks) {
+                    <div style="font-size: 12px; color: #64748b; margin-top: 4px; font-style: italic;">"{{ req.remarks }}"</div>
+                    }
+                  </td>
+                  <td style="padding: 16px;">
+                    <div style="font-weight: 500;">{{ req.requestedByName }}</div>
+                    <div style="font-size: 12px; color: #64748b;">{{ req.requestedBy }}</div>
+                  </td>
+                  <td style="padding: 16px; color: #64748b;">{{ req.createdAt | date:'MMM d, yyyy' }}</td>
+                  <td style="padding: 16px;">
+                    <span [class]="'badge ' + getDocRequestStatusBadgeClass(req.status)" style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">{{ req.status }}</span>
+                  </td>
+                  <td style="padding: 16px; text-align: right;">
+                    @if(req.status === 'PENDING') {
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                      <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; border-radius: 6px;" (click)="forwardDocRequest(req)" [disabled]="isForwardingRequest">
+                        Forward to Uni
+                      </button>
+                      <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: #ef4444; border-color: #fecaca;" (click)="openRejectDocRequestModal(req)">
+                        Reject
+                      </button>
+                    </div>
+                    } @else if(req.status === 'COMPLETED' && req.uploadedDocPath) {
+                    <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px; border-radius: 6px;" (click)="viewDocument(req.uploadedDocPath)">
+                      View Doc
+                    </button>
+                    }
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+            @if(docRequests.length === 0) {
+            <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <p style="font-size: 15px; font-weight: 500;">No pending requests</p>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Reject Doc Request Modal -->
+      @if (selectedRequestForReject) {
+      <div class="modal-overlay animate-fade-in" style="z-index: 1000;">
+        <div class="modal-content glass-card" style="max-width: 500px; padding: 32px;">
+          <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Reject Document Request</h2>
+          <p style="color: #64748b; font-size: 14px; margin-bottom: 24px;">Please provide a reason for rejecting this document request from {{ selectedRequestForReject.requestedByName }}.</p>
+          
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px;">Rejection Reason *</label>
+            <textarea [(ngModel)]="rejectionReason" placeholder="Enter reason..." rows="4" style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; resize: vertical;"></textarea>
+          </div>
+          
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button class="btn btn-outline" (click)="closeRejectDocRequestModal()">Cancel</button>
+            <button class="btn btn-primary" style="background: #ef4444; border-color: #ef4444;" (click)="submitRejectDocRequest()" [disabled]="isRejectingRequest">
+              @if(isRejectingRequest) { Submitting... } @else { Reject Request }
+            </button>
+          </div>
+        </div>
       </div>
       }
 
@@ -2541,6 +2657,19 @@
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
               <div class="doc-name">Payment Confirmation</div>
+            </a>
+            }
+            @if (selectedStudent.visaTalabNumaPath) {
+            <a [href]="getDocUrl(selectedStudent.visaTalabNumaPath)" target="_blank" class="doc-tile tile-purple">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <div class="doc-name">Visa Talab Numa</div>
             </a>
             }
           </div>

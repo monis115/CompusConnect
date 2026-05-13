@@ -33,10 +33,9 @@ Premium Angular Dashboard with Glassmorphism
     ============================================ -->
   <aside class="sidebar" [class.open]="sidebarOpen">
     <!-- Logo / Brand -->
-    <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-icon">🛂</div>
-        <span class="logo-text">Visa <span>Manager</span></span>
+    <div class="sidebar-header" style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px 0;">
+      <div class="logo" style="display: flex; justify-content: center; width: 100%;">
+        <img src="rare-education-logo.png" alt="Rare Education" style="max-height: 45px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
       </div>
     </div>
     <!-- Navigation -->
@@ -146,102 +145,171 @@ Premium Angular Dashboard with Glassmorphism
     </header>
     <!-- Content Body -->
     <div class="content-body">
+      
+      @if (!isLoading && activeSection !== 'accounts' && activeSection !== 'funds') {
+      <!-- Smart Filter Bar -->
+      <div class="filter-bar" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <i class="fas fa-filter" style="color: #64748b; font-size: 14px;"></i>
+        <select [(ngModel)]="filterAgent" (change)="refreshData()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
+          <option value="">All Agents</option>
+          @for (agent of uniqueAgents; track agent.fullName) {
+          <option [value]="agent.fullName">{{ agent.fullName }}</option>
+          }
+        </select>
+        <select [(ngModel)]="filterCollege" (change)="refreshData()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
+          <option value="">All Universities</option>
+          @for (col of uniqueColleges; track col) {
+          <option [value]="col">{{ col }}</option>
+          }
+        </select>
+        @if (hasActiveFilters) {
+        <button (click)="clearFilters()" style="padding: 8px 14px; border: 1px solid #fee2e2; border-radius: 8px; font-size: 12px; font-weight: 600; background: #fef2f2; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+          <i class="fas fa-times"></i> Clear Filters
+        </button>
+        }
+      </div>
+      }
+
       <!-- ============================================
         DASHBOARD SECTION
         ============================================ -->
       @if (activeSection === 'dashboard') {
-      <!-- Stat Cards -->
-      <div class="stats-row">
-        <div class="stat-card pending fade-in-up stagger-1" (click)="setActiveSection('actions')">
-          <div class="stat-icon" [class.pulse]="displayStats.pendingApplications > 0">🎫</div>
-          <h3>Pending Applications</h3>
-          <div class="count">{{ displayStats.pendingApplications }}</div>
+      <!-- Lurni Dashboard View -->
+      <div class="lurni-dashboard fade-in">
+        <div class="lurni-header">
+          <h1>Welcome back, {{ visaManProfile?.fullName || currentUsername }}</h1>
         </div>
-        <div class="stat-card processing fade-in-up stagger-2" (click)="setActiveSection('actions')">
-          <div class="stat-icon" [class.pulse]="displayStats.awaitingPassport > 0">📤</div>
-          <h3>Awaiting Passport</h3>
-          <div class="count">{{ displayStats.awaitingPassport }}</div>
-        </div>
-        <div class="stat-card gold fade-in-up stagger-3" (click)="setActiveSection('pipeline')">
-          <div class="stat-icon" [class.pulse]="displayStats.atEmbassy > 0">⏳</div>
-          <h3>At Embassy</h3>
-          <div class="count">{{ displayStats.atEmbassy }}</div>
-        </div>
-        <div class="stat-card success fade-in-up stagger-4">
-          <div class="stat-icon">✅</div>
-          <h3>Visas Issued</h3>
-          <div class="count">{{ displayStats.visasIssued }}</div>
-        </div>
-      </div>
-      <!-- Quick Actions -->
-      <div class="section-header fade-in-up stagger-5">
-        <div class="section-title">
-          <h2><i>⚡</i> Urgent Actions</h2>
-          @if (actionRequiredStudents.length > 0) {
-          <span class="count-badge">
-            {{ actionRequiredStudents.length }}
-          </span>
-          }
-        </div>
-      </div>
-      <div class="cards-grid">
-        @for (student of actionRequiredStudents.slice(0, 3); track student; let i = $index) {
-        <div class="student-card fade-in-up" [class.processing]="processingId === student.id"
-          [style.animation-delay]="(i * 100 + 600) + 'ms'">
-          <div class="card-header">
-            <div class="profile-placeholder">
-              {{ getInitials(student.fullName) }}
+
+        <div class="lurni-stats-grid">
+          <div class="lurni-stat-card" (click)="setActiveSection('actions')">
+            <div class="lurni-stat-icon icon-blue">🎫</div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">Pending Applications</p>
+              <h3 class="lurni-stat-value">{{ actionRequiredStudents.length }}</h3>
             </div>
-            <div class="student-info">
-              <h3 class="student-name">{{ student.fullName }}</h3>
-              <div class="student-id">{{ student.applicationId }}</div>
-              @if (student.telexNumber) {
-              <div class="telex-number">
-                Telex: {{ student.telexNumber }}
+          </div>
+          <div class="lurni-stat-card" (click)="setActiveSection('actions')">
+            <div class="lurni-stat-icon icon-orange">📤</div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">Awaiting Passport</p>
+              <h3 class="lurni-stat-value">{{ visaAppliedStudents.length }}</h3>
+            </div>
+          </div>
+          <div class="lurni-stat-card" (click)="setActiveSection('pipeline')">
+            <div class="lurni-stat-icon icon-green">⏳</div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">At Embassy</p>
+              <h3 class="lurni-stat-value">{{ atEmbassyStudents.length }}</h3>
+            </div>
+          </div>
+          <div class="lurni-stat-card">
+            <div class="lurni-stat-icon icon-red">✅</div>
+            <div class="lurni-stat-info">
+              <p class="lurni-stat-label">Visas Issued</p>
+              <h3 class="lurni-stat-value">{{ visaIssuedStudents.length }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="lurni-main-grid">
+          <!-- Left: Top Engaged Courses (Top Universities) -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Top Universities (Students)</h3>
+            </div>
+            <div class="lurni-chart-container">
+              <div style="position: absolute; left: 0; bottom: 20px;">
+                <h2 style="margin:0; font-size: 24px; font-weight: 700; color: #111827;">{{ allFilteredStudents.length }}</h2>
+                <p style="margin:0; font-size: 13px; color: #16a34a; font-weight: 500;"><i class="fas fa-arrow-up"></i> Active Students</p>
               </div>
+              
+              @for(uni of topUniversities; track uni.name; let i = $index) {
+                <div class="lurni-bar-wrapper">
+                  <div class="lurni-bar" [style.height]="uni.percentage + '%'" [class.active]="i === 0" [title]="uni.name + ': ' + uni.count"></div>
+                  <span class="lurni-bar-label" [title]="uni.name" style="width: 40px; overflow: hidden; text-overflow: ellipsis;">{{ uni.name }}</span>
+                </div>
               }
             </div>
           </div>
-          <div class="card-details">
-            <div class="detail-item">
-              <span class="detail-label">Passport</span>
-              <span class="detail-value">{{ student.passportNo || 'N/A' }}</span>
+
+          <!-- Right: Recent Activity -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Recent Activity</h3>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Valid Till</span>
-              <span class="detail-value">{{ formatDate(student.passportValidTill) }}</span>
+            <div class="lurni-activity-tabs">
+              <div class="lurni-activity-tab active">All</div>
+              <div class="lurni-activity-tab">Updates</div>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Status</span>
-              <span class="status-badge" [class]="getStatusClass(student.applicationStatus)">
-                {{ formatStatus(student.applicationStatus) }}
-              </span>
-            </div>
-          </div>
-          <div class="card-actions">
-            @if (getActionButton(student); as btn) {
-            <button class="action-btn primary" (click)="btn.action()" [disabled]="processingId === student.id">
-              @if (processingId !== student.id) {
-              <span>{{ btn.icon }} {{ btn.label }}</span>
+            <div class="lurni-activity-list">
+              @for(act of recentActivitiesList; track act.title + $index) {
+                <div class="lurni-activity-item">
+                  <div class="lurni-activity-avatar">{{ act.initials }}</div>
+                  <div class="lurni-activity-content">
+                    <h4 class="lurni-activity-title">{{ act.title }}</h4>
+                    <p class="lurni-activity-desc">{{ act.desc }}</p>
+                    <span class="lurni-activity-time"><i class="far fa-clock"></i> {{ act.time }}</span>
+                  </div>
+                </div>
               }
-              @if (processingId === student.id) {
-              <span class="spinner"></span>
-              }
-            </button>
-            }
-            <button class="btn-view" (click)="openDetailModal(student)">
-              👁️ View Details
-            </button>
+            </div>
           </div>
         </div>
-        }
-        @if (actionRequiredStudents.length === 0) {
-        <div class="empty-state">
-          <div class="empty-icon">✨</div>
-          <h3>All Caught Up!</h3>
-          <p>No pending actions at the moment.</p>
+
+        <div class="lurni-main-grid">
+          <!-- Left: Table Engagement Breakdown (Agent Breakdown) -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Agent Performance Breakdown</h3>
+            </div>
+            <table class="lurni-table">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>Total Students</th>
+                  <th>Success Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(agent of agentBreakdown; track agent.name) {
+                  <tr>
+                    <td>{{ agent.name }}</td>
+                    <td>{{ agent.total }}</td>
+                    <td style="color: #16a34a;">{{ agent.successRate }}%</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right: Progress Overview -->
+          <div class="lurni-card">
+            <div class="lurni-card-header">
+              <h3 class="lurni-card-title">Pipeline Overview</h3>
+            </div>
+            <div class="lurni-progress-item">
+              <div class="lurni-progress-header">
+                <span class="lurni-progress-title">Action Required</span>
+                <span class="lurni-progress-stats" style="color: #0284c7;">{{ actionRequiredStudents.length }} / {{ allFilteredStudents.length }}</span>
+              </div>
+              <div class="lurni-progress-bar-bg"><div class="lurni-progress-bar-fill" style="background: #0284c7;" [style.width]="(actionRequiredStudents.length / (allFilteredStudents.length || 1) * 100) + '%'"></div></div>
+            </div>
+            <div class="lurni-progress-item">
+              <div class="lurni-progress-header">
+                <span class="lurni-progress-title">At Embassy</span>
+                <span class="lurni-progress-stats" style="color: #ea580c;">{{ atEmbassyStudents.length }} / {{ allFilteredStudents.length }}</span>
+              </div>
+              <div class="lurni-progress-bar-bg"><div class="lurni-progress-bar-fill" style="background: #ea580c;" [style.width]="(atEmbassyStudents.length / (allFilteredStudents.length || 1) * 100) + '%'"></div></div>
+            </div>
+            <div class="lurni-progress-item">
+              <div class="lurni-progress-header">
+                <span class="lurni-progress-title">Visa Stamped</span>
+                <span class="lurni-progress-stats" style="color: #16a34a;">{{ visaIssuedStudents.length }} / {{ allFilteredStudents.length }}</span>
+              </div>
+              <div class="lurni-progress-bar-bg"><div class="lurni-progress-bar-fill" style="background: #16a34a;" [style.width]="(visaIssuedStudents.length / (allFilteredStudents.length || 1) * 100) + '%'"></div></div>
+            </div>
+          </div>
         </div>
-        }
       </div>
       }
       <!-- ============================================
@@ -279,6 +347,14 @@ Premium Angular Dashboard with Glassmorphism
             </div>
           </div>
           <div class="card-details">
+            <div class="detail-item">
+              <span class="detail-label">Agent</span>
+              <span class="detail-value" style="font-weight: 500;">{{ student.agent?.fullName || 'Direct' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">University</span>
+              <span class="detail-value" style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned' }}</span>
+            </div>
             <div class="detail-item">
               <span class="detail-label">Passport</span>
               <span class="detail-value">{{ student.passportNo || 'N/A' }}</span>
@@ -428,6 +504,7 @@ Premium Angular Dashboard with Glassmorphism
             <tr>
               <th>Student</th>
               <th>Application ID</th>
+              <th>Agent & University</th>
               <th>Passport</th>
               <th>Telex Number</th>
               <th>Visa Fee</th>
@@ -441,6 +518,18 @@ Premium Angular Dashboard with Glassmorphism
             <tr>
               <td>{{ student.fullName }}</td>
               <td>{{ student.applicationId }}</td>
+              <td>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <div style="font-size: 0.85rem; color: #334155; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-user-tie" style="color: #64748b;"></i>
+                    <span>{{ student.agent?.fullName || 'Direct' }}</span>
+                  </div>
+                  <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-university"></i>
+                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned' }}</span>
+                  </div>
+                </div>
+              </td>
               <td>
                 <div class="passport-cell">
                   <span>{{ student.passportNo || 'N/A' }}</span>

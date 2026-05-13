@@ -5,6 +5,16 @@ import { environment } from '../../environments/environment';
 
 // --- Interfaces ---
 
+export interface SubAccount {
+    id?: number;
+    bankName: string;
+    accountNumber: string;
+    swiftBic: string;
+    beneficiaryName: string;
+    branchAddress: string;
+    balance?: number;
+}
+
 export interface Student {
     affidavitPath?: string;
     neetMarksheetPath?: string;
@@ -83,6 +93,7 @@ export interface ApprovePaymentPayload {
 
 export interface RejectPaymentPayload {
     accountantUsername: string;
+    rejectionRemarks?: string;
 }
 
 // --- NEW Dashboard Interfaces ---
@@ -128,6 +139,7 @@ export interface AssignedStudent {
     paidTo: string | null;
     ttCopyPath: string | null;
     paymentConfirmationPath: string | null;
+    confirmationPagePath?: string | null;
 
     // Action / Workflow Fields
     action?: string;
@@ -147,6 +159,14 @@ export interface AssignedStudent {
     accToVisaManTxId?: string | null;
     accToVisaManMode?: string | null;
     accToVisaManStatus?: string | null;
+
+    // Agent & College enrichment
+    agentFullName?: string | null;
+    collegeName?: string | null;
+    appliedFor?: string | null;
+    paymentRejectionRemarks?: string | null;
+    visaManFullName?: string | null;
+    agentUserFullName?: string | null;
 }
 
 export interface PayVisaManPayload {
@@ -182,6 +202,7 @@ export interface AccountantCredit {
     amountRepaid?: number;
     status?: string; // ACTIVE, REPAID
     accountantUsername?: string;
+    subAccountId?: number | null;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -337,5 +358,21 @@ export class AccountantService {
 
     addCredit(credit: AccountantCredit, username: string): Observable<AccountantCredit> {
         return this.http.post<AccountantCredit>(`${this.API_URL}/accountant/credits/${username}`, credit);
+    }
+
+    // ==========================================
+    // SubAccount Endpoints
+    // ==========================================
+
+    getSubAccounts(): Observable<SubAccount[]> {
+        return this.http.get<SubAccount[]>(`${this.API_URL}/accountant/subaccounts`);
+    }
+
+    createSubAccount(subAccount: SubAccount): Observable<SubAccount> {
+        return this.http.post<SubAccount>(`${this.API_URL}/accountant/subaccounts`, subAccount);
+    }
+
+    updateSubAccount(id: number, subAccount: SubAccount): Observable<SubAccount> {
+        return this.http.put<SubAccount>(`${this.API_URL}/accountant/subaccounts/${id}`, subAccount);
     }
 }

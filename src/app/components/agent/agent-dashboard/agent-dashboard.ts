@@ -135,7 +135,7 @@ export class AgentDashboard implements OnInit {
   }
 
   // --- View State ---
-  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'action' | 'travel-details' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'visa-payment' | 'doc-return' | 'rejected' | 'travelling' = 'dashboard';
+  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'action' | 'travel-details' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'visa-payment' | 'doc-return' | 'rejected' | 'travelling' | 'request-doc' = 'dashboard';
   isLoading = true;
   isRefreshing = false;
   isReloadingData = false; // For floating button
@@ -249,6 +249,31 @@ export class AgentDashboard implements OnInit {
   showToast = false;
   toastMessage = '';
   toastType: 'success' | 'error' = 'success';
+
+  // --- Doc Request State ---
+  docRequestActiveTab: 'new' | 'list' = 'new';
+  docRequests: any[] = [];
+  docRequestStudentId: number | null = null;
+  docRequestStudentSearch: string = '';
+  docRequestStudentSuggestions: any[] = [];
+  docRequestSelectedStudent: any = null;
+  docRequestShowSuggestions = false;
+  docRequestDocType: string = '';
+  docRequestCustomName: string = '';
+  docRequestRemarks: string = '';
+  isSubmittingDocRequest = false;
+  docTypeOptions = [
+    { value: 'LOAN_LETTER', label: 'Loan Letter' },
+    { value: 'BONAFIDE_CERTIFICATE', label: 'Bonafide Certificate' },
+    { value: 'FEE_STRUCTURE', label: 'Fee Structure' },
+    { value: 'ENROLLMENT_LETTER', label: 'Enrollment Letter' },
+    { value: 'NOC', label: 'No Objection Certificate (NOC)' },
+    { value: 'MIGRATION_CERTIFICATE', label: 'Migration Certificate' },
+    { value: 'CHARACTER_CERTIFICATE', label: 'Character Certificate' },
+    { value: 'TRANSFER_CERTIFICATE', label: 'Transfer Certificate' },
+    { value: 'SCHOLARSHIP_LETTER', label: 'Scholarship Letter' },
+    { value: 'OTHER', label: 'Other (Custom)' }
+  ];
 
   // Standardized List of Visa Issuance Places
   visaIssuancePlaces: string[] = [
@@ -599,6 +624,7 @@ export class AgentDashboard implements OnInit {
   navigateTo(view: any): void {
     this.currentView = view;
     if (view !== 'student-detail') this.selectedStudent = null;
+    if (view === 'request-doc') this.loadDocRequests();
     this.cdr.detectChanges();
   }
 
@@ -680,6 +706,7 @@ export class AgentDashboard implements OnInit {
       case 'edit-student': return 'Edit Student Application';
       case 'profile': return 'My Profile';
       case 'messages': return 'Messages';
+      case 'request-doc': return 'Request Document';
       default: return 'Dashboard';
     }
   }
@@ -1720,5 +1747,122 @@ export class AgentDashboard implements OnInit {
       this.showToast = false;
       this.cdr.detectChanges();
     }, 4000);
+  }
+
+  // --- Doc Request Methods ---
+
+  loadDocRequests(): void {
+    const username = this.authService.getUserData()?.username;
+    if (!username) return;
+    this.http.get<any[]>(`${this.API_URL}/doc-requests/agent/${username}`).subscribe({
+      next: (requests) => {
+        this.docRequests = requests;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to load doc requests', err)
+    });
+  }
+
+  get pendingDocRequests() {
+    return this.docRequests.filter(r => r.status !== 'COMPLETED' && r.status !== 'REJECTED');
+  }
+
+  get completedDocRequests() {
+    return this.docRequests.filter(r => r.status === 'COMPLETED' || r.status === 'REJECTED');
+  }
+
+  onDocRequestStudentSearch(): void {
+    const query = this.docRequestStudentSearch.trim().toLowerCase();
+    if (query.length < 2) {
+      this.docRequestStudentSuggestions = [];
+      this.docRequestShowSuggestions = false;
+      return;
+    }
+    this.docRequestStudentSuggestions = this.students.filter(s =>
+      s.fullName?.toLowerCase().includes(query) ||
+      s.email?.toLowerCase().includes(query) ||
+      s.applicationId?.toLowerCase().includes(query) ||
+      s.passportNo?.toLowerCase().includes(query)
+    ).slice(0, 8);
+    this.docRequestShowSuggestions = this.docRequestStudentSuggestions.length > 0;
+  }
+
+  selectDocRequestStudent(student: any): void {
+    this.docRequestSelectedStudent = student;
+    this.docRequestStudentId = student.id;
+    this.docRequestStudentSearch = student.fullName;
+    this.docRequestShowSuggestions = false;
+    this.docRequestStudentSuggestions = [];
+  }
+
+  clearDocRequestStudent(): void {
+    this.docRequestSelectedStudent = null;
+    this.docRequestStudentId = null;
+    this.docRequestStudentSearch = '';
+    this.docRequestStudentSuggestions = [];
+    this.docRequestShowSuggestions = false;
+  }
+
+  submitDocRequest(): void {
+    if (!this.docRequestStudentId || !this.docRequestDocType) {
+      this.showErrorToast('Please select a student and document type.');
+      return;
+    }
+    if (this.docRequestDocType === 'OTHER' && !this.docRequestCustomName.trim()) {
+      this.showErrorToast('Please enter a custom document name.');
+      return;
+    }
+
+    this.isSubmittingDocRequest = true;
+    const authUser = this.authService.getUserData();
+    const payload = {
+      studentId: this.docRequestStudentId,
+      docType: this.docRequestDocType,
+      customDocName: this.docRequestDocType === 'OTHER' ? this.docRequestCustomName : null,
+      requestedBy: authUser?.username || '',
+      requestedByName: this.agentData?.fullName || authUser?.username || '',
+      remarks: this.docRequestRemarks || null
+    };
+
+    this.http.post(`${this.API_URL}/doc-requests`, payload).subscribe({
+      next: () => {
+        this.clearDocRequestStudent();
+        this.docRequestDocType = '';
+        this.docRequestCustomName = '';
+        this.docRequestRemarks = '';
+        this.isSubmittingDocRequest = false;
+        this.docRequestActiveTab = 'list';
+        this.showToastMessage('Document request submitted successfully!');
+        this.loadDocRequests();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.showErrorToast('Failed to submit request: ' + (err.error || err.message));
+        this.isSubmittingDocRequest = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getDocTypeLabel(docType: string, customName?: string): string {
+    if (docType === 'OTHER' && customName) return customName;
+    const found = this.docTypeOptions.find(o => o.value === docType);
+    return found ? found.label : docType.replace(/_/g, ' ');
+  }
+
+  getDocRequestStatusBadgeClass(status: string): string {
+    switch (status) {
+      case 'PENDING': return 'badge-warn';
+      case 'FORWARDED': return 'badge-info';
+      case 'COMPLETED': return 'badge-success';
+      case 'REJECTED': return 'badge-danger';
+      default: return 'badge-info';
+    }
+  }
+
+  downloadRequestedDoc(path: string): void {
+    if (!path) return;
+    const url = this.fileService.getFileUrl(path);
+    window.open(url, '_blank');
   }
 }
