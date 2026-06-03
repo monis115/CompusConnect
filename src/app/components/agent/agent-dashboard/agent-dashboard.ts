@@ -135,7 +135,7 @@ export class AgentDashboard implements OnInit {
   }
 
   // --- View State ---
-  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'action' | 'travel-details' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'visa-payment' | 'doc-return' | 'rejected' | 'travelling' | 'request-doc' = 'dashboard';
+  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'assigned-tasks' | 'travel-details' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'visa-payment' | 'doc-return' | 'rejected' | 'travelling' | 'request-doc' = 'dashboard';
   isLoading = true;
   isRefreshing = false;
   isReloadingData = false; // For floating button
@@ -148,6 +148,51 @@ export class AgentDashboard implements OnInit {
   selectedStudent: Student | null = null;
   studentToEdit: any = null;
 
+  exportToExcel(): void {
+    if (!this.filteredAllStudents || this.filteredAllStudents.length === 0) {
+      // Assuming a toast service exists, or just return
+      return;
+    }
+
+    const headers = [
+      'Serial No',
+      'Student Name',
+      'Application ID',
+      'Email',
+      'Contact',
+      'University',
+      'Intake',
+      'Current Status',
+      'Last Updated'
+    ];
+
+    const rows = this.filteredAllStudents.map((s, index) => [
+      index + 1,
+      s.fullName || '',
+      s.applicationId || s.id || '',
+      s.email || '',
+      s.contactNo || '',
+      s.college?.collegeName || '',
+      '',
+      s.applicationStatus || '',
+      (s as any).updatedAt ? new Date((s as any).updatedAt).toLocaleString() : (s.createdAt ? new Date(s.createdAt).toLocaleString() : '')
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Students_Export_${new Date().getTime()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   // --- News Data ---
   newsItems: NewsItem[] = [];
 
@@ -155,9 +200,313 @@ export class AgentDashboard implements OnInit {
     return this.students.filter(s => s.applicationStatus === 'TRAVELLING').length;
   }
   isNewsModalOpen = false;
+  isSupportModalOpen = false;
 
   // --- Stats & Widgets ---
   stats = { totalStudents: 0, pending: 0, approved: 0, completed: 0, rejected: 0 };
+
+  min(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  // --- All Students Advanced Filters & Pagination ---
+  allStudentsSearch: string = '';
+  allStudentsUniversity: string = 'all';
+  allStudentsStatus: string = 'all';
+  allStudentsIntake: string = 'all';
+  allStudentsDateRange: string = '';
+
+  allStudentsCurrentPage: number = 1;
+  allStudentsPageSize: number = 25;
+
+  get kpiTotalStudents(): number { return this.students.length; }
+  get kpiAdmissionLetter(): number { return this.students.filter(s => !!s.admissionLetterPath).length; }
+  get kpiTelexIssued(): number { return this.students.filter(s => !!s.telexNumber).length; }
+  get kpiVisaStamped(): number { return this.students.filter(s => s.applicationStatus === 'VISA_STAMPED' || s.applicationStatus === 'TRAVELLING' || s.applicationStatus === 'COMPLETED').length; }
+  get kpiReadyToTravel(): number { return this.students.filter(s => s.applicationStatus === 'READY_TO_TRAVEL').length; }
+
+  get kpiAdmissionLetterPct(): string { return this.kpiTotalStudents ? (this.kpiAdmissionLetter / this.kpiTotalStudents * 100).toFixed(1) : '0.0'; }
+  get kpiTelexIssuedPct(): string { return this.kpiTotalStudents ? (this.kpiTelexIssued / this.kpiTotalStudents * 100).toFixed(1) : '0.0'; }
+  get kpiVisaStampedPct(): string { return this.kpiTotalStudents ? (this.kpiVisaStamped / this.kpiTotalStudents * 100).toFixed(1) : '0.0'; }
+  get kpiReadyToTravelPct(): string { return this.kpiTotalStudents ? (this.kpiReadyToTravel / this.kpiTotalStudents * 100).toFixed(1) : '0.0'; }
+
+  get filteredAllStudents(): Student[] {
+    let filtered = this.students;
+    if (this.allStudentsUniversity !== 'all') {
+      filtered = filtered.filter(s => s.college?.collegeName === this.allStudentsUniversity);
+    }
+    if (this.allStudentsStatus !== 'all') {
+      if (this.allStudentsStatus === 'ADMISSION_LETTER_ISSUED') {
+        filtered = filtered.filter(s => !!s.admissionLetterPath);
+      } else if (this.allStudentsStatus === 'TELEX_ISSUED') {
+        filtered = filtered.filter(s => !!s.telexNumber);
+      } else if (this.allStudentsStatus === 'VISA_STAMPED') {
+        filtered = filtered.filter(s => s.applicationStatus === 'VISA_STAMPED' || s.applicationStatus === 'TRAVELLING' || s.applicationStatus === 'COMPLETED');
+      } else {
+        // Fallback for others (like REGISTERED)
+        filtered = filtered.filter(s => s.applicationStatus === this.allStudentsStatus || (this.allStudentsStatus === 'ADMISSION_APPLIED' && (s.applicationStatus === 'Submitted' || s.applicationStatus === 'UNDER_REVIEW')));
+      }
+    }
+    // Intake filter is a placeholder for now as it's missing from DB
+    if (this.allStudentsIntake !== 'all') {
+      // ...
+    }
+    // Date filter
+    if (this.allStudentsDateRange) {
+      // basic date filtering logic placeholder
+    }
+
+    if (this.allStudentsSearch) {
+      const q = this.allStudentsSearch.toLowerCase();
+      filtered = filtered.filter(s =>
+        s.fullName?.toLowerCase().includes(q) ||
+        s.applicationId?.toLowerCase().includes(q) ||
+        s.contactNo?.toLowerCase().includes(q)
+      );
+    }
+    return filtered;
+  }
+
+  get paginatedAllStudents(): Student[] {
+    const startIndex = (this.allStudentsCurrentPage - 1) * this.allStudentsPageSize;
+    return this.filteredAllStudents.slice(startIndex, startIndex + this.allStudentsPageSize);
+  }
+
+  get allStudentsTotalPages(): number {
+    return Math.ceil(this.filteredAllStudents.length / this.allStudentsPageSize);
+  }
+
+  allStudentsGoToPage(page: number) {
+    if (page >= 1 && page <= this.allStudentsTotalPages) {
+      this.allStudentsCurrentPage = page;
+    }
+  }
+
+  clearAllStudentsFilters() {
+    this.allStudentsSearch = '';
+    this.allStudentsUniversity = 'all';
+    this.allStudentsStatus = 'all';
+    this.allStudentsIntake = 'all';
+    this.allStudentsDateRange = '';
+    this.allStudentsCurrentPage = 1;
+  }
+
+  // --- Assigned Tasks Advanced Filters & Pagination ---
+  assignedTasksSearch: string = '';
+  assignedTasksUniversity: string = 'all';
+  assignedTasksActionFilter: 'ALL' | 'REJECTED' | 'TELEX' | 'DOCS' | 'VISA' | 'TRAVEL' = 'ALL';
+
+  assignedTasksCurrentPage: number = 1;
+  assignedTasksPageSize: number = 25;
+
+  get filteredAssignedTasks(): Student[] {
+    let tasks = this.students.filter(s => this.showInitiateTelexButton(s) || this.showRequestDocsButton(s) || this.showVisaPaymentButton(s) || ((s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT') && s['action'] === 'SUBMIT_TRAVEL_DETAILS') || s.applicationStatus === 'REJECTED');
+    if (this.assignedTasksActionFilter === 'REJECTED') {
+      tasks = tasks.filter(s => s.applicationStatus === 'REJECTED');
+    } else if (this.assignedTasksActionFilter === 'TELEX') {
+      tasks = tasks.filter(s => this.showInitiateTelexButton(s));
+    } else if (this.assignedTasksActionFilter === 'DOCS') {
+      tasks = tasks.filter(s => this.showRequestDocsButton(s));
+    } else if (this.assignedTasksActionFilter === 'VISA') {
+      tasks = tasks.filter(s => this.showVisaPaymentButton(s));
+    } else if (this.assignedTasksActionFilter === 'TRAVEL') {
+      tasks = tasks.filter(s => (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT') && s['action'] === 'SUBMIT_TRAVEL_DETAILS');
+    }
+    
+    if (this.assignedTasksUniversity !== 'all') {
+      tasks = tasks.filter(s => s.college?.collegeName === this.assignedTasksUniversity);
+    }
+    
+    if (this.assignedTasksSearch) {
+      const q = this.assignedTasksSearch.toLowerCase();
+      tasks = tasks.filter(s =>
+        s.fullName?.toLowerCase().includes(q) ||
+        s.applicationId?.toLowerCase().includes(q) ||
+        s.contactNo?.toLowerCase().includes(q)
+      );
+    }
+    return tasks;
+  }
+
+  get paginatedAssignedTasks(): Student[] {
+    const startIndex = (this.assignedTasksCurrentPage - 1) * this.assignedTasksPageSize;
+    return this.filteredAssignedTasks.slice(startIndex, startIndex + this.assignedTasksPageSize);
+  }
+
+  get assignedTasksTotalPages(): number {
+    return Math.ceil(this.filteredAssignedTasks.length / this.assignedTasksPageSize) || 1;
+  }
+
+  assignedTasksGoToPage(page: number) {
+    if (page >= 1 && page <= this.assignedTasksTotalPages) {
+      this.assignedTasksCurrentPage = page;
+    }
+  }
+
+  clearAssignedTasksFilters() {
+    this.assignedTasksSearch = '';
+    this.assignedTasksUniversity = 'all';
+    this.assignedTasksActionFilter = 'ALL';
+    this.assignedTasksCurrentPage = 1;
+  }
+
+
+
+
+  // --- Dashboard Dynamic Filter State ---
+  selectedDashboardCollegeId: string = 'all';
+  selectedDashboardDate: string = '';
+  dashboardSearchQuery: string = '';
+
+  get filteredStudentsForDashboard(): Student[] {
+    let filtered = this.students;
+    if (this.selectedDashboardCollegeId !== 'all') {
+      filtered = filtered.filter(s => s.college?.collegeName === this.selectedDashboardCollegeId || s.college?.id?.toString() === this.selectedDashboardCollegeId);
+    }
+    if (this.selectedDashboardDate) {
+      filtered = filtered.filter(s => {
+        if (!s.createdAt) return false;
+        const sDate = new Date(s.createdAt).toISOString().split('T')[0];
+        return sDate === this.selectedDashboardDate;
+      });
+    }
+    if (this.dashboardSearchQuery.trim()) {
+      const q = this.dashboardSearchQuery.toLowerCase().trim();
+      filtered = filtered.filter(s =>
+        s.fullName?.toLowerCase().includes(q) ||
+        s.applicationId?.toLowerCase().includes(q) ||
+        s.email?.toLowerCase().includes(q) ||
+        s.passportNo?.toLowerCase().includes(q)
+      );
+    }
+    return filtered;
+  }
+
+  get dynamicDashboardStats() {
+    const students = this.filteredStudentsForDashboard;
+    return {
+      totalStudents: students.length,
+      activeStudents: students.filter(s => !['VISA_STAMPED', 'READY_FOR_TRAVEL', 'REJECTED'].includes(s.applicationStatus)).length,
+      visaApproved: students.filter(s => s.applicationStatus === 'VISA_STAMPED' || s.applicationStatus === 'READY_FOR_TRAVEL').length,
+      visaRejected: students.filter(s => s.applicationStatus === 'REJECTED').length
+    };
+  }
+
+  get dynamicStatusBreakdown() {
+    const students = this.filteredStudentsForDashboard;
+    const breakdownMap = new Map<string, number>();
+    for (const s of students) {
+      const status = s.applicationStatus;
+      breakdownMap.set(status, (breakdownMap.get(status) || 0) + 1);
+    }
+    return Array.from(breakdownMap.entries()).map(([status, count]) => ({ status, count }));
+  }
+
+  get dynamicCollegeDistribution() {
+    if (!this.agentData?.collegeAccess) return [];
+    const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+    const students = this.filteredStudentsForDashboard;
+
+    return this.agentData.collegeAccess.map((access: any, idx: number) => {
+      const collegeName = access.college?.collegeName || 'Unknown College';
+      const studentCount = students.filter(s => s.college?.id?.toString() === access.college?.id?.toString() || s.college?.collegeName === collegeName).length;
+      return { collegeName, count: studentCount, color: colors[idx % colors.length] };
+    }).filter(c => c.count > 0);
+  }
+
+  get dynamicRecentActivities() {
+    return this.recentActivities.filter(a => {
+      if (this.selectedDashboardCollegeId === 'all') return true;
+      const s = this.students.find(st => st.fullName === a.studentName); // Approximate check
+      return s ? (s.college?.collegeName === this.selectedDashboardCollegeId || s.college?.id?.toString() === this.selectedDashboardCollegeId) : true;
+    });
+  }
+
+  get dynamicPendingActions() {
+    const students = this.filteredStudentsForDashboard;
+    const pendingList: any[] = [];
+
+    // Telex Eligible
+    students.filter(s => s['action'] === 'INITIATE_TELEX' && (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT'))
+      .forEach(s => pendingList.push({ student: s, taskName: 'Initiate Telex', actionText: 'Initiate TELEX', actionClass: 'btn-telex', type: 'TELEX' }));
+
+    // Visa Payment
+    students.filter(s => s['action'] === 'SEND_VISA_PAYMENT_TO_ACCOUNTANT' && (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT'))
+      .forEach(s => pendingList.push({ student: s, taskName: 'Visa Payment', actionText: 'Pay Visa', actionClass: 'btn-payment', type: 'PAYMENT' }));
+
+    // Doc Return
+    students.filter(s => s.applicationStatus === 'VISA_STAMPED' && s.canRequestDocReturn === true)
+      .forEach(s => pendingList.push({ student: s, taskName: 'Request Passport', actionText: 'Request Passport', actionClass: 'btn-passport', type: 'PASSPORT' }));
+
+    // Rejected
+    students.filter(s => s.applicationStatus === 'REJECTED')
+      .forEach(s => pendingList.push({ student: s, taskName: 'Rejected', actionText: 'Review Rejection', actionClass: 'btn-reject', type: 'REJECTED' }));
+
+    return pendingList.slice(0, 5);
+  }
+
+  get dynamicUpcomingTravels() {
+    const students = this.filteredStudentsForDashboard;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const oneWeekAgo = new Date(now);
+    oneWeekAgo.setDate(now.getDate() - 7);
+
+    const travels: any[] = [];
+    students.forEach(s => {
+      if (s.travelDoj) {
+        const travelDate = new Date(s.travelDoj);
+        travelDate.setHours(0, 0, 0, 0);
+        if (travelDate >= oneWeekAgo) {
+          const isUpcoming = travelDate >= now;
+          travels.push({
+            student: s,
+            statusLabel: isUpcoming ? 'Upcoming' : 'Recently Travelled',
+            statusClass: isUpcoming ? 'badge-upcoming' : 'badge-past'
+          });
+        }
+      }
+    });
+
+    return travels.sort((a, b) => new Date(a.student.travelDoj).getTime() - new Date(b.student.travelDoj).getTime()).slice(0, 3);
+  }
+
+  handlePendingAction(item: any): void {
+    if (item.type === 'TELEX') this.openTelexModal(item.student);
+    if (item.type === 'PAYMENT') this.openPaymentConfirmationModal(item.student);
+    if (item.type === 'PASSPORT') this.openRequestDocsModal(item.student);
+    if (item.type === 'REJECTED') this.viewStudentDetails(item.student);
+  }
+
+  onDashboardCollegeChange(event: any): void {
+    this.selectedDashboardCollegeId = event.target.value;
+    this.updateDashboardCharts();
+  }
+
+  onDashboardDateChange(event: any): void {
+    this.selectedDashboardDate = event.target.value;
+    this.updateDashboardCharts();
+  }
+
+  onDashboardSearch(): void {
+    this.updateDashboardCharts();
+  }
+
+  clearFilters(): void {
+    this.selectedDashboardCollegeId = 'all';
+    this.selectedDashboardDate = '';
+    this.dashboardSearchQuery = '';
+    this.updateDashboardCharts();
+  }
+
+  goToCreateDocRequest(): void {
+    this.docRequestActiveTab = 'new';
+    this.navigateTo('request-doc');
+  }
+
+  updateDashboardCharts(): void {
+    this.cdr.detectChanges();
+  }
 
   // --- New Dashboard Data ---
   dashboardStats: DashboardStats | null = null;
@@ -394,6 +743,7 @@ export class AgentDashboard implements OnInit {
     this.loadAgentData();
     this.fetchNews();
     this.initTravelForm();
+    this.loadDocRequests();
   }
 
   // --- Core Data Loading ---
@@ -647,7 +997,7 @@ export class AgentDashboard implements OnInit {
     // 1. View Filtering
     if (this.currentView === 'visa-stamped') {
       filtered = filtered.filter(s => s.applicationStatus === 'VISA_STAMPED');
-    } else if (this.currentView === 'action') {
+    } else if (this.currentView === 'assigned-tasks') {
       // Show students where Action is required by Agent or those with ADMISSION_LETTER_APPROVED status
       filtered = filtered.filter(s =>
         s['actionOnUser'] === 'AGENT' ||
@@ -695,7 +1045,7 @@ export class AgentDashboard implements OnInit {
       case 'students': return 'All Students';
       case 'travel-details': return 'Update Travel Details';
       case 'visa-stamped': return 'Visa Stamped';
-      case 'action': return 'Action Required';
+      case 'assigned-tasks': return 'Assigned Tasks';
       case 'apply-telex': return 'Apply Telex';
       case 'visa-payment': return 'VISA Payment';
       case 'doc-return': return 'Doc Return';
@@ -869,7 +1219,8 @@ export class AgentDashboard implements OnInit {
       otherCourierDetails: [''], // New field for 'Other'
       courierTrackingNumber: [''],
       courierTrackingId: [''],
-      selfPersonContact: [''],
+      selfPersonName: [''],
+      selfPersonPhone: [''],
       docTentativeReachDate: [null],
 
       // Step 2: Payment Status
@@ -918,11 +1269,19 @@ export class AgentDashboard implements OnInit {
       const dateControl = this.telexForm.get('docTentativeReachDate');
       const partnerControl = this.telexForm.get('courierPartner');
       const trackingNumControl = this.telexForm.get('courierTrackingNumber');
-      const contactControl = this.telexForm.get('selfPersonContact');
+      const nameControl = this.telexForm.get('selfPersonName');
+      const phoneControl = this.telexForm.get('selfPersonPhone');
+
+      const step2Controls = [
+        'hasPaid', 'surname', 'firstName', 'sex', 'countryOfBirth', 'dateOfBirth', 'placeOfBirth',
+        'maritalStatus', 'citizenship', 'passportType', 'passportNumber', 'passportIssueDate',
+        'passportExpirationDate', 'durationOfVisaProcedure', 'placeOfVisaIssuance'
+      ];
 
       if (sent === true || sent === 'true') {
         methodControl?.setValidators(Validators.required);
         dateControl?.setValidators(Validators.required);
+        step2Controls.forEach(ctrl => this.telexForm.get(ctrl)?.setValidators(Validators.required));
       } else {
         methodControl?.clearValidators();
         methodControl?.setValue(null);
@@ -930,34 +1289,46 @@ export class AgentDashboard implements OnInit {
         // Also clear children of method
         partnerControl?.clearValidators();
         trackingNumControl?.clearValidators();
-        contactControl?.clearValidators();
+        nameControl?.clearValidators();
+        phoneControl?.clearValidators();
         partnerControl?.setValue('');
         trackingNumControl?.setValue('');
-        contactControl?.setValue('');
+        nameControl?.setValue('');
+        phoneControl?.setValue('');
 
         dateControl?.clearValidators(); // Changed from setValidators(Validators.required)
         dateControl?.setValue(null); // Added
+
+        step2Controls.forEach(ctrl => {
+          this.telexForm.get(ctrl)?.clearValidators();
+          this.telexForm.get(ctrl)?.updateValueAndValidity();
+        });
       }
       methodControl?.updateValueAndValidity();
       dateControl?.updateValueAndValidity();
       partnerControl?.updateValueAndValidity();
       trackingNumControl?.updateValueAndValidity();
-      contactControl?.updateValueAndValidity();
+      nameControl?.updateValueAndValidity();
+      phoneControl?.updateValueAndValidity();
     });
 
     this.telexForm.get('docDeliveryMethod')?.valueChanges.subscribe(method => {
       const partnerControl = this.telexForm.get('courierPartner');
       const otherPartnerControl = this.telexForm.get('otherCourierDetails'); // New
       const trackingNumControl = this.telexForm.get('courierTrackingNumber');
-      const contactControl = this.telexForm.get('selfPersonContact');
+      const nameControl = this.telexForm.get('selfPersonName');
+      const phoneControl = this.telexForm.get('selfPersonPhone');
 
       if (method === 'COURIER') {
         partnerControl?.setValidators(Validators.required);
         trackingNumControl?.setValidators(Validators.required);
-        contactControl?.clearValidators();
-        contactControl?.setValue('');
+        nameControl?.clearValidators();
+        phoneControl?.clearValidators();
+        nameControl?.setValue('');
+        phoneControl?.setValue('');
       } else if (method === 'SELF_PERSON') {
-        contactControl?.setValidators(Validators.required);
+        nameControl?.setValidators(Validators.required);
+        phoneControl?.setValidators(Validators.required);
         partnerControl?.clearValidators();
         otherPartnerControl?.clearValidators(); // Clear other
         trackingNumControl?.clearValidators();
@@ -968,16 +1339,19 @@ export class AgentDashboard implements OnInit {
         partnerControl?.clearValidators();
         otherPartnerControl?.clearValidators();
         trackingNumControl?.clearValidators();
-        contactControl?.clearValidators();
+        nameControl?.clearValidators();
+        phoneControl?.clearValidators();
         partnerControl?.setValue(null);
         otherPartnerControl?.setValue('');
         trackingNumControl?.setValue('');
-        contactControl?.setValue('');
+        nameControl?.setValue('');
+        phoneControl?.setValue('');
       }
       partnerControl?.updateValueAndValidity();
       otherPartnerControl?.updateValueAndValidity();
       trackingNumControl?.updateValueAndValidity();
-      contactControl?.updateValueAndValidity();
+      nameControl?.updateValueAndValidity();
+      phoneControl?.updateValueAndValidity();
     });
 
     // Watch for "OTHER" selection in Courier Partner
@@ -1545,10 +1919,17 @@ export class AgentDashboard implements OnInit {
       finalCourierPartner = formValues.otherCourierDetails;
     }
 
+    // Combine Name and Phone if SELF_PERSON
+    let finalSelfPersonContact = '';
+    if (formValues.docDeliveryMethod === 'SELF_PERSON') {
+      finalSelfPersonContact = `${formValues.selfPersonName} - ${formValues.selfPersonPhone}`;
+    }
+
     // Construct DTO
     const telexData: TelexApplicationDTO = {
       ...formValues,
       courierPartner: finalCourierPartner, // Use mapped value
+      selfPersonContact: finalSelfPersonContact, // Combined contact
       // Map form control 'courierTrackingNumber' to DTO 'courierTrackingId'
       courierTrackingId: formValues.courierTrackingNumber,
       agentUsername: this.agentData.userId
@@ -1754,12 +2135,19 @@ export class AgentDashboard implements OnInit {
   loadDocRequests(): void {
     const username = this.authService.getUserData()?.username;
     if (!username) return;
+
+    this.isLoading = true;
     this.http.get<any[]>(`${this.API_URL}/doc-requests/agent/${username}`).subscribe({
       next: (requests) => {
         this.docRequests = requests;
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Failed to load doc requests', err)
+      error: (err) => {
+        console.error('Failed to load doc requests', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

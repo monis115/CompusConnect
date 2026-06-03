@@ -2,14 +2,14 @@
   <!-- Header -->
   <div class="page-header">
     <button class="back-btn" (click)="goBack()">
-      <i-lucide name="arrow-left" size="20"></i-lucide>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
       <span>{{ showStudentPanel ? 'Back to List' : 'Back to Visa' }}</span>
     </button>
 
     <div class="header-content">
       <div class="title-wrapper">
         <div class="title-icon">
-          <i-lucide name="users" size="28"></i-lucide>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         </div>
         <div>
           <h1>{{ showStudentPanel ? selectedVisaMan?.fullName + '\'s Students' : 'Visa Man Directory' }}
@@ -22,11 +22,11 @@
       @if (!isLoadingManagers && !showStudentPanel) {
         <div class="header-stats">
           <div class="stat-pill">
-            <i-lucide name="user-check" size="16"></i-lucide>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
             <span>{{ visaManagers.length }} Visa Managers</span>
           </div>
           <div class="stat-pill highlight">
-            <i-lucide name="graduation-cap" size="16"></i-lucide>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 10 3 12 0v-5"></path></svg>
             <span>{{ getTotalStudents() }} Total Students</span>
           </div>
         </div>
@@ -35,7 +35,7 @@
       @if (showStudentPanel && selectedVisaMan) {
         <div class="header-stats">
           <div class="stat-pill highlight">
-            <i-lucide name="graduation-cap" size="16"></i-lucide>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 10 3 12 0v-5"></path></svg>
             <span>{{ students.length }} Students</span>
           </div>
         </div>
@@ -61,11 +61,11 @@
         <!-- Error State -->
         @if (errorMessage && !isLoadingManagers) {
           <div class="error-state">
-            <i-lucide name="alert-circle" size="48"></i-lucide>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
             <h3>Something went wrong</h3>
             <p>{{ errorMessage }}</p>
             <button class="btn-retry" (click)="loadVisaManagers()">
-              <i-lucide name="refresh-cw" size="16"></i-lucide>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
               Try Again
             </button>
           </div>
@@ -74,7 +74,7 @@
         @if (!isLoadingManagers && !errorMessage && visaManagers.length === 0) {
           <div class="empty-state">
             <div class="empty-icon">
-              <i-lucide name="users-x" size="64"></i-lucide>
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="17" y1="8" x2="23" y2="8"></line></svg>
             </div>
             <h3>No Visa Managers Found</h3>
             <p>There are no Visa Managers registered in the system yet.</p>
@@ -98,7 +98,7 @@
                   <div class="count-label">Students</div>
                 </div>
                 <div class="card-arrow">
-                  <i-lucide name="chevron-right" size="20"></i-lucide>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
               </div>
             }
@@ -121,7 +121,7 @@
         @if (!isLoadingStudents && students.length === 0) {
           <div class="empty-state">
             <div class="empty-icon">
-              <i-lucide name="inbox" size="64"></i-lucide>
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
             </div>
             <h3>No Students Assigned</h3>
             <p>This Visa Manager has no students assigned yet.</p>

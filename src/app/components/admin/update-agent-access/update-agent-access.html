@@ -7,7 +7,7 @@
   <div class="selection-view">
     <div class="header-section">
       <button class="back-btn" (click)="goBack()">
-        <i-lucide name="arrow-left" size="20"></i-lucide>
+        
         <span>Back to Dashboard</span>
       </button>
       <h1>Manage Agent Access</h1>
@@ -15,7 +15,7 @@
     </div>
     <!-- Search Box -->
     <div class="search-box">
-      <i-lucide name="search" class="search-icon" size="20"></i-lucide>
+      
       <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()"
         placeholder="Search by name, email, or agent ID..." autofocus />
       @if (loading) {
@@ -26,7 +26,7 @@
     <div class="results-list">
       @if (!loading && filteredAgents.length === 0) {
       <div class="empty-state">
-        <i-lucide name="users" size="48" class="empty-icon"></i-lucide>
+        
         <h3>No Agents Found</h3>
         <p>Try adjusting your search criteria.</p>
       </div>
@@ -41,7 +41,7 @@
         <div class="agent-status" [ngClass]="agent.status.toLowerCase()">
           {{ agent.status }}
         </div>
-        <i-lucide name="chevron-right" class="arrow" size="20"></i-lucide>
+        
       </div>
       }
     </div>
@@ -56,7 +56,7 @@
     <!-- Edit Header -->
     <div class="edit-header">
       <button class="icon-btn" (click)="goBack()">
-        <i-lucide name="arrow-left" size="24"></i-lucide>
+        
       </button>
       <div class="header-details">
         <h2>{{ selectedAgent.fullName }}</h2>
@@ -114,7 +114,7 @@
             }
           </select>
           <button class="btn-primary-small" (click)="addCollegeAccess()" [disabled]="!selectedCollegeToAdd">
-            <i-lucide name="plus" size="16"></i-lucide> Add College
+             Add College
           </button>
         </div>
         <div class="access-list">
@@ -128,7 +128,7 @@
           <div class="access-item">
             <div class="access-summary">
               <div class="col-name">
-                <i-lucide name="building-2" size="20"></i-lucide>
+                
                 <div>
                   <h4>{{ entry.collegeName }}</h4>
                   <span class="city">{{ entry.city }}</span>
@@ -142,7 +142,7 @@
                   Global Access (All India)
                 </label>
                 <button class="remove-btn" (click)="removeCollegeAccess(entry.collegeId)">
-                  <i-lucide name="trash-2" size="18"></i-lucide>
+                  
                 </button>
               </div>
             </div>
@@ -199,7 +199,7 @@
                       (click)="removeSlab(entry.collegeId, $index)"
                       onmouseover="this.style.background='#fecaca'; this.style.transform='scale(1.05)';"
                       onmouseout="this.style.background='#fee2e2'; this.style.transform='scale(1)';">
-                      <i-lucide name="trash-2" size="20"></i-lucide>
+                      
                     </button>
                   </div>
                   }
@@ -208,7 +208,7 @@
                     (click)="addSlab(entry.collegeId)"
                     onmouseover="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';"
                     onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white';">
-                    <i-lucide name="plus" size="18"></i-lucide> Add New Tier Setup
+                     Add New Tier Setup
                   </button>
                 </div>
                 }
@@ -229,8 +229,7 @@
                   <!-- State Header -->
                   <div class="state-header" (click)="toggleStateExpansion(entry.collegeId, state)">
                     <div class="sh-left">
-                      <i-lucide name="chevron-right" size="16" class="chevron"
-                        [class.open]="isStateExpanded(entry.collegeId, state)"></i-lucide>
+                      
                       <span class="state-name">{{ state }}</span>
                     </div>
                     <div class="sh-right" (click)="$event.stopPropagation()">
@@ -268,13 +267,13 @@
       <div class="footer-msg">
         @if (error) {
         <div class="message-badge error">
-          <i-lucide name="alert-circle" size="18"></i-lucide>
+          
           <span>{{ error }}</span>
         </div>
         }
         @if (successMessage) {
         <div class="message-badge success">
-          <i-lucide name="check-circle-2" size="18"></i-lucide>
+          
           <span>{{ successMessage }}</span>
         </div>
         }
@@ -283,7 +282,7 @@
         <button class="btn-secondary" (click)="goBack()" [disabled]="saving">Cancel</button>
         <button class="btn-primary" (click)="saveChanges()" [disabled]="saving">
           @if (!saving) {
-          <i-lucide name="check" size="18"></i-lucide>
+          
           }
           @if (!saving) {
           <span>Save Changes</span>

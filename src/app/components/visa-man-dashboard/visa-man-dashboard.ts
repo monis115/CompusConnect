@@ -336,7 +336,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       initials: this.getInitials(s.fullName)
     }));
   }
-  
+
   get agentBreakdown() {
     const agentCounts = new Map<string, { total: number, stamped: number }>();
     this.allFilteredStudents.forEach(s => {

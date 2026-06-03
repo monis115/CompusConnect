@@ -244,8 +244,44 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     this.student.age = s.age || null;
     this.student.email = s.email || '';
     this.student.contactNo = s.contactNo || '';
-    // Simplify address filling
-    this.student.address = s.address ? s.address.split(',')[0] : '';
+
+    // Address & selections
+    if (s.isDraft) {
+      this.student.address = s.address || '';
+      this.selectedCollegeId = s.selectedCollegeId || null;
+      this.selectedSessionId = s.selectedSessionId || null;
+      this.currentStep = s.currentStep || 1;
+      this.hasPassport = s.hasPassport !== false;
+
+      // Restore files if any
+      if (s.serializedDocs) {
+        for (const key of Object.keys(s.serializedDocs)) {
+          const docData = s.serializedDocs[key];
+          if (docData && docData.base64) {
+            try {
+              const fileObj = this.base64ToFile(docData.base64, docData.name, docData.type);
+              this.documents[key as keyof typeof this.documents] = fileObj;
+
+              if (docData.type.startsWith('image/')) {
+                this.documentPreviews[key as keyof typeof this.documentPreviews] = docData.base64;
+              } else {
+                this.documentPreviews[key as keyof typeof this.documentPreviews] = 'pdf-icon';
+              }
+            } catch (e) {
+              console.error('Error restoring file from draft:', e);
+            }
+          }
+        }
+      }
+    } else {
+      this.student.address = s.address ? s.address.split(',')[0] : '';
+      this.selectedCollegeId = s.college?.id || null;
+      if (s.intake) {
+        const match = this.sessions.find(session => `${session.sessionName} (${session.academicYear})` === s.intake);
+        if (match) this.selectedSessionId = match.id;
+      }
+    }
+
     this.student.selectedState = s.selectedState || '';
     this.student.mothersName = s.mothersName || '';
     this.student.fathersName = s.fathersName || '';
@@ -263,10 +299,22 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     this.student.neetScore = s.neetScore || null;
     this.student.appliedFor = s.appliedFor || 'MBBS';
 
-    this.selectedCollegeId = s.college?.id || null;
-    if (s.intake) {
-      const match = this.sessions.find(session => `${session.sessionName} (${session.academicYear})` === s.intake);
-      if (match) this.selectedSessionId = match.id;
+    // Load locations for selected college and restore state/district selections
+    if (this.selectedCollegeId) {
+      const collegeId = Number(this.selectedCollegeId);
+      const state = s.selectedState || '';
+      const districtId = s.districtId || null;
+
+      this.loadCollegeLocations(collegeId, () => {
+        if (state) {
+          this.student.selectedState = state;
+          const districts = this.currentLocationMap.get(state) || [];
+          this.filteredDistricts = districts.sort((a, b) => a.district.localeCompare(b.district));
+          if (districtId) {
+            this.student.districtId = Number(districtId);
+          }
+        }
+      });
     }
   }
 
@@ -390,36 +438,34 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
 
     if (!this.selectedCollegeId) return;
 
-    // 2. Get access rules
-    // Ensure ID is a number for Map lookup
-    const collegeId = Number(this.selectedCollegeId);
-    const access = this.mergedAccessMap.get(collegeId);
+    this.loadCollegeLocations(Number(this.selectedCollegeId));
+  }
 
+  loadCollegeLocations(collegeId: number, callback?: () => void): void {
+    const access = this.mergedAccessMap.get(collegeId);
     console.log('Access found for college:', collegeId, access);
 
     if (!access) return;
 
     // 3. Fetch Locations based on access type
-    // If we have locations in the access object (even if accessAll is true), use them first.
-    // This avoids unnecessary API calls if the backend already sent the data.
     if (access.locations && access.locations.length > 0) {
       console.log('Using locations from agent profile:', access.locations.length);
       this.processLocations(access.locations);
+      if (callback) callback();
     } else if (access.accessAll) {
-      // Access ALL locations but list is empty -> Fetch from API
       console.log('Access All true but no locations in profile. Fetching from API...');
-      this.fetchAllLocationsFromApi();
+      this.fetchAllLocationsFromApi(callback);
     } else {
-      // Restricted Access and no locations found (shouldn't happen if data is correct)
       console.warn('No locations found for this college access.');
       this.errorMessage = 'No locations assigned to this college.';
     }
   }
 
-  fetchAllLocationsFromApi(): void {
+  fetchAllLocationsFromApi(callback?: () => void): void {
     // Use cache if already fetched
     if (this.allLocationsCache.length > 0) {
       this.processLocations(this.allLocationsCache);
+      if (callback) callback();
       return;
     }
 
@@ -436,6 +482,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
           this.allLocationsCache = locations;
         }
         this.processLocations(this.allLocationsCache);
+        if (callback) callback();
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -444,6 +491,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
         this.isLoading = false;
         this.allLocationsCache = this.MOCK_ALL_LOCATIONS;
         this.processLocations(this.allLocationsCache);
+        if (callback) callback();
         this.cdr.detectChanges();
       }
     });
@@ -705,7 +753,7 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     if (!this.student.hasGivenNEET && this.documents.affidavit) formData.append('affidavitFile', this.documents.affidavit);
 
     const startTime = Date.now();
-    const requestObs = this.editMode
+    const requestObs = (this.editMode && !this.studentToEdit?.isDraft)
       ? this.http.put<StudentRegistrationResponse>(`${this.baseUrl}/students/update/${this.studentToEdit.id}`, formData)
       : this.http.post<StudentRegistrationResponse>(this.registrationApiUrl, formData);
 
@@ -726,6 +774,9 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
         next: (response) => {
           this.registeredStudentData = response;
           this.isSuccess = true;
+          if (this.editMode && this.studentToEdit?.isDraft) {
+            this.deleteDraft(this.studentToEdit.id);
+          }
         },
         error: (err: HttpErrorResponse) => {
           console.error('Registration failed:', err);
@@ -828,5 +879,113 @@ export class AgentStudentResgistration implements OnInit, OnChanges {
     if (!districtId) return '';
     const district = this.filteredDistricts.find(d => d.id === districtId);
     return district ? district.district : '';
+  }
+
+  fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  base64ToFile(base64: string, filename: string, mimeType: string): File {
+    const arr = base64.split(',');
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mimeType });
+  }
+
+  async saveAsDraft(): Promise<void> {
+    this.isLoading = true;
+    this.errorMessage = null;
+    this.cdr.detectChanges();
+
+    try {
+      const serializedDocs: { [key: string]: { name: string; type: string; base64: string } } = {};
+      for (const key of Object.keys(this.documents)) {
+        const file = this.documents[key as keyof typeof this.documents];
+        if (file) {
+          const base64 = await this.fileToBase64(file);
+          serializedDocs[key] = {
+            name: file.name,
+            type: file.type,
+            base64: base64
+          };
+        }
+      }
+
+      const draftId = this.editMode && this.studentToEdit?.isDraft ? this.studentToEdit.id : 'draft_' + Date.now();
+      const draftData = {
+        id: draftId,
+        isDraft: true,
+        currentStep: this.currentStep,
+        hasPassport: this.hasPassport,
+        selectedSessionId: this.selectedSessionId,
+        selectedCollegeId: this.selectedCollegeId,
+
+        fullName: this.student.fullName || '',
+        dob: this.student.dob || '',
+        age: this.student.age || null,
+        email: this.student.email || '',
+        contactNo: this.student.contactNo || '',
+        address: this.student.address || '',
+        selectedState: this.student.selectedState || '',
+        districtId: this.student.districtId || null,
+        mothersName: this.student.mothersName || '',
+        fathersName: this.student.fathersName || '',
+        emergencyContactNo: this.student.emergencyContactNo || '',
+        emergencyRelation: this.student.emergencyRelation || '',
+        passportNo: this.student.passportNo || '',
+        passportValidTill: this.student.passportValidTill || '',
+        adhaarCardNo: this.student.adhaarCardNo || '',
+        class12thPassingYear: this.student.class12thPassingYear || '',
+        baords: this.student.baords || '',
+        class12thMarks: this.student.class12thMarks || null,
+        maxMarks: this.student.maxMarks || null,
+        hasGivenNEET: this.student.hasGivenNEET || false,
+        neetYear: this.student.neetYear || '',
+        neetScore: this.student.neetScore || null,
+        appliedFor: this.student.appliedFor || 'MBBS',
+        createdAt: this.editMode && this.studentToEdit?.isDraft ? (this.studentToEdit.createdAt || new Date().toISOString()) : new Date().toISOString(),
+
+        serializedDocs
+      };
+
+      const draftsStr = localStorage.getItem('agent_student_drafts') || '[]';
+      let drafts = JSON.parse(draftsStr);
+      if (!Array.isArray(drafts)) drafts = [];
+
+      const existingIdx = drafts.findIndex((d: any) => d.id === draftId);
+      if (existingIdx > -1) {
+        drafts[existingIdx] = draftData;
+      } else {
+        drafts.push(draftData);
+      }
+
+      localStorage.setItem('agent_student_drafts', JSON.stringify(drafts));
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      this.onCancel.emit();
+    } catch (e: any) {
+      console.error('Failed to save draft:', e);
+      this.isLoading = false;
+      this.errorMessage = 'Failed to save draft. Storage quota might be exceeded.';
+      this.cdr.detectChanges();
+    }
+  }
+
+  deleteDraft(draftId: string): void {
+    const draftsStr = localStorage.getItem('agent_student_drafts') || '[]';
+    let drafts = JSON.parse(draftsStr);
+    if (Array.isArray(drafts)) {
+      drafts = drafts.filter((d: any) => d.id !== draftId);
+      localStorage.setItem('agent_student_drafts', JSON.stringify(drafts));
+    }
   }
 }

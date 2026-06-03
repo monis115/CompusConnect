@@ -2,14 +2,14 @@
   <!-- Header -->
   <div class="page-header">
     <button class="back-btn" (click)="goBack()">
-      <i-lucide name="arrow-left" size="20"></i-lucide>
+      
       <span>{{ showStudentPanel ? 'Back to List' : 'Back to University' }}</span>
     </button>
 
     <div class="header-content">
       <div class="title-wrapper">
         <div class="title-icon">
-          <i-lucide name="users" size="28"></i-lucide>
+          
         </div>
         <div>
           <h1>{{ showStudentPanel ? selectedPerson?.userName + '\'s Students' : 'University Person Directory'
@@ -22,11 +22,11 @@
       @if (!isLoadingPersons && !showStudentPanel) {
         <div class="header-stats">
           <div class="stat-pill">
-            <i-lucide name="user-check" size="16"></i-lucide>
+            
             <span>{{ universityPersons.length }} Coordinators</span>
           </div>
           <div class="stat-pill highlight">
-            <i-lucide name="graduation-cap" size="16"></i-lucide>
+            
             <span>{{ getTotalStudents() }} Total Students</span>
           </div>
         </div>
@@ -35,7 +35,7 @@
       @if (showStudentPanel && selectedPerson) {
         <div class="header-stats">
           <div class="stat-pill highlight">
-            <i-lucide name="graduation-cap" size="16"></i-lucide>
+            
             <span>{{ students.length }} Students</span>
           </div>
         </div>
@@ -61,11 +61,11 @@
         <!-- Error State -->
         @if (errorMessage && !isLoadingPersons) {
           <div class="error-state">
-            <i-lucide name="alert-circle" size="48"></i-lucide>
+            
             <h3>Something went wrong</h3>
             <p>{{ errorMessage }}</p>
             <button class="btn-retry" (click)="loadUniversityPersons()">
-              <i-lucide name="refresh-cw" size="16"></i-lucide>
+              
               Try Again
             </button>
           </div>
@@ -74,7 +74,7 @@
         @if (!isLoadingPersons && !errorMessage && universityPersons.length === 0) {
           <div class="empty-state">
             <div class="empty-icon">
-              <i-lucide name="users-x" size="64"></i-lucide>
+              
             </div>
             <h3>No University Coordinators Found</h3>
             <p>There are no University Coordinators registered in the system yet.</p>
@@ -92,7 +92,7 @@
                 <div class="card-info">
                   <h3>@{{ person.userName }}</h3>
                   <div class="college-badge">
-                    <i-lucide name="building-2" size="14"></i-lucide>
+                    
                     <span>{{ person.collegeName || 'Not Assigned' }}</span>
                   </div>
                 </div>
@@ -101,7 +101,7 @@
                   <div class="count-label">Students</div>
                 </div>
                 <div class="card-arrow">
-                  <i-lucide name="chevron-right" size="20"></i-lucide>
+                  
                 </div>
               </div>
             }
@@ -124,7 +124,7 @@
         @if (!isLoadingStudents && students.length === 0) {
           <div class="empty-state">
             <div class="empty-icon">
-              <i-lucide name="inbox" size="64"></i-lucide>
+              
             </div>
             <h3>No Students Assigned</h3>
             <p>This coordinator has no students assigned yet.</p>
@@ -161,9 +161,7 @@
                     <td>
                       <span class="letter-badge"
                         [ngClass]="getLetterStatusClass(student.admissionLetterUploaded)">
-                        <i-lucide
-                          [name]="student.admissionLetterUploaded === 'Yes' ? 'check-circle' : 'x-circle'"
-                        size="14"></i-lucide>
+                        
                         {{ student.admissionLetterUploaded }}
                       </span>
                     </td>

@@ -76,6 +76,8 @@ export interface Student {
     actionOnUser?: string;
     applicationId?: string;
     canRequestDocReturn?: boolean;
+    isTelexAccountantApproved?: boolean;
+    isTelexDocApproved?: boolean;
 
     // Travel Details
     travelDoj?: string;
@@ -113,6 +115,10 @@ export interface Student {
       toCountry?: string;
       ticketPdfPath?: string;
     };
+    isAirTicketBooked?: boolean;
+    isReturnReceivedByStudent?: boolean;
+    readyForDocReturn?: boolean;
+    docReturnedDate?: string;
 
     // Agent Info
     agent?: {
@@ -174,6 +180,10 @@ export class AgentService {
         formData.append('passport', passportFile);
         formData.append('agentUsername', agentUsername);
         return this.http.post(`${this.baseUrl}/agents/initiate-telex/${studentId}`, formData);
+    }
+
+    markReturnReceived(studentId: number): Observable<any> {
+        return this.http.post(`${this.baseUrl}/agents/mark-return-received/${studentId}`, {});
     }
 
     // --- Dashboard Endpoints ---

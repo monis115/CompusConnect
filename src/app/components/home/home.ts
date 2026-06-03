@@ -57,6 +57,14 @@ export class Home implements OnInit {
   }
 
   // --- Public Methods ---
+  formattedTime() {
+    return this.currentTime().toLocaleTimeString('en-US', { hour12: false });
+  }
+
+  formattedDate() {
+    return this.currentTime().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  }
+
   navigateTo(path: string) {
     this.isLoading.set(true);
 

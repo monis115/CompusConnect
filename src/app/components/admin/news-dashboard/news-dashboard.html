@@ -4,7 +4,7 @@
     <div class="header-content">
       <div class="title-wrapper">
         <div class="title-icon">
-          <i-lucide name="file-text" [size]="28"></i-lucide>
+          
         </div>
         <div>
           <h1>News Management</h1>
@@ -12,7 +12,7 @@
         </div>
       </div>
       <button class="btn-create" (click)="openCreateModal()">
-        <i-lucide name="plus" [size]="18"></i-lucide>
+        
         Create News
       </button>
     </div>
@@ -22,7 +22,7 @@
   <div class="stats-grid">
     <div class="stat-card total">
       <div class="stat-icon">
-        <i-lucide name="layers" [size]="24"></i-lucide>
+        
       </div>
       <div class="stat-info">
         <span class="stat-value">{{ totalCount }}</span>
@@ -31,7 +31,7 @@
     </div>
     <div class="stat-card active">
       <div class="stat-icon">
-        <i-lucide name="check-circle" [size]="24"></i-lucide>
+        
       </div>
       <div class="stat-info">
         <span class="stat-value">{{ activeCount }}</span>
@@ -40,7 +40,7 @@
     </div>
     <div class="stat-card inactive">
       <div class="stat-icon">
-        <i-lucide name="minus-circle" [size]="24"></i-lucide>
+        
       </div>
       <div class="stat-info">
         <span class="stat-value">{{ inactiveCount }}</span>
@@ -49,7 +49,7 @@
     </div>
     <div class="stat-card expired">
       <div class="stat-icon">
-        <i-lucide name="clock" [size]="24"></i-lucide>
+        
       </div>
       <div class="stat-info">
         <span class="stat-value">{{ expiredCount }}</span>
@@ -61,7 +61,7 @@
   <!-- Filters Bar -->
   <div class="filters-bar">
     <div class="search-box">
-      <i-lucide name="search" [size]="18"></i-lucide>
+      
       <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()"
         placeholder="Search news by heading...">
     </div>
@@ -83,13 +83,13 @@
   <!-- Toast Messages -->
   @if (successMessage) {
     <div class="toast toast-success">
-      <i-lucide name="check-circle" [size]="18"></i-lucide>
+      
       {{ successMessage }}
     </div>
   }
   @if (errorMessage) {
     <div class="toast toast-error">
-      <i-lucide name="alert-circle" [size]="18"></i-lucide>
+      
       {{ errorMessage }}
     </div>
   }
@@ -108,14 +108,14 @@
   @if (!isLoading && filteredNews.length === 0) {
     <div class="empty-state">
       <div class="empty-illustration">
-        <i-lucide name="file-text" [size]="64"></i-lucide>
+        
       </div>
       <h3>No News Found</h3>
       <p>{{ allNews.length === 0 ? 'Create your first news item to get started.' : 'No news matches your current
       filters.' }}</p>
       @if (allNews.length === 0) {
         <button class="btn-create-sm" (click)="openCreateModal()">
-          <i-lucide name="plus" [size]="16"></i-lucide>
+          
           Create First News
         </button>
       }
@@ -167,11 +167,11 @@
               <td>
                 <div class="action-buttons">
                   <button class="btn-action btn-edit" (click)="openEditModal(news)" title="Edit">
-                    <i-lucide name="pencil" [size]="16"></i-lucide>
+                    
                   </button>
                   <button class="btn-action btn-soft-delete" (click)="confirmSoftDelete(news)"
                     title="Deactivate">
-                    <i-lucide name="trash-2" [size]="16"></i-lucide>
+                    
                   </button>
                 </div>
               </td>
@@ -195,24 +195,24 @@
       }
       <div class="modal-header">
         <div class="modal-title">
-          <i-lucide [name]="isEditing ? 'edit' : 'plus-circle'" [size]="22"></i-lucide>
+          
           <h2>{{ isEditing ? 'Edit News' : 'Create News' }}</h2>
         </div>
         <button class="close-btn" (click)="closeNewsModal()">
-          <i-lucide name="x" [size]="18"></i-lucide>
+          
         </button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label>
-            <i-lucide name="file-text" [size]="14"></i-lucide>
+            
             Heading <span class="required">*</span>
           </label>
           <input type="text" [(ngModel)]="newsForm.heading" placeholder="Enter news heading">
         </div>
         <div class="form-group">
           <label>
-            <i-lucide name="align-justify" [size]="14"></i-lucide>
+            
             Content <span class="required">*</span>
           </label>
           <textarea [(ngModel)]="newsForm.content" placeholder="Enter news content..." rows="5"></textarea>
@@ -220,7 +220,7 @@
         <div class="form-row">
           <div class="form-group half">
             <label>
-              <i-lucide name="tag" [size]="14"></i-lucide>
+              
               Tag
             </label>
             <select [(ngModel)]="newsForm.tag">
@@ -231,7 +231,7 @@
           </div>
           <div class="form-group half">
             <label>
-              <i-lucide name="users" [size]="14"></i-lucide>
+              
               Target User
             </label>
             <select [(ngModel)]="newsForm.forUser">
@@ -244,14 +244,14 @@
         <div class="form-row">
           <div class="form-group half">
             <label>
-              <i-lucide name="calendar" [size]="14"></i-lucide>
+              
               Active From
             </label>
             <input type="date" [(ngModel)]="newsForm.activeFrom">
           </div>
           <div class="form-group half">
             <label>
-              <i-lucide name="calendar" [size]="14"></i-lucide>
+              
               Till Date
             </label>
             <input type="date" [(ngModel)]="newsForm.tillDate">
@@ -259,18 +259,18 @@
         </div>
         <div class="form-group">
           <label>
-            <i-lucide name="toggle-right" [size]="14"></i-lucide>
+            
             Status
           </label>
           <div class="status-toggle-form">
             <button class="status-option" [class.selected]="newsForm.active === true"
               (click)="newsForm.active = true">
-              <i-lucide name="check-circle" [size]="16"></i-lucide>
+              
               Active
             </button>
             <button class="status-option" [class.selected]="newsForm.active === false"
               (click)="newsForm.active = false">
-              <i-lucide name="minus-circle" [size]="16"></i-lucide>
+              
               Inactive
             </button>
           </div>
@@ -278,11 +278,11 @@
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" (click)="closeNewsModal()">
-          <i-lucide name="x" [size]="16"></i-lucide>
+          
           Cancel
         </button>
         <button class="btn-save" (click)="saveNews()" [disabled]="isSaving">
-          <i-lucide name="check" [size]="16"></i-lucide>
+          
           {{ isEditing ? 'Update News' : 'Create News' }}
         </button>
       </div>
@@ -295,17 +295,17 @@
   <div class="modal-backdrop confirm-backdrop" (click)="closeConfirmModal()">
     <div class="confirm-modal" [class.danger]="confirmType === 'hard'" (click)="$event.stopPropagation()">
       <div class="confirm-icon" [class.danger]="confirmType === 'hard'">
-        <i-lucide [name]="confirmType === 'hard' ? 'alert-triangle' : 'alert-circle'" [size]="32"></i-lucide>
+        
       </div>
       <h3 class="confirm-title">{{ confirmTitle }}</h3>
       <p class="confirm-message">{{ confirmMessage }}</p>
       <div class="confirm-actions">
         <button class="btn-cancel" (click)="closeConfirmModal()">
-          <i-lucide name="x" [size]="16"></i-lucide>
+          
           Cancel
         </button>
         <button [class]="confirmType === 'hard' ? 'btn-danger' : 'btn-confirm'" (click)="executeConfirmAction()">
-          <i-lucide name="check" [size]="16"></i-lucide>
+          
           Confirm
         </button>
       </div>

@@ -6,7 +6,7 @@
         <div class="header-content">
             <div class="header-title-section">
                 <div class="title-icon">
-                    <i-lucide name="bar-chart-3" [size]="28"></i-lucide>
+                    
                 </div>
                 <div class="title-text">
                     <h1>College Performance Dashboard</h1>
@@ -18,7 +18,7 @@
                 <!-- College Selector -->
                 <div class="college-selector" (clickOutside)="closeDropdown()">
                     <button class="selector-trigger" (click)="toggleCollegeDropdown()">
-                        <i-lucide name="building-2" [size]="18"></i-lucide>
+                        
                         <span class="selector-label">
                             @if (getSelectedCollege()) {
                             {{ getSelectedCollege()?.collegeName }}
@@ -26,13 +26,13 @@
                             Select College
                             }
                         </span>
-                        <i-lucide name="chevron-down" [size]="16" [class.rotated]="showCollegeDropdown"></i-lucide>
+                        
                     </button>
 
                     @if (showCollegeDropdown) {
                     <div class="selector-dropdown">
                         <div class="dropdown-search">
-                            <i-lucide name="search" [size]="16"></i-lucide>
+                            
                             <input type="text" placeholder="Search colleges..." [(ngModel)]="searchQuery"
                                 (input)="filterColleges()" autofocus>
                         </div>
@@ -45,7 +45,7 @@
                                     <span class="college-location">{{ college.city }}, {{ college.country }}</span>
                                 </div>
                                 @if (college.id === selectedCollegeId) {
-                                <i-lucide name="check" [size]="16" class="check-icon"></i-lucide>
+                                
                                 }
                             </button>
                             }
@@ -69,7 +69,7 @@
 
                 <!-- Refresh Button -->
                 <button class="refresh-btn" (click)="refreshDashboard()" [disabled]="isRefreshing">
-                    <i-lucide name="refresh-cw" [size]="18" [class.spinning]="isRefreshing"></i-lucide>
+                    
                 </button>
             </div>
         </div>
@@ -77,7 +77,7 @@
         <!-- College Info Badge -->
         @if (dashboard?.collegeInfo) {
         <div class="college-badge">
-            <i-lucide name="map-pin" [size]="14"></i-lucide>
+            
             <span>{{ dashboard!.collegeInfo.collegeName }}</span>
             <span class="badge-separator">•</span>
             <span>{{ dashboard!.collegeInfo.city }}, {{ dashboard!.collegeInfo.country }}</span>
@@ -111,15 +111,15 @@
                 <!-- Total Students -->
                 <div class="kpi-card" [style.--delay]="'0s'">
                     <div class="kpi-icon" style="--icon-color: #4f8cff;">
-                        <i-lucide name="users" [size]="24"></i-lucide>
+                        
                     </div>
                     <div class="kpi-value">{{ dashboard!.statsOverview.totalStudents | number }}</div>
                     <div class="kpi-label" matTooltip="New Registrations (in selected period)">New Registrations</div>
                     <div class="kpi-trend" [class]="getTrendClass(dashboard.statsOverview.totalStudentsTrend)">
                         @if (getTrendDirection(dashboard.statsOverview.totalStudentsTrend) === 'up') {
-                        <i-lucide name="trending-up" [size]="14"></i-lucide>
+                        
                         } @else if (getTrendDirection(dashboard.statsOverview.totalStudentsTrend) === 'down') {
-                        <i-lucide name="trending-down" [size]="14"></i-lucide>
+                        
                         }
                         <span>{{ formatTrend(dashboard.statsOverview.totalStudentsTrend) }}</span>
                     </div>
@@ -128,15 +128,15 @@
                 <!-- Active Pipeline -->
                 <div class="kpi-card" [style.--delay]="'0.1s'">
                     <div class="kpi-icon" style="--icon-color: #9b5de5;">
-                        <i-lucide name="activity" [size]="24"></i-lucide>
+                        
                     </div>
                     <div class="kpi-value">{{ dashboard.statsOverview.activePipeline | number }}</div>
                     <div class="kpi-label">Active Pipeline</div>
                     <div class="kpi-trend" [class]="getTrendClass(dashboard.statsOverview.activePipelineTrend)">
                         @if (getTrendDirection(dashboard.statsOverview.activePipelineTrend) === 'up') {
-                        <i-lucide name="trending-up" [size]="14"></i-lucide>
+                        
                         } @else if (getTrendDirection(dashboard.statsOverview.activePipelineTrend) === 'down') {
-                        <i-lucide name="trending-down" [size]="14"></i-lucide>
+                        
                         }
                         <span>{{ formatTrend(dashboard.statsOverview.activePipelineTrend) }}</span>
                     </div>
@@ -145,16 +145,16 @@
                 <!-- Visa Success Rate -->
                 <div class="kpi-card" [style.--delay]="'0.2s'">
                     <div class="kpi-icon" style="--icon-color: #00d68f;">
-                        <i-lucide name="check-circle" [size]="24"></i-lucide>
+                        
                     </div>
                     <div class="kpi-value">{{ dashboard!.statsOverview.visaSuccessRate | number:'1.1-1' }}%</div>
                     <div class="kpi-label" matTooltip="Percentage of this cohort that successfully obtained a visa">Visa
                         Success Rate</div>
                     <div class="kpi-trend" [class]="getTrendClass(dashboard.statsOverview.visaSuccessRateTrend)">
                         @if (getTrendDirection(dashboard.statsOverview.visaSuccessRateTrend) === 'up') {
-                        <i-lucide name="trending-up" [size]="14"></i-lucide>
+                        
                         } @else if (getTrendDirection(dashboard.statsOverview.visaSuccessRateTrend) === 'down') {
-                        <i-lucide name="trending-down" [size]="14"></i-lucide>
+                        
                         }
                         <span>{{ formatTrend(dashboard.statsOverview.visaSuccessRateTrend) }}</span>
                     </div>
@@ -163,16 +163,16 @@
                 <!-- Avg Processing Days -->
                 <div class="kpi-card" [style.--delay]="'0.3s'">
                     <div class="kpi-icon" style="--icon-color: #ffaa00;">
-                        <i-lucide name="clock" [size]="24"></i-lucide>
+                        
                     </div>
                     <div class="kpi-value">{{ dashboard.statsOverview.avgProcessingDays | number:'1.1-1' }}</div>
                     <div class="kpi-label">Avg Processing Days</div>
                     <div class="kpi-trend"
                         [class]="getTrendClass(dashboard.statsOverview.avgProcessingDaysTrend, true)">
                         @if (getTrendDirection(dashboard.statsOverview.avgProcessingDaysTrend) === 'up') {
-                        <i-lucide name="trending-up" [size]="14"></i-lucide>
+                        
                         } @else if (getTrendDirection(dashboard.statsOverview.avgProcessingDaysTrend) === 'down') {
-                        <i-lucide name="trending-down" [size]="14"></i-lucide>
+                        
                         }
                         <span>{{ formatTrend(dashboard.statsOverview.avgProcessingDaysTrend) }}</span>
                     </div>
@@ -181,13 +181,13 @@
                 <!-- Conversion Rate -->
                 <div class="kpi-card" [style.--delay]="'0.4s'">
                     <div class="kpi-icon" style="--icon-color: #ff6b9d;">
-                        <i-lucide name="target" [size]="24"></i-lucide>
+                        
                     </div>
                     <div class="kpi-value">{{ dashboard!.statsOverview.conversionRate | number:'1.1-1' }}%</div>
                     <div class="kpi-label" matTooltip="Percentage of visa applicants who are currently travelling">
                         Conversion Rate</div>
                     <div class="kpi-trend trend-stable">
-                        <i-lucide name="minus" [size]="14"></i-lucide>
+                        
                         <span>Calculated</span>
                     </div>
                 </div>
@@ -199,13 +199,13 @@
             <div class="section-header">
                 <div>
                     <h2>
-                        <i-lucide name="git-branch" [size]="20"></i-lucide>
+                        
                         Student Pipeline
                     </h2>
                     <p class="section-subtitle">Cohort Analysis: {{ getSelectedPresetLabel() }}</p>
                 </div>
                 <div class="rejected-badge">
-                    <i-lucide name="x-circle" [size]="16"></i-lucide>
+                    
                     <span>{{ dashboard!.studentPipeline.rejectedCount }} Rejected</span>
                 </div>
             </div>
@@ -227,14 +227,14 @@
                         </div>
                         @if (stage.dropOffRate) {
                         <div class="drop-off">
-                            <i-lucide name="arrow-down" [size]="12"></i-lucide>
+                            
                             <span>{{ stage.dropOffRate | number:'1.1-1' }}% drop</span>
                         </div>
                         }
                     </div>
                     @if (stage.stageKey === 'VISA_STAMPED') {
                     <div class="stage-success">
-                        <i-lucide name="check-circle" [size]="18"></i-lucide>
+                        
                     </div>
                     }
                 </div>
@@ -246,7 +246,7 @@
         <section class="entity-section">
             <div class="section-header">
                 <h2>
-                    <i-lucide name="users" [size]="20"></i-lucide>
+                    
                     Entity Performance
                 </h2>
             </div>
@@ -257,7 +257,7 @@
                 <div class="entity-card" [style.--delay]="'0s'">
                     <div class="entity-header">
                         <div class="entity-icon" style="--entity-color: #4f8cff;">
-                            <i-lucide name="clipboard-list" [size]="20"></i-lucide>
+                            
                         </div>
                         <div class="entity-role">
                             <h3>Admission Manager</h3>
@@ -294,7 +294,7 @@
                 <div class="entity-card" [style.--delay]="'0.1s'">
                     <div class="entity-header">
                         <div class="entity-icon" style="--entity-color: #9b5de5;">
-                            <i-lucide name="building-2" [size]="20"></i-lucide>
+                            
                         </div>
                         <div class="entity-role">
                             <h3>University Coordinator</h3>
@@ -326,7 +326,7 @@
                 <div class="entity-card" [style.--delay]="'0.2s'">
                     <div class="entity-header">
                         <div class="entity-icon" style="--entity-color: #00d68f;">
-                            <i-lucide name="send" [size]="20"></i-lucide>
+                            
                         </div>
                         <div class="entity-role">
                             <h3>Telex Team</h3>
@@ -349,7 +349,7 @@
                 <div class="entity-card" [style.--delay]="'0.3s'">
                     <div class="entity-header">
                         <div class="entity-icon" style="--entity-color: #ffaa00;">
-                            <i-lucide name="plane" [size]="20"></i-lucide>
+                            
                         </div>
                         <div class="entity-role">
                             <h3>Visa Team</h3>
@@ -377,7 +377,7 @@
                 <div class="entity-card" [style.--delay]="'0.4s'">
                     <div class="entity-header">
                         <div class="entity-icon" style="--entity-color: #ff6b9d;">
-                            <i-lucide name="file-text" [size]="20"></i-lucide>
+                            
                         </div>
                         <div class="entity-role">
                             <h3>Document Person</h3>
@@ -404,7 +404,7 @@
                 <div class="entity-card" [style.--delay]="'0.5s'">
                     <div class="entity-header">
                         <div class="entity-icon" style="--entity-color: #6366f1;">
-                            <i-lucide name="calculator" [size]="20"></i-lucide>
+                            
                         </div>
                         <div class="entity-role">
                             <h3>Accountant</h3>
@@ -435,7 +435,7 @@
                 <div class="chart-card">
                     <div class="chart-header">
                         <h3>
-                            <i-lucide name="trending-up" [size]="18"></i-lucide>
+                            
                             Registration & Completion Trends
                         </h3>
                     </div>
@@ -449,7 +449,7 @@
                 <div class="chart-card">
                     <div class="chart-header">
                         <h3>
-                            <i-lucide name="bar-chart-2" [size]="18"></i-lucide>
+                            
                             Status Transitions
                         </h3>
                     </div>
@@ -468,7 +468,7 @@
                 <div class="timeline-card">
                     <div class="card-header">
                         <h3>
-                            <i-lucide name="activity" [size]="18"></i-lucide>
+                            
                             Recent Activities
                         </h3>
                     </div>
@@ -477,7 +477,7 @@
                         $index) {
                         <div class="timeline-item" [style.--delay]="i * 0.05 + 's'">
                             <div class="timeline-marker" [style.background]="getStatusColor(activity.newStatus)">
-                                <i-lucide [name]="getStatusIcon(activity.newStatus)" [size]="14"></i-lucide>
+                                
                             </div>
                             <div class="timeline-content">
                                 <div class="timeline-header">
@@ -487,7 +487,7 @@
                                 <div class="status-change">
                                     @if (activity.previousStatus) {
                                     <span class="prev-status">{{ formatStatus(activity.previousStatus) }}</span>
-                                    <i-lucide name="arrow-right" [size]="12"></i-lucide>
+                                    
                                     }
                                     <span class="new-status" [style.color]="getStatusColor(activity.newStatus)">
                                         {{ formatStatus(activity.newStatus) }}
@@ -510,7 +510,7 @@
                 <div class="alerts-card">
                     <div class="card-header">
                         <h3>
-                            <i-lucide name="alert-triangle" [size]="18"></i-lucide>
+                            
                             Alerts & Bottlenecks
                         </h3>
                     </div>
@@ -521,13 +521,13 @@
                             (click)="toggleAlert(alert.alertType)">
                             <div class="alert-header">
                                 <div class="alert-icon">
-                                    <i-lucide [name]="getSeverityIcon(alert.severity)" [size]="18"></i-lucide>
+                                    
                                 </div>
                                 <div class="alert-info">
                                     <h4>{{ alert.title }}</h4>
                                     <span class="alert-count">{{ alert.affectedCount }} affected</span>
                                 </div>
-                                <i-lucide name="chevron-down" [size]="16" class="expand-icon"></i-lucide>
+                                
                             </div>
                             @if (isAlertExpanded(alert.alertType)) {
                             <div class="alert-details">
@@ -545,7 +545,7 @@
         <footer class="dashboard-footer">
             <div class="metadata">
                 <span>
-                    <i-lucide name="clock" [size]="14"></i-lucide>
+                    
                     Generated: {{ dashboard.metadata.generatedAt | date:'medium' }}
                 </span>
                 <span class="separator">•</span>
@@ -562,7 +562,7 @@
     @if (!isLoadingColleges && !selectedCollegeId && !isLoadingDashboard) {
     <div class="empty-state">
         <div class="empty-icon">
-            <i-lucide name="building-2" [size]="64"></i-lucide>
+            
         </div>
         <h2>Select a College</h2>
         <p>Choose a college from the dropdown above to view its performance dashboard</p>

@@ -2,13 +2,13 @@
   <!-- Page Header -->
   <div class="page-header">
     <button class="back-btn" (click)="goBack()">
-      <i-lucide name="arrow-left" [size]="18"></i-lucide>
+      
       Back to Dashboard
     </button>
     <div class="header-content">
       <div class="title-wrapper">
         <div class="title-icon">
-          <i-lucide name="book-open" [size]="24"></i-lucide>
+          
         </div>
         <div>
           <h1>Accountant Directory</h1>
@@ -18,7 +18,7 @@
       @if (!selectedAccountant) {
       <div class="header-stats">
         <span class="stat-pill">
-          <i-lucide name="users" [size]="14"></i-lucide>
+          
           {{ accountants.length }} Accountants
         </span>
       </div>
@@ -29,7 +29,7 @@
   <!-- Error Message -->
   @if (errorMessage) {
   <div class="toast toast-error">
-    <i-lucide name="alert-circle" [size]="18"></i-lucide>
+    
     {{ errorMessage }}
   </div>
   }
@@ -58,25 +58,25 @@
         <p class="card-subtitle">&#64;{{ acc.username }}</p>
         <div class="card-meta">
           <div class="meta-item">
-            <i-lucide name="mail" [size]="14"></i-lucide>
+            
             <span>{{ acc.email }}</span>
           </div>
           <div class="meta-item">
-            <i-lucide name="phone" [size]="14"></i-lucide>
+            
             <span>{{ acc.contactNumber }}</span>
           </div>
         </div>
       </div>
       <div class="card-footer-action">
         <span>View Students</span>
-        <i-lucide name="chevron-right" [size]="18"></i-lucide>
+        
       </div>
     </div>
     }
     <!-- Empty State -->
     @if (accountants.length === 0) {
     <div class="empty-state-full">
-      <i-lucide name="users" [size]="56" class="empty-icon"></i-lucide>
+      
       <h3>No Accountants Found</h3>
       <p>There are no accountants registered in the system yet.</p>
     </div>
@@ -89,7 +89,7 @@
   <div class="details-view">
     <!-- Back to List -->
     <button class="back-btn" (click)="backToList()">
-      <i-lucide name="arrow-left" [size]="18"></i-lucide>
+      
       Back to Directory
     </button>
     <!-- Profile Summary Card -->
@@ -155,7 +155,7 @@
       </table>
       @if (students.length === 0) {
       <div class="empty-state-sm">
-        <i-lucide name="inbox" [size]="32"></i-lucide>
+        
         <p>No students assigned to this accountant yet.</p>
       </div>
       }

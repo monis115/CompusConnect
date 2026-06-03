@@ -26,7 +26,7 @@
     @if (!loading && !dataLoaded && error) {
     <div class="error-banner">
       <div class="error-content">
-        <i-lucide name="alert-triangle"></i-lucide>
+        
         <div>
           <h3>Connection Failed</h3>
           <p>{{ error }}</p>
@@ -40,12 +40,12 @@
     @if (dataLoaded && !success) {
     <div class="form-header-row">
       <button class="premium-back-btn" (click)="goBack()">
-        <i-lucide name="arrow-left" size="20"></i-lucide>
+        
         <span>Back</span>
       </button>
       <div class="form-header-content">
         <div class="header-icon-box">
-          <i-lucide name="user-plus" [size]="32"></i-lucide>
+          
         </div>
         <div>
           <h2>Agent Registration</h2>
@@ -61,7 +61,7 @@
       <div class="form-section">
         <div class="section-header" style="justify-content: space-between; align-items: center; width: 100%;">
           <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <i-lucide name="building-2" [size]="24"></i-lucide>
+            
             <h2>Company / Agency Profile</h2>
           </div>
 
@@ -131,7 +131,7 @@
       </div>
       <div class="form-section">
         <div class="section-header">
-          <i-lucide name="user" [size]="24"></i-lucide>
+          
           <h2>Agent Details</h2>
         </div>
         <div class="form-grid">
@@ -195,7 +195,7 @@
       </div>
       <div class="form-section">
         <div class="section-header">
-          <i-lucide name="map" [size]="24"></i-lucide>
+          
           <h2>Territory Assignment</h2>
         </div>
         <div class="college-management-area">
@@ -214,7 +214,7 @@
             </div>
             <button type="button" class="btn-add-college" [class.is-ready]="selectedCollegeToAdd"
               (click)="addCollegeAccess()">
-              <i-lucide name="plus-circle" [size]="20"></i-lucide>
+              
               Add Access
             </button>
           </div>
@@ -236,7 +236,7 @@
                 </label>
                 <button type="button" class="btn btn-secondary" style="padding: 0.5rem;"
                   (click)="removeCollegeAccess(entry.collegeId)">
-                  <i-lucide name="trash-2" [size]="18" style="color:#ef4444"></i-lucide>
+                  
                 </button>
               </div>
             </div>
@@ -293,7 +293,7 @@
                     <button type="button" class="btn btn-secondary"
                       style="padding: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"
                       (click)="removeSlab(entry.collegeId, $index)">
-                      <i-lucide name="trash-2" size="18" color="#ef4444"></i-lucide>
+                      
                     </button>
                   </div>
                   }
@@ -301,7 +301,7 @@
                   <button type="button" class="btn btn-secondary"
                     style="margin-top: 0.75rem; font-size: 0.85rem; padding: 0.5rem 1rem;"
                     (click)="addSlab(entry.collegeId)">
-                    <i-lucide name="plus" size="16"></i-lucide> Add Deal Price Level
+                     Add Deal Price Level
                   </button>
                 </div>
                 }
@@ -317,8 +317,7 @@
                     <span style="font-size:0.8rem; color:#94a3b8">({{ getDistrictCountForState(state) }}
                       districts)</span>
                   </div>
-                  <i-lucide [name]="expandedStates[state + '_' + entry.collegeId] ? 'chevron-up' : 'chevron-down'"
-                    [size]="18"></i-lucide>
+                  
                 </div>
                 @if (expandedStates[state + '_' + entry.collegeId]) {
                 <div class="districts-container">
@@ -326,13 +325,13 @@
                     [class.selected]="isAllDistrictsSelectedForCollege(entry.collegeId, state)"
                     (click)="$event.preventDefault(); toggleAllDistrictsForCollege(entry.collegeId, state)">
                     <span>Select All {{ state }}</span>
-                    <i-lucide name="check" class="check-icon"></i-lucide>
+                    
                   </label>
                   @for (loc of districtsByState[state]; track loc) {
                   <label class="district-chip" [class.selected]="isLocationSelectedForCollege(entry.collegeId, loc.id)"
                     (click)="$event.preventDefault(); toggleLocationForCollege(entry.collegeId, loc.id)">
                     <span>{{ loc.district }}</span>
-                    <i-lucide name="check" class="check-icon"></i-lucide>
+                    
                   </label>
                   }
                 </div>
@@ -343,7 +342,7 @@
             }
             @if (entry.accessAllLocations) {
             <div style="padding: 2rem; text-align:center; color:#10b981">
-              <i-lucide name="globe" [size]="32" style="margin-bottom:0.5rem;"></i-lucide>
+              
               <p style="margin:0; font-weight:600;">Full National Access Granted</p>
             </div>
             }
@@ -352,7 +351,7 @@
         </div>
         @if (collegeAccessList.length === 0) {
         <div class="empty-state">
-          <i-lucide name="layout-dashboard" [size]="48"></i-lucide>
+          
           <p>No colleges assigned yet. Use the tool above to add one.</p>
         </div>
         }
@@ -360,7 +359,7 @@
       @if (error && dataLoaded) {
       <div class="error-banner">
         <div class="error-content">
-          <i-lucide name="alert-triangle" [size]="20"></i-lucide>
+          
           <div>
             <h3>Validation Error</h3>
             <p>{{ error }}</p>
@@ -372,7 +371,7 @@
         <button type="button" class="btn btn-secondary" (click)="resetForm()">Cancel</button>
         <button type="submit" class="btn btn-primary"
           [disabled]="form.invalid || collegeAccessList.length === 0 || loading">
-          <i-lucide name="check-circle" [size]="18"></i-lucide>
+          
           Complete Registration
         </button>
       </div>
@@ -387,7 +386,7 @@
     <div class="success-card">
       <div class="success-header">
         <div class="success-icon-large">
-          <i-lucide name="check" [size]="32"></i-lucide>
+          
         </div>
         <h2>Agent Registered!</h2>
         <p>The agent has been successfully onboarded.</p>
@@ -400,7 +399,7 @@
               <div class="cred-value user-id-value">{{ agentCredentials?.userId }}</div>
               <button class="btn-copy" title="Copy User ID"
                 (click)="copyToClipboard(agentCredentials?.userId, 'User ID')">
-                <i-lucide name="copy" [size]="16"></i-lucide>
+                
               </button>
             </div>
           </div>
@@ -410,19 +409,19 @@
               <div class="cred-value user-id-value">{{ agentCredentials?.password || 'default123' }}</div>
               <button class="btn-copy" title="Copy Password"
                 (click)="copyToClipboard(agentCredentials?.password || 'default123', 'Password')">
-                <i-lucide name="copy" [size]="16"></i-lucide>
+                
               </button>
             </div>
           </div>
           <p class="credential-warning">
-            <i-lucide name="info" [size]="14"></i-lucide>
+            
             Please securely share these credentials with the agent.
           </p>
         </div>
         <div class="modal-actions">
           <button class="btn btn-secondary" (click)="closeModalAndNavigate()">Back to Dashboard</button>
           <button class="btn btn-primary" (click)="resetForm()">
-            <i-lucide name="plus" [size]="18"></i-lucide>
+            
             Add Another Agent
           </button>
         </div>

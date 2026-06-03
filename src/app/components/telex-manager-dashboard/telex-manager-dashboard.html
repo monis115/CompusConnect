@@ -189,7 +189,7 @@
       <div class="header-right">
         <div class="search-box">
           <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery" (ngModelChange)="onSearch()">
+          <input type="text" placeholder="Search students..." [value]="searchQuery" (input)="searchQuery = $any($event.target).value; onSearch()">
         </div>
         <button class="icon-btn" title="Refresh Data" (click)="refreshData()">
           <i class="fas fa-sync-alt"></i>

@@ -632,6 +632,17 @@
   background-color: #e5e7eb;
 }
 
+.reg-btn-draft {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.reg-btn-draft:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+}
+
 .reg-btn-submit {
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;

@@ -39,8 +39,7 @@
       </div>
 
       <div class="search-input-group">
-        <input type="text" [(ngModel)]="query" placeholder="Application ID or Email..."
-          (keyup.enter)="trackApplication()" [disabled]="isLoading" class="search-input" />
+        <input type="text" [value]="query" (input)="query = $any($event.target).value" placeholder="Application ID or Email Address" (keyup.enter)="trackApplication()" [disabled]="isLoading" class="search-input" />
         <button class="search-btn" (click)="trackApplication()" [disabled]="isLoading || !query.trim()">
           @if (isLoading) {
           <div class="spinner"></div>

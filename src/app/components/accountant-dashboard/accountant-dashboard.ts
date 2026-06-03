@@ -115,15 +115,15 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       const matchType = this.txFilterType === 'ALL' || tx.transactionType === this.txFilterType;
       const txDate = new Date(tx.transactionDate);
       const matchStart = !this.txFilterStartDate || txDate >= new Date(this.txFilterStartDate);
-      
+
       // End date should include the whole day
       let matchEnd = true;
       if (this.txFilterEndDate) {
-         const endDate = new Date(this.txFilterEndDate);
-         endDate.setHours(23, 59, 59, 999);
-         matchEnd = txDate <= endDate;
+        const endDate = new Date(this.txFilterEndDate);
+        endDate.setHours(23, 59, 59, 999);
+        matchEnd = txDate <= endDate;
       }
-      
+
       return matchType && matchStart && matchEnd;
     });
   }

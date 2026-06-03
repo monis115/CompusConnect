@@ -57,6 +57,22 @@ export class DocPersonDashbaord implements OnInit {
     this.cdr.detectChanges();
   }
 
+  getTabTitle(): string {
+    const titles: { [key: string]: string } = {
+      'dashboard': 'Dashboard',
+      'receive': 'Receive Docs',
+      'verify': 'Verify Docs',
+      'return': 'Return Docs',
+      'pipeline': 'In Pipeline',
+      'stamped': 'Visa Stamped',
+      'reports': 'Reports',
+      'profile': 'My Profile',
+      'funds': 'Fund Requests',
+      'all-students': 'All Students'
+    };
+    return titles[this.activeTab] || 'Dashboard';
+  }
+
   // ALL STUDENTS & DETAILS MODAL
   showStudentDetailsModal: boolean = false;
   selectedStudentForDetails: Student | null = null;
