@@ -616,15 +616,33 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       });
   }
 
+  showVisaNumberModal = false;
+  visaNumberInput = '';
+  studentForVisaStamp: Student | null = null;
+
   // 4. Mark Visa Stamped
   markVisaStamped(student: Student): void {
-    const visaNumber = window.prompt(`Please enter the Visa Number for ${student.fullName}:`, '');
-    
-    if (visaNumber === null) {
-      // User cancelled the prompt
-      return;
-    }
+    this.studentForVisaStamp = student;
+    this.visaNumberInput = '';
+    this.showVisaNumberModal = true;
+    this.cdr.detectChanges();
+  }
 
+  closeVisaNumberModal(): void {
+    this.showVisaNumberModal = false;
+    this.studentForVisaStamp = null;
+    this.visaNumberInput = '';
+    this.cdr.detectChanges();
+  }
+
+  submitVisaNumber(): void {
+    if (!this.visaNumberInput || !this.studentForVisaStamp) return;
+    
+    const student = this.studentForVisaStamp;
+    const visaNumber = this.visaNumberInput;
+    
+    this.closeVisaNumberModal();
+    
     this.openConfirmModal(
       'Mark Visa Stamped',
       `Confirm that Visa has been stamped for ${student.fullName}? \nVisa Number: ${visaNumber}`,

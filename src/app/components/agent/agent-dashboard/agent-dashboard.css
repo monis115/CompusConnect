@@ -8923,6 +8923,7 @@ router-outlet+* {
 .telex-btn-action svg {
   flex-shrink: 0;
 }
+
 /* Custom Tooltip Styles for Telex and Visa Statuses */
 .status-cell-with-tooltip {
   position: relative;

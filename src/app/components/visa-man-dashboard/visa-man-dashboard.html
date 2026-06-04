@@ -1019,6 +1019,43 @@ MODALS
 </div>
 }
 
+<!-- VISA NUMBER MODAL -->
+@if (showVisaNumberModal) {
+<div class="modal-overlay payment-modal" (click)="closeVisaNumberModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-passport" style="color: #4f46e5; margin-right: 8px;"></i> Enter Visa Number</h2>
+      <button class="modal-close" (click)="closeVisaNumberModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      @if (studentForVisaStamp) {
+      <div class="payment-student-info">
+        <div class="profile-placeholder" style="width: 50px; height: 50px; font-size: 1rem;">
+          {{ getInitials(studentForVisaStamp.fullName) }}
+        </div>
+        <div>
+          <div class="student-name">{{ studentForVisaStamp.fullName }}</div>
+          <div class="student-id">{{ studentForVisaStamp.applicationId }}</div>
+        </div>
+      </div>
+      }
+      <div class="payment-form">
+        <div class="form-group">
+          <label>Visa Number <span class="required">*</span></label>
+          <input type="text" [(ngModel)]="visaNumberInput" placeholder="Enter Visa Number" class="form-input" required>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn-cancel" (click)="closeVisaNumberModal()">Cancel</button>
+        <button class="action-btn primary" (click)="submitVisaNumber()" [disabled]="!visaNumberInput">
+          <span>Continue</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
 <!-- CONFIRMATION MODAL -->
 @if (showConfirmModal) {
 <div class="modal-overlay confirm-modal" (click)="closeConfirmModal()">

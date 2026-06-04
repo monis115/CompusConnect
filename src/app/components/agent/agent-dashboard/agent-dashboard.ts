@@ -2337,54 +2337,63 @@ export class AgentDashboard implements OnInit {
   /**
    * Submit payment confirmation to Accountant
    */
-  async submitPaymentConfirmation(): Promise<void> {
+  submitPaymentConfirmation(): void {
     if (!this.selectedPaymentStudent || !this.agentData) return;
 
     this.isSubmittingPayment = true;
     this.cdr.detectChanges();
 
-    try {
-      let confirmationPagePath = '';
+    const studentId = this.selectedPaymentStudent.id;
+    const body = {
+      agentUsername: this.agentData.userId,
+      amount: this.paymentAmount,
+      currency: this.paymentCurrency,
+      transactionId: this.transactionId || null,
+      confirmationPagePath: null as string | null
+    };
 
-      // Upload confirmation file if provided
-      if (this.confirmationFile) {
-        const formData = new FormData();
-        formData.append('file', this.confirmationFile);
-        formData.append('studentId', this.selectedPaymentStudent.id.toString());
-        formData.append('type', 'visa-payment-confirmation');
-
-        const uploadResponse = await this.http.post<any>(
-          environment.apiUrl + '/api/file/upload',
-          formData
-        ).toPromise();
-
-        confirmationPagePath = uploadResponse?.path || '';
-      }
-
-      // Submit payment confirmation
-      const body = {
-        agentUsername: this.agentData.userId,
-        amount: this.paymentAmount,
-        currency: this.paymentCurrency,
-        transactionId: this.transactionId || null,
-        confirmationPagePath: confirmationPagePath || null
-      };
-
-      await this.http.post(
-        `${environment.apiUrl}/api/visa/submit-payment-confirmation/${this.selectedPaymentStudent.id}`,
+    const finalizeRequest = (path: string | null) => {
+      body.confirmationPagePath = path;
+      this.http.post(
+        `${environment.apiUrl}/api/visa/submit-payment-confirmation/${studentId}`,
         body
-      ).toPromise();
+      ).subscribe({
+        next: () => {
+          this.isSubmittingPayment = false;
+          this.closePaymentConfirmationModal();
+          this.isPaymentSuccessModalOpen = true;
+          this.cdr.detectChanges();
+          this.refreshStudents();
+        },
+        error: (error: any) => {
+          this.isSubmittingPayment = false;
+          this.cdr.detectChanges();
+          this.showErrorToast('Failed to submit confirmation: ' + (error?.message || 'Unknown error'));
+        }
+      });
+    };
 
-      this.closePaymentConfirmationModal();
-      this.isPaymentSuccessModalOpen = true;
-      this.cdr.detectChanges();
-      this.refreshStudents();
+    if (this.confirmationFile) {
+      const formData = new FormData();
+      formData.append('file', this.confirmationFile);
+      formData.append('studentId', studentId.toString());
+      formData.append('type', 'visa-payment-confirmation');
 
-    } catch (error: any) {
-      this.showErrorToast('Failed to submit confirmation: ' + (error?.message || 'Unknown error'));
-    } finally {
-      this.isSubmittingPayment = false;
-      this.cdr.detectChanges();
+      this.http.post<any>(
+        environment.apiUrl + '/api/file/upload',
+        formData
+      ).subscribe({
+        next: (uploadResponse) => {
+          finalizeRequest(uploadResponse?.path || null);
+        },
+        error: (error: any) => {
+          this.isSubmittingPayment = false;
+          this.cdr.detectChanges();
+          this.showErrorToast('Failed to upload file: ' + (error?.message || 'Unknown error'));
+        }
+      });
+    } else {
+      finalizeRequest(null);
     }
   }
 

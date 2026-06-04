@@ -86,7 +86,7 @@
         }
       </button>
 
-      <button class="nav-item" [class.active]="currentView === 'visa-payment'" (click)="navigateTo('visa-payment')">
+      <button class="nav-item" [class.active]="currentView === 'apply-visa'" (click)="navigateTo('apply-visa')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
           <line x1="1" y1="10" x2="23" y2="10" />
@@ -1429,7 +1429,7 @@
     }
 
     <!-- Generic List View for other sections -->
-    @if (!isLoading && (currentView === 'visa-stamped' || currentView === 'visa-payment' || currentView === 'doc-return'
+    @if (!isLoading && (currentView === 'visa-stamped' || currentView === 'doc-return'
     || currentView === 'rejected' || currentView === 'travelling')) {
     <div class="content-body" style="background: transparent; padding: 24px;">
       <div class="glass-card">
@@ -1921,41 +1921,62 @@
 
         <!-- Stats Cards Row -->
         <div class="telex-stats-row" style="display: flex; gap: 16px; padding: 24px 24px 0 24px; flex-wrap: wrap;">
-          <!-- Total Requests -->
+          <!-- 1. Total Visa Request -->
           <div class="telex-stat-card"
             style="flex: 1; min-width: 140px; background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px;">
             <div
               style="width: 40px; height: 40px; border-radius: 10px; background: rgba(99, 102, 241, 0.15); display: flex; align-items: center; justify-content: center;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </div>
             <div class="telex-stat-content">
-              <span class="telex-stat-title">Total Requests</span>
+              <span class="telex-stat-title">Total Visa Request</span>
               <span class="telex-stat-value">{{ visaTotalRequests }}</span>
               <span class="telex-stat-desc">All visa requests</span>
             </div>
           </div>
 
-          <!-- Pending -->
+          <!-- 2. Visa Payment Pending -->
           <div class="telex-stat-card"
             style="flex: 1; min-width: 140px; background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px;">
             <div
               style="width: 40px; height: 40px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
               </svg>
             </div>
             <div class="telex-stat-content">
-              <span class="telex-stat-title">Pending</span>
-              <span class="telex-stat-value">{{ visaPendingCount }}</span>
-              <span class="telex-stat-desc">Awaiting visa process</span>
+              <span class="telex-stat-title" style="white-space: normal; line-height: 1.2;">Visa Payment Pending</span>
+              <span class="telex-stat-value">{{ visaPaymentPendingCount }}</span>
+              <span class="telex-stat-desc">Payment pending</span>
             </div>
           </div>
 
-          <!-- Approved / Issued (Visa Stamped) -->
+          <!-- 3. Visa In Process -->
+          <div class="telex-stat-card"
+            style="flex: 1; min-width: 140px; background: rgba(139, 92, 246, 0.06); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px;">
+            <div
+              style="width: 40px; height: 40px; border-radius: 10px; background: rgba(139, 92, 246, 0.15); display: flex; align-items: center; justify-content: center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                </path>
+              </svg>
+            </div>
+            <div class="telex-stat-content">
+              <span class="telex-stat-title">Visa In Process</span>
+              <span class="telex-stat-value">{{ visaInProcessCount }}</span>
+              <span class="telex-stat-desc">Applications in process</span>
+            </div>
+          </div>
+
+          <!-- 4. Visa Stamped -->
           <div class="telex-stat-card"
             style="flex: 1; min-width: 140px; background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px; position: relative; cursor: pointer;"
             (mouseenter)="showRecentIssuedVisa = true" (mouseleave)="showRecentIssuedVisa = false">
@@ -1967,9 +1988,9 @@
               </svg>
             </div>
             <div class="telex-stat-content">
-              <span class="telex-stat-title">Approved / Issued</span>
+              <span class="telex-stat-title">Visa Stamped</span>
               <span class="telex-stat-value">{{ visaIssuedCount }}</span>
-              <span class="telex-stat-desc">Visa stamped</span>
+              <span class="telex-stat-desc">Visas successfully stamped</span>
             </div>
 
             <!-- Recently Issued Visa Hover Popup -->
@@ -2034,38 +2055,21 @@
             }
           </div>
 
-          <!-- In Process -->
-          <div class="telex-stat-card"
-            style="flex: 1; min-width: 140px; background: rgba(139, 92, 246, 0.06); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px;">
-            <div
-              style="width: 40px; height: 40px; border-radius: 10px; background: rgba(139, 92, 246, 0.15); display: flex; align-items: center; justify-content: center;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                </path>
-              </svg>
-            </div>
-            <div class="telex-stat-content">
-              <span class="telex-stat-title">In Process</span>
-              <span class="telex-stat-value">{{ visaInProcessCount }}</span>
-              <span class="telex-stat-desc">Being processed</span>
-            </div>
-          </div>
-
-          <!-- Pending Visa Payment -->
+          <!-- 5. Pending for Apply Visa -->
           <div class="telex-stat-card"
             style="flex: 1; min-width: 140px; background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px;">
             <div
               style="width: 40px; height: 40px; border-radius: 10px; background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
-                <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
               </svg>
             </div>
             <div class="telex-stat-content">
-              <span class="telex-stat-title" style="white-space: normal; line-height: 1.2;">Pending Visa Payment</span>
-              <span class="telex-stat-value">{{ visaPaymentPendingCount }}</span>
-              <span class="telex-stat-desc">Awaiting fee payment</span>
+              <span class="telex-stat-title" style="white-space: normal; line-height: 1.2;">Pending for Apply
+                Visa</span>
+              <span class="telex-stat-value">{{ visaPendingCount }}</span>
+              <span class="telex-stat-desc">Eligible students</span>
             </div>
           </div>
         </div>
@@ -2114,7 +2118,7 @@
               style="border: none; background: transparent; padding: 8px 4px; font-size: 13px; color: #0f172a; outline: none; width: 100%;">
           </div>
 
-          <button class="telex-clear-btn" (click)="clearTelexFilters()"
+          <button class="telex-clear-btn" (click)="clearVisaFilters()"
             style="background: transparent; color: #64748b; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;"
             onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2142,12 +2146,12 @@
                 <th>Serial No.</th>
                 <th>Student</th>
                 <th>University</th>
-                <th>Payment Date ⇅</th>
+                <th style="white-space: nowrap;">Payment Date ⇅</th>
                 <th>Status</th>
-                <th>Visa Fee</th>
+                <th>Visa Fees</th>
                 <th>Payment Status</th>
-                <th>Visa Number</th>
                 <th>Action</th>
+                <th style="white-space: nowrap;">Visa Number</th>
               </tr>
             </thead>
             <tbody>
@@ -2171,7 +2175,7 @@
                   </div>
                 </td>
                 <td style="color: #475569; font-size: 13px; font-weight: 500;">
-                  {{ s.visaFeePaymentDate ? (s.visaFeePaymentDate | date:'dd MMM yyyy, hh:mm a') : '-' }}
+                  {{ (s.visaFeePaymentDate | date:'dd MMM yyyy') || '-' }}
                 </td>
                 <td>
                   <div class="status-cell-with-tooltip" style="position: relative;">
@@ -2214,7 +2218,7 @@
                 </td>
                 <td style="font-size: 13px; font-weight: 600; color: #334155;">
                   @if (s.visaPaymentRequestedAmount) {
-                  {{ s.visaPaymentRequestedAmount }} {{ s.visaPaymentRequestedCurrency }}
+                  {{ (s.visaPaymentRequestedAmount + (s.visaManServiceCharge || 0)) }} {{ s.visaPaymentRequestedCurrency }}
                   } @else {
                   -
                   }
@@ -2232,22 +2236,26 @@
                     style="color: #64748b; background: rgba(100, 116, 139, 0.1); padding: 4px 8px; border-radius: 4px;">Pending</span>
                   }
                 </td>
-                <td style="font-weight: 600;" [style.color]="s.visaNumber ? '#2563eb' : '#94a3b8'">
-                  {{ s.visaNumber || '-' }}
-                </td>
                 <td>
                   @if(getVisaCategory(s) === 'VISA_FEE_PENDING' && !s.visaPaymentConfirmationPath &&
                   !s.visaFeePaymentDate) {
                   <button class="telex-btn-action visa-btn-action"
-                    style="background: #2563eb; color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 4px 12px; font-size: 11px; font-weight: 600; border-radius: 4px; box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);"
+                    style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25); white-space: nowrap; letter-spacing: 0.3px; transition: all 0.2s ease;"
+                    onmouseover="this.style.boxShadow='0 4px 8px rgba(16, 185, 129, 0.35)'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.boxShadow='0 2px 4px rgba(16, 185, 129, 0.25)'; this.style.transform='translateY(0)'"
                     (click)="openPaymentConfirmationModal(s)">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="12" y1="1" x2="12" y2="23"></line>
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                      <line x1="1" y1="10" x2="23" y2="10"></line>
                     </svg>
-                    Pay
+                    Pay Fees
                   </button>
+                  } @else {
+                  <span style="color: #94a3b8; font-size: 13px;">—</span>
                   }
+                </td>
+                <td style="font-weight: 600;" [style.color]="s.visaNumber ? '#2563eb' : '#94a3b8'">
+                  {{ s.visaNumber || '-' }}
                 </td>
               </tr>
               }
@@ -2283,19 +2291,24 @@
                   fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                   <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg></span> Issued</span>
-            <span class="legend-item"><span class="legend-icon yellow"><svg width="14" height="14" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg></span> Pending</span>
+                </svg></span> Visa Stamped</span>
             <span class="legend-item"><span class="legend-icon purple"><svg width="14" height="14" viewBox="0 0 24 24"
                   fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="3"></circle>
                   <path
                     d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
                   </path>
-                </svg></span> In Process</span>
+                </svg></span> Visa In Process</span>
+            <span class="legend-item"><span class="legend-icon yellow"><svg width="14" height="14" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg></span> Visa Payment Pending</span>
+            <span class="legend-item"><span class="legend-icon" style="color: #6366f1;"><svg width="14" height="14"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg></span> Pending for Apply Visa</span>
           </div>
 
           <div class="telex-pagination">
