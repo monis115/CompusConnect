@@ -128,6 +128,10 @@ export interface Student {
     isReturnReceivedByStudent?: boolean;
     readyForDocReturn?: boolean;
     docReturnedDate?: string;
+    docReturnTrackingId?: string;
+    docReceivedDate?: string;
+    docReturnRequestDate?: string;
+    passportReturnReceivedDate?: string;
 
     // Agent Info
     agent?: {

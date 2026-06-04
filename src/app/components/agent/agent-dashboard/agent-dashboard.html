@@ -1429,7 +1429,7 @@
     }
 
     <!-- Generic List View for other sections -->
-    @if (!isLoading && (currentView === 'visa-stamped' || currentView === 'doc-return'
+    @if (!isLoading && (currentView === 'visa-stamped'
     || currentView === 'rejected' || currentView === 'travelling')) {
     <div class="content-body" style="background: transparent; padding: 24px;">
       <div class="glass-card">
@@ -1497,11 +1497,7 @@
                     (click)="navigateTo('edit-student'); studentToEdit = s">
                     Edit & Reapply
                   </button>
-                  } @else if (currentView === 'doc-return') {
-                  <button class="btn-initiate-telex" style="background: rgba(239,68,68,0.1); color: #ef4444;"
-                    (click)="openRequestDocsModal(s)">
-                    Return Docs
-                  </button>
+
                   } @else {
                   <button class="btn-initiate-telex" style="background: rgba(100,116,139,0.1); color: #64748b;"
                     (click)="viewStudentDetails(s)">
@@ -1528,6 +1524,416 @@
       </div>
     </div>
     }
+
+
+    <!-- Return Docs Dashboard -->
+    @if (!isLoading && currentView === 'doc-return') {
+    <div class="content-body" style="background: transparent; padding: 24px;">
+
+      <!-- Stats Row -->
+      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px;">
+
+        <!-- Visa Stamped -->
+        <div
+          style="background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; border: 1px solid rgba(0,0,0,0.05);">
+          <div
+            style="width: 48px; height: 48px; border-radius: 50%; background: rgba(99, 102, 241, 0.1); display: flex; align-items: center; justify-content: center; color: #6366f1;">
+            <i class="fas fa-users" style="font-size: 20px;"></i>
+          </div>
+          <div>
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Visa Stamped Students</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ docStats.total }}</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">Total students</div>
+          </div>
+        </div>
+
+        <!-- Request Pending -->
+        <div
+          style="background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; border: 1px solid rgba(0,0,0,0.05);">
+          <div
+            style="width: 48px; height: 48px; border-radius: 50%; background: rgba(245, 158, 11, 0.1); display: flex; align-items: center; justify-content: center; color: #f59e0b;">
+            <i class="fas fa-briefcase" style="font-size: 20px;"></i>
+          </div>
+          <div>
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Return Request Pending</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ docStats.pending }}</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">{{ docStats.pendingPercent }}% of total</div>
+          </div>
+        </div>
+
+        <!-- Ready to Return -->
+        <div
+          style="background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; border: 1px solid rgba(0,0,0,0.05);">
+          <div
+            style="width: 48px; height: 48px; border-radius: 50%; background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; color: #3b82f6;">
+            <i class="fas fa-passport" style="font-size: 20px;"></i>
+          </div>
+          <div>
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Passports Ready to Return</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ docStats.ready }}</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">{{ docStats.readyPercent }}% of total</div>
+          </div>
+        </div>
+
+        <!-- Returned -->
+        <div
+          style="background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; border: 1px solid rgba(0,0,0,0.05);">
+          <div
+            style="width: 48px; height: 48px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; color: #10b981;">
+            <i class="fas fa-check-circle" style="font-size: 20px;"></i>
+          </div>
+          <div>
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Passports Returned</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ docStats.returned }}</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">{{ docStats.returnedPercent }}% of total</div>
+          </div>
+        </div>
+
+        <!-- Received by Student -->
+        <div
+          style="background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; border: 1px solid rgba(0,0,0,0.05);">
+          <div
+            style="width: 48px; height: 48px; border-radius: 50%; background: rgba(139, 92, 246, 0.1); display: flex; align-items: center; justify-content: center; color: #8b5cf6;">
+            <i class="far fa-clock" style="font-size: 20px;"></i>
+          </div>
+          <div>
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Return Received by Student</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ docStats.received }}</div>
+            <div style="font-size: 0.75rem; color: #94a3b8;">{{ docStats.receivedPercent }}% of total</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Toolbar -->
+      <div
+        style="background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: flex; gap: 16px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05);">
+        <div style="position: relative; flex: 2;">
+          <i class="fas fa-search"
+            style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+          <input type="text" [(ngModel)]="searchQuery"
+            placeholder="Search by student name, roll number, or registration no."
+            style="width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color 0.2s;">
+        </div>
+
+        <div style="flex: 1;">
+          <select [(ngModel)]="docCollegeFilter"
+            style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; outline: none; background: #fff; cursor: pointer;">
+            <option value="All">All Universities</option>
+            @for (college of colleges; track college.id) {
+            <option [value]="college.id">{{ college.collegeName }}</option>
+            }
+          </select>
+        </div>
+
+        <div style="flex: 1;">
+          <select [(ngModel)]="docStatusFilter"
+            style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; outline: none; background: #fff; color: #334155;">
+            <option value="All">All Status</option>
+            <option value="ELIGIBLE_REQUEST">Eligible for Return Request</option>
+            <option value="ELIGIBLE_RECEIVED">Eligible for Received</option>
+            <option value="RECEIVED">Received</option>
+          </select>
+        </div>
+
+        <button (click)="clearDocFilters()"
+          style="padding: 10px 20px; background: transparent; border: 1px solid #e2e8f0; border-radius: 8px; color: #475569; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+          Clear
+        </button>
+      </div>
+
+      <!-- Info Banner -->
+      <div
+        style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.1); border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; color: #1e3a8a; font-size: 0.9rem;">
+        <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+        Only students with Visa Stamped and travel completed are listed here. Click on "Request Return" to send a return
+        request to the company.
+      </div>
+
+      <!-- Main Layout -->
+      <div style="display: flex; gap: 24px; align-items: flex-start;">
+
+        <!-- Table Section -->
+        <div
+          style="flex: 1; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); overflow: hidden;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="background: #0f172a; color: #fff; white-space: nowrap;">
+                <th style="padding: 16px; font-size: 0.85rem; font-weight: 600;">Serial No.</th>
+                <th style="padding: 16px; font-size: 0.85rem; font-weight: 600;">Student</th>
+                <th style="padding: 16px; font-size: 0.85rem; font-weight: 600;">University</th>
+                <th style="padding: 16px; font-size: 0.85rem; font-weight: 600;">Visa Details</th>
+                <th style="padding: 16px; font-size: 0.85rem; font-weight: 600;">Passport Status</th>
+                <th style="padding: 16px; font-size: 0.85rem; font-weight: 600;">Request Date</th>
+                <th style="padding: 16px; font-size: 0.85rem; font-weight: 600;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of paginatedDocStudents; track s; let i = $index) {
+              <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" class="hover:bg-slate-50">
+                <td style="padding: 16px; font-size: 0.9rem; color: #0f172a; font-weight: 600;">
+                  {{ (docCurrentPage - 1) * docPageSize + i + 1 | number:'3.0-0' }}
+                </td>
+                <td style="padding: 16px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div
+                      style="width: 36px; height: 36px; border-radius: 50%; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem;">
+                      {{ getInitials(s.fullName) }}
+                    </div>
+                    <div>
+                      <div style="font-size: 0.9rem; font-weight: 600; color: #0f172a;">{{ s.fullName }}</div>
+                      <div style="font-size: 0.75rem; color: #64748b;">Admission No: {{ s.applicationId }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="padding: 16px; font-size: 0.85rem; color: #334155; max-width: 150px;">
+                  {{ s.college?.collegeName || 'N/A' }}
+                </td>
+                <td style="padding: 16px; font-size: 0.85rem; color: #334155;">
+                  <div style="white-space: nowrap;"><i class="fas fa-id-card" style="color: #64748b; margin-right: 4px;"></i> {{ s.visaNumber || 'N/A' }}</div>
+                </td>
+                <td style="padding: 16px;">
+                  @if (s.passportReturnReceivedDate) {
+                  <!-- ✅ COMPLETED - Received by Student -->
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="position: relative;">
+                      <div
+                        style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #a78bfa); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);">
+                        <i class="fas fa-check-double" style="color: #fff; font-size: 14px;"></i>
+                      </div>
+                      <div
+                        style="position: absolute; bottom: -1px; right: -1px; width: 12px; height: 12px; border-radius: 50%; background: #10b981; border: 2px solid #fff;">
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.8rem; font-weight: 700; color: #8b5cf6; letter-spacing: 0.3px;">RECEIVED
+                      </div>
+                      <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 1px;">Passport with Student</div>
+                    </div>
+                  </div>
+                  } @else if (s.docReturnedDate || s.docReturnTrackingId) {
+                  <!-- 📦 Passport Returned by Doc Person -->
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="position: relative;">
+                      <div
+                        style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #34d399); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);">
+                        <i class="fas fa-shipping-fast" style="color: #fff; font-size: 14px;"></i>
+                      </div>
+                      <div
+                        style="position: absolute; bottom: -1px; right: -1px; width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; border: 2px solid #fff; animation: pulse-dot 2s ease-in-out infinite;">
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.8rem; font-weight: 700; color: #10b981; letter-spacing: 0.3px;">RETURNED
+                      </div>
+                      <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 1px;">Ready for Received</div>
+                    </div>
+                  </div>
+                  } @else if (s.readyForDocReturn) {
+                  <!-- 📋 Ready to Return -->
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="position: relative;">
+                      <div
+                        style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #60a5fa); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);">
+                        <i class="fas fa-passport" style="color: #fff; font-size: 14px;"></i>
+                      </div>
+                      <div
+                        style="position: absolute; bottom: -1px; right: -1px; width: 12px; height: 12px; border-radius: 50%; background: #3b82f6; border: 2px solid #fff; animation: pulse-dot 2s ease-in-out infinite;">
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.8rem; font-weight: 700; color: #3b82f6; letter-spacing: 0.3px;">READY
+                      </div>
+                      <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 1px;">Passport ready to return</div>
+                    </div>
+                  </div>
+                  } @else if (s.hasRaiseReturnRequest) {
+                  <!-- ⏳ Return Request Pending -->
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="position: relative;">
+                      <div
+                        style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #fbbf24); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);">
+                        <i class="fas fa-hourglass-half" style="color: #fff; font-size: 14px;"></i>
+                      </div>
+                      <div
+                        style="position: absolute; bottom: -1px; right: -1px; width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; border: 2px solid #fff; animation: pulse-dot 2s ease-in-out infinite;">
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.8rem; font-weight: 700; color: #f59e0b; letter-spacing: 0.3px;">PENDING
+                      </div>
+                      <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 1px;">Awaiting doc person</div>
+                    </div>
+                  </div>
+                  } @else if (s.applicationStatus === 'VISA_STAMPED') {
+                  <!-- 🔵 Eligible for Return Request -->
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div
+                      style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); display: flex; align-items: center; justify-content: center; border: 2px dashed #818cf8;">
+                      <i class="fas fa-file-export" style="color: #6366f1; font-size: 14px;"></i>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.8rem; font-weight: 700; color: #6366f1; letter-spacing: 0.3px;">ELIGIBLE
+                      </div>
+                      <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 1px;">Can request return</div>
+                    </div>
+                  </div>
+                  } @else {
+                  <!-- ⚪ N/A -->
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div
+                      style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center;">
+                      <i class="fas fa-minus" style="color: #cbd5e1; font-size: 14px;"></i>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1; letter-spacing: 0.3px;">N/A</div>
+                      <div style="font-size: 0.7rem; color: #cbd5e1; margin-top: 1px;">Not applicable</div>
+                    </div>
+                  </div>
+                  }
+                </td>
+                <td style="padding: 16px; font-size: 0.85rem;">
+                  @if (s.docReturnRequestDate) {
+                  <span style="display: inline-flex; align-items: center; gap: 6px; color: #334155; font-weight: 500; white-space: nowrap;">
+                    <i class="fas fa-calendar-alt" style="color: #8b5cf6;"></i> {{ s.docReturnRequestDate | date:'dd-MMM-yyyy' }}
+                  </span>
+                  } @else if (s.hasRaiseReturnRequest) {
+                  <span style="display: inline-flex; align-items: center; gap: 6px; color: #f59e0b; font-weight: 500;">
+                    <i class="fas fa-hourglass-half"></i> Requested
+                  </span>
+                  } @else {
+                  <span style="color: #94a3b8;">N/A</span>
+                  }
+                </td>
+                <td style="padding: 16px;">
+                  @if (canRequestDoc(s)) {
+                  <button (click)="openRequestDocsModal(s)"
+                    style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; background: transparent; color: #3b82f6; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                    <i class="fas fa-paper-plane"></i> Request Return
+                  </button>
+                  } @else if (canMarkReceived(s)) {
+                  <button (click)="markDocReceived(s)"
+                    style="padding: 8px 16px; border: none; border-radius: 8px; background: #8b5cf6; color: white; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);">
+                    <i class="fas fa-check"></i> Mark Received
+                  </button>
+                  } @else if (s.passportReturnReceivedDate) {
+                  <button disabled
+                    style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; color: #10b981; font-size: 0.85rem; font-weight: 500; cursor: not-allowed; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-check-circle"></i> Received
+                  </button>
+                  } @else {
+                  <button disabled
+                    style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; color: #94a3b8; font-size: 0.85rem; font-weight: 500; cursor: not-allowed; display: flex; align-items: center; gap: 8px;">
+                    Pending
+                  </button>
+                  }
+                </td>
+              </tr>
+              }
+
+              @if (filteredStudents.length === 0) {
+              <tr>
+                <td colspan="7" style="padding: 48px; text-align: center; color: #64748b;">
+                  <i class="fas fa-inbox" style="font-size: 32px; color: #cbd5e1; margin-bottom: 16px;"></i>
+                  <div>No records found</div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+
+          <!-- Pagination -->
+          @if (filteredStudents.length > 0) {
+          <div class="astud-pagination">
+            <div>Showing {{ ((docCurrentPage - 1) * docPageSize) + 1 }} to {{ min(docCurrentPage * docPageSize,
+              filteredStudents.length) }} of {{ filteredStudents.length | number }} entries</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <button class="astud-page-btn" [disabled]="docCurrentPage === 1"
+                (click)="docGoToPage(docCurrentPage - 1)">&lt;</button>
+
+              @for (p of [].constructor(docTotalPages); track $index) {
+              @if ($index + 1 === 1 || $index + 1 === docTotalPages || ($index + 1 >= docCurrentPage - 1 && $index + 1
+              <= docCurrentPage + 1)) { <button class="astud-page-btn" [class.active]="docCurrentPage === ($index + 1)"
+                (click)="docGoToPage($index + 1)">{{ $index + 1 }}</button>
+                }
+                }
+
+                <button class="astud-page-btn" [disabled]="docCurrentPage === docTotalPages"
+                  (click)="docGoToPage(docCurrentPage + 1)">&gt;</button>
+
+                <select class="astud-filter-select"
+                  style="margin-left: 16px; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px;"
+                  [(ngModel)]="docPageSize" (change)="docCurrentPage = 1">
+                  <option [value]="10">10 / page</option>
+                  <option [value]="25">25 / page</option>
+                  <option [value]="50">50 / page</option>
+                </select>
+            </div>
+          </div>
+          }
+        </div>
+
+        <!-- Sidebar Info -->
+        <div
+          style="width: 300px; background: #fff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); padding: 24px;">
+          <h3 style="font-size: 1rem; color: #0f172a; margin-top: 0; margin-bottom: 24px; font-weight: 700;">What does
+            Passport Status mean?</h3>
+
+          <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <i class="far fa-clock" style="color: #f59e0b; margin-top: 4px;"></i>
+            <div>
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem; margin-bottom: 4px;">Return Request
+                Pending</div>
+              <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5;">A return request has been sent to the
+                company but passport has not been sent back yet.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <i class="fas fa-passport" style="color: #3b82f6; margin-top: 4px;"></i>
+            <div>
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem; margin-bottom: 4px;">Passport Ready to
+                Return</div>
+              <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5;">Company has confirmed and passport is
+                ready to be returned to us.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <i class="fas fa-check-circle" style="color: #10b981; margin-top: 4px;"></i>
+            <div>
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem; margin-bottom: 4px;">Passport Returned
+              </div>
+              <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5;">Passport has been received by our office
+                from the company.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <i class="far fa-clock" style="color: #8b5cf6; margin-top: 4px;"></i>
+            <div>
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem; margin-bottom: 4px;">Return Received by
+                Student</div>
+              <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5;">Passport has been delivered to the
+                student and received by them.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <i class="fas fa-minus-circle" style="color: #94a3b8; margin-top: 4px;"></i>
+            <div>
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem; margin-bottom: 4px;">N/A (Not Applicable)
+              </div>
+              <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5;">Status not available for this record.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    }
+
 
     <!-- Apply Telex View with Side Panel -->
     @if (!isLoading && currentView === 'apply-telex') {
@@ -2218,7 +2624,8 @@
                 </td>
                 <td style="font-size: 13px; font-weight: 600; color: #334155;">
                   @if (s.visaPaymentRequestedAmount) {
-                  {{ (s.visaPaymentRequestedAmount + (s.visaManServiceCharge || 0)) }} {{ s.visaPaymentRequestedCurrency }}
+                  {{ (s.visaPaymentRequestedAmount + (s.visaManServiceCharge || 0)) }} {{ s.visaPaymentRequestedCurrency
+                  }}
                   } @else {
                   -
                   }
@@ -2244,7 +2651,8 @@
                     onmouseover="this.style.boxShadow='0 4px 8px rgba(16, 185, 129, 0.35)'; this.style.transform='translateY(-1px)'"
                     onmouseout="this.style.boxShadow='0 2px 4px rgba(16, 185, 129, 0.25)'; this.style.transform='translateY(0)'"
                     (click)="openPaymentConfirmationModal(s)">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
                       <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                       <line x1="1" y1="10" x2="23" y2="10"></line>
                     </svg>
@@ -4736,10 +5144,18 @@
           <label>Alternative Phone</label>
           <input type="text" formControlName="alternativePhone" class="form-control" placeholder="Optional">
         </div>
+
+        @if (isAirTicketBooked === 'NO') {
+        <div class="form-group-modern">
+          <label>Expected Date of Travel <span class="required" style="color: #ef4444;">*</span></label>
+          <input type="date" formControlName="needBeforeDate" class="form-control">
+        </div>
+        } @else {
         <div class="form-group-modern">
           <label>Want Before Date</label>
           <input type="date" formControlName="needBeforeDate" class="form-control">
         </div>
+        }
       </div>
       <div class="form-group-modern full-width" style="margin-top: 16px;">
         <label>Delivery Address with Zip Code <span class="required" style="color: #ef4444;">*</span></label>
@@ -4757,34 +5173,74 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
         </svg>
-        Travel Details (Optional)
+        Travel Details
       </div>
+
+      <!-- Air Ticket Booked Toggle -->
+      <div class="form-group-modern full-width" style="margin-bottom: 16px;">
+        <label>Is the Air ticket booked? <span class="required" style="color: #ef4444;">*</span></label>
+        <div style="display: flex; gap: 16px; margin-top: 8px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="radio" name="isAirTicketBooked" [(ngModel)]="isAirTicketBooked" value="YES"
+              (change)="onAirTicketToggle()" [ngModelOptions]="{standalone: true}">
+            <span>YES</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="radio" name="isAirTicketBooked" [(ngModel)]="isAirTicketBooked" value="NO"
+              (change)="onAirTicketToggle()" [ngModelOptions]="{standalone: true}">
+            <span>NO</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Messages based on selection -->
+      @if (isAirTicketBooked === 'NO') {
+      <div
+        style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; font-size: 0.85rem; color: #b45309; line-height: 1.5;">
+        <strong>Notice:</strong> If the air ticket has not yet been booked, please provide the expected date of travel.
+        Kindly ensure that the confirmed travel date is updated at least 7 days prior to departure to facilitate smooth
+        airport pickup and completion of all necessary student arrival procedures.
+      </div>
+      } @else if (isAirTicketBooked === 'YES') {
+      <div
+        style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; font-size: 0.85rem; color: #1e3a8a; line-height: 1.5;">
+        <strong>Notice:</strong> If the air ticket has been booked, all travel details must be provided and completed as
+        mandatory fields, including the information currently requested in the system. Accurate and timely submission of
+        these details is essential to ensure seamless airport pickup, accommodation arrangements, and other
+        arrival-related services for the student.
+      </div>
+      }
+
       <div class="form-grid-modern" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        @if (isAirTicketBooked === 'YES') {
         <div class="form-group-modern">
-          <label>Travel Date</label>
+          <label>Confirmed Travel Date <span class="required" style="color: #ef4444;">*</span></label>
           <input type="date" formControlName="travelDate" class="form-control">
         </div>
         <div class="form-group-modern">
-          <label>PNR Number</label>
+          <label>PNR Number <span class="required" style="color: #ef4444;">*</span></label>
           <input type="text" formControlName="pnrNumber" class="form-control" placeholder="Airline PNR">
         </div>
         <div class="form-group-modern">
-          <label>From Country</label>
+          <label>From Country <span class="required" style="color: #ef4444;">*</span></label>
           <input type="text" formControlName="fromCountry" class="form-control" placeholder="Origin">
         </div>
         <div class="form-group-modern">
-          <label>From Airport Code</label>
+          <label>From Airport Code <span class="required" style="color: #ef4444;">*</span></label>
           <input type="text" formControlName="fromAirport" class="form-control" placeholder="e.g. DEL">
         </div>
         <div class="form-group-modern">
-          <label>To Country</label>
+          <label>To Country <span class="required" style="color: #ef4444;">*</span></label>
           <input type="text" formControlName="toCountry" class="form-control" placeholder="Destination">
         </div>
         <div class="form-group-modern">
-          <label>To Airport Code</label>
+          <label>To Airport Code <span class="required" style="color: #ef4444;">*</span></label>
           <input type="text" formControlName="toAirport" class="form-control" placeholder="e.g. TAS">
         </div>
+        }
       </div>
+
+      @if (isAirTicketBooked === 'YES') {
       <div class="form-group-modern full-width" style="margin-top: 16px;">
         <label>Upload Ticket (PDF) - Optional</label>
         <div class="file-upload-box" (click)="ticketInput.click()"
@@ -4806,6 +5262,7 @@
           <input #ticketInput type="file" (change)="onTicketFileSelected($event)" accept="application/pdf" hidden>
         </div>
       </div>
+      }
     </div>
     <div class="modal-footer-modern" style="margin-top: 24px;">
       <button class="btn-cancel-modern" (click)="closeRequestDocsModal()">Cancel</button>

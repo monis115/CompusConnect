@@ -485,6 +485,28 @@ export class AgentDashboard implements OnInit {
     }
   }
 
+  get paginatedDocStudents(): Student[] {
+    const startIndex = (this.docCurrentPage - 1) * this.docPageSize;
+    return this.filteredStudents.slice(startIndex, startIndex + this.docPageSize);
+  }
+
+  get docTotalPages(): number {
+    return Math.ceil(this.filteredStudents.length / this.docPageSize) || 1;
+  }
+
+  docGoToPage(page: number) {
+    if (page >= 1 && page <= this.docTotalPages) {
+      this.docCurrentPage = page;
+    }
+  }
+
+  clearDocFilters() {
+    this.searchQuery = '';
+    this.docCollegeFilter = 'All';
+    this.docStatusFilter = 'All';
+    this.docCurrentPage = 1;
+  }
+
   clearTelexFilters() {
     this.telexSearchQuery = '';
     this.telexUniversityFilter = 'all';
@@ -915,9 +937,14 @@ export class AgentDashboard implements OnInit {
   isPaymentSuccessModalOpen = false;
 
   // --- Toast State ---
-  showToast = false;
+  showPassword = false;
+
+  // Pagination for Document Return
+  docCurrentPage: number = 1;
+  docPageSize: number = 10;
   toastMessage = '';
   toastType: 'success' | 'error' = 'success';
+  showToast = false;
 
   // --- Doc Request State ---
   docRequestActiveTab: 'new' | 'list' = 'new';
@@ -930,6 +957,22 @@ export class AgentDashboard implements OnInit {
   docRequestDocType: string = '';
   docRequestCustomName: string = '';
   docRequestRemarks: string = '';
+
+  // Document Return Stats
+  docStats = {
+    total: 0,
+    pending: 0,
+    ready: 0,
+    returned: 0,
+    received: 0,
+    pendingPercent: '0.0',
+    readyPercent: '0.0',
+    returnedPercent: '0.0',
+    receivedPercent: '0.0'
+  };
+  docStatusFilter: string = 'All';
+  docCollegeFilter: string = 'All';
+  isAirTicketBooked: string = '';
   isSubmittingDocRequest = false;
   docTypeOptions = [
     { value: 'LOAN_LETTER', label: 'Loan Letter' },
@@ -1333,7 +1376,47 @@ export class AgentDashboard implements OnInit {
       this.clearVisaFilters();
       filtered = this.getVisaPaymentStudents();
     } else if (this.currentView === 'doc-return') {
-      filtered = this.getDocReturnEligibleStudents();
+      filtered = this.students.filter(s =>
+        s.applicationStatus === 'VISA_STAMPED' ||
+        s.hasRaiseReturnRequest ||
+        s.readyForDocReturn ||
+        s.docReturnedDate ||
+        s.docReturnTrackingId ||
+        s.passportReturnReceivedDate
+      );
+
+      // Update Doc Stats
+      const total = filtered.length;
+      let pending = 0, ready = 0, returned = 0, received = 0;
+
+      filtered.forEach(s => {
+        if (s.passportReturnReceivedDate) received++;
+        else if (s.docReturnedDate || s.docReturnTrackingId) returned++;
+        else if (s.readyForDocReturn) ready++;
+        else if (s.hasRaiseReturnRequest) pending++;
+      });
+
+      this.docStats = {
+        total, pending, ready, returned, received,
+        pendingPercent: total ? ((pending / total) * 100).toFixed(1) : '0.0',
+        readyPercent: total ? ((ready / total) * 100).toFixed(1) : '0.0',
+        returnedPercent: total ? ((returned / total) * 100).toFixed(1) : '0.0',
+        receivedPercent: total ? ((received / total) * 100).toFixed(1) : '0.0'
+      };
+
+      // Apply Doc Status Filter
+      if (this.docStatusFilter !== 'All') {
+        filtered = filtered.filter(s => {
+          if (this.docStatusFilter === 'RECEIVED') return !!s.passportReturnReceivedDate;
+          if (this.docStatusFilter === 'ELIGIBLE_RECEIVED') return !s.passportReturnReceivedDate && (!!s.docReturnedDate || !!s.docReturnTrackingId);
+          if (this.docStatusFilter === 'ELIGIBLE_REQUEST') return s.applicationStatus === 'VISA_STAMPED' && !s.hasRaiseReturnRequest;
+          return true;
+        });
+      }
+
+      if (this.docCollegeFilter !== 'All') {
+        filtered = filtered.filter(s => s.college?.collegeName === this.docCollegeFilter);
+      }
     } else if (this.currentView === 'rejected') {
       filtered = this.getRejectedStudents();
     } else if (this.currentView === 'travelling') {
@@ -2586,5 +2669,52 @@ export class AgentDashboard implements OnInit {
     if (!path) return;
     const url = this.fileService.getFileUrl(path);
     window.open(url, '_blank');
+  }
+
+  // ==========================================
+  // DOCUMENT RETURN LOGIC
+  // ==========================================
+
+  getInitials(name: string): string {
+    if (!name) return '';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  getDocStatusBadge(student: Student): string {
+    if (student.passportReturnReceivedDate) {
+      return `<span class="doc-badge badge-received"><i class="far fa-clock"></i> Return Received by Student</span>`;
+    } else if (student.docReturnedDate || student.docReturnTrackingId) {
+      return `<span class="doc-badge badge-returned"><i class="fas fa-check-circle"></i> Passport Returned</span>`;
+    } else if (student.readyForDocReturn) {
+      return `<span class="doc-badge badge-ready"><i class="fas fa-passport"></i> Passport Ready to Return</span>`;
+    } else if (student.hasRaiseReturnRequest) {
+      return `<span class="doc-badge badge-pending"><i class="far fa-clock"></i> Return Request Pending</span>`;
+    } else if (student.applicationStatus === 'VISA_STAMPED') {
+      return `<span class="doc-badge badge-na" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fas fa-info-circle"></i> Eligible for Return Request</span>`;
+    } else {
+      return `<span class="doc-badge badge-na"><i class="fas fa-minus-circle"></i> N/A</span>`;
+    }
+  }
+
+  canRequestDoc(student: Student): boolean {
+    return student.applicationStatus === 'VISA_STAMPED' && !student.hasRaiseReturnRequest && student.canRequestDocReturn !== false;
+  }
+
+  canMarkReceived(student: Student): boolean {
+    return !!((student.docReturnedDate || student.docReturnTrackingId) && !student.passportReturnReceivedDate);
+  }
+
+  markDocReceived(student: Student): void {
+    if (!this.agentData?.userId) return;
+
+    this.http.post(`${this.API_URL}/agents/mark-doc-received/${student.id}?agentUsername=${this.agentData.userId}`, {}).subscribe({
+      next: (res: any) => {
+        this.showToastMessage(res.message || 'Document marked as received!', 'success');
+        this.refreshStudents();
+      },
+      error: (err) => {
+        this.showToastMessage('Error marking document as received', 'error');
+      }
+    });
   }
 }
