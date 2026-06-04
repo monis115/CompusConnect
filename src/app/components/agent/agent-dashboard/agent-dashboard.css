@@ -154,8 +154,8 @@
 }
 
 .sidebar-toggle-btn {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   color: white;
   width: 32px;
@@ -173,8 +173,8 @@
 }
 
 .sidebar-toggle-btn:hover {
-  background: rgba(255,255,255,0.15);
-  border-color: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .dashboard-container.collapsed .sidebar-toggle-btn {
@@ -239,8 +239,14 @@
   font-weight: 600;
   color: white;
 }
-.sidebar-badge.red { background: #ef4444; }
-.sidebar-badge.green { background: #10b981; }
+
+.sidebar-badge.red {
+  background: #ef4444;
+}
+
+.sidebar-badge.green {
+  background: #10b981;
+}
 
 .support-card {
   background: #0f2347;
@@ -249,6 +255,7 @@
   margin: 16px 12px;
   margin-top: auto;
 }
+
 .support-card-btn {
   width: 100%;
   background: #021431;
@@ -261,6 +268,7 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .support-card-btn:hover {
   background: #1e3a8a;
 }
@@ -8376,6 +8384,7 @@ router-outlet+* {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
 /* Assigned Tasks Styles */
 .task-action-btn {
   display: inline-flex;
@@ -8391,20 +8400,55 @@ router-outlet+* {
   width: 190px;
 }
 
-.task-action-btn.red { background: #ef4444; color: white; border: 1px solid #dc2626; }
-.task-action-btn.red:hover { background: #dc2626; }
+.task-action-btn.red {
+  background: #ef4444;
+  color: white;
+  border: 1px solid #dc2626;
+}
 
-.task-action-btn.blue { background: #3b82f6; color: white; border: 1px solid #2563eb; }
-.task-action-btn.blue:hover { background: #2563eb; }
+.task-action-btn.red:hover {
+  background: #dc2626;
+}
 
-.task-action-btn.orange { background: #f59e0b; color: white; border: 1px solid #d97706; }
-.task-action-btn.orange:hover { background: #d97706; }
+.task-action-btn.blue {
+  background: #3b82f6;
+  color: white;
+  border: 1px solid #2563eb;
+}
 
-.task-action-btn.emerald { background: #10b981; color: white; border: 1px solid #059669; }
-.task-action-btn.emerald:hover { background: #059669; }
+.task-action-btn.blue:hover {
+  background: #2563eb;
+}
 
-.task-action-btn.purple { background: #8b5cf6; color: white; border: 1px solid #7c3aed; }
-.task-action-btn.purple:hover { background: #7c3aed; }
+.task-action-btn.orange {
+  background: #f59e0b;
+  color: white;
+  border: 1px solid #d97706;
+}
+
+.task-action-btn.orange:hover {
+  background: #d97706;
+}
+
+.task-action-btn.emerald {
+  background: #10b981;
+  color: white;
+  border: 1px solid #059669;
+}
+
+.task-action-btn.emerald:hover {
+  background: #059669;
+}
+
+.task-action-btn.purple {
+  background: #8b5cf6;
+  color: white;
+  border: 1px solid #7c3aed;
+}
+
+.task-action-btn.purple:hover {
+  background: #7c3aed;
+}
 
 .task-filter-btn {
   border: none;
@@ -8421,22 +8465,504 @@ router-outlet+* {
   min-width: 170px;
   flex: 1;
 }
-.task-filter-btn.active.all { background: #0f172a; color: white; }
-.task-filter-btn:not(.active).all { background: #f1f5f9; color: #64748b; }
-.task-filter-btn:not(.active).all:hover { background: #e2e8f0; }
 
-.task-filter-btn.active.red { background: #ef4444; color: white; }
-.task-filter-btn:not(.active).red { background: #fef2f2; color: #ef4444; }
-.task-filter-btn:not(.active).red:hover { background: #fee2e2; }
+.task-filter-btn.active.all {
+  background: #0f172a;
+  color: white;
+}
 
-.task-filter-btn.active.blue { background: #3b82f6; color: white; }
-.task-filter-btn:not(.active).blue { background: #eff6ff; color: #3b82f6; }
-.task-filter-btn:not(.active).blue:hover { background: #dbeafe; }
+.task-filter-btn:not(.active).all {
+  background: #f1f5f9;
+  color: #64748b;
+}
 
-.task-filter-btn.active.orange { background: #f59e0b; color: white; }
-.task-filter-btn:not(.active).orange { background: #fffbeb; color: #f59e0b; }
-.task-filter-btn:not(.active).orange:hover { background: #fef3c7; }
+.task-filter-btn:not(.active).all:hover {
+  background: #e2e8f0;
+}
 
-.task-filter-btn.active.emerald { background: #10b981; color: white; }
-.task-filter-btn:not(.active).emerald { background: #ecfdf5; color: #10b981; }
-.task-filter-btn:not(.active).emerald:hover { background: #d1fae5; }
+.task-filter-btn.active.red {
+  background: #ef4444;
+  color: white;
+}
+
+.task-filter-btn:not(.active).red {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.task-filter-btn:not(.active).red:hover {
+  background: #fee2e2;
+}
+
+.task-filter-btn.active.blue {
+  background: #3b82f6;
+  color: white;
+}
+
+.task-filter-btn:not(.active).blue {
+  background: #eff6ff;
+  color: #3b82f6;
+}
+
+.task-filter-btn:not(.active).blue:hover {
+  background: #dbeafe;
+}
+
+.task-filter-btn.active.orange {
+  background: #f59e0b;
+  color: white;
+}
+
+.task-filter-btn:not(.active).orange {
+  background: #fffbeb;
+  color: #f59e0b;
+}
+
+.task-filter-btn:not(.active).orange:hover {
+  background: #fef3c7;
+}
+
+.task-filter-btn.active.emerald {
+  background: #10b981;
+  color: white;
+}
+
+.task-filter-btn:not(.active).emerald {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+.task-filter-btn:not(.active).emerald:hover {
+  background: #d1fae5;
+}
+
+/* Telex Section UI Updates */
+.telex-stats-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.telex-stat-card {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.telex-stat-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.telex-stat-icon-wrapper.blue {
+  background: #eff6ff;
+}
+
+.telex-stat-icon-wrapper.yellow {
+  background: #fef9c3;
+}
+
+.telex-stat-icon-wrapper.green {
+  background: #dcfce7;
+}
+
+.telex-stat-icon-wrapper.purple {
+  background: #f3e8ff;
+}
+
+.telex-stat-icon-wrapper.orange {
+  background: #ffedd5;
+}
+
+.telex-stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.telex-stat-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.telex-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.telex-stat-desc {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* Toolbar */
+.telex-toolbar {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 12px 12px 0 0;
+}
+
+.telex-toolbar .search-box {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+}
+
+.telex-toolbar .search-box input {
+  width: 100%;
+  padding: 10px 10px 10px 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.telex-toolbar .search-box svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.telex-select {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  outline: none;
+  min-width: 150px;
+}
+
+.telex-btn-clear {
+  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+}
+
+.telex-btn-search {
+  padding: 10px 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Table */
+.telex-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.telex-table th {
+  background: #0f172a;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  padding: 12px 16px;
+}
+
+.telex-table th:first-child {
+  border-top-left-radius: 0;
+}
+
+.telex-table th:last-child {
+  border-top-right-radius: 0;
+}
+
+.telex-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.telex-student-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.telex-student-cell .student-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.telex-student-cell .student-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.telex-student-cell .student-meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Status Badges */
+.telex-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.status-issued {
+  color: #22c55e;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.status-pending {
+  color: #eab308;
+  background: #fefce8;
+  border-color: #fef08a;
+}
+
+.status-in-process {
+  color: #a855f7;
+  background: #faf5ff;
+  border-color: #e9d5ff;
+}
+
+.status-initiated {
+  color: #f97316;
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.telex-action-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.telex-action-btn:hover {
+  background: #f1f5f9;
+  border-radius: 50%;
+}
+
+/* Footer & Pagination */
+.telex-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.telex-footer-info {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.telex-legend {
+  display: flex;
+  gap: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.legend-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.legend-icon.green {
+  color: #22c55e;
+}
+
+.legend-icon.yellow {
+  color: #eab308;
+}
+
+.legend-icon.purple {
+  color: #a855f7;
+}
+
+.telex-pagination {
+  display: flex;
+  gap: 4px;
+}
+
+.telex-page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #475569;
+  font-size: 14px;
+}
+
+.telex-page-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.telex-page-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.telex-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* Override badge styles to match screenshot exactly */
+.telex-status-badge {
+  border-radius: 4px;
+  /* Square shape */
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-issued {
+  color: #16a34a !important;
+  /* text */
+  border: 1px solid #16a34a !important;
+  /* solid border */
+  background: #f0fdf4 !important;
+  /* very faint background */
+}
+
+.status-pending {
+  color: #d97706 !important;
+  border: 1px solid #d97706 !important;
+  background: #fffbeb !important;
+}
+
+.status-in-process {
+  color: #9333ea !important;
+  border: 1px solid #9333ea !important;
+  background: #faf5ff !important;
+}
+
+.status-initiated {
+  color: #ea580c !important;
+  border: 1px solid #ea580c !important;
+  background: #fff7ed !important;
+}
+
+/* New specific Initiate button style */
+.telex-btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.telex-btn-action:hover {
+  background: #1d4ed8;
+}
+
+.telex-btn-action svg {
+  flex-shrink: 0;
+}
+/* Custom Tooltip Styles for Telex and Visa Statuses */
+.status-cell-with-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.status-cell-with-tooltip:hover .custom-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.custom-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  background-color: #1e293b;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 10;
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+}
+
+.custom-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1e293b transparent transparent transparent;
+}

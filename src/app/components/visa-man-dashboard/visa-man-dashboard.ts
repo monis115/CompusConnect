@@ -618,18 +618,25 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
   // 4. Mark Visa Stamped
   markVisaStamped(student: Student): void {
+    const visaNumber = window.prompt(`Please enter the Visa Number for ${student.fullName}:`, '');
+    
+    if (visaNumber === null) {
+      // User cancelled the prompt
+      return;
+    }
+
     this.openConfirmModal(
       'Mark Visa Stamped',
-      `Confirm that Visa has been stamped for ${student.fullName}?`,
+      `Confirm that Visa has been stamped for ${student.fullName}? \nVisa Number: ${visaNumber}`,
       () => {
-        this.processMarkVisaStamped(student);
+        this.processMarkVisaStamped(student, visaNumber);
       }
     );
   }
 
-  processMarkVisaStamped(student: Student): void {
+  processMarkVisaStamped(student: Student, visaNumber: string): void {
     this.processingId = student.id;
-    this.visaService.markVisaStamped(student.id, this.currentUsername)
+    this.visaService.markVisaStamped(student.id, this.currentUsername, visaNumber)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => { this.processingId = null; this.cdr.detectChanges(); }),

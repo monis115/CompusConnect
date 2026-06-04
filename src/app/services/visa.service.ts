@@ -27,8 +27,8 @@ export class VisaService {
     }
 
     // 4. Mark Visa Stamped
-    markVisaStamped(studentId: number, managerUsername: string): Observable<any> {
-        return this.http.post(`${this.baseUrl}/stamped/${studentId}`, { managerUsername });
+    markVisaStamped(studentId: number, managerUsername: string, visaNumber?: string): Observable<any> {
+        return this.http.post(`${this.baseUrl}/stamped/${studentId}`, { managerUsername, visaNumber });
     }
 
     // Return Documents to Doc Person (Post-Stamping)

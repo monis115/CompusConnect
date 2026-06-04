@@ -20,6 +20,7 @@ export enum StudentStatus {
   ADMISSION_LETTER_APPROVED = 'ADMISSION_LETTER_APPROVED',
 
   APPLIED_FOR_TELEX = 'APPLIED_FOR_TELEX',
+  TELEX_INITIATED = 'TELEX_INITIATED',
   TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY = 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY',
   TELEX_APPLICATION_SUBMITTED_TO_MEA = 'TELEX_APPLICATION_SUBMITTED_TO_MEA',
   TELEX_NUMBER_ISSUED = 'TELEX_NUMBER_ISSUED',
@@ -27,6 +28,8 @@ export enum StudentStatus {
   VISA_FEE_PENDING = 'VISA_FEE_PENDING',
   VISA_FEE_RECEIVED = 'VISA_FEE_RECEIVED',
   VISA_APPLIED = 'VISA_APPLIED',
+  PASSPORT_COLLECTED = 'PASSPORT_COLLECTED',
+  VISA_PAYMENT_CONFIRMED = 'VISA_PAYMENT_CONFIRMED',
   PASSPORT_SUBMITTED_TO_EMBASSY = 'PASSPORT_SUBMITTED_TO_EMBASSY',
   VISA_STAMPED = 'VISA_STAMPED',
 
@@ -135,7 +138,7 @@ export class AgentDashboard implements OnInit {
   }
 
   // --- View State ---
-  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'assigned-tasks' | 'travel-details' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'visa-payment' | 'doc-return' | 'rejected' | 'travelling' | 'request-doc' = 'dashboard';
+  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'assigned-tasks' | 'travel-details' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'apply-visa' | 'doc-return' | 'rejected' | 'travelling' | 'request-doc' | 'visa-payment' = 'dashboard';
   isLoading = true;
   isRefreshing = false;
   isReloadingData = false; // For floating button
@@ -312,11 +315,11 @@ export class AgentDashboard implements OnInit {
     } else if (this.assignedTasksActionFilter === 'TRAVEL') {
       tasks = tasks.filter(s => (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT') && s['action'] === 'SUBMIT_TRAVEL_DETAILS');
     }
-    
+
     if (this.assignedTasksUniversity !== 'all') {
       tasks = tasks.filter(s => s.college?.collegeName === this.assignedTasksUniversity);
     }
-    
+
     if (this.assignedTasksSearch) {
       const q = this.assignedTasksSearch.toLowerCase();
       tasks = tasks.filter(s =>
@@ -350,8 +353,325 @@ export class AgentDashboard implements OnInit {
     this.assignedTasksCurrentPage = 1;
   }
 
+  // --- Telex Dashboard View State ---
+  telexSearchQuery: string = '';
+  telexUniversityFilter: string = 'all';
+  telexStatusFilter: string = 'all';
+  telexDateFilter: string = '';
+  telexCurrentPage: number = 1;
+  telexPageSize: number = 10;
+  showRecentIssued: boolean = false;
+
+  getTelexCategory(s: Student): string {
+    if (s.telexNumber || s.applicationStatus === StudentStatus.TELEX_NUMBER_ISSUED) {
+      return 'ISSUED';
+    }
+    if (s.applicationStatus === StudentStatus.TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY ||
+      s.applicationStatus === StudentStatus.TELEX_APPLICATION_SUBMITTED_TO_MEA ||
+      s.telexDocumentsPath) {
+      return 'IN_PROCESS';
+    }
+    // Check if Telex Manager is assigned
+    if (s.telexMan && (s.applicationStatus === StudentStatus.TELEX_INITIATED || s.applicationStatus === StudentStatus.APPLIED_FOR_TELEX)) {
+      return 'PENDING';
+    }
+
+    if (s.applicationStatus === StudentStatus.TELEX_INITIATED ||
+      s.applicationStatus === StudentStatus.APPLIED_FOR_TELEX ||
+      s.applicationStatus === 'TELEX_PAYMENT_DOCS_SUBMITTED') {
+      return 'INITIATED';
+    }
+    return 'ELIGIBLE';
+  }
+
+  get allTelexStudents(): Student[] {
+    if (!this.students) return [];
+    return this.students.filter(s => {
+      if (s.telexNumber) return true;
+      const telexStatuses = [
+        StudentStatus.APPLIED_FOR_TELEX,
+        StudentStatus.TELEX_INITIATED,
+        StudentStatus.TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY,
+        StudentStatus.TELEX_APPLICATION_SUBMITTED_TO_MEA,
+        StudentStatus.TELEX_NUMBER_ISSUED,
+        StudentStatus.ADMISSION_LETTER_APPROVED
+      ];
+      if (telexStatuses.includes(s.applicationStatus as StudentStatus)) return true;
+      if (s['action'] === 'INITIATE_TELEX' && (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT')) return true;
+      return false;
+    });
+  }
+
+  get telexTotalRequests(): number {
+    return this.allTelexStudents.length;
+  }
+
+  get telexPendingCount(): number {
+    return this.allTelexStudents.filter(s => this.getTelexCategory(s) === 'PENDING').length;
+  }
+
+  get telexIssuedCount(): number {
+    return this.allTelexStudents.filter(s => this.getTelexCategory(s) === 'ISSUED').length;
+  }
+
+  get telexInProcessCount(): number {
+    return this.allTelexStudents.filter(s => this.getTelexCategory(s) === 'IN_PROCESS').length;
+  }
+
+  get telexEligibleCount(): number {
+    return this.allTelexStudents.filter(s => this.getTelexCategory(s) === 'ELIGIBLE').length;
+  }
+
+  get recentIssuedTelexStudents(): Student[] {
+    const issued = this.allTelexStudents.filter(s => this.getTelexCategory(s) === 'ISSUED');
+    issued.sort((a, b) => {
+      const dateA = a.telexIssueDate ? new Date(a.telexIssueDate).getTime() : 0;
+      const dateB = b.telexIssueDate ? new Date(b.telexIssueDate).getTime() : 0;
+      return dateB - dateA;
+    });
+    return issued.slice(0, 5);
+  }
+
+  get filteredTelexStudents(): Student[] {
+    let filtered = this.allTelexStudents;
+
+    if (this.telexUniversityFilter !== 'all') {
+      filtered = filtered.filter(s => s.college?.collegeName === this.telexUniversityFilter);
+    }
+
+    if (this.telexStatusFilter !== 'all') {
+      filtered = filtered.filter(s => this.getTelexCategory(s) === this.telexStatusFilter);
+    }
+
+    if (this.telexDateFilter) {
+      filtered = filtered.filter(s => {
+        if (!s.telexRequestDate) return false;
+        const studentDate = new Date(s.telexRequestDate).toISOString().split('T')[0];
+        return studentDate === this.telexDateFilter;
+      });
+    }
+
+    if (this.telexSearchQuery) {
+      const q = this.telexSearchQuery.toLowerCase();
+      filtered = filtered.filter(s =>
+        s.fullName?.toLowerCase().includes(q) ||
+        s.applicationId?.toLowerCase().includes(q) ||
+        s.email?.toLowerCase().includes(q) ||
+        (s.telexNumber && s.telexNumber.toLowerCase().includes(q))
+      );
+    }
+    // Sort by requested date (telexRequestDate), latest at top
+    filtered.sort((a, b) => {
+      const dateA = a.telexRequestDate ? new Date(a.telexRequestDate).getTime() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+      const dateB = b.telexRequestDate ? new Date(b.telexRequestDate).getTime() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+      return dateB - dateA;
+    });
+
+    return filtered;
+  }
+
+  get paginatedTelexStudents(): Student[] {
+    const startIndex = (this.telexCurrentPage - 1) * this.telexPageSize;
+    return this.filteredTelexStudents.slice(startIndex, startIndex + this.telexPageSize);
+  }
+
+  get telexTotalPages(): number {
+    return Math.ceil(this.filteredTelexStudents.length / this.telexPageSize) || 1;
+  }
+
+  telexGoToPage(page: number) {
+    if (page >= 1 && page <= this.telexTotalPages) {
+      this.telexCurrentPage = page;
+    }
+  }
+
+  clearTelexFilters() {
+    this.telexSearchQuery = '';
+    this.telexUniversityFilter = 'all';
+    this.telexStatusFilter = 'all';
+    this.telexDateFilter = '';
+    this.telexCurrentPage = 1;
+  }
+
+  getDistinctColleges(): string[] {
+    if (!this.students) return [];
+    const colleges = this.students
+      .map(s => s.college?.collegeName)
+      .filter((name): name is string => !!name);
+    return [...new Set(colleges)].sort();
+  }
+
+  getTelexStatusDisplay(s: Student): { label: string, class: string, icon: string, tooltip: string } {
+    const category = this.getTelexCategory(s);
+    if (category === 'ISSUED') {
+      return { label: 'Issued', class: 'status-issued', icon: 'check-circle', tooltip: 'TELEX number has been issued' };
+    }
+    if (category === 'PENDING') {
+      return { label: 'Pending', class: 'status-pending', icon: 'clock', tooltip: 'Verification SuccessFul -  Your appplication is now with Telex Person' };
+    }
+    if (category === 'IN_PROCESS') {
+      return { label: 'In Process', class: 'status-in-process', icon: 'settings', tooltip: 'Telex man started working on it will release the TELEX NUMBER' };
+    }
+    if (category === 'INITIATED') {
+      return { label: 'Initiated', class: 'status-initiated', icon: 'file-text', tooltip: 'You have initaited the telex. accountant and doc person will process now' };
+    }
+    return { label: 'ELIGIBLE', class: 'status-initiated', icon: 'file-text', tooltip: 'Please initiate telex' };
+  }
 
 
+
+
+  // --- Visa Dashboard View State ---
+  visaSearchQuery: string = '';
+  visaUniversityFilter: string = 'all';
+  visaStatusFilter: string = 'all';
+  visaDateFilter: string = '';
+  visaCurrentPage: number = 1;
+  visaPageSize: number = 10;
+  showRecentIssuedVisa: boolean = false;
+
+  getVisaCategory(s: Student): string {
+    if (s.applicationStatus === StudentStatus.VISA_STAMPED) {
+      return 'VISA_STAMPED';
+    }
+    // Application is in process once applied
+    const inProcessStatuses = [
+      StudentStatus.VISA_APPLIED,
+      StudentStatus.PASSPORT_SUBMITTED_TO_EMBASSY,
+      StudentStatus.PASSPORT_COLLECTED,
+      StudentStatus.VISA_FEE_RECEIVED,
+      StudentStatus.VISA_PAYMENT_CONFIRMED
+    ];
+    if (inProcessStatuses.includes(s.applicationStatus as StudentStatus)) {
+      return 'IN_PROCESS';
+    }
+    // Fee requested but not yet paid fully
+    if (s.visaPaymentRequestedAmount != null && s.visaPaymentReceivedDate == null) {
+      return 'VISA_FEE_PENDING';
+    }
+    // If assigned to Visa man but fee not requested, it's pending to apply
+    if (s.visaMan) {
+      return 'PENDING_FOR_APPLY_VISA';
+    }
+    return 'PENDING_FOR_APPLY_VISA';
+  }
+
+  get allVisaStudents(): Student[] {
+    if (!this.students) return [];
+    return this.students.filter(s => s.visaMan != null || s.applicationStatus === StudentStatus.VISA_STAMPED);
+  }
+
+  get visaTotalRequests(): number {
+    return this.allVisaStudents.length;
+  }
+
+  get visaPendingCount(): number {
+    return this.allVisaStudents.filter(s => this.getVisaCategory(s) === 'PENDING_FOR_APPLY_VISA').length;
+  }
+
+  get visaIssuedCount(): number {
+    return this.allVisaStudents.filter(s => this.getVisaCategory(s) === 'VISA_STAMPED').length;
+  }
+
+  get visaInProcessCount(): number {
+    return this.allVisaStudents.filter(s => this.getVisaCategory(s) === 'IN_PROCESS').length;
+  }
+
+  get visaPaymentPendingCount(): number {
+    return this.allVisaStudents.filter(s => this.getVisaCategory(s) === 'VISA_FEE_PENDING').length;
+  }
+
+  get recentIssuedVisaStudents(): Student[] {
+    const issued = this.allVisaStudents.filter(s => this.getVisaCategory(s) === 'VISA_STAMPED');
+    issued.sort((a, b) => {
+      // Sort by whatever date you have, assuming createdAt for now or visa issue date if added later
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+    return issued.slice(0, 5);
+  }
+
+  get filteredVisaStudents(): Student[] {
+    let filtered = this.allVisaStudents;
+
+    if (this.visaSearchQuery) {
+      const q = this.visaSearchQuery.toLowerCase();
+      filtered = filtered.filter(s =>
+        s.fullName?.toLowerCase().includes(q) ||
+        s.studentRollNo?.toLowerCase().includes(q) ||
+        s.universityRegNo?.toLowerCase().includes(q)
+      );
+    }
+
+    if (this.visaUniversityFilter !== 'all') {
+      filtered = filtered.filter(s => s.college?.collegeName === this.visaUniversityFilter);
+    }
+
+    if (this.visaStatusFilter !== 'all') {
+      filtered = filtered.filter(s => this.getVisaCategory(s) === this.visaStatusFilter);
+    }
+
+    if (this.visaDateFilter) {
+      const filterDate = new Date(this.visaDateFilter).toDateString();
+      filtered = filtered.filter(s => {
+        const d = s.createdAt ? new Date(s.createdAt) : null;
+        return d && d.toDateString() === filterDate;
+      });
+    }
+
+    filtered.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+
+    return filtered;
+  }
+
+  get paginatedVisaStudents(): Student[] {
+    const startIndex = (this.visaCurrentPage - 1) * this.visaPageSize;
+    return this.filteredVisaStudents.slice(startIndex, startIndex + this.visaPageSize);
+  }
+
+  changeVisaPage(page: number): void {
+    this.visaCurrentPage = page;
+  }
+
+  get visaTotalPages(): number {
+    return Math.ceil(this.filteredVisaStudents.length / this.visaPageSize) || 1;
+  }
+
+  visaGoToPage(page: number): void {
+    if (page >= 1 && page <= this.visaTotalPages) {
+      this.visaCurrentPage = page;
+    }
+  }
+
+  clearVisaFilters(): void {
+    this.visaSearchQuery = '';
+    this.visaUniversityFilter = 'all';
+    this.visaStatusFilter = 'all';
+    this.visaDateFilter = '';
+    this.visaCurrentPage = 1;
+  }
+
+  getVisaStatusDisplay(s: Student): { label: string, class: string, icon: string, tooltip: string } {
+    const category = this.getVisaCategory(s);
+    if (category === 'VISA_STAMPED') {
+      return { label: 'Visa Stamped', class: 'status-issued', icon: 'check-circle', tooltip: 'Visa has been successfully stamped' };
+    }
+    if (category === 'VISA_FEE_PENDING') {
+      return { label: 'Visa Payment Pending', class: 'status-pending', icon: 'clock', tooltip: 'Visa fee requested, waiting for payment' };
+    }
+    if (category === 'IN_PROCESS') {
+      return { label: 'Visa In Process', class: 'status-in-process', icon: 'settings', tooltip: 'Application is being processed by Visa Man' };
+    }
+    if (category === 'PENDING_FOR_APPLY_VISA') {
+      return { label: 'Pending for Apply Visa', class: 'status-initiated', icon: 'file-text', tooltip: 'Eligible for Visa. Pending action.' };
+    }
+    return { label: 'Pending for Apply Visa', class: 'status-initiated', icon: 'file-text', tooltip: 'Eligible for Visa. Pending action.' };
+  }
 
   // --- Dashboard Dynamic Filter State ---
   selectedDashboardCollegeId: string = 'all';
@@ -1009,7 +1329,8 @@ export class AgentDashboard implements OnInit {
       filtered = this.students; // we show search UI instead of list directly, or empty list
     } else if (this.currentView === 'apply-telex') {
       filtered = this.getTelexEligibleStudents();
-    } else if (this.currentView === 'visa-payment') {
+    } else if (this.currentView === 'apply-visa') {
+      this.clearVisaFilters();
       filtered = this.getVisaPaymentStudents();
     } else if (this.currentView === 'doc-return') {
       filtered = this.getDocReturnEligibleStudents();
@@ -1047,7 +1368,7 @@ export class AgentDashboard implements OnInit {
       case 'visa-stamped': return 'Visa Stamped';
       case 'assigned-tasks': return 'Assigned Tasks';
       case 'apply-telex': return 'Apply Telex';
-      case 'visa-payment': return 'VISA Payment';
+      case 'apply-visa': return 'Apply Visa';
       case 'doc-return': return 'Doc Return';
       case 'rejected': return 'Reapply / Rejected';
       case 'reports': return 'Reports';
@@ -1934,6 +2255,10 @@ export class AgentDashboard implements OnInit {
       courierTrackingId: formValues.courierTrackingNumber,
       agentUsername: this.agentData.userId
     };
+
+    // Remove UI-only fields so backend doesn't complain about UnrecognizedProperty
+    delete (telexData as any).selfPersonName;
+    delete (telexData as any).selfPersonPhone;
 
     this.telexService.submitTelexApplication(
       this.studentForTelex.id,

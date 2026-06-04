@@ -59,6 +59,14 @@ export interface Student {
     marks?: number; // Optional
     intake?: string;
     neetScore?: number;
+    accToVisaManStatus?: string;
+    visaNumber?: string;
+    visaPaymentRequestedAmount?: number;
+    visaPaymentRequestedCurrency?: string;
+    visaPaymentReceivedDate?: Date;
+    visaMan?: any;
+    studentRollNo?: string;
+    universityRegNo?: string;
     appliedFor: string;
     applicationStatus: string;
     nextStep: string | null;
@@ -72,6 +80,7 @@ export interface Student {
     telexDocumentsPath?: string;
     telexNumber?: string;
     telexIssueDate?: string;
+    telexRequestDate?: string;
     studentStatusHistory?: any[];
     actionOnUser?: string;
     applicationId?: string;
@@ -125,6 +134,9 @@ export interface Student {
       fullName?: string;
       username?: string;
     };
+    
+    // Telex Manager Info
+    telexMan?: any;
 }
 
 export interface AgentData {
