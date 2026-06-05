@@ -94,6 +94,8 @@ export interface Student {
     travelSource?: string;
     travelDestination?: string;
     travelTicketPdfPath?: string;
+    travelPnrNumber?: string;
+    travelFlightNumber?: string;
 
     // Telex Payment Fields
     hasPaid?: boolean;

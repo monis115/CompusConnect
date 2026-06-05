@@ -103,7 +103,7 @@
           <polyline points="7 10 12 15 17 10" />
           <line x1="12" y1="15" x2="12" y2="3" />
         </svg>
-        <span>Doc Return</span>
+        <span>Passport Return</span>
         @if (getDocReturnEligibleStudents().length > 0) {
         <span class="sidebar-badge">{{ getDocReturnEligibleStudents().length }}</span>
         }
@@ -130,12 +130,15 @@
         </svg>
         <span>Request Doc</span>
       </button>
-      <button class="nav-item" [class.active]="currentView === 'travel-details'" (click)="navigateTo('travel-details')">
+      <button class="nav-item" [class.active]="currentView === 'travel-management'"
+        (click)="navigateTo('travel-management')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 2L11 13" />
           <path d="M22 2l-7 20-4-9-9-4 20-7z" />
         </svg>
-        <span>Update Travel Details</span>
+        <span>Travel Management</span>
+        <span class="sidebar-badge" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">{{ travelStats.total
+          }}</span>
       </button>
       <button class="nav-item" [class.active]="currentView === 'visa-stamped'" (click)="navigateTo('visa-stamped')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -144,15 +147,6 @@
         </svg>
         <span>Visa Stamped</span>
         <span class="sidebar-badge">{{ getVisaStampedCount() }}</span>
-      </button>
-      <button class="nav-item" [class.active]="currentView === 'travelling'" (click)="navigateTo('travelling')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 2L11 13" />
-          <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-        </svg>
-        <span>Travelling</span>
-        <span class="sidebar-badge" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">{{ getTravellingCount
-          }}</span>
       </button>
       <button class="nav-item" [class.active]="currentView === 'messages'" (click)="navigateTo('messages')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -599,12 +593,12 @@
                 style="font-size: 13px; font-weight: 400; color: #64748b;">(Travelling Status)</span></div>
             <button class="astud-action-btn"
               style="background: #2563eb; color: white; border-color: #2563eb; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);"
-              (click)="navigateTo('travel-details')">
+              (click)="navigateTo('travel-management')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 2L11 13"></path>
                 <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
               </svg>
-              Update Travel Details
+              Travel Management
             </button>
           </div>
           <div style="flex: 1; overflow-y: auto; padding: 0 20px;">
@@ -644,7 +638,7 @@
             style="padding: 12px 20px; border-top: 1px solid #f1f5f9; text-align: center; background: #f8fafc; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
             <button
               style="background: transparent; border: none; color: #2563eb; font-size: 13px; font-weight: 600; cursor: pointer;"
-              (click)="navigateTo('travelling')">
+              (click)="navigateTo('travel-management')">
               View All Travelling Students →
             </button>
           </div>
@@ -997,7 +991,7 @@
                     <polyline points="7 10 12 15 17 10"></polyline>
                     <line x1="12" y1="15" x2="12" y2="3"></line>
                   </svg>
-                  Download Documents
+                  Addmission Letter
                 </button>
                 }
 
@@ -1193,13 +1187,23 @@
             <td>
               <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
 
-                @if (s.applicationStatus === 'REJECTED') {
+                @if (s.applicationStatus === 'REJECTED' && !s.isDraft) {
                 <button class="task-action-btn red" (click)="editStudent(s)">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
                   Edit / Reapply
+                </button>
+                }
+
+                @if (s.isDraft) {
+                <button class="task-action-btn emerald" (click)="editStudent(s)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                      d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 9.36l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 9.36-7.94l-3.77 3.77z" />
+                  </svg>
+                  Resume Application
                 </button>
                 }
 
@@ -1288,31 +1292,776 @@
       </div>
     </div>
     }
+    <!-- Travel Management View -->
+    @if (!isLoading && currentView === 'travel-management') {
+    <div class="content-body" style="background: transparent; padding: 24px;">
+
+      <!-- Travel Intelligence Dashboard -->
+      <div
+        style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <!-- Travel Intelligence Dashboard -->
+        <div
+          style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+
+          <!-- Title & Actions (Full Width Row) -->
+          <div
+            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
+            <div>
+              <div
+                style="display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; padding: 4px 8px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+                <i class="fas fa-plane-departure" style="color: #64748b; font-size: 11px;"></i>
+                <span
+                  style="color: #475569; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">Travel
+                  Intelligence</span>
+              </div>
+              <h2 style="color: #0f172a; font-size: 20px; font-weight: 700; margin: 0 0 8px 0;">Student Travel Hub</h2>
+              <p style="color: #64748b; font-size: 13px; margin: 0; max-width: 500px; line-height: 1.5;">Monitor
+                upcoming arrivals, track ticketing status, and manage airport pickups.</p>
+            </div>
+
+            <button (click)="selectedTravelStudent = null; navigateTo('travel-details')"
+              style="background: #2563eb; color: #ffffff; height: 36px; padding: 0 16px; border-radius: 0; font-weight: 600; font-size: 13px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
+              onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+              <i class="fas fa-plus"></i> Add Travel Details
+            </button>
+          </div>
+
+          <!-- Highlight Lists (4 Columns Row) -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+            <!-- Today -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0; padding: 12px;">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                <span
+                  style="color: #334155; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Today
+                  ({{ travelStats.today.length }})</span>
+                <i class="fas fa-sun" style="color: #f59e0b; font-size: 12px;"></i>
+              </div>
+              <div style="max-height: 110px; overflow-y: auto; padding-right: 4px;">
+                @if(travelStats.today.length > 0) {
+                @for(s of travelStats.today; track s.name) {
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #e2e8f0;">
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 12px; font-weight: 600; color: #0f172a;">{{ s.name }}</span>
+                    <span style="font-size: 10px; color: #64748b;">{{ s.airline }}</span>
+                  </div>
+                </div>
+                }
+                } @else {
+                <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 16px 0;">No travel today</p>
+                }
+              </div>
+            </div>
+
+            <!-- Tomorrow -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0; padding: 12px;">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                <span
+                  style="color: #334155; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tomorrow
+                  ({{ travelStats.tomorrow.length }})</span>
+                <i class="fas fa-calendar-day" style="color: #3b82f6; font-size: 12px;"></i>
+              </div>
+              <div style="max-height: 110px; overflow-y: auto; padding-right: 4px;">
+                @if(travelStats.tomorrow.length > 0) {
+                @for(s of travelStats.tomorrow; track s.name) {
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #e2e8f0;">
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 12px; font-weight: 600; color: #0f172a;">{{ s.name }}</span>
+                    <span style="font-size: 10px; color: #64748b;">{{ s.airline }}</span>
+                  </div>
+                </div>
+                }
+                } @else {
+                <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 16px 0;">No travel tomorrow</p>
+                }
+              </div>
+            </div>
+
+            <!-- Upcoming Week -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0; padding: 12px;">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                <span
+                  style="color: #334155; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Next
+                  7 Days ({{ travelStats.upcomingWeek.length }})</span>
+                <i class="fas fa-calendar-alt" style="color: #10b981; font-size: 12px;"></i>
+              </div>
+              <div style="max-height: 110px; overflow-y: auto; padding-right: 4px;">
+                @if(travelStats.upcomingWeek.length > 0) {
+                @for(s of travelStats.upcomingWeek; track s.name) {
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #e2e8f0;">
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 12px; font-weight: 600; color: #0f172a;">{{ s.name }}</span>
+                    <span style="font-size: 10px; color: #64748b;">{{ s.airline }}</span>
+                  </div>
+                  <span style="font-size: 11px; font-weight: 500; color: #10b981;">{{ s.date | date:'MMM d' }}</span>
+                </div>
+                }
+                } @else {
+                <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 16px 0;">No upcoming travel</p>
+                }
+              </div>
+            </div>
+
+            <!-- Past Week -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0; padding: 12px;">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                <span
+                  style="color: #334155; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Past
+                  7 Days ({{ travelStats.lastWeek.length }})</span>
+                <i class="fas fa-history" style="color: #8b5cf6; font-size: 12px;"></i>
+              </div>
+              <div style="max-height: 110px; overflow-y: auto; padding-right: 4px;">
+                @if(travelStats.lastWeek.length > 0) {
+                @for(s of travelStats.lastWeek; track s.name) {
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #e2e8f0;">
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 12px; font-weight: 600; color: #0f172a;">{{ s.name }}</span>
+                    <span style="font-size: 10px; color: #64748b;">{{ s.airline }}</span>
+                  </div>
+                  <span style="font-size: 11px; font-weight: 500; color: #8b5cf6;">{{ s.date | date:'MMM d' }}</span>
+                </div>
+                }
+                } @else {
+                <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 16px 0;">No recent travel</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Inline Heatmap Calendar -->
+          <div style="margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <span
+                style="font-size: 12px; font-weight: 600; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">Travel
+                Heatmap (Click to filter)</span>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <button (click)="prevTravelMonth()"
+                  style="background: transparent; border: none; cursor: pointer; color: #64748b;"><i
+                    class="fas fa-chevron-left"></i></button>
+                <span style="font-size: 12px; font-weight: 600; color: #0f172a; width: 120px; text-align: center;">{{
+                  travelCalendarMonthName }}</span>
+                <button (click)="nextTravelMonth()"
+                  style="background: transparent; border: none; cursor: pointer; color: #64748b;"><i
+                    class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+
+            <div style="display: flex; overflow-x: auto; gap: 8px; padding-bottom: 12px;">
+              @for(day of travelCalendarDays; track day.dateString) {
+              <div (click)="selectTravelCalendarDate(day.dateString)"
+                [style.background]="day.intensity === 0 ? '#f8fafc' : day.intensity === 1 ? '#d1fae5' : day.intensity === 2 ? '#34d399' : '#059669'"
+                [style.color]="day.intensity >= 3 ? '#ffffff' : '#0f172a'"
+                [style.border]="travelMgmtFilterDate === day.dateString ? '2px solid #2563eb' : '1px solid #e2e8f0'"
+                style="min-width: 44px; height: 56px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; position: relative; transition: transform 0.2s, box-shadow 0.2s;"
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.05)'"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                [title]="day.count + ' student(s) traveling'">
+                <span style="font-size: 14px; font-weight: 700;">{{ day.dayNumber }}</span>
+                @if(day.count > 0) {
+                <div
+                  style="font-size: 11px; font-weight: 700; margin-top: 4px; padding: 2px 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); color: #059669; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                  {{ day.count }}
+                </div>
+                } @else {
+                <div style="font-size: 10px; font-weight: 500; margin-top: 4px; color: #94a3b8;">
+                  -
+                </div>
+                }
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Operational KPI Cards (Squared & Light) -->
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px;">
+        <div
+          style="background: #ffffff; padding: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin: 0;">Total
+              Students</p>
+            <i class="fas fa-users" style="font-size: 14px; color: #2563eb;"></i>
+          </div>
+          <h4 style="color: #0f172a; font-size: 20px; font-weight: 700; margin: 0;">{{ travelStats.total }}</h4>
+        </div>
+
+        <div
+          style="background: #ffffff; padding: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin: 0;">Details
+              Updated</p>
+            <i class="fas fa-check-circle" style="font-size: 14px; color: #10b981;"></i>
+          </div>
+          <h4 style="color: #0f172a; font-size: 20px; font-weight: 700; margin: 0;">{{ travelStats.updated }}</h4>
+        </div>
+
+        <div
+          style="background: #ffffff; padding: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin: 0;">Ticket
+              Pending</p>
+            <i class="fas fa-ticket-alt" style="font-size: 14px; color: #f59e0b;"></i>
+          </div>
+          <h4 style="color: #0f172a; font-size: 20px; font-weight: 700; margin: 0;">{{ travelStats.ticketPending }}</h4>
+        </div>
+
+        <div
+          style="background: #ffffff; padding: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin: 0;">Pickup
+              Pending</p>
+            <i class="fas fa-shuttle-van" style="font-size: 14px; color: #ef4444;"></i>
+          </div>
+          <h4 style="color: #0f172a; font-size: 20px; font-weight: 700; margin: 0;">{{ travelStats.pickupPending }}</h4>
+        </div>
+
+        <div
+          style="background: #ffffff; padding: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin: 0;">Arrived
+            </p>
+            <i class="fas fa-map-marker-alt" style="font-size: 14px; color: #d946ef;"></i>
+          </div>
+          <h4 style="color: #0f172a; font-size: 20px; font-weight: 700; margin: 0;">{{ travelStats.arrived }}</h4>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="astud-card" style="margin-bottom: 24px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 250px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Search
+              by Name, Email, or ID</label>
+            <div style="position: relative;">
+              <i class="fas fa-search"
+                style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px;"></i>
+              <input type="text" [(ngModel)]="travelSearchQuery" (input)="travelMgmtCurrentPage = 1"
+                placeholder="Search students..."
+                style="width: 100%; height: 42px; padding: 0 14px 0 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #0f172a; background: #fff; outline: none;">
+            </div>
+          </div>
+          <div style="width: 200px;">
+            <label
+              style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px;">University</label>
+            <select [(ngModel)]="travelMgmtFilterUniversity" (change)="travelMgmtCurrentPage = 1"
+              style="width: 100%; height: 42px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #0f172a; background: #fff; outline: none; appearance: auto;">
+              <option value="ALL">All Universities</option>
+              @for(u of uniqueColleges; track u) {
+              <option [value]="u">{{ u }}</option>
+              }
+            </select>
+          </div>
+          <div style="width: 200px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Travel
+              Status</label>
+            <select [(ngModel)]="travelMgmtFilterStatus" (change)="travelMgmtCurrentPage = 1"
+              style="width: 100%; height: 42px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #0f172a; background: #fff; outline: none; appearance: auto;">
+              <option value="ALL">All Statuses</option>
+              <option value="TICKET_PENDING">Ticket Pending</option>
+              <option value="DETAILS_UPDATED">Details Updated</option>
+              <option value="TRAVELLING">Travelling</option>
+              <option value="ARRIVED">Arrived</option>
+            </select>
+          </div>
+          @if(travelSearchQuery || travelMgmtFilterStatus !== 'ALL' || travelMgmtFilterUniversity !== 'ALL' ||
+          travelMgmtFilterDate) {
+          <button (click)="clearTravelMgmtFilters()"
+            style="height: 42px; padding: 0 16px; background: transparent; border: 1px solid #e2e8f0; border-radius: 8px; color: #64748b; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;"
+            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+            <i class="fas fa-times"></i> Clear
+          </button>
+          }
+        </div>
+      </div>
+
+      <!-- Main Table -->
+      @if(filteredTravelMgmtStudents.length > 0) {
+      <div class="astud-card" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div class="astud-card-header"
+          style="border-bottom: 1px solid #f1f5f9; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-users" style="font-size: 18px; color: #2563eb;"></i>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #0f172a;">Traveling Students</h3>
+            <span style="font-size: 13px; color: #64748b;">(Showing {{ (travelMgmtCurrentPage - 1) * travelMgmtPageSize
+              + 1 }} to {{ (travelMgmtCurrentPage * travelMgmtPageSize) > filteredTravelMgmtStudents.length ?
+              filteredTravelMgmtStudents.length : (travelMgmtCurrentPage * travelMgmtPageSize) }} of {{
+              filteredTravelMgmtStudents.length }})</span>
+          </div>
+        </div>
+        <div style="padding: 0; overflow-x: auto;">
+          <table class="astud-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">S.No.</th>
+                <th>Student</th>
+                <th>University</th>
+                <th>Travel Date</th>
+                <th>Airline</th>
+                <th>Flight No.</th>
+                <th>PNR No.</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for(s of paginatedTravelMgmtStudents; track s.id; let i = $index) {
+              <tr [@listAnimation]>
+                <td class="text-secondary">#{{ (travelMgmtCurrentPage - 1) * travelMgmtPageSize + i + 1 }}</td>
+                <td>
+                  <div class="astud-student-cell">
+                    <div class="astud-avatar">{{ s.fullName?.charAt(0) || '?' }}</div>
+                    <div>
+                      <div class="astud-name">{{ s.fullName }}</div>
+                      <div class="astud-email">{{ s.applicationId || s.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="font-weight: 500; color: #0f172a; font-size: 13px;">{{ s.college?.collegeName || 'N/A' }}
+                </td>
+                <td style="color: #475569; font-size: 13px;">
+                  @if(s.travelDoj) {
+                  {{ s.travelDoj | date:'MMM d, yyyy' }}
+                  } @else if(s.documentReturnRequest?.travelDate) {
+                  {{ s.documentReturnRequest?.travelDate | date:'MMM d, yyyy' }}
+                  } @else {
+                  <span style="color: #94a3b8;">—</span>
+                  }
+                </td>
+                <td style="font-size: 13px; color: #0f172a;">{{ s.travelAirlines || '—' }}</td>
+                <td style="font-size: 13px; color: #475569;">{{ s.travelFlightNumber || '—' }}</td>
+                <td style="font-size: 13px; color: #475569;">{{ s.travelPnrNumber || s.documentReturnRequest?.pnrNumber
+                  || '—' }}</td>
+                <td style="font-size: 13px; color: #475569;">{{ s.travelSource || s.documentReturnRequest?.fromAirport
+                  || '—' }}</td>
+                <td style="font-size: 13px; color: #475569;">{{ s.travelDestination ||
+                  s.documentReturnRequest?.toAirport || '—' }}</td>
+                <td>
+                  <span class="astud-badge" [style.background]="getTravelStatusColor(s) + '18'"
+                    [style.color]="getTravelStatusColor(s)">
+                    {{ getTravelStatus(s) }}
+                  </span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 8px;">
+                    <button class="astud-action-btn" (click)="openTravelModal(s, 'view')" title="View Details"
+                      style="padding: 6px 10px; min-width: auto;">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="astud-action-btn" (click)="openTravelModal(s, 'edit')" title="Update Details"
+                      style="padding: 6px 10px; min-width: auto; background: #f8fafc; border-color: #e2e8f0; color: #64748b;">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        @if(travelMgmtTotalPages > 1) {
+        <div
+          style="padding: 16px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 13px; color: #64748b; font-weight: 500;">
+            Showing <span style="color: #0f172a; font-weight: 600;">{{ (travelMgmtCurrentPage - 1) * travelMgmtPageSize
+              + 1 }}</span>
+            to <span style="color: #0f172a; font-weight: 600;">{{ (travelMgmtCurrentPage * travelMgmtPageSize) >
+              filteredTravelMgmtStudents.length ? filteredTravelMgmtStudents.length : (travelMgmtCurrentPage *
+              travelMgmtPageSize) }}</span>
+            of <span style="color: #0f172a; font-weight: 600;">{{ filteredTravelMgmtStudents.length }}</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button (click)="travelMgmtCurrentPage = travelMgmtCurrentPage - 1" [disabled]="travelMgmtCurrentPage === 1"
+              style="padding: 6px 12px; border: 1px solid #e2e8f0; background: #fff; border-radius: 6px; color: #475569; font-size: 13px; font-weight: 600;"
+              [style.opacity]="travelMgmtCurrentPage === 1 ? '0.5' : '1'"
+              [style.cursor]="travelMgmtCurrentPage === 1 ? 'not-allowed' : 'pointer'">
+              Previous
+            </button>
+            <span style="font-size: 13px; font-weight: 600; color: #0f172a; padding: 6px 12px;">
+              Page {{ travelMgmtCurrentPage }} of {{ travelMgmtTotalPages }}
+            </span>
+            <button (click)="travelMgmtCurrentPage = travelMgmtCurrentPage + 1"
+              [disabled]="travelMgmtCurrentPage === travelMgmtTotalPages"
+              style="padding: 6px 12px; border: 1px solid #e2e8f0; background: #fff; border-radius: 6px; color: #475569; font-size: 13px; font-weight: 600;"
+              [style.opacity]="travelMgmtCurrentPage === travelMgmtTotalPages ? '0.5' : '1'"
+              [style.cursor]="travelMgmtCurrentPage === travelMgmtTotalPages ? 'not-allowed' : 'pointer'">
+              Next
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="astud-card" style="padding: 60px 0; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <i class="fas fa-plane" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
+        <h4 style="font-size: 18px; font-weight: 600; color: #334155; margin: 0 0 8px 0;">No traveling students found
+        </h4>
+        <p style="font-size: 14px; color: #64748b; margin: 0;">Adjust your filters or add travel details for students.
+        </p>
+      </div>
+      }
+
+      <!-- Selected Student Detail Modal -->
+      @if(selectedTravelStudent && currentView === 'travel-management') {
+      <div class="astud-modal" style="display: flex; align-items: center; justify-content: center;">
+        <div class="astud-modal-content" [style.max-width]="travelModalMode === 'edit' ? '1000px' : '650px'"
+          style="width: 90%; background: #f8fafc; padding: 0; border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); transition: max-width 0.3s ease;">
+          <div class="astud-modal-header"
+            style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: none;">
+            <div>
+              <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
+                {{
+                selectedTravelStudent.fullName }}</h3>
+              <p style="margin: 0; font-size: 13px; color: #94a3b8; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-id-card"></i> {{ selectedTravelStudent.applicationId }} &bull; <i
+                  class="fas fa-university"></i> {{ selectedTravelStudent.college?.collegeName }}
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <span class="astud-badge" [style.background]="'rgba(255, 255, 255, 0.1)'" [style.color]="'#e2e8f0'"
+                style="border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; font-size: 12px; font-weight: 600; backdrop-filter: blur(8px); text-transform: uppercase; letter-spacing: 0.5px;">
+                {{ getTravelStatus(selectedTravelStudent) }}
+              </span>
+              <button class="astud-modal-close" (click)="selectedTravelStudent = null; travelForm.reset()"
+                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); width: 32px; height: 32px; border-radius: 50%; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;"
+                onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.color='#fff';"
+                onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#94a3b8';">
+                <i class="fas fa-times" style="font-size: 14px;"></i>
+              </button>
+            </div>
+          </div>
+          <div class="astud-modal-body" style="padding: 24px 32px 32px 32px; display: grid; gap: 24px;"
+            [style.grid-template-columns]="travelModalMode === 'edit' ? '1fr 1fr' : '1fr'">
+
+            <!-- Column 1: Read-Only Travel Details -->
+            <div class="astud-card"
+              style="box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); margin: 0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
+              <div class="astud-card-header"
+                style="background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
+                <h3
+                  style="margin: 0; font-size: 16px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                  <div
+                    style="width: 32px; height: 32px; background: #eff6ff; color: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+                    <i class="fas fa-info-circle"></i>
+                  </div>
+                  Current Information
+                </h3>
+              </div>
+              <div style="padding: 24px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div
+                    style="background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px;">
+                    <div
+                      style="width: 36px; height: 36px; border-radius: 8px; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fas fa-plane"></i>
+                    </div>
+                    <div>
+                      <p
+                        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 2px 0;">
+                        Airline</p>
+                      <p style="font-size: 14px; font-weight: 600; color: #0f172a; margin: 0;">{{
+                        selectedTravelStudent.travelAirlines || '—' }}</p>
+                    </div>
+                  </div>
+                  <div
+                    style="background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px;">
+                    <div
+                      style="width: 36px; height: 36px; border-radius: 8px; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fas fa-hashtag"></i>
+                    </div>
+                    <div>
+                      <p
+                        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 2px 0;">
+                        Flight No.</p>
+                      <p style="font-size: 14px; font-weight: 600; color: #0f172a; margin: 0;">{{
+                        selectedTravelStudent.travelFlightNumber || '—' }}</p>
+                    </div>
+                  </div>
+                  <div
+                    style="background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px;">
+                    <div
+                      style="width: 36px; height: 36px; border-radius: 8px; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fas fa-barcode"></i>
+                    </div>
+                    <div>
+                      <p
+                        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 2px 0;">
+                        PNR Number</p>
+                      <p style="font-size: 14px; font-weight: 600; color: #0f172a; margin: 0;">{{
+                        selectedTravelStudent.travelPnrNumber || selectedTravelStudent.documentReturnRequest?.pnrNumber
+                        || '—' }}</p>
+                    </div>
+                  </div>
+                  <div
+                    style="background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px;">
+                    <div
+                      style="width: 36px; height: 36px; border-radius: 8px; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>
+                      <p
+                        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 2px 0;">
+                        Date of Travel</p>
+                      <p style="font-size: 14px; font-weight: 600; color: #0f172a; margin: 0;">
+                        @if(selectedTravelStudent.travelDoj) { {{ selectedTravelStudent.travelDoj | date:'MMM d, yyyy'
+                        }} }
+                        @else if(selectedTravelStudent.documentReturnRequest?.travelDate) { {{
+                        selectedTravelStudent.documentReturnRequest?.travelDate | date:'MMM d, yyyy' }} }
+                        @else { — }
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    style="background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; grid-column: span 2;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div
+                        style="width: 36px; height: 36px; border-radius: 8px; background: #ecfdf5; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <i class="fas fa-ticket-alt"></i>
+                      </div>
+                      <div>
+                        <p
+                          style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 2px 0;">
+                          Air Ticket</p>
+                        @if(selectedTravelStudent.travelTicketPdfPath ||
+                        selectedTravelStudent.documentReturnRequest?.ticketPdfPath) {
+                        <span
+                          style="font-size: 14px; font-weight: 600; color: #10b981; display: flex; align-items: center; gap: 6px;">
+                          <i class="fas fa-check-circle"></i> Booked
+                        </span>
+                        } @else {
+                        <span
+                          style="font-size: 14px; font-weight: 600; color: #f59e0b; display: flex; align-items: center; gap: 6px;">
+                          <i class="fas fa-exclamation-circle"></i> Not Booked
+                        </span>
+                        }
+                      </div>
+                    </div>
+                    @if(selectedTravelStudent.travelTicketPdfPath ||
+                    selectedTravelStudent.documentReturnRequest?.ticketPdfPath) {
+                    <button type="button"
+                      (click)="downloadFile(selectedTravelStudent.travelTicketPdfPath || selectedTravelStudent.documentReturnRequest?.ticketPdfPath)"
+                      style="background: transparent; color: #64748b; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;"
+                      onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a'; this.style.borderColor='#94a3b8';"
+                      onmouseout="this.style.background='transparent'; this.style.color='#64748b'; this.style.borderColor='#cbd5e1';">
+                      <i class="fas fa-external-link-alt"></i> View PDF
+                    </button>
+                    }
+                  </div>
+                  <div
+                    style="background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px;">
+                    <div
+                      style="width: 36px; height: 36px; border-radius: 8px; background: #fff7ed; color: #f97316; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fas fa-plane-departure"></i>
+                    </div>
+                    <div>
+                      <p
+                        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 2px 0;">
+                        Departure Airport</p>
+                      <p style="font-size: 14px; font-weight: 600; color: #0f172a; margin: 0;">{{
+                        selectedTravelStudent.travelSource || selectedTravelStudent.documentReturnRequest?.fromAirport
+                        || '—' }}</p>
+                    </div>
+                  </div>
+                  <div
+                    style="background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px;">
+                    <div
+                      style="width: 36px; height: 36px; border-radius: 8px; background: #ecfeff; color: #06b6d4; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                      <i class="fas fa-plane-arrival"></i>
+                    </div>
+                    <div>
+                      <p
+                        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 2px 0;">
+                        Arrival Airport</p>
+                      <p style="font-size: 14px; font-weight: 600; color: #0f172a; margin: 0;">{{
+                        selectedTravelStudent.travelDestination ||
+                        selectedTravelStudent.documentReturnRequest?.toAirport || '—' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 2: Update Travel Details Form -->
+            @if(travelModalMode === 'edit') {
+            <div class="astud-card"
+              style="box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); margin: 0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff;">
+              <div class="astud-card-header"
+                style="background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
+                <h3
+                  style="margin: 0; font-size: 16px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                  <div
+                    style="width: 32px; height: 32px; background: #f3e8ff; color: #9333ea; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+                    <i class="fas fa-edit"></i>
+                  </div>
+                  Update Details
+                </h3>
+              </div>
+              <div style="padding: 24px;">
+                <form [formGroup]="travelForm" (ngSubmit)="submitTravelDetails()">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                      <label
+                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Date
+                        of Journey <span style="color: #ef4444;">*</span></label>
+                      <input type="date" formControlName="travelDoj"
+                        style="width: 100%; height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)';"
+                        onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'; this.style.boxShadow='none';">
+                    </div>
+                    <div>
+                      <label
+                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Airlines
+                        <span style="color: #ef4444;">*</span></label>
+                      <input type="text" formControlName="travelAirlines" placeholder="e.g. Uzbekistan Airways"
+                        style="width: 100%; height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)';"
+                        onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'; this.style.boxShadow='none';">
+                    </div>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                      <label
+                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Departure
+                        Airport <span style="color: #ef4444;">*</span></label>
+                      <input type="text" formControlName="travelSource" placeholder="e.g. Delhi (DEL)"
+                        style="width: 100%; height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)';"
+                        onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'; this.style.boxShadow='none';">
+                    </div>
+                    <div>
+                      <label
+                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Arrival
+                        Airport <span style="color: #ef4444;">*</span></label>
+                      <input type="text" formControlName="travelDestination" placeholder="e.g. Tashkent (TAS)"
+                        style="width: 100%; height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)';"
+                        onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'; this.style.boxShadow='none';">
+                    </div>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                    <div>
+                      <label
+                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Flight
+                        No.</label>
+                      <input type="text" formControlName="flightNumber" placeholder="e.g. AI-101"
+                        style="width: 100%; height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)';"
+                        onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'; this.style.boxShadow='none';">
+                    </div>
+                    <div>
+                      <label
+                        style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">PNR
+                        Number</label>
+                      <input type="text" formControlName="pnrNumber" placeholder="e.g. AB12CD"
+                        style="width: 100%; height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)';"
+                        onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'; this.style.boxShadow='none';">
+                    </div>
+                  </div>
+
+                  <!-- Upload Ticket -->
+                  <div style="margin-bottom: 24px;">
+                    <label
+                      style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Upload
+                      E-Ticket (Optional)</label>
+                    <div
+                      style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 24px 16px; text-align: center; cursor: pointer; position: relative; background: #f8fafc; transition: all 0.2s ease;"
+                      onmouseover="this.style.borderColor='#3b82f6'; this.style.background='#eff6ff';"
+                      onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                      <input type="file" (change)="onTravelTicketSelected($event)" accept=".pdf,.png,.jpg,.jpeg"
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                      <div
+                        style="width: 48px; height: 48px; background: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 20px; color: #3b82f6;"></i>
+                      </div>
+                      <p style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #0f172a;">
+                        @if(travelTicketFile) { <span style="color: #2563eb;">{{ travelTicketFile.name }}</span> }
+                        @else { Click or drag file to upload }
+                      </p>
+                      <p style="margin: 0; font-size: 12px; color: #64748b;">PDF, PNG, JPG (Max 5MB)</p>
+                    </div>
+                  </div>
+
+                  <div
+                    style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                    <button type="button" (click)="selectedTravelStudent = null; travelForm.reset()"
+                      style="background: transparent; color: #64748b; height: 44px; padding: 0 24px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease;"
+                      onmouseover="this.style.background='#f8fafc';" onmouseout="this.style.background='transparent';">
+                      Cancel
+                    </button>
+                    <button type="submit" [disabled]="travelForm.invalid || isSubmittingTravel"
+                      style="background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; height: 44px; padding: 0 32px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); transition: all 0.2s ease;"
+                      [style.opacity]="(travelForm.invalid || isSubmittingTravel) ? '0.6' : '1'"
+                      onmouseover="this.style.boxShadow='0 6px 8px -1px rgba(37, 99, 235, 0.3)'; this.style.transform='translateY(-1px)';"
+                      onmouseout="this.style.boxShadow='0 4px 6px -1px rgba(37, 99, 235, 0.2)'; this.style.transform='none';">
+                      @if(isSubmittingTravel) {
+                      <span><i class="fas fa-spinner fa-spin"></i> Saving...</span>
+                      } @else {
+                      <i class="fas fa-save"></i> Save Details
+                      }
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            }
+
+          </div>
+        </div>
+      </div>
+      }
+
+    </div>
+    }
+
     <!-- Update Travel Details View -->
     @if (!isLoading && currentView === 'travel-details') {
     <div class="content-body" style="padding: 24px; background: transparent;">
       <div class="glass-card" style="max-width: 700px; margin: 0 auto; padding: 32px; overflow: visible;">
-        <h2 style="font-size: 24px; color: #0f172a; margin: 0 0 8px 0;">Update Travel Details</h2>
-        <p style="color: #64748b; font-size: 14px; margin-bottom: 24px;">Search for a student by name, email, or
+
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+          <button (click)="clearTravelSelection(); navigateTo('travel-management')"
+            style="background: transparent; border: 1px solid #cbd5e1; width: 36px; height: 36px; border-radius: 8px; font-size: 14px; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+            onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a'"
+            onmouseout="this.style.background='transparent'; this.style.color='#64748b'">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <h2 style="font-size: 24px; color: #0f172a; margin: 0;">Update Travel Details</h2>
+        </div>
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 24px; padding-left: 52px;">Search for a student by
+          name, email, or
           application ID to update their flight and travel itinerary.</p>
 
         @if (!selectedTravelStudent) {
-        <div class="search-container" style="position: relative; margin-bottom: 24px;">
+        <div class="search-container" style="position: relative; margin-bottom: 24px; padding-left: 52px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"
-            style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%);">
+            style="position: absolute; left: 68px; top: 50%; transform: translateY(-50%); z-index: 1;">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
           <input type="text" placeholder="Search students..." [(ngModel)]="travelSearchQuery"
-            style="width: 100%; padding: 16px 16px 16px 48px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 15px; outline: none; transition: border-color 0.2s;"
+            style="width: 100%; padding: 16px 16px 16px 48px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 15px; outline: none; transition: border-color 0.2s; position: relative;"
             onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#cbd5e1'">
 
           @if (travelSearchResults.length > 0) {
           <div class="search-results"
-            style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 50; max-height: 250px; overflow-y: auto;">
+            style="position: absolute; top: 100%; left: 52px; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 50; max-height: 250px; overflow-y: auto;">
             @for (s of travelSearchResults; track s.id) {
             <div class="search-result-item" (click)="selectTravelStudent(s)"
-              style="padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9;">
+              style="padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: background 0.2s;"
+              onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
               <div class="avatar-sm"
                 style="width: 32px; height: 32px; border-radius: 50%; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;">
                 {{ s.fullName.charAt(0) }}</div>
@@ -1325,7 +2074,7 @@
           </div>
           } @else if (travelSearchQuery && travelSearchQuery.trim() !== '') {
           <div class="search-results"
-            style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 8px; padding: 16px; text-align: center; color: #64748b; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 50;">
+            style="position: absolute; top: 100%; left: 52px; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 8px; padding: 16px; text-align: center; color: #64748b; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 50;">
             No students found matching "{{ travelSearchQuery }}"
           </div>
           }
@@ -1388,6 +2137,22 @@
             </div>
           </div>
 
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+            <div class="form-group">
+              <label style="display: block; font-size: 13px; font-weight: 500; color: #334155; margin-bottom: 6px;">PNR
+                Number</label>
+              <input type="text" formControlName="pnrNumber" placeholder="Enter PNR"
+                style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none;">
+            </div>
+            <div class="form-group">
+              <label
+                style="display: block; font-size: 13px; font-weight: 500; color: #334155; margin-bottom: 6px;">Flight
+                Number</label>
+              <input type="text" formControlName="flightNumber" placeholder="Enter Flight No."
+                style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none;">
+            </div>
+          </div>
+
           <div class="form-group" style="margin-bottom: 32px;">
             <label style="display: block; font-size: 13px; font-weight: 500; color: #334155; margin-bottom: 6px;">Upload
               E-Ticket (Optional)</label>
@@ -1429,28 +2194,33 @@
     }
 
     <!-- Generic List View for other sections -->
-    @if (!isLoading && (currentView === 'visa-stamped'
-    || currentView === 'rejected' || currentView === 'travelling')) {
+    @if (!isLoading && (currentView === 'visa-stamped' || currentView === 'rejected')) {
     <div class="content-body" style="background: transparent; padding: 24px;">
-      <div class="glass-card">
-        <div class="card-header-with-search" style="margin-bottom: 20px;">
-          <h3>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            {{ getViewTitle() }}
-          </h3>
-          <span class="badge-count" style="background: rgba(99, 102, 241, 0.2); color: #6366F1;">{{
-            filteredStudents.length }}</span>
+      <div class="astud-card">
+        <div class="astud-card-header" style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <h2 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">{{ getViewTitle() }}</h2>
+            </div>
+            <div
+              style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">
+              {{ filteredStudents.length }}
+            </div>
+          </div>
         </div>
-        <div class="modern-table-container">
+
+        <div style="padding: 0;">
           @if (filteredStudents.length > 0) {
-          <table class="modern-table">
+          <table class="astud-table">
             <thead>
               <tr>
+                <th style="width: 80px;">Serial No.</th>
                 <th>Student</th>
                 <th>Contact</th>
                 <th>College</th>
@@ -1459,49 +2229,41 @@
               </tr>
             </thead>
             <tbody>
-              @for (s of filteredStudents; track s) {
+              @for (s of filteredStudents; track s; let i = $index) {
               <tr [@listAnimation]>
+                <td class="text-secondary">#{{ i + 1 }}</td>
                 <td>
-                  <div class="student-cell">
-                    <div class="avatar-sm">{{ s.fullName.charAt(0) }}</div>
-                    <div class="student-info-cell">
-                      <span class="student-name">{{ s.fullName }}</span>
-                      <span class="student-email">{{ s.email }}</span>
+                  <div class="astud-student-cell">
+                    <div class="astud-avatar">{{ s.fullName.charAt(0) }}</div>
+                    <div>
+                      <div class="astud-name">{{ s.fullName }}</div>
+                      <div class="astud-email">{{ s.email }} | {{ s.applicationId }}</div>
                     </div>
                   </div>
                 </td>
-                <td>{{ s.contactNo }}</td>
                 <td>
-                  <div class="college-cell">
-                    <span>{{ s.college?.collegeName }}</span>
-                  </div>
+                  <div style="color: #0f172a; font-weight: 500;">{{ s.contactNo }}</div>
                 </td>
                 <td>
-                  <span class="modern-status-badge" [style.background]="getStatusColor(s.applicationStatus) + '20'"
+                  <div style="color: #0f172a; font-weight: 500;">{{ s.college?.collegeName || 'Not Assigned' }}</div>
+                </td>
+                <td>
+                  <span class="astud-badge"
+                    [ngClass]="'status-' + (s.applicationStatus ? s.applicationStatus.toLowerCase() : '')"
+                    [style.background]="getStatusColor(s.applicationStatus) + '20'"
                     [style.color]="getStatusColor(s.applicationStatus)">
                     {{ formatStatus(s.applicationStatus) }}
                   </span>
                 </td>
                 <td>
-                  @if (currentView === 'travel-details') {
-                  <button class="btn-initiate-telex" (click)="selectTravelStudent(s)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path
-                        d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z">
-                      </path>
-                    </svg>
-                    Update Travel
-                  </button>
-                  } @else if (currentView === 'rejected') {
-                  <button class="btn-initiate-telex" style="background: rgba(245,158,11,0.1); color: #f59e0b;"
+                  @if (currentView === 'rejected') {
+                  <button class="astud-action-btn" style="background: #fffbeb; color: #f59e0b; border-color: #fde68a;"
                     (click)="navigateTo('edit-student'); studentToEdit = s">
-                    Edit & Reapply
+                    <i class="fas fa-edit"></i> Edit & Reapply
                   </button>
-
                   } @else {
-                  <button class="btn-initiate-telex" style="background: rgba(100,116,139,0.1); color: #64748b;"
-                    (click)="viewStudentDetails(s)">
-                    View Details
+                  <button class="astud-action-btn" (click)="viewStudentDetails(s)">
+                    <i class="fas fa-eye"></i> View Details
                   </button>
                   }
                 </td>
@@ -1510,7 +2272,7 @@
             </tbody>
           </table>
           } @else {
-          <div class="empty-state-modern">
+          <div class="empty-state-modern" style="padding: 60px 0;">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -1690,7 +2452,8 @@
                   {{ s.college?.collegeName || 'N/A' }}
                 </td>
                 <td style="padding: 16px; font-size: 0.85rem; color: #334155;">
-                  <div style="white-space: nowrap;"><i class="fas fa-id-card" style="color: #64748b; margin-right: 4px;"></i> {{ s.visaNumber || 'N/A' }}</div>
+                  <div style="white-space: nowrap;"><i class="fas fa-id-card"
+                      style="color: #64748b; margin-right: 4px;"></i> {{ s.visaNumber || 'N/A' }}</div>
                 </td>
                 <td style="padding: 16px;">
                   @if (s.passportReturnReceivedDate) {
@@ -1794,8 +2557,10 @@
                 </td>
                 <td style="padding: 16px; font-size: 0.85rem;">
                   @if (s.docReturnRequestDate) {
-                  <span style="display: inline-flex; align-items: center; gap: 6px; color: #334155; font-weight: 500; white-space: nowrap;">
-                    <i class="fas fa-calendar-alt" style="color: #8b5cf6;"></i> {{ s.docReturnRequestDate | date:'dd-MMM-yyyy' }}
+                  <span
+                    style="display: inline-flex; align-items: center; gap: 6px; color: #334155; font-weight: 500; white-space: nowrap;">
+                    <i class="fas fa-calendar-alt" style="color: #8b5cf6;"></i> {{ s.docReturnRequestDate |
+                    date:'dd-MMM-yyyy' }}
                   </span>
                   } @else if (s.hasRaiseReturnRequest) {
                   <span style="display: inline-flex; align-items: center; gap: 6px; color: #f59e0b; font-weight: 500;">
@@ -2957,301 +3722,355 @@
     }
     <!-- Request Doc View -->
     @if (!isLoading && currentView === 'request-doc') {
-    <div class="content-body">
+    <div class="content-body" style="background: transparent; padding: 24px;">
 
-      <!-- Tab Navigation -->
-      <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+      <!-- Header Section -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+          <h2 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 0;">Document Requests</h2>
+          <p style="font-size: 14px; color: #64748b; margin: 4px 0 0 0;">Manage and request specific documents for your
+            students.</p>
+        </div>
         <button (click)="docRequestActiveTab = 'new'"
-          style="padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s;"
-          [style.background]="docRequestActiveTab === 'new' ? '#3b82f6' : 'rgba(99, 102, 241, 0.1)'"
-          [style.color]="docRequestActiveTab === 'new' ? '#ffffff' : '#3b82f6'">
-          Create Request
-        </button>
-        <button (click)="docRequestActiveTab = 'list'"
-          style="padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s;"
-          [style.background]="docRequestActiveTab === 'list' ? '#3b82f6' : 'rgba(99, 102, 241, 0.1)'"
-          [style.color]="docRequestActiveTab === 'list' ? '#ffffff' : '#3b82f6'">
-          View Requests
+          style="background: #2563eb; color: #fff; height: 42px; padding: 0 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);">
+          <i class="fas fa-plus"></i> Create Request
         </button>
       </div>
 
-      @if(docRequestActiveTab === 'new') {
-      <div class="glass-card" style="max-width: 700px; margin: 0 auto 24px;">
-        <div class="card-header-modern"
-          style="border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 16px; margin-bottom: 20px;">
-          <div style="display: flex; align-items: center; gap: 14px;">
-            <div
-              style="width: 44px; height: 44px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-              </svg>
-            </div>
-            <div>
-              <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 2px 0;">Request Document</h2>
-              <p style="font-size: 13px; color: #64748b; margin: 0;">Request specific documents from the university for
-                your students.</p>
-            </div>
+      <!-- Stats Cards -->
+      <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+        <div class="astud-card"
+          style="flex: 1; min-width: 200px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div
+            style="width: 48px; height: 48px; background: #f1f5f9; color: #3b82f6; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-file-invoice" style="font-size: 20px;"></i>
+          </div>
+          <div>
+            <p
+              style="font-size: 12px; font-weight: 600; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+              Total Requests</p>
+            <h3 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 0; line-height: 1;">{{
+              docRequestStats.total }}</h3>
           </div>
         </div>
-        <div class="card-body-modern">
-          <div style="display: flex; flex-direction: column; gap: 16px;">
-            <div>
-              <label
-                style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Search
-                Student *</label>
-              @if(!docRequestSelectedStudent) {
-              <div style="position: relative;">
+
+        <div class="astud-card"
+          style="flex: 1; min-width: 200px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div
+            style="width: 48px; height: 48px; background: #fffbeb; color: #f59e0b; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-clock" style="font-size: 20px;"></i>
+          </div>
+          <div>
+            <p
+              style="font-size: 12px; font-weight: 600; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+              Pending</p>
+            <h3 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 0; line-height: 1;">{{
+              docRequestStats.pending }}</h3>
+          </div>
+        </div>
+
+        <div class="astud-card"
+          style="flex: 1; min-width: 200px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div
+            style="width: 48px; height: 48px; background: #f0fdf4; color: #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-check-circle" style="font-size: 20px;"></i>
+          </div>
+          <div>
+            <p
+              style="font-size: 12px; font-weight: 600; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+              Completed</p>
+            <h3 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 0; line-height: 1;">{{
+              docRequestStats.completed }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="astud-card" style="margin-bottom: 24px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 250px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Search
+              Name, Email, or ID</label>
+            <div style="position: relative;">
+              <i class="fas fa-search"
+                style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px;"></i>
+              <input type="text" [(ngModel)]="docRequestListSearch" (input)="docRequestCurrentPage = 1"
+                placeholder="Search requests..."
+                style="width: 100%; height: 42px; padding: 0 14px 0 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #0f172a; background: #fff; outline: none; transition: border-color 0.2s;">
+            </div>
+          </div>
+
+          <div style="width: 200px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px;">Filter
+              by Status</label>
+            <select [(ngModel)]="docRequestListStatus" (change)="docRequestCurrentPage = 1"
+              style="width: 100%; height: 42px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #0f172a; background: #fff; outline: none; transition: border-color 0.2s; appearance: auto;">
+              <option value="ALL">All Statuses</option>
+              <option value="PENDING">Pending</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+          </div>
+
+          @if(docRequestListSearch || docRequestListStatus !== 'ALL') {
+          <button (click)="clearDocRequestFilters()"
+            style="height: 42px; padding: 0 16px; background: transparent; border: 1px solid #e2e8f0; border-radius: 8px; color: #64748b; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;"
+            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+            <i class="fas fa-times"></i> Clear Filters
+          </button>
+          }
+        </div>
+      </div>
+
+      <!-- Create Request Modal -->
+      @if(docRequestActiveTab === 'new') {
+      <div class="modal-backdrop-modern show" (click)="docRequestActiveTab = 'list'"
+        style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.4); z-index: 1000; backdrop-filter: blur(4px);">
+        <div class="astud-card"
+          style="width: 100%; max-width: 600px; margin: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); background: white;"
+          (click)="$event.stopPropagation()">
+          <div class="astud-card-header"
+            style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div
+                style="width: 40px; height: 40px; background: #eff6ff; color: #3b82f6; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-file-signature" style="font-size: 18px;"></i>
+              </div>
+              <div>
+                <h2 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">Create New Request</h2>
+                <p style="font-size: 13px; color: #64748b; margin: 2px 0 0 0;">Request a document from the university
+                </p>
+              </div>
+            </div>
+            <button (click)="docRequestActiveTab = 'list'"
+              style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 4px; transition: color 0.2s;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              <div>
+                <label
+                  style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px;">Search
+                  Student *</label>
+                @if(!docRequestSelectedStudent) {
                 <div style="position: relative;">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"
-                    style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); pointer-events: none;">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  <input type="text" [(ngModel)]="docRequestStudentSearch" (input)="onDocRequestStudentSearch()"
-                    (focus)="onDocRequestStudentSearch()" (blur)="docRequestShowSuggestions = false"
-                    placeholder="Type name, email, or application ID..." autocomplete="off"
-                    style="width: 100%; height: 46px; padding: 0 14px 0 42px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; background: white; outline: none; transition: border-color 0.2s;">
-                </div>
-                @if(docRequestShowSuggestions) {
-                <div
-                  style="position: absolute; top: 100%; left: 0; right: 0; z-index: 50; margin-top: 4px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); max-height: 280px; overflow-y: auto;">
-                  @for(student of docRequestStudentSuggestions; track student.id) {
-                  <div (mousedown)="selectDocRequestStudent(student)"
-                    style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #f1f5f9;"
-                    onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
-                    <div
-                      style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #6366f1); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; flex-shrink: 0;">
-                      {{ student.fullName?.charAt(0) || '?' }}
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                      <div
-                        style="font-size: 14px; font-weight: 600; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        {{ student.fullName }}</div>
-                      <div style="font-size: 12px; color: #64748b; display: flex; gap: 8px; flex-wrap: wrap;">
-                        @if(student.email) {
-                        <span>{{ student.email }}</span>
-                        }
-                        @if(student.applicationId) {
-                        <span style="color: #3b82f6;">ID: {{ student.applicationId }}</span>
-                        }
+                  <div style="position: relative;">
+                    <i class="fas fa-search"
+                      style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px;"></i>
+                    <input type="text" [(ngModel)]="docRequestStudentSearch" (input)="onDocRequestStudentSearch()"
+                      (focus)="onDocRequestStudentSearch()" (blur)="docRequestShowSuggestions = false"
+                      placeholder="Type name, email, or application ID..." autocomplete="off"
+                      style="width: 100%; height: 46px; padding: 0 14px 0 42px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #0f172a; background: #fff; outline: none; transition: border-color 0.2s;">
+                  </div>
+                  @if(docRequestShowSuggestions) {
+                  <div
+                    style="position: absolute; top: 100%; left: 0; right: 0; z-index: 50; margin-top: 4px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); max-height: 280px; overflow-y: auto;">
+                    @for(student of docRequestStudentSuggestions; track student.id) {
+                    <div (mousedown)="selectDocRequestStudent(student)"
+                      style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #f8fafc;"
+                      onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                      <div class="astud-avatar" style="width: 32px; height: 32px; font-size: 12px;">{{
+                        student.fullName?.charAt(0) || '?' }}</div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div class="astud-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                          {{ student.fullName }}</div>
+                        <div class="astud-email">
+                          @if(student.email) { <span>{{ student.email }}</span> }
+                          @if(student.applicationId) { <span style="margin-left: 8px; color: #3b82f6;">ID: {{
+                            student.applicationId }}</span> }
+                        </div>
                       </div>
                     </div>
+                    }
                   </div>
                   }
                 </div>
+                } @else {
+                <!-- Selected Student Chip -->
+                <div
+                  style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                  <div class="astud-avatar" style="width: 32px; height: 32px; font-size: 12px;">{{
+                    docRequestSelectedStudent.fullName?.charAt(0) || '?' }}</div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div class="astud-name">{{ docRequestSelectedStudent.fullName }}</div>
+                    <div class="astud-email">{{ docRequestSelectedStudent.email ||
+                      docRequestSelectedStudent.applicationId }}</div>
+                  </div>
+                  <button (click)="clearDocRequestStudent()"
+                    style="width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(239, 68, 68, 0.1); color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"
+                    title="Clear selection">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
                 }
               </div>
-              } @else {
-              <!-- Selected Student Chip -->
-              <div
-                style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); border: 2px solid #bfdbfe; border-radius: 10px;">
-                <div
-                  style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #6366f1); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; flex-shrink: 0;">
-                  {{ docRequestSelectedStudent.fullName?.charAt(0) || '?' }}
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-size: 14px; font-weight: 600; color: #0f172a;">{{ docRequestSelectedStudent.fullName
-                    }}</div>
-                  <div style="font-size: 12px; color: #64748b;">{{ docRequestSelectedStudent.email ||
-                    docRequestSelectedStudent.applicationId }}</div>
-                </div>
-                <button (click)="clearDocRequestStudent()"
-                  style="width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(239, 68, 68, 0.1); color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"
-                  title="Clear selection">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+
+              <div>
+                <label
+                  style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px;">Document
+                  Type *</label>
+                <select [(ngModel)]="docRequestDocType"
+                  style="width: 100%; height: 46px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #0f172a; background: #fff; outline: none; transition: border-color 0.2s; appearance: auto;">
+                  <option value="" disabled>Choose document type</option>
+                  @for(opt of docTypeOptions; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+
+              @if(docRequestDocType === 'OTHER') {
+              <div>
+                <label
+                  style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px;">Custom
+                  Document Name *</label>
+                <input type="text" [(ngModel)]="docRequestCustomName" placeholder="Enter document name..."
+                  style="width: 100%; height: 46px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #0f172a; background: #fff; outline: none;">
+              </div>
+              }
+
+              <div>
+                <label
+                  style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px;">Remarks
+                  (Optional)</label>
+                <textarea [(ngModel)]="docRequestRemarks" placeholder="Any additional notes..." rows="3"
+                  style="width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #0f172a; background: #fff; outline: none; resize: vertical;"></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+                <button (click)="docRequestActiveTab = 'list'"
+                  style="background: transparent; color: #64748b; height: 42px; padding: 0 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; margin-right: 12px;">
+                  Cancel
+                </button>
+                <button (click)="submitDocRequest(); docRequestActiveTab = 'list'" [disabled]="isSubmittingDocRequest"
+                  style="background: #2563eb; color: #fff; height: 42px; padding: 0 24px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;"
+                  [style.opacity]="isSubmittingDocRequest ? '0.7' : '1'">
+                  @if(isSubmittingDocRequest) {
+                  <span>Submitting...</span>
+                  } @else {
+                  <i class="fas fa-paper-plane"></i> Submit Request
+                  }
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Filtered Requests Table -->
+      @if(filteredDocRequestsList.length > 0) {
+      <div class="astud-card" style="box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div class="astud-card-header"
+          style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-list-ul" style="font-size: 20px; color: #3b82f6;"></i>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #0f172a;">Document Requests</h3>
+          </div>
+          <div
+            style="background: #eff6ff; color: #2563eb; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">
+            Showing {{ filteredDocRequestsList.length }}
+          </div>
+        </div>
+
+        <div style="padding: 0;">
+          <table class="astud-table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">Serial No.</th>
+                <th>Student</th>
+                <th>Document</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for(req of paginatedDocRequestsList; track req.id; let i = $index) {
+              <tr [@listAnimation]>
+                <td class="text-secondary">#{{ (docRequestCurrentPage - 1) * docRequestPageSize + i + 1 }}</td>
+                <td>
+                  <div class="astud-student-cell">
+                    <div class="astud-avatar">{{ req.student?.fullName?.charAt(0) || '?' }}</div>
+                    <div>
+                      <div class="astud-name">{{ req.student?.fullName || 'N/A' }}</div>
+                      <div class="astud-email">{{ req.student?.applicationId || 'No ID' }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="font-weight: 500; color: #0f172a;">{{ getDocTypeLabel(req.docType, req.customDocName) }}</td>
+                <td>
+                  <span class="astud-badge" [ngClass]="'status-' + (req.status ? req.status.toLowerCase() : '')"
+                    [style.background]="getStatusColor(req.status) + '20'" [style.color]="getStatusColor(req.status)">
+                    {{ req.status }}
+                  </span>
+                </td>
+                <td style="color: #64748b; font-weight: 500;">
+                  <i class="far fa-calendar-alt" style="margin-right: 4px;"></i> {{ req.createdAt | date:'MMM d, yyyy'
+                  }}
+                </td>
+                <td>
+                  @if(req.status === 'COMPLETED' && req.uploadedDocPath) {
+                  <button class="astud-action-btn" style="background: #f0fdf4; color: #16a34a; border-color: #bbf7d0;"
+                    (click)="downloadRequestedDoc(req.uploadedDocPath)">
+                    <i class="fas fa-download"></i> Download
+                  </button>
+                  } @else if(req.status === 'REJECTED') {
+                  <span style="color: #ef4444; font-size: 12px; font-weight: 500;"><i class="fas fa-times-circle"></i>
+                    {{ req.rejectionReason || 'Rejected' }}</span>
+                  } @else {
+                  <span style="color: #94a3b8; font-size: 12px; font-weight: 500;">Pending...</span>
+                  }
+                </td>
+              </tr>
               }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        @if(docRequestTotalPages > 1) {
+        <div
+          style="padding: 16px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 13px; color: #64748b; font-weight: 500;">
+            Showing <span style="color: #0f172a; font-weight: 600;">{{ (docRequestCurrentPage - 1) * docRequestPageSize
+              + 1 }}</span>
+            to <span style="color: #0f172a; font-weight: 600;">{{ (docRequestCurrentPage * docRequestPageSize) >
+              filteredDocRequestsList.length ? filteredDocRequestsList.length : (docRequestCurrentPage *
+              docRequestPageSize) }}</span>
+            of <span style="color: #0f172a; font-weight: 600;">{{ filteredDocRequestsList.length }}</span> requests
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button (click)="prevDocRequestPage()" [disabled]="docRequestCurrentPage === 1"
+              style="padding: 6px 12px; border: 1px solid #e2e8f0; background: #fff; border-radius: 6px; color: #475569; font-size: 13px; font-weight: 600; transition: all 0.2s;"
+              [style.opacity]="docRequestCurrentPage === 1 ? '0.5' : '1'"
+              [style.cursor]="docRequestCurrentPage === 1 ? 'not-allowed' : 'pointer'">
+              Previous
+            </button>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <span style="font-size: 13px; font-weight: 600; color: #0f172a; padding: 0 8px;">
+                Page {{ docRequestCurrentPage }} of {{ docRequestTotalPages }}
+              </span>
             </div>
-            <div>
-              <label
-                style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Document
-                Type *</label>
-              <select [(ngModel)]="docRequestDocType"
-                style="width: 100%; height: 46px; padding: 0 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; background: white; outline: none; transition: border-color 0.2s;">
-                <option value="" disabled>Choose document type</option>
-                @for(opt of docTypeOptions; track opt.value) {
-                <option [value]="opt.value">{{ opt.label }}</option>
-                }
-              </select>
-            </div>
-            @if(docRequestDocType === 'OTHER') {
-            <div>
-              <label
-                style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Custom
-                Document Name *</label>
-              <input type="text" [(ngModel)]="docRequestCustomName" placeholder="Enter document name..."
-                style="width: 100%; height: 46px; padding: 0 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none;">
-            </div>
-            }
-            <div>
-              <label
-                style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Remarks
-                (Optional)</label>
-              <textarea [(ngModel)]="docRequestRemarks" placeholder="Any additional notes..." rows="3"
-                style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; resize: vertical;"></textarea>
-            </div>
-            <button class="btn btn-primary" (click)="submitDocRequest()" [disabled]="isSubmittingDocRequest"
-              style="height: 46px; border-radius: 10px; font-weight: 600; font-size: 14px;">
-              @if(isSubmittingDocRequest) {
-              <span>Submitting...</span>
-              } @else {
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                style="margin-right: 6px;">
-                <path d="M22 2L11 13" />
-                <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-              </svg>
-              Submit Request
-              }
+            <button (click)="nextDocRequestPage()" [disabled]="docRequestCurrentPage === docRequestTotalPages"
+              style="padding: 6px 12px; border: 1px solid #e2e8f0; background: #fff; border-radius: 6px; color: #475569; font-size: 13px; font-weight: 600; transition: all 0.2s;"
+              [style.opacity]="docRequestCurrentPage === docRequestTotalPages ? '0.5' : '1'"
+              [style.cursor]="docRequestCurrentPage === docRequestTotalPages ? 'not-allowed' : 'pointer'">
+              Next
             </button>
           </div>
         </div>
+        }
+      </div>
+      } @else {
+      <div class="empty-state-modern" style="padding: 60px 0;">
+        <i class="fas fa-folder-open" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
+        <h4>No requests found</h4>
+        <p>There are no document requests matching your search/filters.</p>
       </div>
       }
 
-      @if(docRequestActiveTab === 'list') {
-      <!-- Active Requests Table -->
-      @if(pendingDocRequests.length > 0) {
-      <div class="glass-card" style="margin-bottom: 24px;">
-        <div class="card-header-modern" style="display: flex; justify-content: space-between; align-items: center;">
-          <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            Active Requests
-          </h3>
-          <span class="badge-count">{{ pendingDocRequests.length }}</span>
-        </div>
-        <div class="modern-table-container">
-          <table class="modern-table">
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Document</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for(req of pendingDocRequests; track req.id) {
-              <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td>
-                  <div class="student-cell">
-                    <div class="avatar-sm">{{ req.student?.fullName?.charAt(0) || '?' }}</div>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text);">{{ req.student?.fullName || 'N/A' }}</div>
-                      <div style="font-size: 12px; color: var(--text-muted);">{{ req.student?.applicationId || 'No ID'
-                        }}</div>
-                    </div>
-                  </div>
-                </td>
-                <td style="font-weight: 500;">{{ getDocTypeLabel(req.docType, req.customDocName) }}</td>
-                <td>
-                  <span [class]="'badge ' + getDocRequestStatusBadgeClass(req.status)"
-                    style="padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;">{{ req.status
-                    }}</span>
-                </td>
-                <td style="color: var(--text-muted); font-size: 13px; font-weight: 500;">{{ req.createdAt | date:'MMM d,
-                  yyyy' }}</td>
-                <td>
-                  <span style="color: #94a3b8; font-size: 12px;">—</span>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-      }
-
-      <!-- Completed Requests Table -->
-      @if(completedDocRequests.length > 0) {
-      <div class="glass-card">
-        <div class="card-header-modern" style="display: flex; justify-content: space-between; align-items: center;">
-          <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-            Completed & Rejected
-          </h3>
-          <span class="badge-count" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">{{
-            completedDocRequests.length }}</span>
-        </div>
-        <div class="modern-table-container">
-          <table class="modern-table">
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Document</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for(req of completedDocRequests; track req.id) {
-              <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td>
-                  <div class="student-cell">
-                    <div class="avatar-sm">{{ req.student?.fullName?.charAt(0) || '?' }}</div>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text);">{{ req.student?.fullName || 'N/A' }}</div>
-                      <div style="font-size: 12px; color: var(--text-muted);">{{ req.student?.applicationId || 'No ID'
-                        }}</div>
-                    </div>
-                  </div>
-                </td>
-                <td style="font-weight: 500;">{{ getDocTypeLabel(req.docType, req.customDocName) }}</td>
-                <td>
-                  <span [class]="'badge ' + getDocRequestStatusBadgeClass(req.status)"
-                    style="padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;">{{ req.status
-                    }}</span>
-                </td>
-                <td style="color: var(--text-muted); font-size: 13px; font-weight: 500;">{{ req.createdAt | date:'MMM d,
-                  yyyy' }}</td>
-                <td>
-                  @if(req.status === 'COMPLETED' && req.uploadedDocPath) {
-                  <button class="btn-action-primary" style="padding: 8px 16px; border-radius: 8px; font-size: 13px;"
-                    (click)="downloadRequestedDoc(req.uploadedDocPath)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      stroke-width="2.5">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                    Download
-                  </button>
-                  } @else if(req.status === 'REJECTED') {
-                  <span style="color: #ef4444; font-size: 12px;">{{ req.rejectionReason || 'Rejected' }}</span>
-                  }
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-      }
-
-      @if(docRequests.length === 0) {
-      <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-          style="margin-bottom: 12px;">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-        </svg>
-        <p style="font-size: 15px; font-weight: 500;">No document requests yet</p>
-        <p style="font-size: 13px;">Submit your first request using the form above.</p>
-      </div>
-      }
-      }
     </div>
     }
 

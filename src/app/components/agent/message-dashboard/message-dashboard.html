@@ -1,142 +1,329 @@
-<div class="chat-container">
-  <!-- Sidebar -->
-  <div class="chat-sidebar">
-    <div class="sidebar-header">
-      <button class="btn-new-chat" (click)="openNewChatModal()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-        New chat
-      </button>
-    </div>
+<div class="msg-dashboard">
+  <!-- Top Header & KPIs -->
+  <div class="msg-header-section">
 
-    <div class="chat-list">
-      @for (student of activeChats; track student) {
-        <div class="chat-item"
-          [class.active]="selectedStudent?.id === student.id" (click)="selectChat(student)">
-          <div class="avatar">{{ student.name.charAt(0) }}</div>
-          <div class="chat-info">
-            <span class="chat-name">{{ getStudentDisplayName(student) }}</span>
-            <span class="chat-preview">Click to view messages</span>
-          </div>
+    <div class="msg-kpi-cards">
+      <!-- Total Conversations -->
+      <div class="kpi-card" (click)="setKpiFilter('all')" [style.cursor]="'pointer'"
+        [style.border]="activeKpi === 'all' ? '2px solid #3b82f6' : '1px solid #e2e8f0'">
+        <div class="kpi-icon blue"><i class="fas fa-comment-dots"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-label">Total Conversations</span>
+          <span class="kpi-value">{{ stats.totalConversations }}</span>
+          <span class="kpi-subtext">All Conversations</span>
         </div>
-      }
-
-      @if (activeChats.length === 0) {
-        <div class="empty-sidebar">
-          <p>No active conversations</p>
+      </div>
+      <!-- Unread Messages -->
+      <div class="kpi-card" (click)="setKpiFilter('unread')" [style.cursor]="'pointer'"
+        [style.border]="activeKpi === 'unread' ? '2px solid #8b5cf6' : '1px solid #e2e8f0'">
+        <div class="kpi-icon purple"><i class="fas fa-envelope"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-label">Unread Messages</span>
+          <span class="kpi-value">{{ stats.unreadMessages }}</span>
+          <span class="kpi-subtext">New Messages</span>
         </div>
-      }
+      </div>
+      <!-- Pending Replies -->
+      <div class="kpi-card" (click)="setKpiFilter('pending')" [style.cursor]="'pointer'"
+        [style.border]="activeKpi === 'pending' ? '2px solid #f97316' : '1px solid #e2e8f0'">
+        <div class="kpi-icon orange"><i class="fas fa-clock"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-label">Pending Replies</span>
+          <span class="kpi-value">{{ stats.pendingReplies }}</span>
+          <span class="kpi-subtext">Awaiting Reply</span>
+        </div>
+      </div>
+      <!-- Today's Chats -->
+      <div class="kpi-card" (click)="setKpiFilter('today')" [style.cursor]="'pointer'" [style.border]="activeKpi === 'today' ? '2px solid #22c55e' : '1px solid #e2e8f0'">
+        <div class="kpi-icon green"><i class="fas fa-calendar-day"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-label">Today's Chats</span>
+          <span class="kpi-value">{{ stats.todayChats }}</span>
+          <span class="kpi-subtext">Active Today</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Main Chat Area -->
-  <div class="chat-main">
-    @if (selectedStudent) {
-      <!-- Chat Header -->
-      <div class="chat-header">
-        <div class="avatar-sm">{{ selectedStudent.name.charAt(0) }}</div>
-        <div class="header-info">
-          <h2>{{ getStudentDisplayName(selectedStudent) }}</h2>
-          <span class="status-indicator">Admission Manager</span>
-        </div>
+  <!-- Filters Area -->
+  <div class="msg-filters-bar">
+    <div class="filter-group flex-2">
+      <label>Select Student to Start Chat</label>
+      <div class="search-input-wrapper">
+        <input type="text" placeholder="Search by student name or application no." [(ngModel)]="chatSearchQuery"
+          (input)="filterChats()">
+        <i class="fas fa-search search-icon"></i>
       </div>
-      <!-- Messages Area -->
-      <div class="messages-area" #scrollContainer>
-        @for (msg of messages; track msg) {
-          <div class="message-group" [class.sent]="msg.senderRole === 'AGENT'"
-            [class.received]="msg.senderRole !== 'AGENT'">
-            <div class="message-bubble">
-              {{ msg.content }}
-              @if (msg.timestamp) {
-                <span class="message-time">{{ msg.timestamp | date:'shortTime' }}</span>
+    </div>
+    <div class="filter-group flex-1">
+      <label>Filter by Date</label>
+      <div class="date-input-wrapper">
+        <input type="date" [(ngModel)]="chatDateFilter" (change)="filterChats()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Main 3-Pane Layout -->
+  <div class="msg-main-layout">
+
+    <!-- Left Pane: Chat List -->
+    <div class="pane-chat-list">
+      <div class="chat-header-bar"
+        style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">
+        <div style="font-size: 14px; font-weight: 600; color: #1e293b;">
+          Conversations ({{ stats.totalConversations }})
+        </div>
+        <button class="btn-primary" (click)="isNewChatModalOpen = true"
+          style="background: #2563eb; color: #ffffff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          <i class="fas fa-plus"></i> New Chat
+        </button>
+      </div>
+
+      <div class="chat-items-container">
+        @for(student of paginatedChats; track student.id) {
+        <div class="chat-item" [class.active]="selectedStudent?.id === student.id" (click)="selectChat(student)">
+          <div class="chat-item-avatar">
+            <img src="https://ui-avatars.com/api/?name={{ student.name }}&background=random" alt="avatar">
+          </div>
+          <div class="chat-item-content">
+            <div class="chat-item-header">
+              <span class="chat-item-name">{{ student.name }}</span>
+              <span class="chat-item-time">{{ student.lastMessageTime }}</span>
+            </div>
+            <div class="chat-item-sub">
+              <span>{{ student.applicationId }}</span> • <span>{{ student.university }}</span>
+            </div>
+            <div class="chat-item-preview">
+              <span class="preview-text">{{ student.lastMessage }}</span>
+              @if(student.unreadCount) {
+              <span class="unread-badge">{{ student.unreadCount }}</span>
               }
             </div>
           </div>
+        </div>
         }
-        @if (isLoadingMessages) {
-          <div class="loading-messages">
-            <div class="spinner-container">
-              <div class="spinner"></div>
-              <p class="loading-text">Loading messages...</p>
+      </div>
+
+      <!-- Pagination Controls -->
+      @if(chatTotalPages > 1) {
+      <div class="pagination-controls" style="display: flex; justify-content: center; gap: 8px; padding: 12px; border-top: 1px solid #e2e8f0; background: #f8fafc;">
+        <button class="btn-outline" (click)="chatGoToPage(chatCurrentPage - 1)" [disabled]="chatCurrentPage === 1" style="padding: 4px 8px; font-size: 12px;"><i class="fas fa-chevron-left"></i></button>
+        <span style="font-size: 12px; font-weight: 500; display: flex; align-items: center;">Page {{ chatCurrentPage }} of {{ chatTotalPages }}</span>
+        <button class="btn-outline" (click)="chatGoToPage(chatCurrentPage + 1)" [disabled]="chatCurrentPage === chatTotalPages" style="padding: 4px 8px; font-size: 12px;"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      }
+
+    </div>
+
+    <!-- Center Pane: Chat Window -->
+    <div class="pane-chat-window">
+      @if(selectedStudent) {
+      <div class="chat-window-header">
+        <div class="chat-window-user">
+          <div class="chat-avatar">
+            <img src="https://ui-avatars.com/api/?name={{ selectedStudent.name }}&background=random" alt="avatar">
+          </div>
+          <div class="chat-user-info">
+            <div class="chat-user-name">
+              {{ selectedStudent.name }} <span class="status-dot green"></span> <span class="status-text">Active</span>
+            </div>
+            <div class="chat-user-sub">
+              {{ selectedStudent.contactNo }} • {{ selectedStudent.university }}
             </div>
           </div>
-        }
-        @if (!isLoadingMessages && messages.length === 0) {
-          <div class="empty-messages">
-            <p>No messages yet. Start the conversation!</p>
+        </div>
+        <div class="chat-window-actions">
+          <div style="position: relative;">
+            <button class="icon-btn" (click)="togglePhone()"><i class="fas fa-phone-alt"></i></button>
+            @if(showPhoneDetails) {
+            <div class="contact-popover" style="right: 0; min-width: 160px;">
+              <div class="contact-item"><i class="fas fa-phone-alt"></i> {{ selectedStudent.contactNo }}</div>
+            </div>
+            }
           </div>
+
+          <div style="position: relative;">
+            <button class="icon-btn" (click)="toggleEmail()"><i class="fas fa-envelope"></i></button>
+            @if(showEmailDetails) {
+            <div class="contact-popover" style="right: 0; min-width: 200px;">
+              <div class="contact-item"><i class="fas fa-envelope"></i> {{ selectedStudent.email }}</div>
+            </div>
+            }
+          </div>
+
+          <button class="btn-outline" (click)="toggleProfile()">Student Profile</button>
+          @if(selectedStudent?.unreadCount) {
+          <button class="btn-primary" (click)="markAsRead()" [disabled]="isMarkingAsRead" [style.opacity]="isMarkingAsRead ? '0.7' : '1'" style="background: #8b5cf6; color: #ffffff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+            @if(isMarkingAsRead) {
+              <i class="fas fa-spinner fa-spin"></i> Marking...
+            } @else {
+              <i class="fas fa-check-double"></i> Mark as Read
+            }
+          </button>
+          }
+        </div>
+      </div>
+
+      <div class="chat-messages-area">
+        <div class="date-divider"><span>22 May 2024</span></div>
+
+        @for(msg of messages; track msg) {
+        <div class="message-wrapper" [class.sent]="msg.senderRole === 'AGENT'"
+          [class.received]="msg.senderRole !== 'AGENT'">
+          @if(msg.senderRole !== 'AGENT') {
+          <div class="message-avatar">
+            <img src="https://ui-avatars.com/api/?name=Mahesh+Kumar&background=random" alt="avatar">
+          </div>
+          }
+          <div class="message-content">
+            <div class="message-meta">
+              <span class="message-sender">{{ msg.senderRole === 'AGENT' ? 'You' : (msg.senderRole ===
+                'ADMISSION_MANAGER' || msg.senderRole === 'MANAGER' ? 'Admission Manager' : msg.senderRole) }}</span>
+              <span class="message-time">{{ msg.timestamp | date:'shortTime' }}</span>
+            </div>
+            <div class="message-bubble" [innerHTML]="msg.content.replace('\n', '<br>')"></div>
+
+            @if(msg.attachment) {
+            <div class="message-attachment">
+              <div class="attachment-icon">
+                <i class="fas fa-file-pdf"></i>
+              </div>
+              <div class="attachment-info">
+                <span class="attachment-name">{{ msg.attachment.name }}</span>
+                <span class="attachment-size">{{ msg.attachment.type }} • {{ msg.attachment.size }}</span>
+              </div>
+              <button class="attachment-download"><i class="fas fa-download"></i></button>
+            </div>
+            }
+            @if(msg.senderRole === 'AGENT') {
+            <div class="message-status"><i class="fas fa-check-double text-blue-500"
+                style="color: #3b82f6; font-size: 10px; align-self: flex-end; margin-top: 4px;"></i></div>
+            }
+          </div>
+        </div>
         }
       </div>
-      <!-- Input Area -->
-      <div class="input-area">
-        <div class="input-wrapper">
-          <input type="text" placeholder="Type a message..." [(ngModel)]="newMessage"
-            (keyup.enter)="sendMessage()">
-          <button class="btn-send" (click)="sendMessage()" [disabled]="!newMessage.trim()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2">
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-          </button>
-        </div>
-      </div>
-    } @else {
-      <div class="no-chat-state">
-        <div class="no-chat-icon">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg>
-        </div>
-        <h3>Start a conversation</h3>
-        <p>Select a student from the sidebar or start a new chat.</p>
-        <button class="btn-primary" (click)="openNewChatModal()">Start New Chat</button>
-      </div>
-    }
 
-  </div>
-</div>
-
-<!-- New Chat Modal -->
-@if (isNewChatModalOpen) {
-  <div class="modal-overlay" (click)="closeNewChatModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>New Chat</h3>
-        <button class="btn-close" (click)="closeNewChatModal()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="search-box">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery"
-            (ngModelChange)="onSearchChange()">
+      <div class="chat-input-area">
+        <div class="chat-input-wrapper">
+          <input type="text" placeholder="Type your message..." [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
+          <div class="chat-input-actions right">
+            <button class="btn-send" (click)="sendMessage()"><i class="fas fa-paper-plane"></i> Send</button>
+          </div>
         </div>
-        <div class="student-list">
-          @for (student of filteredStudents; track student) {
-            <div class="student-item" (click)="startChat(student)">
-              <div class="avatar-sm">{{ student.name.charAt(0) }}</div>
-              <div class="student-info">
-                <span class="student-name">{{ getStudentDisplayName(student) }}</span>
-                <span class="student-id">ID: {{ student.id }}</span>
+      </div>
+      }
+    </div>
+
+    <!-- New Chat Modal -->
+    @if(isNewChatModalOpen) {
+    <div class="modal-overlay" (click)="isNewChatModalOpen = false">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Start New Conversation</h3>
+          <button class="icon-btn" (click)="isNewChatModalOpen = false"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="search-input-wrapper" style="margin-bottom: 16px;">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery" (input)="filterStudents()">
+          </div>
+          <div class="student-list">
+            @for(student of filteredStudents; track student.id) {
+            <div class="student-item" (click)="startChat(student); isNewChatModalOpen = false">
+              <div class="avatar-circle purple">{{ student.name.substring(0, 2).toUpperCase() }}</div>
+              <div class="student-details">
+                <h4>{{ student.name }}</h4>
+                <p>{{ student.applicationId }} • {{ student.university }}</p>
               </div>
             </div>
-          }
-          @if (filteredStudents.length === 0) {
-            <div class="empty-search">
-              No students found
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Right Pane: Student Info -->
+    @if(isProfileVisible) {
+    <div class="pane-student-info">
+      <div class="info-header" style="justify-content: flex-end;">
+        <button class="icon-btn" (click)="toggleProfile()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="student-profile-card">
+        <div class="profile-main">
+          <img src="https://ui-avatars.com/api/?name={{ selectedStudent.name }}&background=random" alt="avatar">
+          <div class="profile-details">
+            <div class="profile-name-row">
+              <h4>{{ selectedStudent.name }}</h4>
+              <span class="status-badge">{{ selectedStudent.currentStage }}</span>
             </div>
+            <p class="app-id">{{ selectedStudent.applicationId }}</p>
+            <p class="university"><i class="fas fa-university"></i> {{ selectedStudent.university }}</p>
+            <p class="program"><i class="fas fa-graduation-cap"></i> {{ selectedStudent.program }}</p>
+          </div>
+        </div>
+
+        <div class="profile-stats">
+          <div class="stat-row">
+            <span class="stat-icon"><i class="far fa-envelope"></i> Email</span>
+            <span class="stat-value" style="font-size: 13px;">{{ selectedStudent.email || 'N/A' }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-icon"><i class="fas fa-phone-alt"></i> Contact</span>
+            <span class="stat-value">{{ selectedStudent.contactNo || 'N/A' }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-icon"><i class="far fa-user"></i> Admission Manager</span>
+            <span class="stat-value">{{ selectedStudent.managerName || 'N/A' }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-icon"><i class="far fa-check-square"></i> Current Stage</span>
+            <span class="stat-value text-green">{{ selectedStudent.currentStage || 'N/A' }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-icon"><i class="far fa-calendar-alt"></i> Applied Date</span>
+            <span class="stat-value">{{ selectedStudent.appliedDate || 'N/A' }}</span>
+          </div>
+          <div class="stat-row" style="border-top: 1px dashed #e2e8f0; padding-top: 12px; margin-top: 4px;">
+            <span class="stat-icon"><i class="fas fa-history"></i> Last Activity</span>
+            <span class="stat-value">{{ selectedStudent.lastMessageTime || 'None' }}</span>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+    }
+  </div>
+
+  <!-- New Chat Modal -->
+  @if(isNewChatModalOpen) {
+  <div class="modal-overlay" (click)="isNewChatModalOpen = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Start New Conversation</h3>
+        <button class="icon-btn" (click)="isNewChatModalOpen = false"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="search-input-wrapper" style="margin-bottom: 16px;">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" placeholder="Search students..." [(ngModel)]="searchQuery" (input)="filterStudents()">
+        </div>
+        <div class="student-list">
+          @for(student of filteredStudents; track student.id) {
+          <div class="student-item" (click)="startChat(student); isNewChatModalOpen = false">
+            <div class="avatar-circle purple">{{ student.name.substring(0, 2).toUpperCase() }}</div>
+            <div class="student-details">
+              <h4>{{ student.name }}</h4>
+              <p>{{ student.applicationId }} • {{ student.university }}</p>
+            </div>
+          </div>
           }
         </div>
       </div>
     </div>
   </div>
-}
+  }
+</div>

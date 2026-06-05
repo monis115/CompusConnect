@@ -99,6 +99,10 @@ export class AgentDashboard implements OnInit {
   docReturnStudents: Student[] = [];
   uniqueColleges: string[] = [];
   travelTab: 'travel' | 'docs' = 'travel';
+  visaModalMode: 'upload' | 'view' | 'none' = 'none';
+
+  // --- Travel Modal Mode ---
+  travelModalMode: 'view' | 'edit' = 'view';
   travelFilterCollege: string = '';
   travelFilterAgent: string = '';
   travelFilterStartDate: string = '';
@@ -138,7 +142,7 @@ export class AgentDashboard implements OnInit {
   }
 
   // --- View State ---
-  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'assigned-tasks' | 'travel-details' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'apply-visa' | 'doc-return' | 'rejected' | 'travelling' | 'request-doc' | 'visa-payment' = 'dashboard';
+  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'assigned-tasks' | 'travel-details' | 'travel-management' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'apply-visa' | 'doc-return' | 'rejected' | 'travelling' | 'request-doc' | 'visa-payment' = 'dashboard';
   isLoading = true;
   isRefreshing = false;
   isReloadingData = false; // For floating button
@@ -302,9 +306,28 @@ export class AgentDashboard implements OnInit {
   assignedTasksCurrentPage: number = 1;
   assignedTasksPageSize: number = 25;
 
-  get filteredAssignedTasks(): Student[] {
-    let tasks = this.students.filter(s => this.showInitiateTelexButton(s) || this.showRequestDocsButton(s) || this.showVisaPaymentButton(s) || ((s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT') && s['action'] === 'SUBMIT_TRAVEL_DETAILS') || s.applicationStatus === 'REJECTED');
-    if (this.assignedTasksActionFilter === 'REJECTED') {
+  get studentDrafts(): any[] {
+    const draftsStr = localStorage.getItem('agent_student_drafts') || '[]';
+    try {
+      const drafts = JSON.parse(draftsStr);
+      return Array.isArray(drafts) ? drafts : [];
+    } catch {
+      return [];
+    }
+  }
+
+  get filteredAssignedTasks(): any[] {
+    let tasks: any[] = this.students.filter(s => this.showInitiateTelexButton(s) || this.showRequestDocsButton(s) || this.showVisaPaymentButton(s) || ((s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT') && s['action'] === 'SUBMIT_TRAVEL_DETAILS') || s.applicationStatus === 'REJECTED');
+    
+    const drafts = this.studentDrafts.map(d => ({
+      ...d,
+      applicationId: 'DRAFT',
+      applicationStatus: 'DRAFT',
+      college: this.agentData?.collegeAccess?.find((c: any) => c.college.id === Number(d.selectedCollegeId))?.college || { collegeName: 'Not Selected' }
+    }));
+    if (this.assignedTasksActionFilter === 'ALL') {
+      tasks = [...drafts, ...tasks];
+    } else if (this.assignedTasksActionFilter === 'REJECTED') {
       tasks = tasks.filter(s => s.applicationStatus === 'REJECTED');
     } else if (this.assignedTasksActionFilter === 'TELEX') {
       tasks = tasks.filter(s => this.showInitiateTelexButton(s));
@@ -842,7 +865,7 @@ export class AgentDashboard implements OnInit {
   }
 
   goToCreateDocRequest(): void {
-    this.docRequestActiveTab = 'new';
+    this.docRequestActiveTab = 'list';
     this.navigateTo('request-doc');
   }
 
@@ -858,12 +881,219 @@ export class AgentDashboard implements OnInit {
   dashboardTasks: any[] = [];
   collegeDistribution: any[] = [];
 
-  // --- Travel Details ---
+  // --- Travel Management ---
   travelSearchQuery = '';
   selectedTravelStudent: Student | null = null;
   travelForm!: FormGroup;
   travelTicketFile: File | null = null;
   isSubmittingTravel = false;
+  travelMgmtFilterStatus: string = 'ALL';
+  travelMgmtFilterUniversity: string = 'ALL';
+  travelMgmtFilterDate: string = '';
+  travelMgmtCurrentPage: number = 1;
+  travelMgmtPageSize: number = 10;
+
+  get travelMgmtStudents(): Student[] {
+    return this.students.filter(s =>
+      s.applicationStatus === 'VISA_STAMPED' ||
+      s.applicationStatus === 'TRAVELLING' ||
+      s.applicationStatus === 'COMPLETED'
+    );
+  }
+
+  travelCalendarDate: Date = new Date();
+
+  get travelCalendarMonthName(): string {
+    return this.travelCalendarDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+  }
+
+  get travelCalendarDays(): any[] {
+    const year = this.travelCalendarDate.getFullYear();
+    const month = this.travelCalendarDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    const travelCounts: { [key: string]: number } = {};
+    this.travelMgmtStudents.forEach(s => {
+      const dojStr = s.travelDoj || s.documentReturnRequest?.travelDate;
+      if (dojStr) {
+        const d = new Date(dojStr);
+        if (!isNaN(d.getTime())) {
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+          travelCounts[key] = (travelCounts[key] || 0) + 1;
+        }
+      }
+    });
+
+    const days = [];
+    for (let i = 1; i <= daysInMonth; i++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+      const count = travelCounts[dateStr] || 0;
+      let intensity = 0;
+      if (count > 0 && count <= 2) intensity = 1;
+      else if (count >= 3 && count <= 5) intensity = 2;
+      else if (count > 5) intensity = 3;
+
+      days.push({
+        dayNumber: i,
+        dateString: dateStr,
+        count: count,
+        intensity: intensity
+      });
+    }
+    return days;
+  }
+
+  prevTravelMonth() {
+    this.travelCalendarDate = new Date(this.travelCalendarDate.getFullYear(), this.travelCalendarDate.getMonth() - 1, 1);
+  }
+
+  nextTravelMonth() {
+    this.travelCalendarDate = new Date(this.travelCalendarDate.getFullYear(), this.travelCalendarDate.getMonth() + 1, 1);
+  }
+
+  selectTravelCalendarDate(dateString: string) {
+    if (this.travelMgmtFilterDate === dateString) {
+      this.travelMgmtFilterDate = ''; // deselect
+    } else {
+      this.travelMgmtFilterDate = dateString;
+    }
+    this.travelMgmtCurrentPage = 1;
+  }
+
+  get travelStats() {
+    const all = this.travelMgmtStudents;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    
+    const today = new Date(now);
+    
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+
+    const nextWeek = new Date(now);
+    nextWeek.setDate(now.getDate() + 7);
+    
+    const lastWeek = new Date(now);
+    lastWeek.setDate(now.getDate() - 7);
+
+    let todayStudents: any[] = [];
+    let tomorrowStudents: any[] = [];
+    let upcomingStudents: any[] = [];
+    let recentPastStudents: any[] = [];
+
+    all.forEach(s => {
+      const dojStr = s.travelDoj || s.documentReturnRequest?.travelDate;
+      if (dojStr) {
+        const doj = new Date(dojStr);
+        if (!isNaN(doj.getTime())) {
+          const dojDate = new Date(doj);
+          dojDate.setHours(0, 0, 0, 0);
+
+          if (dojDate.getTime() === today.getTime()) {
+            todayStudents.push({ name: s.fullName, date: dojStr, airline: s.travelAirlines || 'TBD' });
+          } else if (dojDate.getTime() === tomorrow.getTime()) {
+            tomorrowStudents.push({ name: s.fullName, date: dojStr, airline: s.travelAirlines || 'TBD' });
+          } else if (dojDate > tomorrow && dojDate <= nextWeek) {
+            upcomingStudents.push({ name: s.fullName, date: dojStr, airline: s.travelAirlines || 'TBD' });
+          } else if (dojDate < today && dojDate >= lastWeek) {
+            recentPastStudents.push({ name: s.fullName, date: dojStr, airline: s.travelAirlines || 'TBD' });
+          }
+        }
+      }
+    });
+
+    todayStudents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    tomorrowStudents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    upcomingStudents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    recentPastStudents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return {
+      total: all.length,
+      updated: all.filter(s => !!s.travelDoj || !!s.travelAirlines).length,
+      ticketPending: all.filter(s => !s.travelTicketPdfPath && !s.documentReturnRequest?.ticketPdfPath).length,
+      pickupPending: all.filter(s => s.applicationStatus === 'TRAVELLING' && !s.isReturnReceivedByStudent).length,
+      arrived: all.filter(s => s.applicationStatus === 'COMPLETED').length,
+      today: todayStudents,
+      tomorrow: tomorrowStudents,
+      upcomingWeek: upcomingStudents,
+      lastWeek: recentPastStudents
+    };
+  }
+
+  get filteredTravelMgmtStudents(): Student[] {
+    let filtered = this.travelMgmtStudents;
+    if (this.travelSearchQuery) {
+      const q = this.travelSearchQuery.toLowerCase();
+      filtered = filtered.filter(s =>
+        s.fullName?.toLowerCase().includes(q) ||
+        s.email?.toLowerCase().includes(q) ||
+        s.applicationId?.toLowerCase().includes(q)
+      );
+    }
+    if (this.travelMgmtFilterStatus !== 'ALL') {
+      if (this.travelMgmtFilterStatus === 'DETAILS_UPDATED') {
+        filtered = filtered.filter(s => !!s.travelDoj || !!s.travelAirlines);
+      } else if (this.travelMgmtFilterStatus === 'TICKET_PENDING') {
+        filtered = filtered.filter(s => !s.travelTicketPdfPath && !s.documentReturnRequest?.ticketPdfPath);
+      } else if (this.travelMgmtFilterStatus === 'ARRIVED') {
+        filtered = filtered.filter(s => s.applicationStatus === 'COMPLETED');
+      } else {
+        filtered = filtered.filter(s => s.applicationStatus === this.travelMgmtFilterStatus);
+      }
+    }
+    if (this.travelMgmtFilterUniversity !== 'ALL') {
+      filtered = filtered.filter(s => s.college?.collegeName === this.travelMgmtFilterUniversity);
+    }
+    if (this.travelMgmtFilterDate) {
+      filtered = filtered.filter(s => {
+        const doj = s.travelDoj || s.documentReturnRequest?.travelDate;
+        return doj && doj.startsWith(this.travelMgmtFilterDate);
+      });
+    }
+    return filtered;
+  }
+
+  get paginatedTravelMgmtStudents(): Student[] {
+    const start = (this.travelMgmtCurrentPage - 1) * this.travelMgmtPageSize;
+    return this.filteredTravelMgmtStudents.slice(start, start + this.travelMgmtPageSize);
+  }
+
+  get travelMgmtTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredTravelMgmtStudents.length / this.travelMgmtPageSize));
+  }
+
+  clearTravelMgmtFilters(): void {
+    this.travelSearchQuery = '';
+    this.travelMgmtFilterStatus = 'ALL';
+    this.travelMgmtFilterUniversity = 'ALL';
+    this.travelMgmtFilterDate = '';
+    this.travelMgmtCurrentPage = 1;
+  }
+
+  viewTravelStudent(student: Student): void {
+    this.selectedTravelStudent = student;
+    this.travelForm.patchValue({
+      travelDoj: student.travelDoj || '',
+      travelAirlines: student.travelAirlines || '',
+      travelSource: student.travelSource || '',
+      travelDestination: student.travelDestination || ''
+    });
+  }
+
+  getTravelStatus(s: Student): string {
+    if (s.applicationStatus === 'COMPLETED') return 'Arrived';
+    if (s.travelDoj && s.travelAirlines && (s.travelTicketPdfPath || s.documentReturnRequest?.ticketPdfPath)) return 'Ticket Booked';
+    if (s.travelDoj || s.travelAirlines) return 'Details Updated';
+    return 'Ticket Pending';
+  }
+
+  getTravelStatusColor(s: Student): string {
+    const status = this.getTravelStatus(s);
+    if (status === 'Arrived') return '#10b981';
+    if (status === 'Ticket Booked') return '#2563eb';
+    if (status === 'Details Updated') return '#8b5cf6';
+    return '#f59e0b';
+  }
 
   // --- Filters ---
   searchQuery: string = '';
@@ -947,16 +1177,25 @@ export class AgentDashboard implements OnInit {
   showToast = false;
 
   // --- Doc Request State ---
-  docRequestActiveTab: 'new' | 'list' = 'new';
+  docRequestActiveTab: 'new' | 'list' = 'list';
   docRequests: any[] = [];
   docRequestStudentId: number | null = null;
   docRequestStudentSearch: string = '';
   docRequestStudentSuggestions: any[] = [];
-  docRequestSelectedStudent: any = null;
   docRequestShowSuggestions = false;
   docRequestDocType: string = '';
   docRequestCustomName: string = '';
   docRequestRemarks: string = '';
+
+  // List Filters
+  docRequestListSearch: string = '';
+  docRequestListStatus: string = 'ALL';
+  docRequestSelectedStudent: any = null;
+
+  // Pagination
+  docRequestCurrentPage: number = 1;
+  docRequestPageSize: number = 10;
+
 
   // Document Return Stats
   docStats = {
@@ -1139,6 +1378,9 @@ export class AgentDashboard implements OnInit {
 
         // Fetch new dashboard data
         this.fetchDashboardData(username);
+        
+        // Fetch messages to get unread count
+        this.fetchUnreadMessages(data.id);
 
         this.isLoading = false;
         this.isRefreshing = false;
@@ -1448,6 +1690,7 @@ export class AgentDashboard implements OnInit {
       case 'dashboard': return 'Dashboard';
       case 'students': return 'All Students';
       case 'travel-details': return 'Update Travel Details';
+      case 'travel-management': return 'Travel Management';
       case 'visa-stamped': return 'Visa Stamped';
       case 'assigned-tasks': return 'Assigned Tasks';
       case 'apply-telex': return 'Apply Telex';
@@ -1507,11 +1750,24 @@ export class AgentDashboard implements OnInit {
   }
 
   getActionRequiredCount(): number {
-    return this.dashboardTasks ? this.dashboardTasks.length : 0;
+    return this.filteredAssignedTasks.length;
+  }
+
+  unreadMessagesCount: number = 0;
+
+  fetchUnreadMessages(agentId: number): void {
+    this.http.get<any[]>(`${environment.apiUrl}/api/messages/agent/${agentId}`)
+      .subscribe({
+        next: (msgs) => {
+          this.unreadMessagesCount = msgs.filter(m => !m.read && m.senderRole !== 'AGENT').length;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Failed to fetch messages', err)
+      });
   }
 
   getMessagesCount(): number {
-    return 0; // Placeholder
+    return this.unreadMessagesCount;
   }
 
   getVisaStampedCount(): number {
@@ -1898,7 +2154,9 @@ export class AgentDashboard implements OnInit {
       travelDoj: ['', Validators.required],
       travelAirlines: ['', Validators.required],
       travelSource: ['', Validators.required],
-      travelDestination: ['', Validators.required]
+      travelDestination: ['', Validators.required],
+      pnrNumber: [''],
+      flightNumber: ['']
     });
   }
 
@@ -1923,8 +2181,29 @@ export class AgentDashboard implements OnInit {
       travelDoj: student.travelDoj || '',
       travelAirlines: student.travelAirlines || '',
       travelSource: student.travelSource || '',
-      travelDestination: student.travelDestination || ''
+      travelDestination: student.travelDestination || '',
+      pnrNumber: student.travelPnrNumber || student.documentReturnRequest?.pnrNumber || '',
+      flightNumber: student.travelFlightNumber || ''
     });
+  }
+
+  openTravelModal(student: Student, mode: 'view' | 'edit' = 'view'): void {
+    this.selectedTravelStudent = student;
+    this.travelModalMode = mode;
+    this.travelSearchQuery = '';
+    this.travelTicketFile = null;
+    this.travelForm.patchValue({
+      travelDoj: student.travelDoj || '',
+      travelAirlines: student.travelAirlines || '',
+      travelSource: student.travelSource || '',
+      travelDestination: student.travelDestination || '',
+      pnrNumber: student.travelPnrNumber || student.documentReturnRequest?.pnrNumber || '',
+      flightNumber: student.travelFlightNumber || ''
+    });
+    // Ensure we are on travel-management view if not already (e.g. from search)
+    if (this.currentView !== 'travel-management') {
+      this.navigateTo('travel-management');
+    }
   }
 
   clearTravelSelection(): void {
@@ -1961,7 +2240,9 @@ export class AgentDashboard implements OnInit {
       travelDoj: formValue.travelDoj,
       travelAirlines: formValue.travelAirlines,
       travelSource: formValue.travelSource,
-      travelDestination: formValue.travelDestination
+      travelDestination: formValue.travelDestination,
+      pnrNumber: formValue.pnrNumber,
+      flightNumber: formValue.flightNumber
     };
 
     formData.append('agentUsername', this.authService.getUserData()?.username || '');
@@ -2574,6 +2855,72 @@ export class AgentDashboard implements OnInit {
 
   get completedDocRequests() {
     return this.docRequests.filter(r => r.status === 'COMPLETED' || r.status === 'REJECTED');
+  }
+
+  get docRequestStats() {
+    return {
+      total: this.docRequests.length,
+      pending: this.docRequests.filter(r => r.status !== 'COMPLETED' && r.status !== 'REJECTED').length,
+      completed: this.docRequests.filter(r => r.status === 'COMPLETED').length,
+      rejected: this.docRequests.filter(r => r.status === 'REJECTED').length
+    };
+  }
+
+  get filteredDocRequestsList() {
+    return this.docRequests.filter(req => {
+      let matchesSearch = true;
+      if (this.docRequestListSearch) {
+        const query = this.docRequestListSearch.toLowerCase();
+        const name = (req.student?.fullName || '').toLowerCase();
+        const email = (req.student?.email || '').toLowerCase();
+        const appId = (req.student?.applicationId || '').toLowerCase();
+        matchesSearch = name.includes(query) || email.includes(query) || appId.includes(query);
+      }
+
+      let matchesStatus = true;
+      if (this.docRequestListStatus !== 'ALL') {
+        if (this.docRequestListStatus === 'PENDING') {
+          matchesStatus = req.status !== 'COMPLETED' && req.status !== 'REJECTED';
+        } else {
+          matchesStatus = req.status === this.docRequestListStatus;
+        }
+      }
+
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  clearDocRequestFilters() {
+    this.docRequestListSearch = '';
+    this.docRequestListStatus = 'ALL';
+    this.docRequestCurrentPage = 1;
+  }
+
+  get paginatedDocRequestsList() {
+    const startIndex = (this.docRequestCurrentPage - 1) * this.docRequestPageSize;
+    return this.filteredDocRequestsList.slice(startIndex, startIndex + this.docRequestPageSize);
+  }
+
+  get docRequestTotalPages() {
+    return Math.max(1, Math.ceil(this.filteredDocRequestsList.length / this.docRequestPageSize));
+  }
+
+  nextDocRequestPage() {
+    if (this.docRequestCurrentPage < this.docRequestTotalPages) {
+      this.docRequestCurrentPage++;
+    }
+  }
+
+  prevDocRequestPage() {
+    if (this.docRequestCurrentPage > 1) {
+      this.docRequestCurrentPage--;
+    }
+  }
+
+  goToDocRequestPage(page: number) {
+    if (page >= 1 && page <= this.docRequestTotalPages) {
+      this.docRequestCurrentPage = page;
+    }
   }
 
   onDocRequestStudentSearch(): void {
