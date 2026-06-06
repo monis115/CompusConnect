@@ -318,7 +318,7 @@ export class AgentDashboard implements OnInit {
 
   get filteredAssignedTasks(): any[] {
     let tasks: any[] = this.students.filter(s => this.showInitiateTelexButton(s) || this.showRequestDocsButton(s) || this.showVisaPaymentButton(s) || ((s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT') && s['action'] === 'SUBMIT_TRAVEL_DETAILS') || s.applicationStatus === 'REJECTED');
-    
+
     const drafts = this.studentDrafts.map(d => ({
       ...d,
       applicationId: 'DRAFT',
@@ -836,6 +836,19 @@ export class AgentDashboard implements OnInit {
     return travels.sort((a, b) => new Date(a.student.travelDoj).getTime() - new Date(b.student.travelDoj).getTime()).slice(0, 3);
   }
 
+  get travelingThisMonthCount(): number {
+    const students = this.filteredStudentsForDashboard;
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    return students.filter(s => {
+      if (!s.travelDoj) return false;
+      const travelDate = new Date(s.travelDoj);
+      return travelDate.getMonth() === currentMonth && travelDate.getFullYear() === currentYear;
+    }).length;
+  }
+
   handlePendingAction(item: any): void {
     if (item.type === 'TELEX') this.openTelexModal(item.student);
     if (item.type === 'PAYMENT') this.openPaymentConfirmationModal(item.student);
@@ -911,7 +924,7 @@ export class AgentDashboard implements OnInit {
     const year = this.travelCalendarDate.getFullYear();
     const month = this.travelCalendarDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
+
     const travelCounts: { [key: string]: number } = {};
     this.travelMgmtStudents.forEach(s => {
       const dojStr = s.travelDoj || s.documentReturnRequest?.travelDate;
@@ -964,15 +977,15 @@ export class AgentDashboard implements OnInit {
     const all = this.travelMgmtStudents;
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    
+
     const today = new Date(now);
-    
+
     const tomorrow = new Date(now);
     tomorrow.setDate(now.getDate() + 1);
 
     const nextWeek = new Date(now);
     nextWeek.setDate(now.getDate() + 7);
-    
+
     const lastWeek = new Date(now);
     lastWeek.setDate(now.getDate() - 7);
 
@@ -1316,6 +1329,11 @@ export class AgentDashboard implements OnInit {
     }
   ];
 
+  // For the Quick Summary Rotating Card
+  quickInsights: string[] = ['Analyzing data...'];
+  currentInsightIndex: number = 0;
+  insightInterval: any;
+
   constructor(
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
@@ -1353,6 +1371,12 @@ export class AgentDashboard implements OnInit {
 
   refreshDashboard(): void {
     this.isReloadingData = true;
+
+    // Reset Agent Analyzer to show visual refresh state
+    this.quickInsights = ['Analyzing data...'];
+    this.currentInsightIndex = 0;
+    if (this.insightInterval) clearInterval(this.insightInterval);
+
     this.cdr.detectChanges();
 
     // 1.9 second delay as requested
@@ -1378,13 +1402,15 @@ export class AgentDashboard implements OnInit {
 
         // Fetch new dashboard data
         this.fetchDashboardData(username);
-        
+
         // Fetch messages to get unread count
         this.fetchUnreadMessages(data.id);
 
         this.isLoading = false;
         this.isRefreshing = false;
         this.isReloadingData = false;
+        this.generateQuickInsights();
+        this.startInsightRotation();
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -1415,6 +1441,38 @@ export class AgentDashboard implements OnInit {
       this.isReloadingData = false;
       this.cdr.detectChanges();
     }
+  }
+
+  generateQuickInsights(): void {
+    const insights: string[] = [];
+    const pending = this.getActionRequiredCount();
+    const traveling = this.travelingThisMonthCount;
+    const completed = this.dynamicDashboardStats.visaApproved;
+    const total = this.dynamicDashboardStats.totalStudents;
+
+    if (pending > 0) insights.push(`${pending} application${pending > 1 ? 's' : ''} require${pending === 1 ? 's' : ''} your immediate action.`);
+    if (traveling > 0) insights.push(`${traveling} student${traveling > 1 ? 's' : ''} scheduled to travel this month.`);
+    if (completed > 0) insights.push(`${completed} visa${completed > 1 ? 's' : ''} successfully stamped this month.`);
+    if (this.dynamicCollegeDistribution.length > 0) {
+      const topCollege = this.dynamicCollegeDistribution.reduce((prev, current) => (prev.count > current.count) ? prev : current);
+      insights.push(`Top destination: ${topCollege.collegeName} (${topCollege.count} students).`);
+    }
+
+    if (insights.length === 0) {
+      insights.push(`You have a total of ${total} registered student${total !== 1 ? 's' : ''}.`);
+    }
+
+    this.quickInsights = insights;
+  }
+
+  startInsightRotation(): void {
+    if (this.insightInterval) {
+      clearInterval(this.insightInterval);
+    }
+    this.insightInterval = setInterval(() => {
+      this.currentInsightIndex = (this.currentInsightIndex + 1) % this.quickInsights.length;
+      this.cdr.detectChanges();
+    }, 5000);
   }
 
   fetchDashboardData(username: string): void {
@@ -1754,16 +1812,30 @@ export class AgentDashboard implements OnInit {
   }
 
   unreadMessagesCount: number = 0;
+  recentMessages: any[] = [];
 
   fetchUnreadMessages(agentId: number): void {
     this.http.get<any[]>(`${environment.apiUrl}/api/messages/agent/${agentId}`)
       .subscribe({
         next: (msgs) => {
           this.unreadMessagesCount = msgs.filter(m => !m.read && m.senderRole !== 'AGENT').length;
+          this.recentMessages = msgs.sort((a, b) => new Date(b.timestamp || new Date()).getTime() - new Date(a.timestamp || new Date()).getTime()).slice(0, 3);
           this.cdr.detectChanges();
         },
         error: (err) => console.error('Failed to fetch messages', err)
       });
+  }
+
+  get recentTelexStudents(): any[] {
+    return this.students.filter(s => s.applicationStatus === 'TELEX_NUMBER_ISSUED' || s.telexNumber)
+      .sort((a: any, b: any) => new Date(b.updatedAt || b.createdAt || new Date()).getTime() - new Date(a.updatedAt || a.createdAt || new Date()).getTime())
+      .slice(0, 3);
+  }
+
+  get recentVisaStudents(): any[] {
+    return this.students.filter(s => s.applicationStatus === 'VISA_STAMPED')
+      .sort((a: any, b: any) => new Date(b.updatedAt || b.createdAt || new Date()).getTime() - new Date(a.updatedAt || a.createdAt || new Date()).getTime())
+      .slice(0, 3);
   }
 
   getMessagesCount(): number {
@@ -2337,6 +2409,12 @@ export class AgentDashboard implements OnInit {
       if (this.validateCurrentStep()) {
         this.currentStep++;
       }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.insightInterval) {
+      clearInterval(this.insightInterval);
     }
   }
 

@@ -305,7 +305,7 @@
 
       <!-- KPI Grid -->
       <div class="ent-kpi-grid">
-        <div class="ent-kpi-card">
+        <div class="ent-kpi-card" title="Total number of students registered under your agency.">
           <div class="ent-kpi-header">
             <div class="ent-kpi-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -328,7 +328,7 @@
             </svg> +12.5% <span style="color:#94a3b8;font-weight:400;margin-left:4px">vs last month</span></div>
         </div>
 
-        <div class="ent-kpi-card">
+        <div class="ent-kpi-card" title="Applications currently being processed by the university or administration.">
           <div class="ent-kpi-header">
             <div class="ent-kpi-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -352,7 +352,7 @@
             </svg> +8.3% <span style="color:#94a3b8;font-weight:400;margin-left:4px">vs last month</span></div>
         </div>
 
-        <div class="ent-kpi-card">
+        <div class="ent-kpi-card" title="Applications requiring your immediate attention or action.">
           <div class="ent-kpi-header">
             <div class="ent-kpi-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -373,7 +373,7 @@
             </svg> -4.2% <span style="color:#94a3b8;font-weight:400;margin-left:4px">vs last month</span></div>
         </div>
 
-        <div class="ent-kpi-card">
+        <div class="ent-kpi-card" title="Students whose visas have been approved and stamped.">
           <div class="ent-kpi-header">
             <div class="ent-kpi-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -394,7 +394,7 @@
             </svg> +15.7% <span style="color:#94a3b8;font-weight:400;margin-left:4px">vs last month</span></div>
         </div>
 
-        <div class="ent-kpi-card">
+        <div class="ent-kpi-card" title="Students scheduled to travel in the current month.">
           <div class="ent-kpi-header">
             <div class="ent-kpi-icon" style="background: rgba(139,92,246,0.1); color: #8b5cf6;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -405,7 +405,7 @@
             </div>
             <div class="ent-kpi-info">
               <h4>Students Traveling</h4>
-              <span class="value">{{ dynamicUpcomingTravels.length }}</span>
+              <span class="value">{{ travelingThisMonthCount }}</span>
               <span class="sub">This Month</span>
             </div>
           </div>
@@ -414,6 +414,27 @@
               <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
               <polyline points="16 7 22 7 22 13"></polyline>
             </svg> +10.4% <span style="color:#94a3b8;font-weight:400;margin-left:4px">vs last month</span></div>
+        </div>
+
+        <div class="ent-kpi-card" title="Quick Insights & AI Analysis" style="background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border-color: transparent;">
+          <div class="ent-kpi-header" style="align-items: center; margin-bottom: 8px;">
+            <div class="ent-kpi-icon" style="background: rgba(255,255,255,0.1); color: #38bdf8;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </div>
+            <div class="ent-kpi-info" style="flex: 1;">
+              <h4 style="color: #cbd5e1; display: flex; align-items: center; gap: 4px;">
+                Agent Analyzer
+                <div style="width: 6px; height: 6px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 6px #38bdf8; animation: pulse 2s infinite;"></div>
+              </h4>
+            </div>
+          </div>
+          <div style="font-size: 15px; font-weight: 500; color: #f8fafc; line-height: 1.4; padding-top: 4px; min-height: 48px; display: flex; align-items: center;">
+            <span style="animation: fadeInOut 5s infinite; transition: opacity 0.5s ease;">{{ quickInsights[currentInsightIndex] }}</span>
+          </div>
         </div>
       </div>
 
@@ -743,6 +764,112 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Recent Highlights Section -->
+      <div class="ent-charts-row" style="margin-top: 24px;">
+        
+        <!-- Recently Issued TELEX -->
+        <div class="ent-card" style="padding: 0; display: flex; flex-direction: column;">
+          <div class="ent-card-header" style="padding: 20px 20px 10px 20px; border-bottom: 1px solid #f1f5f9; margin-bottom: 0;">
+            <div class="ent-card-title" style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6;"></div>
+              Recently Issued TELEX
+            </div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 0 20px;">
+            <div class="activity-timeline" style="padding: 16px 0;">
+              @for (student of recentTelexStudents; track student.id) {
+              <div class="act-item" style="cursor: pointer;" (click)="viewStudentDetails(student)">
+                <div class="act-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </div>
+                <div class="act-info">
+                  <div class="act-title"><strong>{{ student.fullName }}</strong></div>
+                  <div class="act-sub">{{ student.applicationId || student.id }} - {{ student.college?.collegeName || 'N/A' }}</div>
+                </div>
+                <div class="act-time">{{ (student.updatedAt || student.createdAt) | date:'shortDate' }}</div>
+              </div>
+              }
+              @if(recentTelexStudents.length === 0) {
+              <div style="text-align: center; padding: 24px; color: #64748b; font-size: 13px;">No recent TELEX found.</div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Recently VISA Stamped -->
+        <div class="ent-card" style="padding: 0; display: flex; flex-direction: column;">
+          <div class="ent-card-header" style="padding: 20px 20px 10px 20px; border-bottom: 1px solid #f1f5f9; margin-bottom: 0;">
+            <div class="ent-card-title" style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></div>
+              Recently VISA Stamped
+            </div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 0 20px;">
+            <div class="activity-timeline" style="padding: 16px 0;">
+              @for (student of recentVisaStudents; track student.id) {
+              <div class="act-item" style="cursor: pointer;" (click)="viewStudentDetails(student)">
+                <div class="act-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                </div>
+                <div class="act-info">
+                  <div class="act-title"><strong>{{ student.fullName }}</strong></div>
+                  <div class="act-sub">{{ student.applicationId || student.id }} - {{ student.college?.collegeName || 'N/A' }}</div>
+                </div>
+                <div class="act-time">{{ (student.updatedAt || student.createdAt) | date:'shortDate' }}</div>
+              </div>
+              }
+              @if(recentVisaStudents.length === 0) {
+              <div style="text-align: center; padding: 24px; color: #64748b; font-size: 13px;">No recent VISA Stamped found.</div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Messages -->
+        <div class="ent-card" style="padding: 0; display: flex; flex-direction: column;">
+          <div class="ent-card-header" style="padding: 20px 20px 10px 20px; border-bottom: 1px solid #f1f5f9; margin-bottom: 0;">
+            <div class="ent-card-title" style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6;"></div>
+              Recent Messages
+            </div>
+            <button class="ent-action-btn"
+              style="padding: 4px 12px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white;"
+              (click)="navigateTo('messages')">Go to Messages</button>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 0 20px;">
+            <div class="activity-timeline" style="padding: 16px 0;">
+              @for (msg of recentMessages; track msg.id) {
+              <div class="act-item" style="cursor: pointer;" (click)="navigateTo('messages')">
+                <div class="act-icon" style="background: rgba(139,92,246,0.1); color: #8b5cf6;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <div class="act-info">
+                  <div class="act-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;"><strong>{{ msg.content }}</strong></div>
+                  <div class="act-sub">{{ msg.senderRole === 'AGENT' ? 'You' : (msg.studentName || msg.senderRole) }}</div>
+                </div>
+                <div class="act-time">
+                  <div [style.color]="!msg.read && msg.senderRole !== 'AGENT' ? '#ef4444' : '#94a3b8'" style="font-weight: 600; text-align: right;">{{ msg.timestamp | date:'shortTime' }}</div>
+                  @if (!msg.read && msg.senderRole !== 'AGENT') { <div style="font-size: 10px; color: #ef4444; text-align: right;">New</div> }
+                </div>
+              </div>
+              }
+              @if(recentMessages.length === 0) {
+              <div style="text-align: center; padding: 24px; color: #64748b; font-size: 13px;">No recent messages.</div>
+              }
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
