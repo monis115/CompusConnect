@@ -79,6 +79,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   selectedStudent: Student | null = null;
   credits: AccountantCredit[] = [];
   includeCreditInBalance: boolean = true;
+  allStudentsData: any;
 
   // Passbooks
   visaManPassbooks: any[] = [];
@@ -109,6 +110,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   txFilterType: 'ALL' | 'CREDIT' | 'DEBIT' = 'ALL';
   txFilterStartDate: string = '';
   txFilterEndDate: string = '';
+
+  // Outstanding Recovery & Fund Release
+  fundReleaseForms: { [studentId: number]: any } = {};
+  fundReleaseFiles: { [studentId: number]: File } = {};
+  outstandingRecoveryData: any[] = [];
 
   get filteredTransactions(): any[] {
     return this.subAccountTransactions.filter(tx => {
@@ -141,7 +147,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   // UI State
-  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger' | 'reports' | 'subaccounts' = 'dashboard';
+  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger' | 'reports' | 'subaccounts' | 'recovery' = 'dashboard';
   isSidebarCollapsed = false;
 
   // History Modal State
@@ -268,6 +274,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.username = sessionStorage.getItem('userId') || '';
     this.loadDashboardData();
     this.loadSubAccounts();
+    this.fetchOutstandingRecovery();
   }
 
   ngOnDestroy(): void {
@@ -1596,16 +1603,6 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     });
   }
 
-  getFundRequestById(id: number): void {
-    // Refresh specific request details for the modal
-    // Ideally backend endpoint /api/request-money/{id} exists, but if not we reload all or use existing
-    // For now, let's assume we reload all to be safe or use what we have, 
-    // but the "Add Payment" modal needs up-to-date transactions.
-    // If no single GET, we might need to rely on the list or reload list.
-    // Let's reload list silently if needed, or just trust the list data if it includes transactions now.
-    // Assuming getAllRequests returns transactions array now.
-  }
-
   openFundPaymentModal(request: PaymentRequest): void {
     this.selectedFundRequest = request;
     // Default to remaining amount
@@ -1884,5 +1881,97 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           this.showErrorToast('Failed to add funds. Please check your inputs.');
         }
       });
+  }
+
+  // ======================= FUND RELEASE =======================
+  showReleaseFundModal: boolean = false;
+  selectedReleaseStudent: any = null;
+
+  openReleaseFundModal(student: any) {
+    this.selectedReleaseStudent = student;
+    this.initFundReleaseForm(student.id);
+    this.showReleaseFundModal = true;
+  }
+
+  closeReleaseFundModal() {
+    this.showReleaseFundModal = false;
+    this.selectedReleaseStudent = null;
+  }
+
+  initFundReleaseForm(studentId: number) {
+    if (!this.fundReleaseForms[studentId]) {
+      this.fundReleaseForms[studentId] = {
+        visaFee: null,
+        serviceCharge: null,
+        totalReleasedAmount: null,
+        sourceAccount: '',
+        transactionReference: '',
+        transferDate: ''
+      };
+    }
+  }
+
+  onFundReleaseFileSelected(event: any, studentId: number) {
+    const file = event.target.files[0];
+    if (file) {
+      this.fundReleaseFiles[studentId] = file;
+    }
+  }
+
+  releaseFundsToVM(student: any) {
+    const form = this.fundReleaseForms[student.id];
+    if (!form || !form.visaFee || !form.totalReleasedAmount || !form.transactionReference) {
+      this.showErrorToast('Please fill in all required fields (Visa Fee, Total Amount, Ref).');
+      return;
+    }
+
+    if (confirm('Confirm sending these funds to the Visa Manager.')) {
+
+      const formData = new FormData();
+      const requestDTO = {
+        studentId: student.id,
+        visaFee: form.visaFee,
+        serviceCharge: form.serviceCharge || 0,
+        totalReleasedAmount: form.totalReleasedAmount,
+        transactionReference: form.transactionReference,
+        transferDate: form.transferDate,
+        sourceAccount: form.sourceAccount
+      };
+      formData.append('fundReleaseData', new Blob([JSON.stringify(requestDTO)], { type: 'application/json' }));
+
+      if (this.fundReleaseFiles[student.id]) {
+        formData.append('receiptFile', this.fundReleaseFiles[student.id]);
+      }
+
+      this.http.post(`${environment.apiUrl}/api/accountant/visa-fund-release?username=${this.username}`, formData).subscribe({
+        next: () => {
+          this.showSuccess('Funds released to Visa Manager successfully!');
+          this.closeReleaseFundModal();
+          // Refresh data
+          this.accountantService.getAllDashboardData(this.username).subscribe((data: any) => {
+            this.allStudentsData = data;
+            this.isLoading = false;
+            this.fetchOutstandingRecovery();
+          });
+          delete this.fundReleaseForms[student.id];
+          delete this.fundReleaseFiles[student.id];
+        },
+        error: (err) => {
+          console.error(err);
+          this.showErrorToast(err.error || 'Failed to release funds.');
+        }
+      });
+    }
+  }
+
+  fetchOutstandingRecovery() {
+    this.http.get<any[]>(`${environment.apiUrl}/api/accountant/outstanding-recovery?username=${this.username}`).subscribe({
+      next: (res) => {
+        this.outstandingRecoveryData = res;
+      },
+      error: (err) => {
+        console.error('Failed to fetch outstanding recovery', err);
+      }
+    });
   }
 }

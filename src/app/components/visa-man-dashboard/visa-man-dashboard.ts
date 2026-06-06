@@ -161,6 +161,12 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // API Base URL
   private readonly API_URL = environment.apiUrl + '/api';
 
+  // Fund Releases
+  fundReleases: any[] = [];
+  selectedFundRelease: any = null;
+  showFundReleaseModal: boolean = false;
+
+
   // Fund Requests variables
   myFundRequests: any[] = [];
   qrCodePreview: string | ArrayBuffer | null = null;
@@ -1133,4 +1139,63 @@ Branch: ${this.fundRequestForm.branchName}`;
       default: return 'pb-status-pending';
     }
   }
+
+  // ==================== COMPANY FUND RELEASES ====================
+  fetchFundReleases() {
+    this.http.get<any[]>(`${this.API_URL}/visaman/fund-releases?username=${this.currentUsername}`).subscribe({
+      next: (res) => {
+        this.fundReleases = res;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch fund releases', err);
+      }
+    });
+  }
+
+  viewFundReleaseDetails(release: any) {
+    this.selectedFundRelease = release;
+    this.showFundReleaseModal = true;
+  }
+
+  closeFundReleaseModal() {
+    this.showFundReleaseModal = false;
+    this.selectedFundRelease = null;
+  }
+
+  confirmFundRelease(releaseId: number) {
+    if (confirm('Are you sure you have received these funds in your account?')) {
+
+        this.http.post(`${this.API_URL}/visaman/fund-releases/${releaseId}/confirm?username=${this.currentUsername}`, {}).subscribe({
+          next: () => {
+            this.showToast('success', 'Funds receipt confirmed successfully.');
+            this.fetchFundReleases();
+            this.closeFundReleaseModal();
+          },
+          error: (err: any) => {
+            console.error(err);
+            this.showToast('error', 'Failed to confirm receipt');
+          }
+        });
+    }
+  }
+
+  rejectFundRelease(releaseId: number) {
+    const reason = prompt('Reason for rejection (Required)');
+    if (reason) {
+
+        this.http.post(`${this.API_URL}/visaman/fund-releases/${releaseId}/reject?username=${this.currentUsername}&reason=${encodeURIComponent(reason)}`, {}).subscribe({
+          next: () => {
+            this.showToast('success', 'Fund release has been rejected.');
+            this.fetchFundReleases();
+            this.closeFundReleaseModal();
+          },
+          error: (err: any) => {
+            console.error(err);
+            this.showToast('error', 'Failed to reject release');
+          }
+        });
+    }
+  }
+
 }

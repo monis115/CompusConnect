@@ -53,7 +53,7 @@
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
           @if (!isSidebarCollapsed) {
-          <span>Pending Verification</span>
+          <span>Visa Fees Settlement</span>
           }
           <span class="nav-badge warning">{{pendingCount}}</span>
         </a>
@@ -204,11 +204,16 @@
         <h1>Financial Dashboard</h1>
         }
         @if (activeView === 'pending') {
-        <h1>Pending Verifications</h1>
+        <h1>Visa Fees Settlement</h1>
         }
         @if (activeView === 'approved') {
         <h1>Approved Payments</h1>
         }
+
+        @if (activeView === 'recovery') {
+        <h1>Outstanding Recovery</h1>
+        }
+
         @if (activeView === 'rejected') {
         <h1>Rejected Payments</h1>
         }
@@ -580,7 +585,7 @@
             }
           </div>
           <button class="quick-summary-btn" (click)="switchView('pending')">
-            <span>View All Pending</span>
+            <span>View Visa Settlements</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -592,302 +597,102 @@
       }
 
 
-      <!-- ======================= PREMIUM PENDING VERIFICATION HUB ======================= -->
+      <!-- ======================= VISA FEE SETTLEMENT HUB ======================= -->
       @if (!isLoading && activeView === 'pending') {
-      <div class="verification-hub" [@fadeIn]>
-        <!-- Premium Header -->
-        <div class="verification-hub-header">
-          <div class="hub-title-row">
-            <div class="hub-icon-wrapper">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </div>
-            <div class="hub-title-text">
-              <h2>Pending Verifications</h2>
-              <p>Review and process payment verifications</p>
-            </div>
-          </div>
-          <div class="hub-mini-stats">
-            <div class="mini-stat-pill amber">
-              <span class="pill-emoji"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="badge-icon"
-                  stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="1" x2="12" y2="23"></line>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg></span>
-              <span class="pill-count">{{telexPendingStudents.length}}</span>
-            </div>
-            <div class="mini-stat-pill blue">
-              <span class="pill-emoji"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="badge-icon"
-                  stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg></span>
-              <span class="pill-count">{{visaPendingStudents.length}}</span>
-            </div>
-          </div>
-        </div>
-        <!-- Premium Tab Navigation -->
-        <div class="verification-tabs-wrapper">
-          <div class="verification-tabs">
-            <button class="verification-tab" [class.active]="activeVerificationTab === 'telex'"
-              (click)="activeVerificationTab = 'telex'">
-              <div class="tab-icon-box amber">
-                <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="badge-icon"
-                    stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                  </svg></span>
-              </div>
-              <div class="tab-text">
-                <span class="tab-title"> Package</span>
-                <span class="tab-subtitle">Verify student payments</span>
-              </div>
-              <span class="tab-count amber">{{telexPendingStudents.length}}</span>
-            </button>
-            <button class="verification-tab" [class.active]="activeVerificationTab === 'visa'"
-              (click)="activeVerificationTab = 'visa'">
-              <div class="tab-icon-box blue">
-                <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="badge-icon"
-                    stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                  </svg></span>
-              </div>
-              <div class="tab-text">
-                <span class="tab-title">VISA Fee Payment</span>
-                <span class="tab-subtitle">Bank details & payment confirmation</span>
-              </div>
-              <span class="tab-count blue">{{visaPendingStudents.length}}</span>
-            </button>
-          </div>
-          <div class="tab-indicator" [class.at-visa]="activeVerificationTab === 'visa'"></div>
-        </div>
-        <!-- Tab Content Area -->
-        <div class="verification-content">
-          <!-- TELEX FEE VERIFICATION TAB -->
-          @if (activeVerificationTab === 'telex') {
-          <div class="tab-content-panel" [@fadeIn]>
-            @if (telexPendingStudents.length > 0) {
-            <div class="verification-cards-grid">
-              @for (student of telexPendingStudents; track student) {
-              <div class="premium-verification-card telex-card">
-
-                <div class="pvc-header">
-                  <div class="pvc-avatar" [style.background-color]="getAvatarColor(student.fullName)">
-                    {{student.fullName?.charAt(0)}}
-                  </div>
-                  <div class="pvc-info">
-                    <span class="pvc-name">{{student.fullName}}</span>
-                    <span class="pvc-id">{{student.applicationId}}</span>
-                  </div>
-                </div>
-                <div class="pvc-body">
-                  <div class="pvc-amount-row">
-                    <span class="pvc-label">Amount Paid</span>
-                    <span class="pvc-amount telex">{{formatCurrency(student.paidAmount)}}</span>
-                  </div>
-                  @if (student.paidTo) {
-                  <div class="pvc-paid-to">
-                    <span class="pvc-label">Paid To</span>
-                    <span class="pvc-value">{{student.paidTo}}</span>
-                  </div>
-                  }
-                  @if (student.ttCopyPath) {
-                  <div class="pvc-paid-to">
-                    <span class="pvc-label">TT Copy</span>
-                    <a [href]="student.ttCopyPath" target="_blank"
-                      style="color: #2563eb; font-weight: 500; font-size: 0.82rem; text-decoration: underline;">View TT
-                      Copy</a>
-                  </div>
-                  }
-                  @if (student.confirmationPagePath) {
-                  <div class="pvc-paid-to">
-                    <span class="pvc-label">Confirmation</span>
-                    <a [href]="student.confirmationPagePath" target="_blank"
-                      style="color: #2563eb; font-weight: 500; font-size: 0.82rem; text-decoration: underline;">View
-                      Confirmation</a>
-                  </div>
-                  }
-                  @if (student.agentFullName) {
-                  <div class="pvc-paid-to">
-                    <span class="pvc-label">Agent</span>
-                    <span class="pvc-value">{{student.agentFullName}}</span>
-                  </div>
-                  }
-                  @if (student.collegeName) {
-                  <div class="pvc-paid-to">
-                    <span class="pvc-label">College</span>
-                    <span class="pvc-value">{{student.collegeName}}</span>
-                  </div>
-                  }
-                </div>
-                <div class="pvc-footer">
-                  <button class="pvc-btn verify" (click)="openApproveModal(student)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Verify Payment
-                  </button>
-                  <button class="pvc-btn reject" (click)="openRejectModal(student)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    Reject
-                  </button>
-                </div>
-              </div>
-              }
-            </div>
-            }
-            <!-- Empty State -->
-            @if (telexPendingStudents.length === 0) {
-            <div class="verification-empty-state">
-              <div class="empty-icon-wrapper amber">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-              </div>
-              <h3>All Caught Up!</h3>
-              <p>No pending telex fee verifications at the moment.</p>
-            </div>
-            }
-          </div>
-          }
-          <!-- VISA FEE PAYMENT TAB -->
-          @if (activeVerificationTab === 'visa') {
-          <div class="tab-content-panel" [@fadeIn]>
-            @if (visaPendingStudents.length > 0) {
-            <div class="verification-cards-grid">
+      <div class="visa-settlement-hub" [@fadeIn]>
+        @if (visaPendingStudents.length > 0) {
+        <div class="vsh-table-wrapper">
+          <table class="vsh-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Agent</th>
+                <th>Visa Fee</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
               @for (student of visaPendingStudents; track student) {
-              <!-- Send Bank Details Card -->
-              @if (student.action === 'SEND_BANK_DETAILS_TO_AGENT') {
-              <div class="premium-verification-card visa-card send-bank">
-
-                <div class="pvc-action-badge send">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
-                  Send Bank Details
-                </div>
-                <div class="pvc-header">
-                  <div class="pvc-avatar" [style.background-color]="getAvatarColor(student.fullName)">
-                    {{student.fullName?.charAt(0)}}
+              {{ initFundReleaseForm(student.id) }}
+              <tr>
+                <td>
+                  <div class="vt-student">
+                    <span class="vt-name">{{student.fullName}}</span>
+                    <span class="vt-id">{{student.applicationId}}</span>
                   </div>
-                  <div class="pvc-info">
-                    <span class="pvc-name">{{student.fullName}}</span>
-                    <span class="pvc-id">{{student.applicationId}}</span>
+                </td>
+                <td>
+                  <span class="vt-agent">{{student.agentFullName || 'N/A'}}</span>
+                </td>
+                <td>
+                  <span class="vt-fee">{{student.visaPaymentRequestedCurrency || 'USD'}}
+                    {{(student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0)}}</span>
+                </td>
+                <td>
+                  <span class="vt-status pending">Pending</span>
+                </td>
+                <td>
+                  <div class="vt-actions">
+                    @if (student.action === 'SEND_BANK_DETAILS_TO_AGENT') {
+                    <button class="vt-btn primary" (click)="openSendBankDetailsModal(student)">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                      </svg>
+                      Collect
+                    </button>
+                    <button class="vt-btn secondary" disabled title="Generate collection request first">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                      Release
+                    </button>
+                    } @else {
+                    <button class="vt-btn success-outline" disabled>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                      </svg>
+                      Collected
+                    </button>
+                    <button class="vt-btn primary" (click)="openReleaseFundModal(student)">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                      Release
+                    </button>
+                    }
                   </div>
-                </div>
-                <div class="pvc-body">
-                  <div class="pvc-amount-row">
-                    <span class="pvc-label">Requested Amount</span>
-                    <span class="pvc-amount visa">{{(student.visaPaymentRequestedAmount || 0) +
-                      (student.visaManServiceCharge || 0)}}
-                      {{student.visaPaymentRequestedCurrency || 'USD'}}</span>
-                  </div>
-                </div>
-                <div class="pvc-footer single">
-                  <button class="pvc-btn send-bank" (click)="openSendBankDetailsModal(student)"
-                    [disabled]="processingId === student.studentId">
-                    @if (processingId !== student.studentId) {
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                      <line x1="1" y1="10" x2="23" y2="10"></line>
-                    </svg>
-                    }
-                    @if (processingId !== student.studentId) {
-                    <span>💳 Send Bank Details</span>
-                    }
-                    @if (processingId === student.studentId) {
-                    <span class="btn-spinner"></span>
-                    }
-                  </button>
-                </div>
-              </div>
+                </td>
+              </tr>
               }
-              <!-- Confirm Payment Card -->
-              @if (student.action === 'CONFIRM_VISA_PAYMENT') {
-              <div class="premium-verification-card visa-card confirm-pay">
-
-                <div class="pvc-action-badge confirm">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  Confirm Payment
-                </div>
-                <div class="pvc-header">
-                  <div class="pvc-avatar" [style.background-color]="getAvatarColor(student.fullName)">
-                    {{student.fullName?.charAt(0)}}
-                  </div>
-                  <div class="pvc-info">
-                    <span class="pvc-name">{{student.fullName}}</span>
-                    <span class="pvc-id">{{student.applicationId}}</span>
-                  </div>
-                </div>
-                <div class="pvc-body">
-                  <div class="pvc-amount-row">
-                    <span class="pvc-label">Expected Amount</span>
-                    <span class="pvc-amount confirm">{{(student.visaPaymentRequestedAmount || 0)
-                      + (student.visaManServiceCharge || 0)}}
-                      {{student.visaPaymentRequestedCurrency || 'USD'}}</span>
-                  </div>
-                  @if (student.visaPaymentTxId) {
-                  <div class="pvc-tx-id">
-                    <span class="pvc-label">TX ID</span>
-                    <span class="pvc-value mono">{{student.visaPaymentTxId}}</span>
-                  </div>
-                  }
-                </div>
-                <div class="pvc-footer single">
-                  <button class="pvc-btn confirm-payment" (click)="openConfirmPaymentModal(student)"
-                    [disabled]="processingId === student.studentId">
-                    @if (processingId !== student.studentId) {
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                    }
-                    @if (processingId !== student.studentId) {
-                    <span>✅ Confirm Payment</span>
-                    }
-                    @if (processingId === student.studentId) {
-                    <span class="btn-spinner"></span>
-                    }
-                  </button>
-                </div>
-              </div>
-              }
-              }
-            </div>
-            }
-            <!-- Empty State -->
-            @if (visaPendingStudents.length === 0) {
-            <div class="verification-empty-state">
-              <div class="empty-icon-wrapper blue">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path
-                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                  </path>
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                  <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                </svg>
-              </div>
-              <h3>No VISA Actions Pending</h3>
-              <p>All visa payment processing is up to date.</p>
-            </div>
-            }
-          </div>
-          }
+            </tbody>
+          </table>
         </div>
+        }
+
+        @if (visaPendingStudents.length === 0) {
+        <div class="verification-empty-state">
+          <div class="empty-icon-wrapper blue">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+              </path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </div>
+          <h3>No VISA Actions Pending</h3>
+          <p>All visa payment processing is up to date.</p>
+        </div>
+        }
       </div>
       }
 
@@ -1998,6 +1803,120 @@
         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
       </svg>
     </button>
+
+    <!-- RELEASE FUND MODAL -->
+    @if (showReleaseFundModal && selectedReleaseStudent) {
+    <div class="modal-backdrop z-high" (click)="closeReleaseFundModal()">
+      <div class="modal-dialog visa-modal" style="max-width: 800px; padding: 0;" (click)="$event.stopPropagation()"
+        [@scaleIn]>
+        <div class="dialog-header visa-header" style="padding: 20px 24px; background: #1e3a8a; color: #fff;">
+          <div class="visa-header-text">
+            <h3 style="font-size: 1.2rem; margin: 0; color: #fff;">Release Fund (From Company Account)</h3>
+            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #cbd5e1;">Release fund to avoid visa processing
+              delays</p>
+          </div>
+          <button class="dialog-close-btn" (click)="closeReleaseFundModal()" style="color: #fff;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body" style="padding: 24px;">
+          <div class="step-2-grid" *ngIf="fundReleaseForms[selectedReleaseStudent.id]">
+            <div class="s2-col">
+              <div class="vsh-form-group full">
+                <label>Source Account <span>*</span></label>
+                <select class="vsh-select" [(ngModel)]="fundReleaseForms[selectedReleaseStudent.id].sourceAccountId">
+                  <option value="" disabled>Select Source Account</option>
+                  @for(acc of subAccounts; track acc.id) {
+                  <option [value]="acc.id">{{acc.bankName}} - {{acc.accountNumber}} (Bal: ${{acc.balance}})</option>
+                  }
+                </select>
+              </div>
+              <div class="vsh-form-group full">
+                <label>Visa Fee (USD) <span>*</span></label>
+                <input type="text" [value]="selectedReleaseStudent.visaPaymentRequestedAmount" readonly>
+              </div>
+              <div class="vsh-form-group full">
+                <label>Service Charge (USD) <span>*</span></label>
+                <input type="text" [value]="selectedReleaseStudent.visaManServiceCharge" readonly>
+              </div>
+              <div class="vsh-form-group full">
+                <label class="blue-label">Total Amount Released (USD)</label>
+                <input type="text" class="highlight-input blue"
+                  [value]="(selectedReleaseStudent.visaPaymentRequestedAmount || 0) + (selectedReleaseStudent.visaManServiceCharge || 0)"
+                  readonly>
+              </div>
+            </div>
+
+            <div class="s2-col outline-box">
+              <div class="vsh-form-group full">
+                <label style="color: #ef4444;">Beneficiary Account (Auto-Fetched) <span>*</span></label>
+                <select class="vsh-select" disabled>
+                  <option>{{selectedReleaseStudent.managerName || 'VM'}} Account</option>
+                </select>
+              </div>
+              <div class="bene-details">
+                <div class="bd-row"><span>Account Number</span><span>: {{selectedReleaseStudent.visaBankAccountNumber ||
+                    'N/A'}}</span></div>
+                <div class="bd-row"><span>Bank Name</span><span>: {{selectedReleaseStudent.visaBankName ||
+                    'N/A'}}</span></div>
+                <div class="bd-row"><span>SWIFT Code</span><span>: {{selectedReleaseStudent.visaBankSwiftCode ||
+                    'N/A'}}</span></div>
+              </div>
+            </div>
+
+            <div class="s2-col">
+              <div class="vsh-form-group full">
+                <label style="color: #1e293b;">Payment Details</label>
+              </div>
+              <div class="vsh-form-group full">
+                <label>Transaction Reference <span>*</span></label>
+                <input type="text" [(ngModel)]="fundReleaseForms[selectedReleaseStudent.id].transactionReference"
+                  placeholder="e.g. TRF-2024-0515">
+              </div>
+              <div class="vsh-form-group full">
+                <label>Transfer Date <span>*</span></label>
+                <input type="date" [(ngModel)]="fundReleaseForms[selectedReleaseStudent.id].transferDate">
+              </div>
+              <div class="vsh-form-group full">
+                <label>Remarks (Optional)</label>
+                <input type="text" [(ngModel)]="fundReleaseForms[selectedReleaseStudent.id].remarks"
+                  placeholder="Add remarks">
+              </div>
+            </div>
+
+            <div class="s2-col">
+              <div class="vsh-form-group full" style="height: 100%;">
+                <label style="color: #ef4444;">Upload Receipt <span>*</span></label>
+                <div class="upload-box" (click)="fileInput.click()">
+                  <i class="fas fa-upload"></i>
+                  <p>Click to upload<br>or drag and drop</p>
+                  <input type="file" #fileInput (change)="onFundReleaseFileSelected($event, selectedReleaseStudent.id)"
+                    style="display: none;" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+                <div class="uploaded-file-mock" *ngIf="fundReleaseFiles[selectedReleaseStudent.id]">
+                  <i class="far fa-file"></i> {{ fundReleaseFiles[selectedReleaseStudent.id].name }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer"
+          style="padding: 16px 24px; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 12px; border-radius: 0 0 12px 12px;">
+          <button class="btn btn-secondary" (click)="closeReleaseFundModal()"
+            style="padding: 10px 20px; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer;">Cancel</button>
+          <button class="vsh-btn dark-blue" (click)="releaseFund(selectedReleaseStudent)"
+            style="padding: 10px 24px; border-radius: 6px; cursor: pointer;">Confirm Release <i
+              class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+    }
+
   </main>
 
   <!-- Detail Modal -->
