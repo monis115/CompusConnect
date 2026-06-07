@@ -16,6 +16,7 @@ import {
   AccountantCredit,
   SubAccount
 } from '../../services/accountant.service';
+import { BeneficiaryService } from '../../services/beneficiary.service';
 import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
 import { environment } from '../../../environments/environment';
 import { FileService } from '../../services/file.service';
@@ -101,7 +102,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // SubAccounts
   subAccounts: SubAccount[] = [];
   showAddSubAccountModal = false;
-  newSubAccount: SubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '' };
+  newSubAccount: SubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '', relationshipManager: '' };
 
   // --- Transactions Modal ---
   selectedSubAccountForTx: any = null;
@@ -114,6 +115,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // Outstanding Recovery & Fund Release
   fundReleaseForms: { [studentId: number]: any } = {};
   fundReleaseFiles: { [studentId: number]: File } = {};
+  showInlineReleaseFund: boolean = false;
+
+  // Partial Payment & Cash Settlement
+  showCashSettlementModal: boolean = false;
+  cashSettlementData: any = { amount: 0, date: '', remarks: '', file: null };
+
+  Math = Math;
   outstandingRecoveryData: any[] = [];
 
   get filteredTransactions(): any[] {
@@ -147,7 +155,12 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   // UI State
-  activeView: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger' | 'reports' | 'subaccounts' | 'recovery' = 'dashboard';
+  selectedSettlementStudent: any = null;
+  activeView: 'dashboard' | 'pending' | 'payment-collection' | 'subaccounts' | 'beneficiaries' | 'transactions' | 'recovery' | 'credit-ledger' | 'reports' | 'settings' | 'profile' | 'approved' | 'rejected' | 'funds' | 'visa-accounts' | 'all-students' = 'dashboard';
+
+  // Payment Collection Sub-tab
+  activePaymentCollectionTab: 'all' | 'needs-request' | 'pending' | 'partially-paid' | 'paid' | 'excess' = 'all';
+
   isSidebarCollapsed = false;
 
   // History Modal State
@@ -206,6 +219,23 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     receivedDate: ''
   };
 
+  // --- Beneficiary Accounts State ---
+  beneficiaries: any[] = [];
+  isBeneficiaryWizardOpen = false;
+  beneficiaryWizardStep = 1;
+  newBeneficiary: any = {
+    beneficiaryType: 'University',
+    beneficiaryName: '',
+    bankName: '',
+    accountNumber: '',
+    ifscCode: '',
+    branchName: '',
+    upiId: '',
+    mobileNumber: '',
+    emailAddress: '',
+    status: 'Active'
+  };
+
   // Visa Payment Modal States
   showSendBankDetailsModal = false;
   showConfirmPaymentModal = false;
@@ -219,6 +249,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   swiftCode: string = '';
   beneficiaryName: string = '';
   branchAddress: string = '';
+
+  // New Collections & Fund Release State
+  collectionRequests: any[] = [];
+  filteredCollectionRequests: any[] = [];
+  fundReleases: any[] = [];
   selectedSubAccountId: number | null = null;
   receivedAmount: number = 0;
   receivedDate: string = '';
@@ -265,6 +300,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     private accountantService: AccountantService,
     private router: Router,
     private cdr: ChangeDetectorRef,
+    private beneficiaryService: BeneficiaryService,
     private http: HttpClient,
     private paymentRequestService: PaymentRequestService,
     private fileService: FileService
@@ -275,6 +311,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.loadDashboardData();
     this.loadSubAccounts();
     this.fetchOutstandingRecovery();
+    this.loadBeneficiaries();
   }
 
   ngOnDestroy(): void {
@@ -287,21 +324,21 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   loadPassbooks(): void {
     this.accountantService.getVisaManPassbooks()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
+      .subscribe((data: any) => {
         this.visaManPassbooks = data;
         this.cdr.detectChanges();
       });
 
     this.accountantService.getAgentPassbooks()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
+      .subscribe((data: any) => {
         this.agentPassbooks = data;
         this.cdr.detectChanges();
       });
 
     this.accountantService.getAllCredits(this.username)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
+      .subscribe((data: any) => {
         this.credits = data || [];
         this.cdr.detectChanges();
       });
@@ -342,7 +379,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: (data) => {
+        next: (data: any) => {
           this.stats = data.stats;
           this.collections = data.collections;
           this.activities = data.activities;
@@ -354,7 +391,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
           this.cdr.detectChanges();
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error loading dashboard data:', error);
           // Fallback to original API if new endpoints don't exist
           this.loadFallbackData();
@@ -365,12 +402,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.accountantService.getAccountantDetails(this.username)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
+        next: (data: any) => {
           this.accountantData = data;
 
           // Use the full student data from accountant profile (includes action, actionOnUser, visa fields)
           if (data.students && data.students.length > 0) {
             this.students = data.students.map((s: any) => ({
+              id: s.id,
               studentId: s.id,
               applicationId: s.applicationId || '',
               fullName: s.fullName,
@@ -408,11 +446,31 @@ export class AccountantDashboard implements OnInit, OnDestroy {
               agentUserFullName: s.agentUserFullName || s.agent?.fullName
             }));
             this.filteredStudents = [...this.students];
+
+            // Update selectedSettlementStudent reference so UI updates automatically
+            if (this.selectedSettlementStudent) {
+              const updated = this.students.find(s => s.id === this.selectedSettlementStudent.id);
+              if (updated) {
+                this.selectedSettlementStudent = updated;
+              }
+            }
           }
 
           this.cdr.detectChanges();
         },
-        error: (err) => console.error('Error loading accountant profile:', err)
+        error: (err: any) => console.error('Error loading accountant profile:', err)
+      });
+
+    // Fetch Collection Requests
+    this.http.get<any[]>(`${environment.apiUrl}/api/collections/all`)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.collectionRequests = data;
+          this.filteredCollectionRequests = [...data];
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Error loading collections', err)
       });
   }
 
@@ -428,20 +486,20 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: (data) => {
+        next: (data: any) => {
           this.accountantData = data;
           const students = data.students || [];
 
           // Calculate stats from students
-          const pending = students.filter(s => s.hasPaid && s.paymentStatus !== 'Received' && s.paymentStatus !== 'Not Received');
-          const received = students.filter(s => s.paymentStatus === 'Received' || s.applicationStatus === 'FEE_RECEIVED');
-          const notReceived = students.filter(s => s.paymentStatus === 'Not Received' || s.applicationStatus === 'PAYMENT_NOT_RECEIVED');
+          const pending = students.filter((s: { hasPaid: any; paymentStatus: string; }) => s.hasPaid && s.paymentStatus !== 'Received' && s.paymentStatus !== 'Not Received');
+          const received = students.filter((s: { paymentStatus: string; applicationStatus: string; }) => s.paymentStatus === 'Received' || s.applicationStatus === 'FEE_RECEIVED');
+          const notReceived = students.filter((s: { paymentStatus: string; applicationStatus: string; }) => s.paymentStatus === 'Not Received' || s.applicationStatus === 'PAYMENT_NOT_RECEIVED');
 
           // Compute visa totals from student data (banking ledger consistency)
-          const totalVisaReq = students.reduce((sum, s: any) => {
+          const totalVisaReq = students.reduce((sum: any, s: any) => {
             return sum + ((s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0));
           }, 0);
-          const totalVisaPaid = students.reduce((sum, s: any) => {
+          const totalVisaPaid = students.reduce((sum: any, s: any) => {
             return sum + (s.accToVisaManPaidAmount || 0);
           }, 0);
 
@@ -450,14 +508,14 @@ export class AccountantDashboard implements OnInit, OnDestroy {
             pendingPayments: pending.length,
             paymentsReceived: received.length,
             paymentsNotReceived: notReceived.length,
-            totalAmountReceived: received.reduce((sum, s) => sum + (s.paidAmount || 0), 0),
-            totalAmountPending: pending.reduce((sum, s) => sum + (s.paidAmount || 0), 0),
+            totalAmountReceived: received.reduce((sum: any, s: { paidAmount: any; }) => sum + (s.paidAmount || 0), 0),
+            totalAmountPending: pending.reduce((sum: any, s: { paidAmount: any; }) => sum + (s.paidAmount || 0), 0),
             totalVisaRequestedByVisaMan: totalVisaReq,
             totalAccToVisaManPaidAmount: totalVisaPaid
           };
 
           // Map to AssignedStudent format
-          this.students = students.map(s => ({
+          this.students = students.map((s: { id: any; applicationId: any; fullName: any; email: any; contactNo: any; applicationStatus: any; paymentStatus: any; hasPaid: any; paidAmount: any; paidTo: any; ttCopyPath: any; paymentConfirmationPath: any; }) => ({
             studentId: s.id,
             applicationId: s.applicationId,
             fullName: s.fullName,
@@ -499,7 +557,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           this.animateCounters();
           this.cdr.detectChanges();
         },
-        error: (err) => console.error('Error loading fallback data:', err)
+        error: (err: any) => console.error('Error loading fallback data:', err)
       });
   }
 
@@ -517,7 +575,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // Add/Update SubAccount
   openAddSubAccountModal(): void {
-    this.newSubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '' };
+    this.newSubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '', relationshipManager: '' };
     this.showAddSubAccountModal = true;
   }
 
@@ -561,11 +619,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.http.get<any[]>(`http://localhost:8080/api/accountant/subaccounts/${acc.id}/transactions`)
       .pipe(finalize(() => { this.isTxLoading = false; this.cdr.detectChanges(); }))
       .subscribe({
-        next: (res) => {
+        next: (res: any) => {
           this.subAccountTransactions = res;
           this.cdr.detectChanges();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Failed to fetch transactions', err);
           this.showErrorToast('Failed to load transaction history');
         }
@@ -627,19 +685,192 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     setTimeout(() => this.loadDashboardData(), 300);
   }
 
-  // --- Navigation ---
-
-  switchView(view: 'dashboard' | 'pending' | 'approved' | 'rejected' | 'all-students' | 'profile' | 'funds' | 'visa-accounts' | 'credit-ledger' | 'reports' | 'subaccounts'): void {
+  // --- Navigation & View Switching ---
+  switchView(view: 'dashboard' | 'pending' | 'payment-collection' | 'subaccounts' | 'beneficiaries' | 'transactions' | 'recovery' | 'credit-ledger' | 'reports' | 'settings' | 'profile' | 'approved' | 'rejected' | 'funds' | 'visa-accounts' | 'all-students'): void {
     this.activeView = view;
+
+    // Clear modals when switching views
+    this.showAddSubAccountModal = false;
+    this.showSendBankDetailsModal = false;
+    this.showConfirmPaymentModal = false;
+
+    // reset payment collection tab if navigating away/to it
+    if (view === 'payment-collection') {
+      this.activePaymentCollectionTab = 'all';
+    }
+
+    if (view === 'reports') {
+      this.refreshData(); // Trigger full refresh to ensure all agent/college data is loaded for accurate reports
+    }
+
+    // Load data based on view
+    if (view === 'subaccounts') {
+      this.loadSubAccounts();
+    } else if (view === 'beneficiaries') {
+      this.loadBeneficiaries();
+    } else if (view === 'credit-ledger') {
+      this.loadPassbooks();
+    }
+
     this.searchTerm = '';
     if (view === 'funds') {
       this.loadFundRequests();
     } else {
       this.filterStudents();
     }
+    this.cdr.markForCheck();
     this.cdr.detectChanges();
   }
 
+  setPaymentCollectionTab(tab: 'all' | 'needs-request' | 'pending' | 'partially-paid' | 'paid' | 'excess'): void {
+    this.activePaymentCollectionTab = tab;
+    this.cdr.markForCheck();
+  }
+
+  get activePaymentCollectionStudents(): any[] {
+    // Include all students that have been sent from Visa Manager
+    return this.visaPendingStudents;
+  }
+
+  get filteredPaymentCollectionStudents(): any[] {
+    return this.activePaymentCollectionStudents.filter(student => {
+      if (this.activePaymentCollectionTab === 'all') return true;
+
+      const requested = (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0);
+      const received = student.visaPaymentReceivedAmount || 0;
+      const needsRequest = student.action === 'SEND_BANK_DETAILS_TO_AGENT';
+
+      if (this.activePaymentCollectionTab === 'needs-request') {
+        return needsRequest;
+      }
+      if (this.activePaymentCollectionTab === 'pending') {
+        return !needsRequest && received === 0;
+      }
+      if (this.activePaymentCollectionTab === 'partially-paid') {
+        return !needsRequest && received > 0 && received < requested;
+      }
+      if (this.activePaymentCollectionTab === 'paid') {
+        return !needsRequest && requested > 0 && received === requested;
+      }
+      if (this.activePaymentCollectionTab === 'excess') {
+        return !needsRequest && requested > 0 && received > requested;
+      }
+      return true;
+    });
+  }
+
+  get paymentCollectionCounts() {
+    const all = this.activePaymentCollectionStudents;
+    return {
+      all: all.length,
+      needsRequest: all.filter((s: any) => s.action === 'SEND_BANK_DETAILS_TO_AGENT').length,
+      pending: all.filter((s: any) => {
+        const received = s.visaPaymentReceivedAmount || 0;
+        return s.action !== 'SEND_BANK_DETAILS_TO_AGENT' && received === 0;
+      }).length,
+      partiallyPaid: all.filter((s: any) => {
+        const requested = (s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0);
+        const received = s.visaPaymentReceivedAmount || 0;
+        return s.action !== 'SEND_BANK_DETAILS_TO_AGENT' && received > 0 && received < requested;
+      }).length,
+      paid: all.filter((s: any) => {
+        const requested = (s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0);
+        const received = s.visaPaymentReceivedAmount || 0;
+        return s.action !== 'SEND_BANK_DETAILS_TO_AGENT' && requested > 0 && received === requested;
+      }).length,
+      excess: all.filter((s: any) => {
+        const requested = (s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0);
+        const received = s.visaPaymentReceivedAmount || 0;
+        return s.action !== 'SEND_BANK_DETAILS_TO_AGENT' && requested > 0 && received > requested;
+      }).length
+    };
+  }
+
+  // --- Payment Collection Actions ---
+  openPaymentCollectionAction(req: any, actionType: 'generate_request' | 'verify_payment' | 'record_payment' | 'request_remaining' | 'cash_settlement'): void {
+    const student = this.students.find(s => s.id === req.studentId);
+    if (!student) {
+      console.error('Student not found for Collection Request', req);
+      return;
+    }
+
+    if (actionType === 'generate_request' || actionType === 'request_remaining') {
+      this.openSendBankDetailsModal(student);
+    } else if (actionType === 'verify_payment') {
+      this.openConfirmPaymentModal(student);
+    } else if (actionType === 'cash_settlement' || actionType === 'record_payment') {
+      this.selectedSettlementStudent = student;
+      this.showCashSettlementModal = true;
+      this.cashSettlementData = {
+        amount: req.pendingAmount,
+        date: new Date().toISOString().split('T')[0],
+        remarks: '',
+        file: null,
+        subAccountId: ''
+      };
+    }
+  }
+
+  closeCashSettlementModal(): void {
+    this.showCashSettlementModal = false;
+    this.selectedSettlementStudent = null;
+  }
+
+  onCashSettlementFileSelected(event: any): void {
+    if (event.target.files && event.target.files.length > 0) {
+      this.cashSettlementData.file = event.target.files[0];
+    }
+  }
+
+  submitCashSettlement(): void {
+    if (!this.selectedSettlementStudent || !this.cashSettlementData.amount || !this.cashSettlementData.subAccountId) return;
+
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+
+    const formData = new FormData();
+    formData.append('accountantUsername', this.username);
+    formData.append('amount', this.cashSettlementData.amount.toString());
+    formData.append('date', this.cashSettlementData.date);
+    formData.append('subAccountId', this.cashSettlementData.subAccountId.toString());
+
+    if (this.cashSettlementData.remarks) {
+      formData.append('remarks', this.cashSettlementData.remarks);
+    }
+    if (this.cashSettlementData.file) {
+      formData.append('file', this.cashSettlementData.file);
+    }
+    formData.append('settlementType', 'CASH');
+
+    this.http.post(`${environment.apiUrl}/api/visa/cash-settlement/${this.selectedSettlementStudent.id}`, formData)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.showSuccess('Cash settlement recorded successfully!');
+          this.closeCashSettlementModal();
+          this.refreshData();
+        },
+        error: (err: any) => {
+          console.error('Error submitting cash settlement', err);
+          this.showErrorToast('Failed to record cash settlement: ' + (err.error?.message || err.message));
+        }
+      });
+  }
+
+  selectSettlementStudent(student: any): void {
+    this.selectedSettlementStudent = student;
+    if (student) {
+      this.initFundReleaseForm(student);
+    }
+  }
+
+  // --- Modals ---
   get visaAccountsStudents(): any[] {
     return this.students.filter((s: any) => !!s.visaPaymentRequestedAmount && s.visaPaymentRequestedAmount > 0);
   }
@@ -1065,7 +1296,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           this.showSuccess('Payment verified successfully! Status updated to FEE_RECEIVED.');
           this.refreshData();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Approve error:', err);
           this.showErrorToast('Failed to approve payment. Please try again.');
         }
@@ -1098,7 +1329,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           this.showSuccess('Payment marked as NOT RECEIVED.');
           this.refreshData();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Reject error:', err);
           this.showErrorToast('Failed to reject payment. Please try again.');
         }
@@ -1144,7 +1375,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           this.refreshData();
           this.loadPassbooks();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Pay Visa Man error:', err);
           const errorMsg = typeof err.error === 'string' ? err.error : (err.error?.message || 'Failed to pay Visa Man.');
           this.showErrorToast(errorMsg);
@@ -1308,10 +1539,54 @@ export class AccountantDashboard implements OnInit, OnDestroy {
    * Get students pending visa payment actions
    */
   get visaPendingStudents(): AssignedStudent[] {
-    return this.students.filter(s =>
-      s.actionOnUser === 'accountant' &&
-      (s.action === 'SEND_BANK_DETAILS_TO_AGENT' || s.action === 'CONFIRM_VISA_PAYMENT')
-    );
+    return this.students.filter(s => {
+      // Must have a visa payment request to be in this section
+      if (!s.visaPaymentRequestedAmount || s.visaPaymentRequestedAmount <= 0) return false;
+
+      const requested = (s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0);
+      const received = s.visaPaymentReceivedAmount || 0;
+      const released = s.accToVisaManPaidAmount || 0;
+
+      const isFullyCollected = received >= requested;
+      const isFullyReleased = released >= requested;
+
+      // If both collection and release are completely done, only show if there's a pending manual action
+      if (isFullyCollected && isFullyReleased) {
+        return s.action === 'SEND_BANK_DETAILS_TO_AGENT' ||
+          s.action === 'SEND_VISA_PAYMENT_TO_ACCOUNTANT' ||
+          s.action === 'CONFIRM_VISA_PAYMENT';
+      }
+
+      // Otherwise, the workflow is still ongoing, keep it visible!
+      return true;
+    });
+  }
+
+  hasCollectionRequest(studentId: number): boolean {
+    return this.collectionRequests.some(r => r.studentId === studentId);
+  }
+
+  // Visa Settlement Filters
+  settlementSearchTerm: string = '';
+  settlementStatusFilter: string = 'ALL';
+
+  get filteredVisaPendingStudents(): AssignedStudent[] {
+    let filtered = this.visaPendingStudents;
+
+    if (this.settlementStatusFilter !== 'ALL') {
+      filtered = filtered.filter(s => s.action === this.settlementStatusFilter);
+    }
+
+    if (this.settlementSearchTerm) {
+      const term = this.settlementSearchTerm.toLowerCase();
+      filtered = filtered.filter(s =>
+        (s.fullName && s.fullName.toLowerCase().includes(term)) ||
+        (s.email && s.email.toLowerCase().includes(term)) ||
+        (s.applicationId && s.applicationId.toLowerCase().includes(term))
+      );
+    }
+
+    return filtered;
   }
 
   // --- Fullscreen ---
@@ -1360,10 +1635,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   openSendBankDetailsModal(student: any): void {
     console.log('Sending Bank Details for Student:', student); // DEBUG: Check if visaManServiceCharge is present
     this.selectedStudent = student;
-    // Calculate total: Requested Visa Fee + Service Charge
+    // Calculate outstanding total: (Requested Visa Fee + Service Charge) - Received
     const visaFee = student.visaPaymentRequestedAmount || 0;
     const serviceCharge = student.visaManServiceCharge || 0;
-    this.bankDetailsAmount = visaFee + serviceCharge;
+    const received = student.visaPaymentReceivedAmount || 0;
+    this.bankDetailsAmount = (visaFee + serviceCharge) - received;
 
     this.bankDetailsCurrency = student.visaPaymentRequestedCurrency || 'USD';
     // Reset bank details form
@@ -1401,10 +1677,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   openConfirmPaymentModal(student: any): void {
     this.selectedStudent = student;
-    // Pre-fill with total expected: base visa fee + service charge
+    // Pre-fill with outstanding amount: (base visa fee + service charge) - already received
     const baseFee = student.visaPaymentRequestedAmount || 0;
     const serviceCharge = student.visaManServiceCharge || 0;
-    this.receivedAmount = baseFee + serviceCharge;
+    const alreadyReceived = student.visaPaymentReceivedAmount || 0;
+    this.receivedAmount = (baseFee + serviceCharge) - alreadyReceived;
     this.receivedDate = new Date().toISOString().split('T')[0];
 
     this.showConfirmPaymentModal = true;
@@ -1458,7 +1735,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           this.refreshData();
           this.closeSendBankDetailsModal();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Error sending bank details:', err);
           this.showErrorToast('Failed to send bank details: ' + (err.error?.message || err.message || 'Unknown error'));
         }
@@ -1502,7 +1779,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           this.refreshData();
           this.closeConfirmPaymentModal();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Error confirming payment:', err);
           this.showErrorToast('Failed to confirm payment: ' + (err.error?.message || err.message || 'Unknown error'));
         }
@@ -1583,7 +1860,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.isLoading = true;
     this.cdr.detectChanges();
     this.paymentRequestService.getAllRequests().subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.fundRequests = data;
         // Compute stats or remaining amounts if not from backend
         this.fundRequests.forEach(req => {
@@ -1595,7 +1872,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading fund requests', err);
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -1672,7 +1949,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         this.loadFundRequests();
         this.isFundSubmitting = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error processing payment', err);
         this.isFundSubmitting = false;
         this.showErrorToast('Failed to process payment');
@@ -1871,12 +2148,12 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         finalize(() => { this.isSubmitting = false; this.cdr.detectChanges(); })
       )
       .subscribe({
-        next: (res) => {
+        next: (res: any) => {
           this.credits.unshift(res);
           this.closeAddFundsModal();
           this.showSuccess(`Successfully added ₹${res.amount} via ${res.method}!`, 'Credit Added!');
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Failed to add credit', err);
           this.showErrorToast('Failed to add funds. Please check your inputs.');
         }
@@ -1888,27 +2165,42 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   selectedReleaseStudent: any = null;
 
   openReleaseFundModal(student: any) {
+    if (!this.hasCollectionRequest(student.id)) {
+      this.showErrorToast("Cannot release funds. A Collection Request must be generated first.");
+      return;
+    }
     this.selectedReleaseStudent = student;
-    this.initFundReleaseForm(student.id);
-    this.showReleaseFundModal = true;
+    this.initFundReleaseForm(student);
+    this.showInlineReleaseFund = true;
   }
 
   closeReleaseFundModal() {
+    this.showInlineReleaseFund = false;
     this.showReleaseFundModal = false;
     this.selectedReleaseStudent = null;
   }
 
-  initFundReleaseForm(studentId: number) {
+  initFundReleaseForm(student: any) {
+    const studentId = student.id;
     if (!this.fundReleaseForms[studentId]) {
+      const totalAmount = (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0);
       this.fundReleaseForms[studentId] = {
         visaFee: null,
         serviceCharge: null,
-        totalReleasedAmount: null,
-        sourceAccount: '',
+        totalReleasedAmount: totalAmount,
+        sourceAccountId: null,
+        beneficiaryAccountId: null,
         transactionReference: '',
-        transferDate: ''
+        transferDate: '',
+        remarks: ''
       };
     }
+  }
+
+  getSelectedBeneficiary(studentId: number): any {
+    const form = this.fundReleaseForms[studentId];
+    if (!form || !form.beneficiaryAccountId) return null;
+    return this.beneficiaries.find((b: any) => b.id == form.beneficiaryAccountId) || null;
   }
 
   onFundReleaseFileSelected(event: any, studentId: number) {
@@ -1918,59 +2210,131 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }
   }
 
+  showConfirmReleaseFundModal = false;
+  selectedStudentForRelease: any = null;
+
   releaseFundsToVM(student: any) {
     const form = this.fundReleaseForms[student.id];
-    if (!form || !form.visaFee || !form.totalReleasedAmount || !form.transactionReference) {
-      this.showErrorToast('Please fill in all required fields (Visa Fee, Total Amount, Ref).');
+
+    if (!form || !form.totalReleasedAmount || !form.transactionReference) {
+      this.showErrorToast('Please fill in all required fields (Total Amount, Ref).');
       return;
     }
 
-    if (confirm('Confirm sending these funds to the Visa Manager.')) {
+    this.selectedStudentForRelease = student;
+    this.showConfirmReleaseFundModal = true;
+  }
 
-      const formData = new FormData();
-      const requestDTO = {
-        studentId: student.id,
-        visaFee: form.visaFee,
-        serviceCharge: form.serviceCharge || 0,
-        totalReleasedAmount: form.totalReleasedAmount,
-        transactionReference: form.transactionReference,
-        transferDate: form.transferDate,
-        sourceAccount: form.sourceAccount
-      };
-      formData.append('fundReleaseData', new Blob([JSON.stringify(requestDTO)], { type: 'application/json' }));
+  closeConfirmReleaseModal() {
+    this.showConfirmReleaseFundModal = false;
+    this.selectedStudentForRelease = null;
+  }
 
-      if (this.fundReleaseFiles[student.id]) {
-        formData.append('receiptFile', this.fundReleaseFiles[student.id]);
-      }
+  executeReleaseFunds() {
+    if (!this.selectedStudentForRelease) return;
+    const student = this.selectedStudentForRelease;
+    const form = this.fundReleaseForms[student.id];
+    const visaFee = student.visaPaymentRequestedAmount || 0;
+    const serviceCharge = student.visaManServiceCharge || 0;
 
-      this.http.post(`${environment.apiUrl}/api/accountant/visa-fund-release?username=${this.username}`, formData).subscribe({
-        next: () => {
-          this.showSuccess('Funds released to Visa Manager successfully!');
-          this.closeReleaseFundModal();
-          // Refresh data
-          this.accountantService.getAllDashboardData(this.username).subscribe((data: any) => {
-            this.allStudentsData = data;
-            this.isLoading = false;
-            this.fetchOutstandingRecovery();
-          });
-          delete this.fundReleaseForms[student.id];
-          delete this.fundReleaseFiles[student.id];
-        },
-        error: (err) => {
-          console.error(err);
-          this.showErrorToast(err.error || 'Failed to release funds.');
-        }
-      });
+    const formData = new FormData();
+    formData.append('accountantUsername', this.username);
+    formData.append('sourceAccountId', form.sourceAccountId ? form.sourceAccountId.toString() : '');
+    formData.append('beneficiaryAccountId', form.beneficiaryAccountId ? form.beneficiaryAccountId.toString() : '');
+    formData.append('visaFee', visaFee.toString());
+    formData.append('serviceCharge', serviceCharge.toString());
+    formData.append('transferDate', form.transferDate);
+    formData.append('transactionReference', form.transactionReference);
+
+    if (form.remarks) {
+      formData.append('remarks', form.remarks);
     }
+
+    if (this.fundReleaseFiles[student.id]) {
+      formData.append('receipt', this.fundReleaseFiles[student.id]);
+    }
+
+    this.isSubmitting = true;
+    this.http.post(`${environment.apiUrl}/api/fund-release/release/${student.id}`, formData).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.showSuccess('Funds released to Visa Manager successfully!');
+        this.closeConfirmReleaseModal();
+        this.closeReleaseFundModal();
+        // Refresh data
+        this.refreshData();
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        console.error('Error releasing funds:', error);
+        this.showErrorToast('Failed to release funds. ' + (error.error?.message || error.message));
+      }
+    });
   }
 
   fetchOutstandingRecovery() {
     this.http.get<any[]>(`${environment.apiUrl}/api/accountant/outstanding-recovery?username=${this.username}`).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.outstandingRecoveryData = res;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Failed to fetch outstanding recovery', err);
+      }
+    });
+  }
+
+  // --- Beneficiary Accounts Methods ---
+  loadBeneficiaries(): void {
+    this.beneficiaryService.getAllBeneficiaries().subscribe({
+      next: (data: any) => {
+        this.beneficiaries = data;
+      },
+      error: (err: any) => console.error('Error loading beneficiaries:', err)
+    });
+  }
+
+  openBeneficiaryWizard(): void {
+    this.isBeneficiaryWizardOpen = true;
+    this.beneficiaryWizardStep = 1;
+    this.newBeneficiary = {
+      beneficiaryType: 'University',
+      beneficiaryName: '',
+      bankName: '',
+      accountNumber: '',
+      ifscCode: '',
+      branchName: '',
+      upiId: '',
+      mobileNumber: '',
+      emailAddress: '',
+      status: 'Active'
+    };
+  }
+
+  closeBeneficiaryWizard(): void {
+    this.isBeneficiaryWizardOpen = false;
+  }
+
+  nextBeneficiaryStep(): void {
+    if (this.beneficiaryWizardStep < 3) {
+      this.beneficiaryWizardStep++;
+    }
+  }
+
+  prevBeneficiaryStep(): void {
+    if (this.beneficiaryWizardStep > 1) {
+      this.beneficiaryWizardStep--;
+    }
+  }
+
+  submitBeneficiary(): void {
+    this.beneficiaryService.createBeneficiary(this.newBeneficiary).subscribe({
+      next: (res: any) => {
+        this.loadBeneficiaries();
+        this.showSuccess('Beneficiary Created Successfully!', `${res.beneficiaryName} has been added.`);
+        this.closeBeneficiaryWizard();
+      },
+      error: (err: any) => {
+        console.error('Error creating beneficiary:', err);
       }
     });
   }
