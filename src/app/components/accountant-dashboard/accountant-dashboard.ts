@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef, Inject, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil, finalize, interval } from 'rxjs';
@@ -248,6 +248,23 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   accountNumber: string = '';
   swiftCode: string = '';
   beneficiaryName: string = '';
+
+  // Dropdown state for tables
+  activeDropdownId: number | null = null;
+
+  toggleDropdown(id: number, event: Event): void {
+    event.stopPropagation();
+    if (this.activeDropdownId === id) {
+      this.activeDropdownId = null;
+    } else {
+      this.activeDropdownId = id;
+    }
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.activeDropdownId = null;
+  }
   branchAddress: string = '';
 
   // New Collections & Fund Release State

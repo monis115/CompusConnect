@@ -1279,27 +1279,45 @@
                     }
                 </td>
                 <td style="padding: 16px;">
-                  <div style="display: flex; gap: 8px;">
-                    @if (student.action === 'SEND_BANK_DETAILS_TO_AGENT') {
-                    <button class="vt-btn primary"
-                      style="background: var(--primary-main); padding: 6px 12px; font-size: 12px;"
-                      (click)="openSendBankDetailsModal(student)">Generate Request</button>
-                    } @else if ((student.visaPaymentReceivedAmount || 0) < ((student.visaPaymentRequestedAmount || 0) +
-                      (student.visaManServiceCharge || 0))) { 
+                     <div style="display: flex; gap: 8px;">
+                      @if (student.action === 'SEND_BANK_DETAILS_TO_AGENT') {
+                        <button class="vt-btn primary"
+                          style="background: var(--primary-main); padding: 6px 12px; font-size: 12px;"
+                          (click)="openSendBankDetailsModal(student)">Generate Request</button>
+                      } @else if ((student.visaPaymentReceivedAmount || 0) < ((student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0))) { 
                       
-                        <button class="vt-btn secondary"
-                          style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); font-size: 12px;"
-                          (click)="sendReminderEmail(student)">Send Reminder</button>
+                        <button class="vt-btn primary"
+                          style="background: var(--primary-main); padding: 6px 12px; font-size: 12px;"
+                          (click)="openPaymentCollectionAction(student, 'record_payment')">Record Payment</button>
   
-                        <button class="vt-btn secondary"
-                          style="padding: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary);"
-                          title="Cash Settlement" (click)="openPaymentCollectionAction(student, 'cash_settlement')">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <circle cx="12" cy="5" r="1"></circle>
-                            <circle cx="12" cy="19" r="1"></circle>
-                          </svg>
-                        </button>
+                        <div style="position: relative;">
+                          <button class="vt-btn secondary"
+                            style="padding: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary);"
+                            (click)="toggleDropdown(student.id, $event)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <circle cx="12" cy="12" r="1"></circle>
+                              <circle cx="12" cy="5" r="1"></circle>
+                              <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                          </button>
+                          
+                          @if (activeDropdownId === student.id) {
+                          <div style="position: absolute; right: 0; top: 100%; margin-top: 4px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); z-index: 50; min-width: 160px; overflow: hidden;">
+                            <button style="width: 100%; text-align: left; padding: 10px 16px; background: transparent; border: none; font-size: 13px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px;"
+                              (mouseover)="$event.target.style.background='#f8fafc'" (mouseout)="$event.target.style.background='transparent'"
+                              (click)="sendReminderEmail(student); toggleDropdown(student.id, $event)">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                              Send Reminder
+                            </button>
+                            <button style="width: 100%; text-align: left; padding: 10px 16px; background: transparent; border: none; font-size: 13px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border-color);"
+                              (mouseover)="$event.target.style.background='#f8fafc'" (mouseout)="$event.target.style.background='transparent'"
+                              (click)="openPaymentCollectionAction(student, 'cash_settlement'); toggleDropdown(student.id, $event)">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                              Cash Settlement
+                            </button>
+                          </div>
+                          }
+                        </div>
                       } @else {
                       <button class="vt-btn secondary"
                         style="padding: 6px 12px; border: 1px solid var(--border-color); background: #f8fafc; color: var(--text-muted); font-size: 12px; cursor: not-allowed;"
