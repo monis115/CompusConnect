@@ -1743,6 +1743,39 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   /**
+   * Send Reminder email to Agent
+   */
+  sendReminderEmail(student: any): void {
+    if (!student || !student.id) return;
+
+    this.processingId = student.id;
+    this.cdr.detectChanges();
+
+    const body = {
+      accountantUsername: this.username
+    };
+
+    this.http.post(`${environment.apiUrl}/api/visa/send-reminder/${student.id}`, body)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.processingId = null;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.showSuccess('Remainder Send Scuesfully');
+          this.refreshData();
+        },
+        error: (err: any) => {
+          console.error('Error sending reminder:', err);
+          this.showErrorToast('Failed to send reminder: ' + (err.error?.message || err.message || 'Unknown error'));
+        }
+      });
+  }
+
+  /**
    * Confirm visa payment received from Agent
    * Called when student.action === 'CONFIRM_VISA_PAYMENT'
    */

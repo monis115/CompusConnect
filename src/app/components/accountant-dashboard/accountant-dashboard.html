@@ -1285,24 +1285,21 @@
                       style="background: var(--primary-main); padding: 6px 12px; font-size: 12px;"
                       (click)="openSendBankDetailsModal(student)">Generate Request</button>
                     } @else if ((student.visaPaymentReceivedAmount || 0) < ((student.visaPaymentRequestedAmount || 0) +
-                      (student.visaManServiceCharge || 0))) { <button class="vt-btn primary"
-                      style="background: var(--primary-main); padding: 6px 12px; font-size: 12px;"
-                      (click)="openPaymentCollectionAction(student, 'record_payment')">Record Payment</button>
-
-                      @if ((student.visaPaymentReceivedAmount || 0) > 0) {
-                      <button class="vt-btn secondary"
-                        style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); font-size: 12px;"
-                        (click)="openPaymentCollectionAction(student, 'request_remaining')">Request Remaining</button>
-                      }
-
-                      <button class="vt-btn secondary"
-                        style="padding: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary);"
-                        title="Mark Cash Settlement" (click)="openPaymentCollectionAction(student, 'cash_settlement')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          stroke-width="2">
-                          <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                        </svg>
-                      </button>
+                      (student.visaManServiceCharge || 0))) { 
+                      
+                        <button class="vt-btn secondary"
+                          style="padding: 6px 12px; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); font-size: 12px;"
+                          (click)="sendReminderEmail(student)">Send Reminder</button>
+  
+                        <button class="vt-btn secondary"
+                          style="padding: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary);"
+                          title="Cash Settlement" (click)="openPaymentCollectionAction(student, 'cash_settlement')">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="12" cy="5" r="1"></circle>
+                            <circle cx="12" cy="19" r="1"></circle>
+                          </svg>
+                        </button>
                       } @else {
                       <button class="vt-btn secondary"
                         style="padding: 6px 12px; border: 1px solid var(--border-color); background: #f8fafc; color: var(--text-muted); font-size: 12px; cursor: not-allowed;"
