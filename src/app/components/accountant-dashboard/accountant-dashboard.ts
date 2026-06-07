@@ -787,12 +787,12 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   // --- Payment Collection Actions ---
-  openPaymentCollectionAction(req: any, actionType: 'generate_request' | 'verify_payment' | 'record_payment' | 'request_remaining' | 'cash_settlement'): void {
-    const student = this.students.find(s => s.id === req.studentId);
-    if (!student) {
-      console.error('Student not found for Collection Request', req);
-      return;
-    }
+  openPaymentCollectionAction(student: any, actionType: 'generate_request' | 'verify_payment' | 'record_payment' | 'request_remaining' | 'cash_settlement'): void {
+    if (!student) return;
+
+    const requested = (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0);
+    const received = student.visaPaymentReceivedAmount || 0;
+    const pendingAmount = requested - received;
 
     if (actionType === 'generate_request' || actionType === 'request_remaining') {
       this.openSendBankDetailsModal(student);
@@ -802,7 +802,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       this.selectedSettlementStudent = student;
       this.showCashSettlementModal = true;
       this.cashSettlementData = {
-        amount: req.pendingAmount,
+        amount: pendingAmount,
         date: new Date().toISOString().split('T')[0],
         remarks: '',
         file: null,
