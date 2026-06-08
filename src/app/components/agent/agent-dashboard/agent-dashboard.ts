@@ -1173,7 +1173,7 @@ export class AgentDashboard implements OnInit {
   showPaymentConfirmationModal = false;
   selectedPaymentStudent: any = null;
   paymentAmount: number = 0;
-  paymentCurrency: string = 'USD';
+  paymentCurrency: string = 'INR';
   transactionId: string = '';
   confirmationFile: File | null = null;
   isSubmittingPayment = false;
@@ -2028,20 +2028,22 @@ export class AgentDashboard implements OnInit {
         nameControl?.setValue('');
         phoneControl?.setValue('');
 
-        dateControl?.clearValidators(); // Changed from setValidators(Validators.required)
-        dateControl?.setValue(null); // Added
-
-        step2Controls.forEach(ctrl => {
-          this.telexForm.get(ctrl)?.clearValidators();
-          this.telexForm.get(ctrl)?.updateValueAndValidity();
-        });
+        dateControl?.clearValidators();
+        dateControl?.setValue(null);
       }
-      methodControl?.updateValueAndValidity();
-      dateControl?.updateValueAndValidity();
-      partnerControl?.updateValueAndValidity();
-      trackingNumControl?.updateValueAndValidity();
-      nameControl?.updateValueAndValidity();
-      phoneControl?.updateValueAndValidity();
+      
+      // Step 2 is always required regardless of Document Dispatch answer
+      step2Controls.forEach(ctrl => {
+        this.telexForm.get(ctrl)?.setValidators(Validators.required);
+        this.telexForm.get(ctrl)?.updateValueAndValidity({ emitEvent: false });
+      });
+
+      methodControl?.updateValueAndValidity({ emitEvent: false });
+      dateControl?.updateValueAndValidity({ emitEvent: false });
+      partnerControl?.updateValueAndValidity({ emitEvent: false });
+      trackingNumControl?.updateValueAndValidity({ emitEvent: false });
+      nameControl?.updateValueAndValidity({ emitEvent: false });
+      phoneControl?.updateValueAndValidity({ emitEvent: false });
     });
 
     this.telexForm.get('docDeliveryMethod')?.valueChanges.subscribe(method => {
@@ -2113,7 +2115,7 @@ export class AgentDashboard implements OnInit {
 
         typeControl?.setValue(null);
         dueDateControl?.setValue(null);
-      } else {
+      } else if (paid === false || paid === 'false') {
         amountControl?.clearValidators();
         paidToControl?.clearValidators();
         amountControl?.setValue(null);
@@ -2121,11 +2123,17 @@ export class AgentDashboard implements OnInit {
 
         typeControl?.setValidators(Validators.required);
         dueDateControl?.setValidators(Validators.required);
+      } else {
+        // paid is null or empty
+        amountControl?.clearValidators();
+        paidToControl?.clearValidators();
+        typeControl?.clearValidators();
+        dueDateControl?.clearValidators();
       }
-      amountControl?.updateValueAndValidity();
-      paidToControl?.updateValueAndValidity();
-      typeControl?.updateValueAndValidity();
-      dueDateControl?.updateValueAndValidity();
+      amountControl?.updateValueAndValidity({ emitEvent: false });
+      paidToControl?.updateValueAndValidity({ emitEvent: false });
+      typeControl?.updateValueAndValidity({ emitEvent: false });
+      dueDateControl?.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -2751,8 +2759,10 @@ export class AgentDashboard implements OnInit {
    */
   openPaymentConfirmationModal(student: any): void {
     this.selectedPaymentStudent = student;
-    this.paymentAmount = (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0);
-    this.paymentCurrency = student.visaPaymentRequestedCurrency || 'USD';
+    const requested = (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0);
+    const received = student.visaPaymentReceivedAmount || 0;
+    this.paymentAmount = Math.max(0, requested - received);
+    this.paymentCurrency = student.visaPaymentRequestedCurrency || 'INR';
     this.transactionId = '';
     this.confirmationFile = null;
     this.showPaymentConfirmationModal = true;

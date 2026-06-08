@@ -655,14 +655,41 @@
                     {{(student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0)}}</span>
                 </td>
                 <td>
-                  <span class="vt-status pending">Pending</span>
+                  @if (getFundReleaseStatus(student) === 'SETTLED') {
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #d1fae5; color: #059669; border: 1px solid #34d399;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      SETTLED
+                    </div>
+                  } @else if (getFundReleaseStatus(student) === 'CONFIRMATION_PENDING') {
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fef3c7; color: #d97706; border: 1px solid #fbbf24;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      CONFIRM PENDING
+                    </div>
+                  } @else if (getFundReleaseStatus(student) === 'FUND_RELEASE_PENDING') {
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #dbeafe; color: #2563eb; border: 1px solid #93c5fd;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                      RELEASE PENDING
+                    </div>
+                  } @else {
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fee2e2; color: #dc2626; border: 1px solid #f87171;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                      COLLECTION PENDING
+                    </div>
+                  }
                 </td>
                 <td>
                   <div class="vt-actions">
-                    <button class="vt-btn primary" style="background: var(--primary-main);"
-                      (click)="selectSettlementStudent(student)">
-                      Process Settlement
-                    </button>
+                    @if (student.accToVisaManPaidAmount > 0) {
+                      <button class="vt-btn secondary" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1;"
+                        (click)="selectSettlementStudent(student)">
+                        View Details
+                      </button>
+                    } @else {
+                      <button class="vt-btn primary" style="background: var(--primary-main);"
+                        (click)="selectSettlementStudent(student)">
+                        Process Settlement
+                      </button>
+                    }
                   </div>
                 </td>
               </tr>
@@ -723,27 +750,36 @@
                   'System'}}</strong>
               </div>
               <div>
-                <span style="display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Visa
-                  Fee</span>
-                <strong
-                  style="font-size: 14px; color: var(--text-main);">${{selectedSettlementStudent.visaPaymentRequestedAmount
-                  || 0}}</strong>
+                <span style="display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Visa Fee</span>
+                <strong style="font-size: 14px; color: var(--text-main);">{{selectedSettlementStudent.visaPaymentRequestedCurrency || 'INR'}} {{selectedSettlementStudent.visaPaymentRequestedAmount || 0}}</strong>
               </div>
               <div>
-                <span
-                  style="display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Service
-                  Charge</span>
-                <strong
-                  style="font-size: 14px; color: var(--text-main);">${{selectedSettlementStudent.visaManServiceCharge ||
-                  0}}</strong>
+                <span style="display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Service Charge</span>
+                <strong style="font-size: 14px; color: var(--text-main);">{{selectedSettlementStudent.visaPaymentRequestedCurrency || 'INR'}} {{selectedSettlementStudent.visaManServiceCharge || 0}}</strong>
               </div>
               <div>
-                <span
-                  style="display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Current
-                  Status</span>
-                <span
-                  style="display: inline-block; padding: 4px 8px; background: var(--accent-amber-bg); color: var(--accent-amber-txt); font-size: 12px; font-weight: 600; border-radius: 4px; margin-top: 4px;">{{selectedSettlementStudent.action
-                  === 'SEND_BANK_DETAILS_TO_AGENT' ? 'Pending Collection' : 'Processing'}}</span>
+                <span style="display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Current Status</span>
+                @if (getFundReleaseStatus(selectedSettlementStudent) === 'SETTLED') {
+                  <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #d1fae5; color: #059669; border: 1px solid #34d399;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    SETTLED
+                  </div>
+                } @else if (getFundReleaseStatus(selectedSettlementStudent) === 'CONFIRMATION_PENDING') {
+                  <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fef3c7; color: #d97706; border: 1px solid #fbbf24;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    CONFIRM PENDING
+                  </div>
+                } @else if (getFundReleaseStatus(selectedSettlementStudent) === 'FUND_RELEASE_PENDING') {
+                  <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #dbeafe; color: #2563eb; border: 1px solid #93c5fd;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    RELEASE PENDING
+                  </div>
+                } @else {
+                  <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fee2e2; color: #dc2626; border: 1px solid #f87171;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    COLLECTION PENDING
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -835,17 +871,41 @@
               <!-- ACTION: RELEASE FUND CARD -->
               <div class="step-card blue-card"
                 style="border: 1px solid var(--accent-blue-border); border-radius: var(--border-radius); background: #FFFFFF; overflow: hidden; box-shadow: var(--shadow-sm);">
-                <div
-                  style="background: var(--fund-release-header); color: #fff; padding: 16px 20px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                  </svg>
-                  Company Fund Release (Visa Manager)
+                <div style="background: var(--fund-release-header); color: #fff; padding: 16px 20px; font-weight: 700; display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Company Fund Release (Visa Manager)
+                  </div>
+
+                  <!-- STATUS BADGE -->
+                  @if (getFundReleaseStatus(selectedSettlementStudent) === 'SETTLED') {
+                    <div style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #d1fae5; color: #059669; border: 1px solid #34d399; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      SETTLED
+                    </div>
+                  } @else if (getFundReleaseStatus(selectedSettlementStudent) === 'CONFIRMATION_PENDING') {
+                    <div style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fef3c7; color: #d97706; border: 1px solid #fbbf24; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      CONFIRM PENDING
+                    </div>
+                  } @else if (getFundReleaseStatus(selectedSettlementStudent) === 'FUND_RELEASE_PENDING') {
+                    <div style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #dbeafe; color: #2563eb; border: 1px solid #93c5fd; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                      RELEASE PENDING
+                    </div>
+                  } @else {
+                    <div style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fee2e2; color: #dc2626; border: 1px solid #f87171; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                      COLLECTION PENDING
+                    </div>
+                  }
                 </div>
                 <div style="padding: 24px;">
                   <div *ngIf="fundReleaseForms[selectedSettlementStudent.id]">
-                    @if (selectedSettlementStudent.accToVisaManPaidAmount > 0) {
+                    @if (selectedSettlementStudent.accToVisaManPaidAmount > 0 || getFundReleaseStatus(selectedSettlementStudent) === 'CONFIRMATION_PENDING' || getFundReleaseStatus(selectedSettlementStudent) === 'SETTLED') {
                     <div style="text-align: center; padding: 32px 0; color: #0284c7;">
                       <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="1.5" style="margin-bottom: 16px;">
@@ -854,7 +914,7 @@
                       </svg>
                       <h4 style="margin: 0 0 8px 0; font-size: 1.2rem;">Funds Released</h4>
                       <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Amount released to Visa
-                        Manager: <strong>INR {{selectedSettlementStudent.accToVisaManPaidAmount |
+                        Manager: <strong>INR {{(selectedSettlementStudent.accToVisaManPaidAmount || ((selectedSettlementStudent.visaPaymentRequestedAmount || 0) + (selectedSettlementStudent.visaManServiceCharge || 0))) |
                           number:'1.2-2'}}</strong></p>
                     </div>
                     } @else {
@@ -1142,7 +1202,7 @@
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="text" placeholder="Search invoices or agents...">
+            <input type="text" placeholder="Search by name or application ID..." [(ngModel)]="paymentCollectionSearchTerm">
           </div>
         </div>
 
@@ -1260,82 +1320,98 @@
                   {{((student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0)) -
                   (student.visaPaymentReceivedAmount || 0) | number:'1.2-2'}}</td>
                 <td style="padding: 16px;">
-                  @if (student.action === 'SEND_BANK_DETAILS_TO_AGENT') {
+                  @if (getCollectionStatus(student) === 'VERIFICATION_PENDING') {
                   <span
-                    style="background: var(--accent-amber-bg); color: var(--accent-amber-txt); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Needs
-                    Request</span>
-                  } @else if ((student.visaPaymentReceivedAmount || 0) > 0 && (student.visaPaymentReceivedAmount || 0) <
-                    ((student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0))) { <span
-                    style="background: var(--accent-blue-bg); color: var(--accent-blue-txt); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                    Partially Paid</span>
-                    } @else if ((student.visaPaymentReceivedAmount || 0) > 0 && (student.visaPaymentReceivedAmount || 0)
-                    >= ((student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0))) {
-                    <span
-                      style="background: var(--accent-emerald-bg); color: var(--accent-emerald-txt); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Paid</span>
-                    } @else {
-                    <span
-                      style="background: var(--accent-amber-bg); color: var(--accent-amber-txt); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Pending
-                      Payment</span>
-                    }
+                    style="background: #e0f2fe; color: #0284c7; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">VERIFICATION_PENDING</span>
+                  } @else if (getCollectionStatus(student) === 'PARTIALLY_PAID') {
+                  <span
+                    style="background: var(--accent-blue-bg); color: var(--accent-blue-txt); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">PARTIALLY_PAID</span>
+                  } @else if (getCollectionStatus(student) === 'PENDING_COLLECTION') {
+                  <span
+                    style="background: var(--accent-amber-bg); color: var(--accent-amber-txt); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">PENDING_COLLECTION</span>
+                  } @else if (getCollectionStatus(student) === 'PAID') {
+                  <span
+                    style="background: var(--accent-emerald-bg); color: var(--accent-emerald-txt); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">PAID</span>
+                  } @else if (getCollectionStatus(student) === 'PENDING_AGENT_PAYMENT') {
+                  <span
+                    style="background: var(--accent-amber-bg); color: var(--accent-amber-txt); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">PENDING_AGENT_PAYMENT</span>
+                  }
                 </td>
                 <td style="padding: 16px;">
-                  <div style="display: flex; gap: 8px;">
-                    @if (student.action === 'SEND_BANK_DETAILS_TO_AGENT') {
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    @if (getCollectionStatus(student) === 'PENDING_COLLECTION') {
                     <button class="vt-btn primary"
                       style="background: var(--primary-main); padding: 6px 12px; font-size: 12px;"
                       (click)="openSendBankDetailsModal(student)">Generate Request</button>
-                    } @else if ((student.visaPaymentReceivedAmount || 0) < ((student.visaPaymentRequestedAmount || 0) +
-                      (student.visaManServiceCharge || 0))) { <button class="vt-btn primary"
+                    } @else if (getCollectionStatus(student) === 'PARTIALLY_PAID') {
+                    <button class="vt-btn primary"
                       style="background: var(--primary-main); padding: 6px 12px; font-size: 12px;"
                       (click)="openPaymentCollectionAction(student, 'request_remaining')">Request Remaining</button>
+                    } @else if (getCollectionStatus(student) === 'VERIFICATION_PENDING') {
+                    <button class="vt-btn primary" style="background: #0284c7; padding: 6px 12px; font-size: 12px;"
+                      (click)="openPaymentCollectionAction(student, 'verify_payment')">Verify Payment</button>
+                    }
 
-                      <div style="position: relative;">
-                        <button class="vt-btn secondary"
-                          style="padding: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary);"
-                          (click)="toggleDropdown(student.id, $event)">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    <div style="position: relative;">
+                      <button class="vt-btn secondary"
+                        style="padding: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary);"
+                        (click)="toggleDropdown(student.id, $event)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <circle cx="12" cy="12" r="1"></circle>
+                          <circle cx="12" cy="5" r="1"></circle>
+                          <circle cx="12" cy="19" r="1"></circle>
+                        </svg>
+                      </button>
+
+                      @if (activeDropdownId === student.id) {
+                      <div
+                        style="position: absolute; right: 0; top: 100%; margin-top: 4px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); z-index: 50; min-width: 180px; overflow: hidden;">
+
+                        <button
+                          style="width: 100%; text-align: left; padding: 10px 16px; background: transparent; border: none; font-size: 13px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px;"
+                          (mouseover)="$event.target.style.background='#f8fafc'"
+                          (mouseout)="$event.target.style.background='transparent'"
+                          (click)="openPaymentHistorySidebar(student); toggleDropdown(student.id, $event)">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <circle cx="12" cy="5" r="1"></circle>
-                            <circle cx="12" cy="19" r="1"></circle>
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
                           </svg>
+                          View History
                         </button>
 
-                        @if (activeDropdownId === student.id) {
-                        <div
-                          style="position: absolute; right: 0; top: 100%; margin-top: 4px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); z-index: 50; min-width: 160px; overflow: hidden;">
-                          <button
-                            style="width: 100%; text-align: left; padding: 10px 16px; background: transparent; border: none; font-size: 13px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px;"
-                            (mouseover)="$event.target.style.background='#f8fafc'"
-                            (mouseout)="$event.target.style.background='transparent'"
-                            (click)="sendReminderEmail(student); toggleDropdown(student.id, $event)">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                              stroke-width="2">
-                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                              </path>
-                              <polyline points="22,6 12,13 2,6"></polyline>
-                            </svg>
-                            Send Reminder
-                          </button>
-                          <button
-                            style="width: 100%; text-align: left; padding: 10px 16px; background: transparent; border: none; font-size: 13px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border-color);"
-                            (mouseover)="$event.target.style.background='#f8fafc'"
-                            (mouseout)="$event.target.style.background='transparent'"
-                            (click)="openPaymentCollectionAction(student, 'cash_settlement'); toggleDropdown(student.id, $event)">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                              stroke-width="2">
-                              <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            Cash Settlement
-                          </button>
-                        </div>
+                        @if (getCollectionStatus(student) !== 'PAID' && getCollectionStatus(student) !==
+                        'PENDING_COLLECTION') {
+                        <button
+                          style="width: 100%; text-align: left; padding: 10px 16px; background: transparent; border: none; font-size: 13px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border-color);"
+                          (mouseover)="$event.target.style.background='#f8fafc'"
+                          (mouseout)="$event.target.style.background='transparent'"
+                          (click)="sendReminderEmail(student); toggleDropdown(student.id, $event)">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                            </path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                          </svg>
+                          Send Reminder
+                        </button>
+
+                        <button
+                          style="width: 100%; text-align: left; padding: 10px 16px; background: transparent; border: none; font-size: 13px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border-color);"
+                          (mouseover)="$event.target.style.background='#f8fafc'"
+                          (mouseout)="$event.target.style.background='transparent'"
+                          (click)="openPaymentCollectionAction(student, 'cash_settlement'); toggleDropdown(student.id, $event)">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                          </svg>
+                          Cash Settlement
+                        </button>
                         }
                       </div>
-                      } @else {
-                      <button class="vt-btn secondary"
-                        style="padding: 6px 12px; border: 1px solid var(--border-color); background: #f8fafc; color: var(--text-muted); font-size: 12px; cursor: not-allowed;"
-                        disabled>Settled</button>
                       }
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -4517,6 +4593,116 @@
     </div>
     }
     <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb;">
+    </div>
+  </div>
+</div>
+}
+
+<!-- VISA PAYMENT TRANSACTIONS SIDEBAR -->
+@if (isPaymentSidebarOpen) {
+<div class="modal-backdrop" style="justify-content: flex-end; padding: 0;" (click)="closePaymentHistorySidebar()">
+  <div class="sidebar-panel"
+    style="width: 500px; max-width: 100vw; height: 100vh; background: #fff; box-shadow: -4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; animation: slideInRight 0.3s ease-out;"
+    (click)="$event.stopPropagation()">
+    <div class="modal-header"
+      style="padding: 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; font-size: 1.1rem; color: #111827; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-history" style="color: #6366f1;"></i>
+        Visa Payment History
+      </h3>
+      <button class="close-btn" (click)="closePaymentHistorySidebar()"
+        style="background: transparent; border: none; font-size: 1.2rem; color: #9ca3af; cursor: pointer; padding: 4px;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1; background: #f9fafb;">
+      <div style="margin-bottom: 24px;">
+        <h4 style="margin: 0 0 4px; font-size: 1.1rem; color: #111827;">{{selectedStudentForTransactions?.fullName}}
+        </h4>
+        <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">Student ID: {{selectedStudentForTransactions?.id ||
+          'N/A'}}</p>
+      </div>
+
+      @if (isLoadingTransactions) {
+      <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"
+          style="margin-bottom: 12px; opacity: 0.5;">
+          <path
+            d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83">
+          </path>
+        </svg>
+        <p>Loading transactions...</p>
+      </div>
+      } @else {
+      <!-- Timeline style -->
+      <div class="timeline-container" style="position: relative; padding-left: 16px;">
+        <!-- vertical line -->
+        <div style="position: absolute; top: 0; bottom: 0; left: 32px; width: 2px; background: #e5e7eb; z-index: 0;">
+        </div>
+
+        @for (txn of selectedPaymentTransactions; track txn.id) {
+        <div class="timeline-item"
+          style="position: relative; z-index: 1; display: flex; gap: 16px; margin-bottom: 24px;">
+
+          <!-- Icon -->
+          <div
+            style="width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 0 4px #f9fafb; margin-top: 4px;"
+            [style.background]="getRoleIconAndColor(txn.actorRole).bg"
+            [style.color]="getRoleIconAndColor(txn.actorRole).color">
+            <i [class]="getRoleIconAndColor(txn.actorRole).icon" style="font-size: 0.85rem;"></i>
+          </div>
+
+          <!-- Content Card -->
+          <div
+            style="flex: 1; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <strong style="color: #111827; font-size: 0.95rem;">{{txn.actorUsername || 'System'}}</strong>
+                  <span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 600;"
+                    [style.background]="getRoleIconAndColor(txn.actorRole).bg"
+                    [style.color]="getRoleIconAndColor(txn.actorRole).color">
+                    {{txn.actorRole || 'System'}}
+                  </span>
+                </div>
+                <div style="font-size: 0.8rem; color: #6b7280;">
+                  {{(txn.transactionDate | date:'MMM d, y, h:mm a') || 'N/A'}}
+                </div>
+              </div>
+              <span
+                style="padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-align: center; line-height: 1.2;"
+                [style.background]="getTxnTypeColor(txn.transactionType).bg"
+                [style.color]="getTxnTypeColor(txn.transactionType).color">
+                {{txn.transactionType.replace('_', ' ')}}
+              </span>
+            </div>
+
+            <div
+              style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 16px; padding-top: 12px; border-top: 1px solid #f3f4f6;">
+              <div style="font-size: 0.85rem; color: #4b5563; flex: 1; padding-right: 16px;">
+                {{txn.remarks || 'No remarks provided'}}
+              </div>
+              @if (txn.amount > 0) {
+              <div style="text-align: right; flex-shrink: 0;">
+                <div style="font-size: 0.7rem; color: #6b7280; margin-bottom: 2px;">Amount</div>
+                <div style="font-weight: 700; color: #111827; font-size: 1.05rem;">
+                  {{txn.currency}} {{txn.amount | number:'1.2-2'}}
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+        }
+        @if (!selectedPaymentTransactions?.length) {
+        <div
+          style="padding: 30px; text-align: center; color: #9ca3af; font-style: italic; background: #fff; border-radius: 8px; border: 1px dashed #d1d5db;">
+          No payment history found for this student.
+        </div>
+        }
+      </div>
+      }
     </div>
   </div>
 </div>

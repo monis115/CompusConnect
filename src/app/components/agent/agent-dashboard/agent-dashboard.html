@@ -5547,29 +5547,19 @@
     <div class="wizard-footer">
       <button class="btn-secondary" (click)="prevStep()" [disabled]="currentStep === 1">Previous</button>
 
-      @if (telexForm?.get('originalDocsSent')?.value === false && currentStep === 1) {
+      @if (currentStep < totalSteps) {
+      <button class="btn-primary" (click)="nextStep()">Next</button>
+      }
+      @if (currentStep === totalSteps) {
       <button class="btn-success" (click)="submitTelexApplication()" [disabled]="isSubmittingTelex">
         @if (!isSubmittingTelex) {
-        <span>Submit Request</span>
+        <span>Submit Application</span>
         }
         @if (isSubmittingTelex) {
         <span>Submitting...</span>
         }
       </button>
-      } @else {
-      @if (currentStep < totalSteps) { <button class="btn-primary" (click)="nextStep()">Next</button>
-        }
-        @if (currentStep === totalSteps) {
-        <button class="btn-success" (click)="submitTelexApplication()" [disabled]="isSubmittingTelex">
-          @if (!isSubmittingTelex) {
-          <span>Submit Application</span>
-          }
-          @if (isSubmittingTelex) {
-          <span>Submitting...</span>
-          }
-        </button>
-        }
-        }
+      }
     </div>
   </div>
 </div>
@@ -5772,9 +5762,9 @@
         <div class="visa-amount-display">
           <div class="visa-amount-value">
             <span class="currency" style="font-size: 20px; vertical-align: top; margin-right: 4px;">{{
-              selectedPaymentStudent?.visaPaymentRequestedCurrency || 'USD' }}</span>
-            <span class="amount">{{ (selectedPaymentStudent?.visaPaymentRequestedAmount || 0) +
-              (selectedPaymentStudent?.visaManServiceCharge || 0) | number:'1.2-2' }}</span>
+              selectedPaymentStudent?.visaPaymentRequestedCurrency || 'INR' }}</span>
+            <span class="amount">{{ ((selectedPaymentStudent?.visaPaymentRequestedAmount || 0) +
+              (selectedPaymentStudent?.visaManServiceCharge || 0)) - (selectedPaymentStudent?.visaPaymentReceivedAmount || 0) | number:'1.2-2' }}</span>
           </div>
         </div>
       </div>

@@ -65,7 +65,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   private destroy$ = new Subject<void>();
 
-  activeSection: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'accounts' | 'funds' = 'dashboard';
+  activeSection: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'accounts' | 'funds' | 'releasedFunds' = 'dashboard';
   currentUsername: string = 'VM_001';
   students: Student[] = [];
   visaManProfile: VisaManProfile | null = null;
@@ -433,11 +433,14 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   // NAVIGATION
   // ============================================
-  setActiveSection(section: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'accounts' | 'funds'): void {
+  setActiveSection(section: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'accounts' | 'funds' | 'releasedFunds'): void {
     this.activeSection = section;
     this.sidebarOpen = false;
     if (section === 'funds') {
       this.loadMyRequests();
+    }
+    if (section === 'releasedFunds') {
+      this.fetchFundReleases();
     }
     this.cdr.detectChanges();
   }
@@ -1142,13 +1145,16 @@ Branch: ${this.fundRequestForm.branchName}`;
 
   // ==================== COMPANY FUND RELEASES ====================
   fetchFundReleases() {
-    this.http.get<any[]>(`${this.API_URL}/visaman/fund-releases?username=${this.currentUsername}`).subscribe({
+    this.isLoading = true;
+    this.http.get<any[]>(`${this.API_URL}/visa-man/fund-releases?username=${this.currentUsername}`).subscribe({
       next: (res) => {
         this.fundReleases = res;
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to fetch fund releases', err);
+        this.isLoading = false;
       }
     });
   }
@@ -1163,12 +1169,17 @@ Branch: ${this.fundRequestForm.branchName}`;
     this.selectedFundRelease = null;
   }
 
-  confirmFundRelease(releaseId: number) {
-    if (confirm('Are you sure you have received these funds in your account?')) {
+  confirmRemarks: string = '';
 
-        this.http.post(`${this.API_URL}/visaman/fund-releases/${releaseId}/confirm?username=${this.currentUsername}`, {}).subscribe({
+  confirmFundRelease(releaseId: number) {
+    this.openConfirmModal(
+      'Confirm Funds Received',
+      'Are you sure you have received these funds in your account?',
+      () => {
+        const payload = { remarks: this.confirmRemarks || 'Confirmed Receipt' };
+        this.http.post(`${this.API_URL}/visa-man/fund-releases/${releaseId}/confirm?username=${this.currentUsername}`, payload).subscribe({
           next: () => {
-            this.showToast('success', 'Funds receipt confirmed successfully.');
+            this.showSuccess('Funds receipt confirmed successfully.');
             this.fetchFundReleases();
             this.closeFundReleaseModal();
           },
@@ -1177,25 +1188,72 @@ Branch: ${this.fundRequestForm.branchName}`;
             this.showToast('error', 'Failed to confirm receipt');
           }
         });
-    }
+      }
+    );
+  }
+
+  rejectReason: string = '';
+  rejectRemarks: string = '';
+  showRejectForm: boolean = false;
+
+  toggleRejectForm() {
+    this.showRejectForm = !this.showRejectForm;
   }
 
   rejectFundRelease(releaseId: number) {
-    const reason = prompt('Reason for rejection (Required)');
-    if (reason) {
-
-        this.http.post(`${this.API_URL}/visaman/fund-releases/${releaseId}/reject?username=${this.currentUsername}&reason=${encodeURIComponent(reason)}`, {}).subscribe({
+    if (!this.rejectReason) {
+      this.showToast('error', 'Reason is required for rejection');
+      return;
+    }
+    this.openConfirmModal(
+      'Reject Fund Release',
+      'Are you sure you want to reject this fund release?',
+      () => {
+        const payload = { reason: this.rejectReason, remarks: this.rejectRemarks };
+        this.http.post(`${this.API_URL}/visa-man/fund-releases/${releaseId}/reject?username=${this.currentUsername}`, payload).subscribe({
           next: () => {
-            this.showToast('success', 'Fund release has been rejected.');
+            this.showSuccess('Fund release has been rejected.');
             this.fetchFundReleases();
             this.closeFundReleaseModal();
+            this.showRejectForm = false;
+            this.rejectReason = '';
+            this.rejectRemarks = '';
           },
           error: (err: any) => {
             console.error(err);
             this.showToast('error', 'Failed to reject release');
           }
         });
-    }
+      }
+    );
+  }
+  
+  get pendingReleasesCount() {
+    return this.fundReleases.filter(r => r.releaseStatus === 'PENDING_CONFIRMATION').length;
+  }
+
+  get confirmedReleasesCount() {
+    return this.fundReleases.filter(r => r.releaseStatus === 'FUNDS_CONFIRMED').length;
+  }
+
+  get rejectedReleasesCount() {
+    return this.fundReleases.filter(r => r.releaseStatus === 'REJECTED').length;
+  }
+
+  get totalReleasedAmount() {
+    return this.fundReleases.reduce((sum, r) => sum + (r.totalReleasedAmount || 0), 0);
+  }
+
+  get currentMonthReleasedAmount() {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    return this.fundReleases
+      .filter(r => {
+        if (!r.releasedDate) return false;
+        const date = new Date(r.releasedDate);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      })
+      .reduce((sum, r) => sum + (r.totalReleasedAmount || 0), 0);
   }
 
 }

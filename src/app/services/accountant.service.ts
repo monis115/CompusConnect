@@ -12,6 +12,7 @@ export interface SubAccount {
     swiftBic: string;
     beneficiaryName: string;
     branchAddress: string;
+    relationshipManager?: string;
     balance?: number;
 }
 
@@ -127,6 +128,7 @@ export interface RecentActivity {
 }
 
 export interface AssignedStudent {
+    id: number;
     studentId: number;
     applicationId: string;
     fullName: string;

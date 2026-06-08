@@ -121,6 +121,12 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   showCashSettlementModal: boolean = false;
   cashSettlementData: any = { amount: 0, date: '', remarks: '', file: null };
 
+  // Transaction History Sidebar
+  isPaymentSidebarOpen: boolean = false;
+  selectedPaymentTransactions: any[] = [];
+  selectedStudentForTransactions: any = null;
+  isLoadingTransactions: boolean = false;
+
   Math = Math;
   outstandingRecoveryData: any[] = [];
 
@@ -175,6 +181,53 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   closeHistoryModal(): void {
     this.showHistoryModal = false;
     this.selectedHistoryRequest = null;
+  }
+
+  // Transaction History Sidebar Methods
+  openPaymentHistorySidebar(student: any): void {
+    this.selectedStudentForTransactions = student;
+    this.isPaymentSidebarOpen = true;
+    this.isLoadingTransactions = true;
+    this.selectedPaymentTransactions = [];
+
+    // Fetch from backend
+    this.http.get<any[]>(`${environment.apiUrl}/api/visa/payment-transactions/${student.id}`).subscribe({
+      next: (data) => {
+        this.selectedPaymentTransactions = data;
+        this.isLoadingTransactions = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching transactions', err);
+        this.isLoadingTransactions = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  closePaymentHistorySidebar(): void {
+    this.isPaymentSidebarOpen = false;
+    this.selectedStudentForTransactions = null;
+    this.selectedPaymentTransactions = [];
+  }
+
+  getRoleIconAndColor(role: string): { icon: string, color: string, bg: string } {
+    if (!role) return { icon: 'fas fa-user', color: '#6b7280', bg: '#f3f4f6' };
+    switch (role.toUpperCase()) {
+      case 'ACCOUNTANT': return { icon: 'fas fa-calculator', color: '#4f46e5', bg: '#e0e7ff' };
+      case 'AGENT': return { icon: 'fas fa-user-tie', color: '#d97706', bg: '#fef3c7' };
+      case 'VISA_MANAGER': return { icon: 'fas fa-id-card', color: '#059669', bg: '#d1fae5' };
+      default: return { icon: 'fas fa-user', color: '#6b7280', bg: '#f3f4f6' };
+    }
+  }
+
+  getTxnTypeColor(type: string): { color: string, bg: string } {
+    if (!type) return { color: '#6b7280', bg: '#f3f4f6' };
+    if (type.includes('CONFIRMED') || type.includes('RECEIVED') || type === 'AGENT_PAID') return { color: '#059669', bg: '#d1fae5' }; // Emerald
+    if (type.includes('REQUESTED') || type.includes('SENT')) return { color: '#ea580c', bg: '#ffedd5' }; // Orange
+    if (type.includes('PAID')) return { color: '#0284c7', bg: '#e0f2fe' }; // Blue
+    if (type.includes('REJECTED') || type.includes('FAILED')) return { color: '#dc2626', bg: '#fee2e2' }; // Red
+    return { color: '#4b5563', bg: '#f3f4f6' }; // Gray
   }
 
   getPendingAmount(req: any): number {
@@ -329,6 +382,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.loadSubAccounts();
     this.fetchOutstandingRecovery();
     this.loadBeneficiaries();
+    this.loadFundReleases();
   }
 
   ngOnDestroy(): void {
@@ -358,6 +412,18 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       .subscribe((data: any) => {
         this.credits = data || [];
         this.cdr.detectChanges();
+      });
+  }
+
+  loadFundReleases(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/api/fund-release/all`)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.fundReleases = res;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Failed to load fund releases', err)
       });
   }
 
@@ -699,7 +765,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   refreshData(): void {
     this.isRefreshing = true;
     this.cdr.detectChanges();
-    setTimeout(() => this.loadDashboardData(), 300);
+    this.loadDashboardData();
+    this.loadPassbooks();
   }
 
   // --- Navigation & View Switching ---
@@ -717,7 +784,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }
 
     if (view === 'reports') {
-      this.refreshData(); // Trigger full refresh to ensure all agent/college data is loaded for accurate reports
+      this.refreshData();
+      this.loadPassbooks(); // Trigger full refresh to ensure all agent/college data is loaded for accurate reports
     }
 
     // Load data based on view
@@ -753,7 +821,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   get filteredPaymentCollectionStudents(): any[] {
     let filtered = this.activePaymentCollectionStudents;
-    
+
     // Apply search filter
     if (this.paymentCollectionSearchTerm && this.paymentCollectionSearchTerm.trim() !== '') {
       const term = this.paymentCollectionSearchTerm.toLowerCase().trim();
@@ -788,7 +856,45 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         return !needsRequest && requested > 0 && received > requested;
       }
       return true;
-    });
+    }).sort((a, b) => this.getLatestUpdateTimestamp(b) - this.getLatestUpdateTimestamp(a));
+  }
+
+  private getLatestUpdateTimestamp(student: any): number {
+    let maxTime = new Date(student.createdAt || 0).getTime();
+
+    // Check all possible date fields that could indicate an update
+    const dateFields = [
+      'updatedAt',
+      'visaFeePaymentDate',
+      'visaPaymentReceivedDate',
+      'visaBankDetailsSentDate',
+      'accToVisaManPaymentDate',
+      'paymentReceivedDate',
+      'telexPaymentReceivedDate',
+      'docReceivedDate',
+      'docTentativeReachDate',
+      'docReturnedDate'
+    ];
+
+    for (const field of dateFields) {
+      if (student[field]) {
+        const time = new Date(student[field]).getTime();
+        if (time > maxTime) maxTime = time;
+      }
+    }
+
+    // Check history if available
+    if (student.studentStatusHistory && Array.isArray(student.studentStatusHistory)) {
+      for (const history of student.studentStatusHistory) {
+        if (history.updatedAt) {
+          const time = new Date(history.updatedAt).getTime();
+          if (time > maxTime) maxTime = time;
+        }
+      }
+    }
+
+    // As a final fallback to differentiate same-time entries, add id
+    return maxTime + (student.id ? student.id / 1000000 : 0);
   }
 
   get paymentCollectionCounts() {
@@ -1405,7 +1511,6 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           this.closePayVisaManModal();
           this.showSuccess('Payment accurately recorded and subtracted from pending Visa Man payout!');
           this.refreshData();
-          this.loadPassbooks();
         },
         error: (err: any) => {
           console.error('Pay Visa Man error:', err);
@@ -1618,7 +1723,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       );
     }
 
-    return filtered;
+    return filtered.sort((a, b) => this.getLatestUpdateTimestamp(b) - this.getLatestUpdateTimestamp(a));
   }
 
   // --- Fullscreen ---
@@ -1661,13 +1766,44 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }
   }
 
+  getCollectionStatus(student: any): string {
+    const requested = (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0);
+    const received = student.visaPaymentReceivedAmount || 0;
+
+    // 1. VERIFICATION_PENDING: Agent submitted a payment that needs accountant confirmation.
+    //    Backend ONLY sets this action when agent submits a new payment.
+    //    Backend changes it away as soon as accountant confirms.
+    if (student.action === 'CONFIRM_VISA_PAYMENT') {
+      return 'VERIFICATION_PENDING';
+    }
+
+    // 2. PAID: All money collected
+    if (received > 0 && received >= requested) {
+      return 'PAID';
+    }
+
+    // 3. PENDING_AGENT_PAYMENT: Request sent to agent, waiting for their payment
+    if (student.action === 'SEND_VISA_PAYMENT_TO_ACCOUNTANT') {
+      return 'PENDING_AGENT_PAYMENT';
+    }
+
+    // 4. PARTIALLY_PAID or PENDING_COLLECTION: Accountant needs to act
+    if (student.action === 'SEND_BANK_DETAILS_TO_AGENT') {
+      if (received > 0 && received < requested) return 'PARTIALLY_PAID';
+      return 'PENDING_COLLECTION';
+    }
+
+    // Fallback
+    return 'PENDING_COLLECTION';
+  }
+
   /**
    * Open modal to send bank details to agent
    */
   openSendBankDetailsModal(student: any): void {
     console.log('Sending Bank Details for Student:', student); // DEBUG: Check if visaManServiceCharge is present
     this.selectedStudent = student;
-    // Calculate outstanding total: (Requested Visa Fee + Service Charge) - Received
+    // Calculate total: Requested Visa Fee + Service Charge - Received Amount
     const visaFee = student.visaPaymentRequestedAmount || 0;
     const serviceCharge = student.visaManServiceCharge || 0;
     const received = student.visaPaymentReceivedAmount || 0;
@@ -1763,7 +1899,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.showSuccess('Bank details sent to Agent successfully!');
+          this.showSuccess('Bank details sent to agent successfully!');
           this.refreshData();
           this.closeSendBankDetailsModal();
         },
@@ -1797,7 +1933,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.showSuccess('Remainder Send Scuesfully');
+          this.showSuccess('Reminder sent successfully!');
           this.refreshData();
         },
         error: (err: any) => {
@@ -1840,9 +1976,10 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.showSuccess('Visa payment confirmed! Student is ready for visa application.');
-          this.refreshData();
+          this.showSuccess('Visa payment confirmed!');
           this.closeConfirmPaymentModal();
+          // Reload both students and passbooks fresh — no delay
+          this.refreshData();
         },
         error: (err: any) => {
           console.error('Error confirming payment:', err);
@@ -2326,6 +2463,14 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         this.showSuccess('Funds released to Visa Manager successfully!');
         this.closeConfirmReleaseModal();
         this.closeReleaseFundModal();
+        
+        // Eagerly update UI state so button disappears immediately
+        if (this.selectedSettlementStudent) {
+          this.selectedSettlementStudent.accToVisaManPaidAmount = visaFee + serviceCharge;
+          this.selectedSettlementStudent.accToVisaManStatus = 'RELEASED_PENDING_CONFIRMATION';
+          this.cdr.detectChanges();
+        }
+
         // Refresh data
         this.refreshData();
       },
@@ -2348,6 +2493,20 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     });
   }
 
+  // Calculate Visa Settlement Status
+  getFundReleaseStatus(student: any): string {
+    if (student.accToVisaManStatus === 'CONFIRMED' || student.accToVisaManStatus === 'FUNDS_CONFIRMED' || student.accToVisaManStatus === 'FULLY_PAID' || student.accToVisaManStatus === 'SETTLED' || student.accToVisaManStatus === 'FEE_RECEIVED') {
+      return 'SETTLED';
+    }
+    if (student.accToVisaManPaidAmount > 0 || student.accToVisaManStatus === 'RELEASED_PENDING_CONFIRMATION') {
+      return 'CONFIRMATION_PENDING';
+    }
+    if (student.action !== 'SEND_BANK_DETAILS_TO_AGENT' || student.visaPaymentReceivedAmount > 0) {
+      return 'FUND_RELEASE_PENDING';
+    }
+    return 'COLLECTION_PENDING';
+  }
+
   // --- Beneficiary Accounts Methods ---
   loadBeneficiaries(): void {
     this.beneficiaryService.getAllBeneficiaries().subscribe({
@@ -2356,6 +2515,14 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       },
       error: (err: any) => console.error('Error loading beneficiaries:', err)
     });
+  }
+
+  getActiveBeneficiaries() {
+    return this.beneficiaries.filter(b => b.status === 'Active');
+  }
+
+  hasReleasedFunds(studentId: number): boolean {
+    return this.fundReleases.some(r => r.student?.id === studentId);
   }
 
   openBeneficiaryWizard(): void {

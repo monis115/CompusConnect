@@ -1,14 +1,19 @@
-/* --- Premium Financial Theme Variables --- */
+/* --- Enterprise Financial Theme Variables --- */
 :root {
     /* Primary / Neutral Colors */
-    --primary-main: #0F172A;
+    --primary-main: #0B1F4D;
     --primary-dark: #000000;
-    --bg-body: #F8FAFC;
+    --bg-body: #F8F9FC;
     --bg-card: #FFFFFF;
     --text-main: #0F172A;
     --text-secondary: #475569;
     --text-muted: #94A3B8;
-    --border-color: #E2E8F0;
+    --border-color: #DCE3F1;
+
+    /* Required Headers */
+    --visa-settlement-header: #198754;
+    --fund-release-header: #0D47A1;
+    --visa-manager-header: #5B2C83;
 
     /* Functional Accents */
     --accent-blue-txt: #3B82F6;
@@ -31,6 +36,9 @@
     --shadow-card-hover: 0 10px 25px rgba(0, 0, 0, 0.08);
     --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Global Radius */
+    --border-radius: 8px;
 }
 
 /* --- Layout & Sidebar --- */
@@ -38,21 +46,21 @@
     display: flex;
     height: 100vh;
     background: var(--bg-body);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     overflow: hidden;
     color: var(--text-main);
 }
 
 .sidebar {
     width: 280px;
-    background: #0f172a;
+    background: var(--primary-main);
     border-right: none;
     display: flex;
     flex-direction: column;
     transition: all 0.4s var(--ease-smooth);
     position: relative;
     z-index: 20;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.05);
     overflow: hidden;
 }
 
@@ -8799,4 +8807,42 @@ textarea {
 
 .vt-btn svg {
     flex-shrink: 0;
+}
+
+.vt-btn.success {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.vt-btn.success:hover {
+    background: #059669;
+}
+
+.vt-btn.secondary-action {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+.vt-btn.secondary-action:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.pc-tab {
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent !important;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.pc-tab:hover {
+    color: var(--text-main);
+    background: var(--bg-body) !important;
+}
+
+.pc-tab-active {
+    color: var(--primary-main) !important;
+    border-bottom-color: var(--primary-main) !important;
+    font-weight: 600 !important;
 }

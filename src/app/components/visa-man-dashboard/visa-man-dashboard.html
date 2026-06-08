@@ -67,6 +67,13 @@ Premium Angular Dashboard with Glassmorphism
         <span class="nav-badge-count">{{paidFundRequestsCount}}</span>
         }
       </div>
+      <div class="nav-item" [class.active]="activeSection === 'releasedFunds'" (click)="setActiveSection('releasedFunds')">
+        <i>💸</i>
+        <span>Released Funds</span>
+        @if (pendingReleasesCount > 0) {
+        <span class="nav-badge-count">{{pendingReleasesCount}}</span>
+        }
+      </div>
       <div class="nav-item" [class.active]="activeSection === 'accounts'" (click)="setActiveSection('accounts')">
         <i>💰</i>
         <span>Accounts</span>
@@ -921,6 +928,118 @@ Premium Angular Dashboard with Glassmorphism
       </div>
       }
       }
+
+      <!-- ============================================
+        RELEASED FUNDS SECTION
+        ============================================ -->
+      @if (activeSection === 'releasedFunds') {
+      <div class="released-funds-section" style="padding: 24px; animation: fadeIn 0.3s ease;">
+        <div class="section-header">
+          <div class="section-title">
+            <h2><i>💸</i> Released Funds Dashboard</h2>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;">
+          <div class="lurni-stat-card">
+            <div class="stat-content">
+              <span class="stat-label">Pending Confirmation</span>
+              <span class="stat-value" style="color: #f59e0b;">{{ pendingReleasesCount }}</span>
+            </div>
+          </div>
+          <div class="lurni-stat-card">
+            <div class="stat-content">
+              <span class="stat-label">Confirmed Funds</span>
+              <span class="stat-value" style="color: #10b981;">{{ confirmedReleasesCount }}</span>
+            </div>
+          </div>
+          <div class="lurni-stat-card">
+            <div class="stat-content">
+              <span class="stat-label">Rejected Releases</span>
+              <span class="stat-value" style="color: #ef4444;">{{ rejectedReleasesCount }}</span>
+            </div>
+          </div>
+          <div class="lurni-stat-card">
+            <div class="stat-content">
+              <span class="stat-label">Total Released</span>
+              <span class="stat-value">₹{{ totalReleasedAmount | number }}</span>
+            </div>
+          </div>
+          <div class="lurni-stat-card">
+            <div class="stat-content">
+              <span class="stat-label">Current Month</span>
+              <span class="stat-value">₹{{ currentMonthReleasedAmount | number }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container bg-white rounded-lg shadow" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+          <table class="data-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 2px solid #f1f5f9;">
+                <th style="padding: 12px; text-align: left;">Release ID</th>
+                <th style="padding: 12px; text-align: left;">Student</th>
+                <th style="padding: 12px; text-align: left;">Fee Details</th>
+                <th style="padding: 12px; text-align: left;">Total Amount</th>
+                <th style="padding: 12px; text-align: left;">Txn Ref</th>
+                <th style="padding: 12px; text-align: left;">Date</th>
+                <th style="padding: 12px; text-align: left;">Status</th>
+                <th style="padding: 12px; text-align: left;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (release of fundReleases; track release.releaseId) {
+              <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 12px;">#{{ release.releaseId }}</td>
+                <td style="padding: 12px;">
+                  <div style="font-weight: 500;">{{ release.studentName }}</div>
+                  <div style="font-size: 0.8rem; color: #64748b;">{{ release.university }}</div>
+                </td>
+                <td style="padding: 12px;">
+                  <div style="font-size: 0.85rem;">Visa: ₹{{ release.visaFee }}</div>
+                  <div style="font-size: 0.85rem;">Service: ₹{{ release.serviceCharge }}</div>
+                </td>
+                <td style="padding: 12px; font-weight: 600; color: #0f172a;">₹{{ release.totalReleasedAmount }}</td>
+                <td style="padding: 12px; font-family: monospace;">{{ release.transactionReference }}</td>
+                <td style="padding: 12px;">{{ formatDate(release.releasedDate) }}</td>
+                <td style="padding: 12px;">
+                  @if (release.releaseStatus === 'FUNDS_CONFIRMED' || release.releaseStatus === 'CONFIRMED') {
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #d1fae5; color: #059669; border: 1px solid #34d399;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      SETTLED
+                    </div>
+                  } @else if (release.releaseStatus === 'PENDING_CONFIRMATION' || release.releaseStatus === 'RELEASED_PENDING_CONFIRMATION') {
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fef3c7; color: #d97706; border: 1px solid #fbbf24;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      CONFIRM PENDING
+                    </div>
+                  } @else {
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fee2e2; color: #dc2626; border: 1px solid #f87171;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                      {{ release.releaseStatus }}
+                    </div>
+                  }
+                </td>
+                <td style="padding: 12px; display: flex; gap: 8px;">
+                  <button class="table-btn" style="background: #eff6ff; color: #3b82f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;" (click)="viewFundReleaseDetails(release)">View</button>
+                  @if (release.releaseStatus === 'PENDING_CONFIRMATION' || release.releaseStatus === 'RELEASED_PENDING_CONFIRMATION') {
+                  <button class="table-btn" style="background: #ecfdf5; color: #10b981; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;" (click)="confirmFundRelease(release.releaseId)">Mark Received</button>
+                  }
+                </td>
+              </tr>
+              }
+              @if (fundReleases.length === 0) {
+              <tr>
+                <td colspan="8" style="text-align: center; padding: 32px; color: #64748b;">
+                  No released funds found.
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
     </div>
   </main>
 </div>
@@ -1145,6 +1264,162 @@ MODALS
         </button>
         }
       </div>
+    </div>
+  </div>
+</div>
+}
+
+<!-- FUND RELEASE DETAIL MODAL -->
+@if (showFundReleaseModal && selectedFundRelease) {
+<div class="modal-overlay detail-modal" (click)="closeFundReleaseModal()">
+  <div class="modal-content" style="max-width: 800px;" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>💸 Released Funds Detail (#{{ selectedFundRelease.releaseId }})</h2>
+      <button class="modal-close" (click)="closeFundReleaseModal()">✕</button>
+    </div>
+    <div class="modal-body" style="display: grid; gap: 24px; padding: 24px;">
+      
+      <!-- Top Overview Row -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <!-- Student Info -->
+        <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+          <h4 style="margin: 0 0 12px 0; color: #0f172a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Student Details</h4>
+          <div style="display: grid; gap: 8px; font-size: 0.9rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #64748b;">Name:</span>
+              <span style="font-weight: 500;">{{ selectedFundRelease.studentName }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #64748b;">University:</span>
+              <span style="font-weight: 500;">{{ selectedFundRelease.university }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #64748b;">Agent:</span>
+              <span style="font-weight: 500;">{{ selectedFundRelease.agentName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Release Details -->
+        <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+          <h4 style="margin: 0 0 12px 0; color: #0f172a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Release Details</h4>
+          <div style="display: grid; gap: 8px; font-size: 0.9rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #64748b;">Visa Fee:</span>
+              <span style="font-weight: 500;">₹{{ selectedFundRelease.visaFee }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #64748b;">Service Charge:</span>
+              <span style="font-weight: 500;">₹{{ selectedFundRelease.serviceCharge }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-weight: 600; color: #0f172a; border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 4px;">
+              <span>Total Released:</span>
+              <span style="color: #10b981;">₹{{ selectedFundRelease.totalReleasedAmount }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction Details -->
+      <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+        <h4 style="margin: 0 0 12px 0; color: #0f172a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Transaction Details</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.9rem;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #64748b;">Released By</span>
+            <span style="font-weight: 500;">{{ selectedFundRelease.releasedBy }}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #64748b;">Release Date</span>
+            <span style="font-weight: 500;">{{ formatDate(selectedFundRelease.releasedDate) }}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #64748b;">Transaction Ref</span>
+            <span style="font-weight: 500; font-family: monospace;">{{ selectedFundRelease.transactionReference }}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #64748b;">Status</span>
+            @if (selectedFundRelease.releaseStatus === 'FUNDS_CONFIRMED' || selectedFundRelease.releaseStatus === 'CONFIRMED') {
+              <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #d1fae5; color: #059669; border: 1px solid #34d399; width: fit-content;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                SETTLED
+              </div>
+            } @else if (selectedFundRelease.releaseStatus === 'PENDING_CONFIRMATION' || selectedFundRelease.releaseStatus === 'RELEASED_PENDING_CONFIRMATION') {
+              <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fef3c7; color: #d97706; border: 1px solid #fbbf24; width: fit-content;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                CONFIRM PENDING
+              </div>
+            } @else {
+              <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: #fee2e2; color: #dc2626; border: 1px solid #f87171; width: fit-content;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                {{ selectedFundRelease.releaseStatus }}
+              </div>
+            }
+          </div>
+        </div>
+        @if (selectedFundRelease.remarks) {
+        <div style="margin-top: 16px; font-size: 0.9rem;">
+          <span style="color: #64748b; display: block; margin-bottom: 4px;">Remarks from Accountant:</span>
+          <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-style: italic;">
+            "{{ selectedFundRelease.remarks }}"
+          </div>
+        </div>
+        }
+        @if (selectedFundRelease.rejectionReason) {
+        <div style="margin-top: 16px; font-size: 0.9rem;">
+          <span style="color: #ef4444; font-weight: 600; display: block; margin-bottom: 4px;">Rejection Reason:</span>
+          <div style="background: #fef2f2; padding: 12px; border-radius: 6px; border: 1px solid #fca5a5; color: #991b1b;">
+            {{ selectedFundRelease.rejectionReason }}
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- Receipt Preview -->
+      @if (selectedFundRelease.receiptUrl) {
+      <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+        <h4 style="margin: 0 0 12px 0; color: #0f172a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Receipt Document</h4>
+        <div style="text-align: center; padding: 12px;">
+          <button class="btn-view" style="background: #e0e7ff; color: #4338ca; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" (click)="openPassportDocument(selectedFundRelease.receiptUrl)">
+            <i class="fas fa-file-invoice"></i> View / Download Receipt
+          </button>
+        </div>
+      </div>
+      }
+
+      <!-- Actions -->
+      @if (selectedFundRelease.releaseStatus === 'PENDING_CONFIRMATION') {
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- Reject Form Toggle -->
+        @if (!showRejectForm) {
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button style="padding: 10px 20px; background: white; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-weight: 600; cursor: pointer;" (click)="toggleRejectForm()">
+            Reject & Request Correction
+          </button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="text" [(ngModel)]="confirmRemarks" placeholder="Optional remarks..." style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 250px;">
+            <button style="padding: 10px 20px; background: #10b981; border: none; color: white; border-radius: 6px; font-weight: 600; cursor: pointer;" (click)="confirmFundRelease(selectedFundRelease.releaseId)">
+              Confirm Receipt
+            </button>
+          </div>
+        </div>
+        }
+
+        @if (showRejectForm) {
+        <div style="background: #fef2f2; border: 1px solid #fca5a5; padding: 16px; border-radius: 8px;">
+          <h5 style="margin: 0 0 12px 0; color: #b91c1c;">Reject Fund Release</h5>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <input type="text" [(ngModel)]="rejectReason" placeholder="Reason for rejection (Required)*" style="padding: 10px; border: 1px solid #fca5a5; border-radius: 6px; width: 100%;">
+            <input type="text" [(ngModel)]="rejectRemarks" placeholder="Additional remarks (Optional)" style="padding: 10px; border: 1px solid #fca5a5; border-radius: 6px; width: 100%;">
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
+              <button style="padding: 8px 16px; background: transparent; border: none; color: #64748b; cursor: pointer; font-weight: 500;" (click)="toggleRejectForm()">Cancel</button>
+              <button style="padding: 8px 16px; background: #ef4444; border: none; color: white; border-radius: 6px; font-weight: 600; cursor: pointer;" (click)="rejectFundRelease(selectedFundRelease.releaseId)">Submit Rejection</button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
     </div>
   </div>
 </div>
