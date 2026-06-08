@@ -744,13 +744,28 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  paymentCollectionSearchTerm: string = '';
+
   get activePaymentCollectionStudents(): any[] {
     // Include all students that have been sent from Visa Manager
     return this.visaPendingStudents;
   }
 
   get filteredPaymentCollectionStudents(): any[] {
-    return this.activePaymentCollectionStudents.filter(student => {
+    let filtered = this.activePaymentCollectionStudents;
+    
+    // Apply search filter
+    if (this.paymentCollectionSearchTerm && this.paymentCollectionSearchTerm.trim() !== '') {
+      const term = this.paymentCollectionSearchTerm.toLowerCase().trim();
+      filtered = filtered.filter(s => {
+        const nameMatch = s.fullName?.toLowerCase().includes(term);
+        const emailMatch = s.email?.toLowerCase().includes(term);
+        const appIdMatch = s.applicationId?.toLowerCase().includes(term);
+        return nameMatch || emailMatch || appIdMatch;
+      });
+    }
+
+    return filtered.filter(student => {
       if (this.activePaymentCollectionTab === 'all') return true;
 
       const requested = (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0);
@@ -1579,8 +1594,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     });
   }
 
-  hasCollectionRequest(studentId: number): boolean {
-    return this.collectionRequests.some(r => r.studentId === studentId);
+  hasCollectionRequest(studentId: any): boolean {
+    return this.collectionRequests.some(r => r.studentId == studentId);
   }
 
   // Visa Settlement Filters
@@ -2215,8 +2230,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   selectedReleaseStudent: any = null;
 
   openReleaseFundModal(student: any) {
-    if (!this.hasCollectionRequest(student.id)) {
-      this.showErrorToast("Cannot release funds. A Collection Request must be generated first.");
+    if (student.action === 'SEND_BANK_DETAILS_TO_AGENT') {
+      this.showErrorToast("Cannot release funds. A Request must be generated first.");
       return;
     }
     this.selectedReleaseStudent = student;
