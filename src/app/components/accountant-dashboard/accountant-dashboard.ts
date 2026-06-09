@@ -20,6 +20,7 @@ import { BeneficiaryService } from '../../services/beneficiary.service';
 import { PaymentRequestService, PaymentRequest } from '../../services/payment-request.service';
 import { environment } from '../../../environments/environment';
 import { FileService } from '../../services/file.service';
+import { ChartConfiguration, ChartOptions, ChartData, ChartType } from 'chart.js';
 
 @Component({
   selector: 'app-accountant-dashboard',
@@ -46,6 +47,15 @@ import { FileService } from '../../services/file.service';
         style({ opacity: 0, transform: 'translateX(-30px)' }),
         animate('350ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 1, transform: 'translateX(0)' })),
       ]),
+    ]),
+    trigger('slideInRight', [
+      transition(':enter', [
+        style({ transform: 'translateX(100%)' }),
+        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'translateX(0)' })),
+      ]),
+      transition(':leave', [
+        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'translateX(100%)' })),
+      ])
     ]),
     trigger('staggerIn', [
       transition(':enter', [
@@ -101,8 +111,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // SubAccounts
   subAccounts: SubAccount[] = [];
+  get bankSubAccounts() { return this.subAccounts.filter(a => a.accountType !== 'CASH' && a.bankName !== 'CASH'); }
+  get cashSubAccounts() { return this.subAccounts.filter(a => a.accountType === 'CASH' || a.bankName === 'CASH'); }
+  get totalBankBalance() { return this.bankSubAccounts.reduce((acc, curr) => acc + (curr.balance || 0), 0); }
+  get totalCashBalance() { return this.cashSubAccounts.reduce((acc, curr) => acc + (curr.balance || 0), 0); }
+  get totalBalance() { return this.totalBankBalance + this.totalCashBalance; }
   showAddSubAccountModal = false;
-  newSubAccount: SubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '', relationshipManager: '' };
+  newSubAccount: SubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '', relationshipManager: '', accountType: 'BANK', cashAccountName: '' };
 
   // --- Transactions Modal ---
   selectedSubAccountForTx: any = null;
@@ -112,6 +127,139 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   txFilterStartDate: string = '';
   txFilterEndDate: string = '';
 
+  // --- Payment Collection Redesign State ---
+  isSendingReminder: Record<number, boolean> = {};
+  recentStatusChange: Record<number, string> = {};
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error' | 'info'
+  };
+
+  globalOverlay = {
+    show: false,
+    status: 'loading' as 'loading' | 'success' | 'error',
+    message: '',
+    icon: ''
+  };
+
+  // --- Internal Transfer State ---
+  showInternalTransferModal = false;
+  internalTransferStep: 'form' | 'processing' | 'success' | 'error' = 'form';
+  internalTransferError: string = '';
+  transferSourceId: number | null = null;
+  transferDestId: number | null = null;
+  transferAmount: number | null = null;
+  transferDescription: string = '';
+  isTransferring = false;
+
+  openInternalTransferModal() {
+    this.showInternalTransferModal = true;
+    this.internalTransferStep = 'form';
+    this.internalTransferError = '';
+    this.transferSourceId = null;
+    this.transferDestId = null;
+    this.transferAmount = null;
+    this.transferDescription = '';
+  }
+
+  closeInternalTransferModal() {
+    this.showInternalTransferModal = false;
+  }
+
+  get isInternalTransferValid(): boolean {
+    if (!this.transferSourceId || !this.transferDestId || !this.transferAmount || !this.transferDescription) {
+      return false;
+    }
+    if (this.transferSourceId === this.transferDestId) return false;
+    if (this.transferAmount <= 0) return false;
+    if (this.hasInsufficientBalance()) return false;
+    return true;
+  }
+
+  hasInsufficientBalance(): boolean {
+    if (!this.transferSourceId || !this.transferAmount) return false;
+    const sourceAcc = this.bankSubAccounts.find(acc => acc.id === this.transferSourceId);
+    if (sourceAcc) {
+      const availableBalance = sourceAcc.balance || 0;
+      return this.transferAmount > availableBalance;
+    }
+    return false;
+  }
+
+  getSourceBalance(): number {
+    if (!this.transferSourceId) return 0;
+    const sourceAcc = this.bankSubAccounts.find(acc => acc.id === this.transferSourceId);
+    return sourceAcc ? (sourceAcc.balance || 0) : 0;
+  }
+
+  submitInternalTransfer() {
+    if (!this.transferSourceId || !this.transferDestId || !this.transferAmount || !this.transferDescription) {
+      this.showToast('Please fill all required fields.', 'error');
+      return;
+    }
+    if (!this.isInternalTransferValid) {
+      return;
+    }
+
+    this.isTransferring = true;
+    this.internalTransferStep = 'processing';
+    this.internalTransferError = '';
+
+    const payload = {
+      sourceId: this.transferSourceId,
+      destId: this.transferDestId,
+      amount: this.transferAmount,
+      description: this.transferDescription
+    };
+
+    const startTime = Date.now();
+    this.http.post('http://localhost:8080/api/accountant/subaccounts/internal-transfer', payload).subscribe({
+      next: (res: any) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 1900 - elapsed);
+        
+        setTimeout(() => {
+          this.isTransferring = false;
+          this.internalTransferStep = 'success';
+          this.loadSubAccounts(); // Refresh balances
+          this.cdr.detectChanges();
+        }, delay);
+      },
+      error: (err) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 1900 - elapsed);
+        
+        setTimeout(() => {
+          this.isTransferring = false;
+          this.internalTransferStep = 'error';
+          this.internalTransferError = err.error || 'Transaction Declined: Unable to process the transfer at this time.';
+          this.cdr.detectChanges();
+        }, delay);
+      }
+    });
+  }
+
+  // --- Sidebar Badges ---
+  get visaFeeSettlementBadgeCount(): number {
+    if (!this.visaPendingStudents) return 0;
+    return this.visaPendingStudents.filter((s: any) => this.getFundReleaseStatus(s) === 'FUND_RELEASE_PENDING').length;
+  }
+
+  get paymentCollectionBadgeCount(): number {
+    if (!this.activePaymentCollectionStudents) return 0;
+    return this.activePaymentCollectionStudents.filter((s: any) => this.getCollectionStatus(s) !== 'PAID').length;
+  }
+
+  showToast(message: string, type: 'success' | 'info' | 'error' = 'success'): void {
+    this.toastState = { show: true, message, type };
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges();
+    }, 3500);
+  }
+
   // Outstanding Recovery & Fund Release
   fundReleaseForms: { [studentId: number]: any } = {};
   fundReleaseFiles: { [studentId: number]: File } = {};
@@ -119,7 +267,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // Partial Payment & Cash Settlement
   showCashSettlementModal: boolean = false;
-  cashSettlementData: any = { amount: 0, date: '', remarks: '', file: null };
+  cashSettlementData: any = { depositType: 'BANK', amount: 0, date: '', subAccountId: '', remarks: '', file: null };
 
   // Transaction History Sidebar
   isPaymentSidebarOpen: boolean = false;
@@ -658,8 +806,16 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // Add/Update SubAccount
   openAddSubAccountModal(): void {
-    this.newSubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '', relationshipManager: '' };
+    this.newSubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '', relationshipManager: '', accountType: 'BANK', cashAccountName: '' };
     this.showAddSubAccountModal = true;
+  }
+
+  isSubAccountFormValid(): boolean {
+    if (this.newSubAccount.accountType === 'BANK') {
+      return !!this.newSubAccount.bankName && !!this.newSubAccount.accountNumber;
+    } else {
+      return !!this.newSubAccount.cashAccountName;
+    }
   }
 
   closeAddSubAccountModal(): void {
@@ -667,7 +823,14 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   submitSubAccount(): void {
-    if (!this.newSubAccount.bankName || !this.newSubAccount.accountNumber) return;
+    if (this.newSubAccount.accountType === 'BANK') {
+      if (!this.newSubAccount.bankName || !this.newSubAccount.accountNumber) return;
+    } else {
+      if (!this.newSubAccount.cashAccountName) return;
+      // Provide dummy values for DB non-null constraints if necessary
+      this.newSubAccount.bankName = 'CASH';
+      this.newSubAccount.accountNumber = 'CASH-' + Date.now();
+    }
     this.isSubmitting = true;
     this.cdr.detectChanges();
 
@@ -812,17 +975,185 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  // --- Outstanding Tracking Dashboard Properties ---
   paymentCollectionSearchTerm: string = '';
+  collectionFilterAgent: string = 'all';
+  collectionFilterCollege: string = 'all';
+  collectionFilterStatuses: string[] = ['all'];
+  collectionMinAmount: number | null = null;
+  collectionMaxAmount: number | null = null;
+
+  // Metrics
+  totalCollectionRequested: number = 0;
+  totalCollectionConfirmed: number = 0;
+  totalCollectionOutstanding: number = 0;
+  amountPartiallyPaid: number = 0;
+  amountPendingCollection: number = 0;
+
+  // Charts Options
+  donutChartOptions: ChartOptions<'doughnut'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '75%',
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15, boxWidth: 8, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: (context) => ` ${context.label}: ${context.formattedValue} INR`
+        }
+      }
+    }
+  };
+
+  barChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    }
+  };
+
+  pieChartOptions: ChartOptions<'pie'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, padding: 10, boxWidth: 8, font: { size: 10 } } }
+    }
+  };
+
+  // Charts Data
+  collectionPercentChartData: ChartData<'doughnut'> = {
+    labels: ['Collected', 'Outstanding'],
+    datasets: [{ data: [0, 0], backgroundColor: ['#059669', '#f43f5e'], borderWidth: 0 }]
+  };
+
+  agentPerformanceChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [
+      { data: [], label: 'Paid', backgroundColor: '#0ea5e9', borderRadius: 4, barPercentage: 0.6 },
+      { data: [], label: 'Outstanding', backgroundColor: '#f43f5e', borderRadius: 4, barPercentage: 0.6 }
+    ]
+  };
+
+  collegeOutstandingChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [{ data: [], label: 'Outstanding Amount', backgroundColor: '#f43f5e', borderRadius: 4, barPercentage: 0.5 }]
+  };
+
+  statusDistributionChartData: ChartData<'pie'> = {
+    labels: ['Paid', 'Partially Paid', 'Pending Collection', 'Verification Pending'],
+    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#059669', '#d97706', '#f43f5e', '#6366f1'], borderWidth: 0 }]
+  };
 
   get activePaymentCollectionStudents(): any[] {
-    // Include all students that have been sent from Visa Manager
     return this.visaPendingStudents;
+  }
+
+  get uniqueCollectionAgents(): string[] {
+    const agents = this.activePaymentCollectionStudents.map(s => s.agentFullName || 'Unknown').filter(Boolean);
+    return Array.from(new Set(agents)).sort();
+  }
+
+  get uniqueCollectionColleges(): string[] {
+    const colleges = this.activePaymentCollectionStudents.map(s => s.collegeName || s.universityName || 'Unknown').filter(Boolean);
+    return Array.from(new Set(colleges)).sort();
+  }
+
+  toggleCollectionStatusFilter(status: string): void {
+    const idx = this.collectionFilterStatuses.indexOf(status);
+    if (idx > -1) {
+      this.collectionFilterStatuses.splice(idx, 1);
+      if (this.collectionFilterStatuses.length === 0) this.collectionFilterStatuses = ['all'];
+    } else {
+      // Remove 'all' if a specific status is clicked
+      const allIdx = this.collectionFilterStatuses.indexOf('all');
+      if (allIdx > -1) this.collectionFilterStatuses.splice(allIdx, 1);
+      this.collectionFilterStatuses.push(status);
+    }
+  }
+
+  calculatePaymentCollectionMetrics(students: any[]): void {
+    let req = 0;
+    let conf = 0;
+    let part = 0;
+    let pend = 0;
+
+    const agentMap: Record<string, { paid: number, out: number }> = {};
+    const collegeMap: Record<string, number> = {};
+    const statusCount = { paid: 0, partial: 0, pending: 0, verification: 0 };
+
+    students.forEach(s => {
+      const sReq = (s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0);
+      const sRec = s.visaPaymentReceivedAmount || 0;
+      const sOut = Math.max(0, sReq - sRec);
+
+      req += sReq;
+      conf += sRec;
+
+      const st = this.getCollectionStatus(s);
+      if (st === 'PARTIALLY_PAID') part += sOut;
+      if (st === 'PENDING_COLLECTION' || st === 'PENDING_AGENT_PAYMENT') pend += sOut;
+
+      // Status Chart
+      if (st === 'PAID') statusCount.paid++;
+      else if (st === 'PARTIALLY_PAID') statusCount.partial++;
+      else if (st === 'VERIFICATION_PENDING') statusCount.verification++;
+      else statusCount.pending++;
+
+      // Agent Chart
+      const agent = s.agentFullName || 'Unknown';
+      if (!agentMap[agent]) agentMap[agent] = { paid: 0, out: 0 };
+      agentMap[agent].paid += sRec;
+      agentMap[agent].out += sOut;
+
+      // College Chart
+      if (sOut > 0) {
+        const college = s.collegeName || s.universityName || 'Unknown';
+        collegeMap[college] = (collegeMap[college] || 0) + sOut;
+      }
+    });
+
+    this.totalCollectionRequested = req;
+    this.totalCollectionConfirmed = conf;
+    this.totalCollectionOutstanding = Math.max(0, req - conf);
+    this.amountPartiallyPaid = part;
+    this.amountPendingCollection = pend;
+
+    // Update Charts
+    this.collectionPercentChartData = {
+      labels: ['Collected', 'Outstanding'],
+      datasets: [{ data: [conf, this.totalCollectionOutstanding], backgroundColor: ['#10b981', '#f59e0b'], borderWidth: 0 }]
+    };
+
+    const agents = Object.keys(agentMap).slice(0, 10); // Top 10
+    this.agentPerformanceChartData = {
+      labels: agents,
+      datasets: [
+        { data: agents.map(a => agentMap[a].paid), label: 'Paid', backgroundColor: '#3b82f6', borderRadius: 4 },
+        { data: agents.map(a => agentMap[a].out), label: 'Outstanding', backgroundColor: '#ef4444', borderRadius: 4 }
+      ]
+    };
+
+    const colleges = Object.keys(collegeMap).sort((a, b) => collegeMap[b] - collegeMap[a]).slice(0, 8); // Top 8 by debt
+    this.collegeOutstandingChartData = {
+      labels: colleges.map(c => c.length > 15 ? c.substring(0, 15) + '...' : c),
+      datasets: [{ data: colleges.map(c => collegeMap[c]), label: 'Outstanding Amount', backgroundColor: '#f43f5e', borderRadius: 4 }]
+    };
+
+    this.statusDistributionChartData = {
+      labels: ['Paid', 'Partially Paid', 'Pending Collection', 'Verification Pending'],
+      datasets: [{ data: [statusCount.paid, statusCount.partial, statusCount.pending, statusCount.verification], backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6366f1'], borderWidth: 0 }]
+    };
   }
 
   get filteredPaymentCollectionStudents(): any[] {
     let filtered = this.activePaymentCollectionStudents;
 
-    // Apply search filter
+    // Apply Search
     if (this.paymentCollectionSearchTerm && this.paymentCollectionSearchTerm.trim() !== '') {
       const term = this.paymentCollectionSearchTerm.toLowerCase().trim();
       filtered = filtered.filter(s => {
@@ -833,30 +1164,42 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       });
     }
 
-    return filtered.filter(student => {
-      if (this.activePaymentCollectionTab === 'all') return true;
+    // Apply Agent Filter
+    if (this.collectionFilterAgent !== 'all') {
+      filtered = filtered.filter(s => (s.agentFullName || 'Unknown') === this.collectionFilterAgent);
+    }
 
-      const requested = (student.visaPaymentRequestedAmount || 0) + (student.visaManServiceCharge || 0);
-      const received = student.visaPaymentReceivedAmount || 0;
-      const needsRequest = student.action === 'SEND_BANK_DETAILS_TO_AGENT';
+    // Apply College Filter
+    if (this.collectionFilterCollege !== 'all') {
+      filtered = filtered.filter(s => (s.collegeName || s.universityName || 'Unknown') === this.collectionFilterCollege);
+    }
 
-      if (this.activePaymentCollectionTab === 'needs-request') {
-        return needsRequest;
-      }
-      if (this.activePaymentCollectionTab === 'pending') {
-        return !needsRequest && received === 0;
-      }
-      if (this.activePaymentCollectionTab === 'partially-paid') {
-        return !needsRequest && received > 0 && received < requested;
-      }
-      if (this.activePaymentCollectionTab === 'paid') {
-        return !needsRequest && requested > 0 && received === requested;
-      }
-      if (this.activePaymentCollectionTab === 'excess') {
-        return !needsRequest && requested > 0 && received > requested;
-      }
+    // Apply Status Filter
+    if (!this.collectionFilterStatuses.includes('all')) {
+      filtered = filtered.filter(s => this.collectionFilterStatuses.includes(this.getCollectionStatus(s)));
+    }
+
+    // Apply Amount Range
+    filtered = filtered.filter(s => {
+      const req = (s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0);
+      const rec = s.visaPaymentReceivedAmount || 0;
+      const out = Math.max(0, req - rec);
+
+      if (this.collectionMinAmount !== null && out < this.collectionMinAmount) return false;
+      if (this.collectionMaxAmount !== null && out > this.collectionMaxAmount) return false;
       return true;
-    }).sort((a, b) => this.getLatestUpdateTimestamp(b) - this.getLatestUpdateTimestamp(a));
+    });
+
+    // We must call calculatePaymentCollectionMetrics to update charts based on *current filtered data*
+    // However, calling it inside a getter can cause ExpressionChangedAfterItHasBeenCheckedError if it mutates bound properties.
+    // So we use a setTimeout or compute charts independently. 
+    // To be safe in angular, we just return the filtered list, and rely on an explicit filter button or change event to update metrics.
+    // Wait, since we are doing data binding, we can just compute it directly here if we use pure objects.
+    // But mutating `this.totalCollectionRequested` in a getter is bad. 
+    // Instead, I'll update metrics directly. Angular allows it in OnPush if careful, but setTimeout is safer.
+    setTimeout(() => this.calculatePaymentCollectionMetrics(filtered), 0);
+
+    return filtered.sort((a, b) => this.getLatestUpdateTimestamp(b) - this.getLatestUpdateTimestamp(a));
   }
 
   private getLatestUpdateTimestamp(student: any): number {
@@ -940,6 +1283,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       this.selectedSettlementStudent = student;
       this.showCashSettlementModal = true;
       this.cashSettlementData = {
+        depositType: 'BANK',
         amount: pendingAmount,
         date: new Date().toISOString().split('T')[0],
         remarks: '',
@@ -990,13 +1334,74 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (res: any) => {
-          this.showSuccess('Cash settlement recorded successfully!');
+          this.recentStatusChange[this.selectedSettlementStudent.id] = 'updated';
+          this.showGlobalSuccess('Cash settlement recorded successfully!');
           this.closeCashSettlementModal();
           this.refreshData();
+          setTimeout(() => {
+            delete this.recentStatusChange[res.id || this.selectedSettlementStudent.id];
+            this.cdr.detectChanges();
+          }, 3000);
         },
         error: (err: any) => {
           console.error('Error submitting cash settlement', err);
-          this.showErrorToast('Failed to record cash settlement: ' + (err.error?.message || err.message));
+          this.showToast('Failed to record cash settlement', 'error');
+        }
+      });
+  }
+
+  get isAnyActionLoading(): boolean {
+    return this.globalOverlay.show;
+  }
+
+  showGlobalLoading(message: string, icon: string = '') {
+    this.globalOverlay = { show: true, status: 'loading', message, icon };
+    this.cdr.detectChanges();
+  }
+
+  showGlobalSuccess(message: string) {
+    this.globalOverlay.status = 'success';
+    this.globalOverlay.message = message;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.globalOverlay.show = false;
+      this.cdr.detectChanges();
+    }, 2000);
+  }
+
+  showGlobalError(message: string) {
+    this.globalOverlay.status = 'error';
+    this.globalOverlay.message = message;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.globalOverlay.show = false;
+      this.cdr.detectChanges();
+    }, 2500);
+  }
+
+  sendCollectionReminder(student: any): void {
+    if (!student.id) return;
+    this.isSendingReminder[student.id] = true;
+    this.showGlobalLoading('Hang tight! Sending reminder...', 'email');
+    this.cdr.detectChanges();
+
+    this.http.post(`${environment.apiUrl}/api/visa/send-reminder/${student.id}`, { accountantUsername: this.username }, { responseType: 'text' })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isSendingReminder[student.id] = false;
+          // don't close overlay here, let success/error handle it
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          this.showGlobalSuccess('Reminder sent successfully!');
+          this.refreshData();
+        },
+        error: (err) => {
+          console.error('Error sending reminder', err);
+          this.showGlobalError('Failed to send reminder');
         }
       });
   }
@@ -1706,12 +2111,155 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // Visa Settlement Filters
   settlementSearchTerm: string = '';
   settlementStatusFilter: string = 'ALL';
+  settlementAgentFilter: string = 'ALL';
+  settlementCollegeFilter: string = 'ALL';
+
+  // --- Visa Settlement KPI Getters ---
+
+  get vsKpiSettledCount(): number {
+    return this.visaPendingStudents.filter(s => this.getFundReleaseStatus(s) === 'SETTLED').length;
+  }
+  get vsKpiConfirmPendingCount(): number {
+    return this.visaPendingStudents.filter(s => this.getFundReleaseStatus(s) === 'CONFIRMATION_PENDING').length;
+  }
+  get vsKpiReleasePendingCount(): number {
+    return this.visaPendingStudents.filter(s => this.getFundReleaseStatus(s) === 'FUND_RELEASE_PENDING').length;
+  }
+  get vsKpiCollectionPendingCount(): number {
+    return this.visaPendingStudents.filter(s => this.getFundReleaseStatus(s) === 'COLLECTION_PENDING').length;
+  }
+  get vsKpiTotalFeeAmount(): number {
+    return this.visaPendingStudents.reduce((sum, s) => sum + (s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0), 0);
+  }
+  get vsKpiTotalReleasedAmount(): number {
+    return this.visaPendingStudents.reduce((sum, s) => {
+      // If it's already settled or confirmation pending, the accountant has released it
+      const status = this.getFundReleaseStatus(s);
+      if (status === 'SETTLED' || status === 'CONFIRMATION_PENDING' || (s.accToVisaManPaidAmount || 0) > 0) {
+        return sum + (s.accToVisaManPaidAmount || ((s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0)));
+      }
+      return sum;
+    }, 0);
+  }
+
+  // --- Visa Settlement Unique Agents & Colleges (for filter dropdowns) ---
+  get vsUniqueAgents(): string[] {
+    const agents = this.visaPendingStudents
+      .map(s => s.agentFullName || '')
+      .filter(a => a.length > 0);
+    return [...new Set(agents)].sort();
+  }
+
+  get vsUniqueColleges(): string[] {
+    const colleges = this.visaPendingStudents
+      .map(s => s.collegeName || '')
+      .filter(c => c.length > 0);
+    return [...new Set(colleges)].sort();
+  }
+
+  // --- Visa Settlement Chart Data ---
+  get vsStatusChartData(): ChartConfiguration<'doughnut'>['data'] {
+    return {
+      labels: ['Settled', 'Confirm Pending', 'Release Pending', 'Collection Pending'],
+      datasets: [{
+        data: [
+          this.vsKpiSettledCount,
+          this.vsKpiConfirmPendingCount,
+          this.vsKpiReleasePendingCount,
+          this.vsKpiCollectionPendingCount
+        ],
+        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
+        borderColor: '#ffffff',
+        borderWidth: 3,
+        hoverOffset: 6
+      }]
+    };
+  }
+
+  vsStatusChartOptions: ChartOptions<'doughnut'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '72%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        titleColor: '#f8fafc',
+        bodyColor: '#e2e8f0',
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        padding: 10,
+        cornerRadius: 8,
+        displayColors: true,
+        boxPadding: 4
+      }
+    }
+  };
+
+  get vsAgentChartData(): ChartConfiguration<'bar'>['data'] {
+    const agentMap = new Map<string, number>();
+    this.visaPendingStudents.forEach(s => {
+      const agent = s.agentFullName || 'Unknown';
+      const fee = (s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0);
+      agentMap.set(agent, (agentMap.get(agent) || 0) + fee);
+    });
+    const sorted = [...agentMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+    return {
+      labels: sorted.map(e => e[0].length > 14 ? e[0].substring(0, 14) + '…' : e[0]),
+      datasets: [{
+        data: sorted.map(e => e[1]),
+        backgroundColor: ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe'],
+        borderRadius: 8,
+        borderSkipped: false,
+        barThickness: 28
+      }]
+    };
+  }
+
+  vsAgentChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        titleColor: '#f8fafc',
+        bodyColor: '#e2e8f0',
+        padding: 10,
+        cornerRadius: 8,
+        callbacks: {
+          label: (ctx: any) => ` Fee: ${ctx.parsed.x?.toLocaleString() || 0}`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#94a3b8', font: { family: "'Inter', sans-serif", size: 11 } },
+        border: { display: false }
+      },
+      y: {
+        grid: { display: false },
+        ticks: { color: '#475569', font: { family: "'Inter', sans-serif", size: 12, weight: 600 as any } },
+        border: { display: false }
+      }
+    }
+  };
 
   get filteredVisaPendingStudents(): AssignedStudent[] {
     let filtered = this.visaPendingStudents;
 
     if (this.settlementStatusFilter !== 'ALL') {
-      filtered = filtered.filter(s => s.action === this.settlementStatusFilter);
+      filtered = filtered.filter(s => this.getFundReleaseStatus(s) === this.settlementStatusFilter);
+    }
+
+    if (this.settlementAgentFilter !== 'ALL') {
+      filtered = filtered.filter(s => (s.agentFullName || '') === this.settlementAgentFilter);
+    }
+
+    if (this.settlementCollegeFilter !== 'ALL') {
+      filtered = filtered.filter(s => (s.collegeName || '') === this.settlementCollegeFilter);
     }
 
     if (this.settlementSearchTerm) {
@@ -1724,6 +2272,48 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }
 
     return filtered.sort((a, b) => this.getLatestUpdateTimestamp(b) - this.getLatestUpdateTimestamp(a));
+  }
+
+  resetVisaSettlementFilters(): void {
+    this.settlementSearchTerm = '';
+    this.settlementStatusFilter = 'ALL';
+    this.settlementAgentFilter = 'ALL';
+    this.settlementCollegeFilter = 'ALL';
+    this.visaSettlementCurrentPage = 1;
+  }
+
+  // --- Visa Settlement Pagination ---
+  visaSettlementCurrentPage: number = 1;
+  visaSettlementPageSize: number = 10;
+
+  get paginatedVisaPendingStudents(): AssignedStudent[] {
+    const startIndex = (this.visaSettlementCurrentPage - 1) * this.visaSettlementPageSize;
+    return this.filteredVisaPendingStudents.slice(startIndex, startIndex + this.visaSettlementPageSize);
+  }
+
+  get visaSettlementTotalPages(): number {
+    return Math.ceil(this.filteredVisaPendingStudents.length / this.visaSettlementPageSize) || 1;
+  }
+
+  nextVisaSettlementPage(): void {
+    if (this.visaSettlementCurrentPage < this.visaSettlementTotalPages) {
+      this.visaSettlementCurrentPage++;
+    }
+  }
+
+  prevVisaSettlementPage(): void {
+    if (this.visaSettlementCurrentPage > 1) {
+      this.visaSettlementCurrentPage--;
+    }
+  }
+
+  get visaSettlementStartIndex(): number {
+    if (this.filteredVisaPendingStudents.length === 0) return 0;
+    return (this.visaSettlementCurrentPage - 1) * this.visaSettlementPageSize + 1;
+  }
+
+  get visaSettlementEndIndex(): number {
+    return Math.min(this.visaSettlementCurrentPage * this.visaSettlementPageSize, this.filteredVisaPendingStudents.length);
   }
 
   // --- Fullscreen ---
@@ -2286,10 +2876,6 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     return balance;
   }
 
-  get totalBankBalance(): number {
-    return this.subAccounts.reduce((sum, acc) => sum + (acc.balance || 0), 0);
-  }
-
   toggleCreditInclusion(): void {
     this.includeCreditInBalance = !this.includeCreditInBalance;
   }
@@ -2463,7 +3049,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         this.showSuccess('Funds released to Visa Manager successfully!');
         this.closeConfirmReleaseModal();
         this.closeReleaseFundModal();
-        
+
         // Eagerly update UI state so button disappears immediately
         if (this.selectedSettlementStudent) {
           this.selectedSettlementStudent.accToVisaManPaidAmount = visaFee + serviceCharge;

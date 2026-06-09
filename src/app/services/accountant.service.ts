@@ -14,6 +14,8 @@ export interface SubAccount {
     branchAddress: string;
     relationshipManager?: string;
     balance?: number;
+    accountType?: string; // "BANK" | "CASH"
+    cashAccountName?: string;
 }
 
 export interface Student {
