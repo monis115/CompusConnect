@@ -111,19 +111,33 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // SubAccounts
   subAccounts: SubAccount[] = [];
-  get bankSubAccounts() { return this.subAccounts.filter(a => a.accountType !== 'CASH' && a.bankName !== 'CASH'); }
+  get bankSubAccounts() { return this.subAccounts.filter(a => a.accountType !== 'CASH' && a.accountType !== 'WALLET' && a.bankName !== 'CASH'); }
+  get walletSubAccounts() { 
+    const wallets = this.subAccounts.filter(a => a.accountType === 'WALLET'); 
+    return wallets.length > 0 ? [wallets[0]] : [];
+  }
   get cashSubAccounts() { return this.subAccounts.filter(a => a.accountType === 'CASH' || a.bankName === 'CASH'); }
   get totalBankBalance() { return this.bankSubAccounts.reduce((acc, curr) => acc + (curr.balance || 0), 0); }
   get totalCashBalance() { return this.cashSubAccounts.reduce((acc, curr) => acc + (curr.balance || 0), 0); }
-  get totalBalance() { return this.totalBankBalance + this.totalCashBalance; }
+  get totalWalletBalance() { return this.walletSubAccounts.reduce((acc, curr) => acc + (curr.balance || 0), 0); }
+  get totalBalance() { return this.totalBankBalance + this.totalCashBalance + this.totalWalletBalance; }
   showAddSubAccountModal = false;
   newSubAccount: SubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '', relationshipManager: '', accountType: 'BANK', cashAccountName: '' };
 
-  // --- Transactions Modal ---
+  // --- Transactions Modal & Tab ---
   selectedSubAccountForTx: any = null;
   subAccountTransactions: any[] = [];
+  
+  allTransactions: any[] = [];
+  transactionCurrentPage: number = 0;
+  transactionTotalPages: number = 0;
+  transactionTotalElements: number = 0;
+  transactionPageSize: number = 100;
+  
   isTxLoading = false;
+  txFilterTab: 'ALL' | 'INFLOW' | 'OUTFLOW' | 'INTERNAL' = 'ALL';
   txFilterType: 'ALL' | 'CREDIT' | 'DEBIT' = 'ALL';
+  txFilterBankId: string = '';
   txFilterStartDate: string = '';
   txFilterEndDate: string = '';
 
@@ -218,7 +232,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       next: (res: any) => {
         const elapsed = Date.now() - startTime;
         const delay = Math.max(0, 1900 - elapsed);
-        
+
         setTimeout(() => {
           this.isTransferring = false;
           this.internalTransferStep = 'success';
@@ -229,11 +243,575 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       error: (err) => {
         const elapsed = Date.now() - startTime;
         const delay = Math.max(0, 1900 - elapsed);
-        
+
         setTimeout(() => {
           this.isTransferring = false;
           this.internalTransferStep = 'error';
           this.internalTransferError = err.error || 'Transaction Declined: Unable to process the transfer at this time.';
+          this.cdr.detectChanges();
+        }, delay);
+      }
+    });
+  }
+
+  // ==========================================
+  // WALLET LOGIC
+  // ==========================================
+  showFundWalletModal = false;
+  fundWalletStep: 'form' | 'processing' | 'success' | 'error' = 'form';
+  fundWalletError = '';
+  fundWalletForm = {
+    sourceId: null as number | null,
+    destId: null as number | null,
+    amount: null as number | null,
+    reason: ''
+  };
+  isFundingWallet = false;
+
+  openFundWalletModal() {
+    this.showFundWalletModal = true;
+    this.fundWalletStep = 'form';
+    this.fundWalletError = '';
+    const globalWallet = this.walletSubAccounts[0];
+    this.fundWalletForm = { sourceId: null, destId: (globalWallet && globalWallet.id) ? globalWallet.id : null, amount: null, reason: '' };
+  }
+
+  closeFundWalletModal() {
+    this.showFundWalletModal = false;
+  }
+
+  get isFundWalletValid(): boolean {
+    const f = this.fundWalletForm;
+    if (!f.sourceId || !f.destId || !f.amount || !f.reason) return false;
+    if (f.amount <= 0) return false;
+    
+    // Check balance
+    const sourceAcc = this.subAccounts.find(a => a.id === f.sourceId);
+    if (sourceAcc && (sourceAcc.balance || 0) < f.amount) return false;
+
+    return true;
+  }
+
+  submitFundWallet() {
+    if (!this.isFundWalletValid) return;
+    this.isFundingWallet = true;
+    this.fundWalletStep = 'processing';
+    this.fundWalletError = '';
+
+    const payload = {
+      sourceId: this.fundWalletForm.sourceId,
+      destId: this.fundWalletForm.destId,
+      amount: this.fundWalletForm.amount,
+      description: 'Fund Wallet: ' + this.fundWalletForm.reason
+    };
+
+    const startTime = Date.now();
+    this.http.post('http://localhost:8080/api/accountant/subaccounts/internal-transfer', payload).subscribe({
+      next: () => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 1500 - elapsed);
+        setTimeout(() => {
+          this.isFundingWallet = false;
+          this.fundWalletStep = 'success';
+          this.loadSubAccounts();
+          this.cdr.detectChanges();
+        }, delay);
+      },
+      error: (err) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 1500 - elapsed);
+        setTimeout(() => {
+          this.isFundingWallet = false;
+          this.fundWalletStep = 'error';
+          this.fundWalletError = err.error?.message || err.error || 'Failed to fund wallet.';
+          this.cdr.detectChanges();
+        }, delay);
+      }
+    });
+  }
+
+  showExpenseModal = false;
+  expenseStep: 'form' | 'processing' | 'success' | 'error' = 'form';
+  expenseError = '';
+  expenseForm = {
+    sourceId: null as number | null,
+    amount: null as number | null,
+    spenderName: '',
+    expenseDate: new Date().toISOString().split('T')[0],
+    category: 'Office Supplies',
+    reason: ''
+  };
+  isRecordingExpense = false;
+
+  expenseCategories = [
+    'Visa Fee',
+    'University Fee',
+    'Package Settlement',
+    'Metro / Transport',
+    'Food & Meals',
+    'Office Supplies',
+    'Maintenance & Repairs',
+    'Utilities & Internet',
+    'Marketing & Advertising',
+    'Software & Subscriptions',
+    'Legal & Professional Fees',
+    'Employee Welfare',
+    'Postage & Courier',
+    'Training & Development',
+    'Events & Exhibitions',
+    'Miscellaneous / Other'
+  ];
+
+  openExpenseModal(walletId: number) {
+    this.showExpenseModal = true;
+    this.expenseStep = 'form';
+    this.expenseError = '';
+    this.expenseForm = { 
+      sourceId: walletId, 
+      amount: null, 
+      spenderName: '', 
+      expenseDate: new Date().toISOString().split('T')[0], 
+      category: 'Office Supplies',
+      reason: '' 
+    };
+  }
+
+  closeExpenseModal() {
+    this.showExpenseModal = false;
+  }
+
+  get isExpenseValid(): boolean {
+    const f = this.expenseForm;
+    if (!f.sourceId || !f.amount || !f.spenderName || !f.expenseDate || !f.category || !f.reason) return false;
+    if (f.amount <= 0) return false;
+    return true;
+  }
+
+  submitExpense() {
+    if (!this.isExpenseValid) return;
+    this.isRecordingExpense = true;
+    this.expenseStep = 'processing';
+    this.expenseError = '';
+
+    const payload = {
+      sourceId: this.expenseForm.sourceId,
+      amount: this.expenseForm.amount,
+      withdrawerName: this.expenseForm.spenderName,
+      withdrawnDate: this.expenseForm.expenseDate,
+      transactionId: '',
+      paymentMethod: 'CASH', // Locked to CASH for wallets
+      chequeDetails: `[${this.expenseForm.category}] ${this.expenseForm.reason}` // Mapped to reason in backend
+    };
+
+    const startTime = Date.now();
+    this.http.post('http://localhost:8080/api/accountant/subaccounts/withdraw', payload).subscribe({
+      next: () => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 1500 - elapsed);
+        setTimeout(() => {
+          this.isRecordingExpense = false;
+          this.expenseStep = 'success';
+          this.loadSubAccounts();
+          this.cdr.detectChanges();
+        }, delay);
+      },
+      error: (err) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 1500 - elapsed);
+        setTimeout(() => {
+          this.isRecordingExpense = false;
+          this.expenseStep = 'error';
+          this.expenseError = err.error?.message || err.error || 'Failed to record expense.';
+          this.cdr.detectChanges();
+        }, delay);
+      }
+    });
+  }
+
+
+
+  // --- Withdraw State ---
+  showWithdrawModal = false;
+  withdrawStep: 'form' | 'processing' | 'success' | 'error' = 'form';
+  withdrawError: string = '';
+  showWithdrawPaymentDropdown = false;
+  withdrawForm = {
+    sourceId: null as number | null,
+    paymentMethod: 'CASH',
+    withdrawerName: '',
+    withdrawnDate: '',
+    amount: null as number | null,
+    transactionId: '',
+    chequeDetails: ''
+  };
+
+  getWithdrawSelectedPaymentMethod() {
+    return this.paymentMethods.find(p => p.id === this.withdrawForm.paymentMethod) || this.paymentMethods[1]; // default CASH
+  }
+
+  selectWithdrawPaymentMethod(methodId: string) {
+    this.withdrawForm.paymentMethod = methodId;
+    this.showWithdrawPaymentDropdown = false;
+  }
+
+  openWithdrawModal() {
+    this.showWithdrawModal = true;
+    this.withdrawStep = 'form';
+    this.withdrawError = '';
+    this.withdrawForm = {
+      sourceId: null,
+      paymentMethod: 'CASH',
+      withdrawerName: '',
+      withdrawnDate: new Date().toISOString().split('T')[0],
+      amount: null,
+      transactionId: '',
+      chequeDetails: ''
+    };
+  }
+
+  closeWithdrawModal() {
+    this.showWithdrawModal = false;
+  }
+
+  get isWithdrawValid(): boolean {
+    const f = this.withdrawForm;
+    if (!f.sourceId || !f.paymentMethod || !f.withdrawerName || !f.withdrawnDate || !f.amount) {
+      return false;
+    }
+    if (f.amount <= 0) return false;
+    
+    if (f.paymentMethod === 'CHEQUE') {
+      if (!f.chequeDetails || f.chequeDetails.trim() === '') return false;
+    }
+
+    return true;
+  }
+
+  submitWithdrawal() {
+    if (!this.isWithdrawValid) {
+      this.showToast('Please fill all required fields correctly.', 'error');
+      return;
+    }
+
+    this.withdrawStep = 'processing';
+    this.withdrawError = '';
+
+    const payload = { ...this.withdrawForm };
+
+    const startTime = Date.now();
+    this.http.post('http://localhost:8080/api/accountant/subaccounts/withdraw', payload).subscribe({
+      next: (res: any) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 3000 - elapsed);
+
+        setTimeout(() => {
+          this.withdrawStep = 'success';
+          this.loadSubAccounts(); // Refresh balances
+          this.cdr.detectChanges();
+        }, delay);
+      },
+      error: (err) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 3000 - elapsed);
+
+        setTimeout(() => {
+          this.withdrawStep = 'error';
+          this.withdrawError = err.error || 'Transaction Declined: Unable to process the withdrawal at this time.';
+          this.cdr.detectChanges();
+        }, delay);
+      }
+    });
+  }
+  // --- Funds Transfer State ---
+  showFundsTransferModal = false;
+  fundsTransferStep: 'form' | 'processing' | 'success' | 'error' = 'form';
+  fundsTransferError: string = '';
+  showFundsTransferPaymentDropdown = false;
+  transferCategories = [
+    'FEE SETTLEMENT', 'COURIER', 'VISA SERVICES', 'TRAVEL', 'FOOD', 'HOTEL & STAYS', 
+    'UNIVERSITY', 'TICKET', 'MARKETING', 'OFFICE EXPENSE', 'MISC'
+  ];
+  
+  fundsTransferForm = {
+    sourceId: null as number | null,
+    destinationType: 'MANUAL' as 'BENEFICIARY' | 'MANUAL',
+    beneficiaryId: null as number | null,
+    paymentMethod: 'NEFT',
+    
+    // Manual Details
+    accountNumber: '',
+    ifscCode: '',
+    accountHolderName: '',
+    upiId: '',
+    chequeNumber: '',
+    
+    amount: null as number | null,
+    category: 'FEE SETTLEMENT',
+    reason: '',
+    transactionId: '',
+    transferDate: new Date().toISOString().split('T')[0]
+  };
+
+  getFundsTransferSelectedPaymentMethod() {
+    return this.paymentMethods.find(p => p.id === this.fundsTransferForm.paymentMethod) || this.paymentMethods[0];
+  }
+
+  selectFundsTransferPaymentMethod(methodId: string) {
+    this.fundsTransferForm.paymentMethod = methodId;
+    this.showFundsTransferPaymentDropdown = false;
+  }
+
+  openFundsTransferModal() {
+    this.showFundsTransferModal = true;
+    this.fundsTransferStep = 'form';
+    this.fundsTransferError = '';
+    this.fundsTransferForm = {
+      sourceId: null,
+      destinationType: 'MANUAL',
+      beneficiaryId: null,
+      paymentMethod: 'NEFT',
+      accountNumber: '',
+      ifscCode: '',
+      accountHolderName: '',
+      upiId: '',
+      chequeNumber: '',
+      amount: null,
+      category: 'FEE SETTLEMENT',
+      reason: '',
+      transactionId: '',
+      transferDate: new Date().toISOString().split('T')[0]
+    };
+  }
+
+  closeFundsTransferModal() {
+    this.showFundsTransferModal = false;
+  }
+
+  get isFundsTransferValid(): boolean {
+    const f = this.fundsTransferForm;
+    if (!f.sourceId || !f.amount || !f.transferDate || !f.category) return false;
+    if (f.amount <= 0) return false;
+
+    if (f.destinationType === 'BENEFICIARY' && !f.beneficiaryId) return false;
+
+    if (f.destinationType === 'MANUAL') {
+      if (f.paymentMethod === 'NEFT' || f.paymentMethod === 'IMPS' || f.paymentMethod === 'RTGS') {
+        if (!f.accountNumber || !f.ifscCode || !f.accountHolderName) return false;
+      } else if (f.paymentMethod === 'UPI') {
+        if (!f.upiId) return false;
+      } else if (f.paymentMethod === 'CHEQUE') {
+        if (!f.chequeNumber) return false;
+      }
+    }
+    
+    return true;
+  }
+
+  submitFundsTransfer() {
+    if (!this.isFundsTransferValid) {
+      this.showToast('Please fill all required fields correctly.', 'error');
+      return;
+    }
+
+    this.fundsTransferStep = 'processing';
+    this.fundsTransferError = '';
+
+    const f = this.fundsTransferForm;
+    
+    // Construct withdrawal name and chequeDetails for the backend /withdraw endpoint
+    let beneficiaryName = '';
+    let detailsStr = '';
+
+    if (f.destinationType === 'BENEFICIARY') {
+      const b = this.beneficiaries.find(ben => ben.id === Number(f.beneficiaryId));
+      if (b) {
+        beneficiaryName = b.beneficiaryName;
+        if (f.paymentMethod === 'UPI') {
+            detailsStr = `To Beneficiary: ${b.beneficiaryName} (UPI: ${b.upiId || 'N/A'})`;
+        } else {
+            detailsStr = `To Beneficiary: ${b.beneficiaryName} (A/C: ${b.accountNumber || 'N/A'}, Bank: ${b.bankName || 'N/A'})`;
+        }
+      } else {
+        beneficiaryName = 'Unknown Beneficiary';
+      }
+    } else {
+      // Manual
+      if (f.paymentMethod === 'UPI') {
+        beneficiaryName = f.upiId;
+        detailsStr = `To UPI ID: ${f.upiId}`;
+      } else if (f.paymentMethod === 'NEFT' || f.paymentMethod === 'IMPS' || f.paymentMethod === 'RTGS') {
+        beneficiaryName = f.accountHolderName;
+        detailsStr = `To: ${f.accountHolderName} | A/C: ${f.accountNumber} | IFSC: ${f.ifscCode}`;
+      } else if (f.paymentMethod === 'CHEQUE') {
+        beneficiaryName = 'Cheque Issuance';
+        detailsStr = `Cheque No: ${f.chequeNumber}`;
+      } else {
+        beneficiaryName = 'Cash Transfer';
+        detailsStr = 'Cash Transfer';
+      }
+    }
+
+    detailsStr += ` | Purpose: [${f.category}] ${f.reason}`;
+
+    const payload = {
+      sourceId: f.sourceId,
+      amount: f.amount,
+      withdrawerName: beneficiaryName,
+      withdrawnDate: f.transferDate,
+      transactionId: f.transactionId,
+      paymentMethod: f.paymentMethod,
+      chequeDetails: detailsStr
+    };
+
+    const startTime = Date.now();
+    this.http.post('http://localhost:8080/api/accountant/subaccounts/withdraw', payload).subscribe({
+      next: (res: any) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 3000 - elapsed);
+
+        setTimeout(() => {
+          this.fundsTransferStep = 'success';
+          this.loadSubAccounts(); // Refresh balances
+          this.cdr.detectChanges();
+        }, delay);
+      },
+      error: (err) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 3000 - elapsed);
+
+        setTimeout(() => {
+          this.fundsTransferStep = 'error';
+          this.fundsTransferError = err.error?.message || err.error || 'Transaction Declined: Unable to process funds transfer.';
+          this.cdr.detectChanges();
+        }, delay);
+      }
+    });
+  }
+  // --- Deposit State ---
+  showDepositModal = false;
+  depositStep: 'form' | 'processing' | 'success' | 'error' = 'form';
+  depositError: string = '';
+  depositForm = {
+    destId: null as number | null,
+    paymentMethod: 'NEFT',
+    depositorName: '',
+    depositedDate: '',
+    amount: null as number | null,
+    transactionId: ''
+  };
+
+  maxDate: string = new Date().toISOString().split('T')[0];
+
+  showPaymentDropdown: boolean = false;
+  paymentMethods = [
+    { id: 'NEFT', label: 'NEFT', icon: 'M3 21h18M5 21V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v13M9 21V10M15 21V10' }, // Bank
+    { id: 'CASH', label: 'CASH', icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' }, // Dollar
+    { id: 'UPI', label: 'UPI Transfer', icon: 'M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z' }, // Bookmark/Mobile
+    { id: 'IMPS', label: 'IMPS', icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' }, // Lightning
+    { id: 'RTGS', label: 'RTGS', icon: 'M17 1l4 4-4 4 M3 11V9a4 4 0 0 1 4-4h14 M7 23l-4-4 4-4 M21 13v2a4 4 0 0 1-4 4H3' }, // Repeat
+    { id: 'CHEQUE', label: 'Cheque', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8' } // File Text
+  ];
+
+  getPaymentMethodInfo(tx: any) {
+    if (!tx) return null;
+    
+    let method = 'OTHER';
+    const pm = tx.paymentMethod ? String(tx.paymentMethod).toUpperCase() : 'UNKNOWN';
+    const desc = (tx.description || '').toLowerCase();
+
+    if (pm !== 'UNKNOWN' && pm !== 'NULL' && pm !== '') {
+      method = pm;
+    } else {
+      // Legacy fallback parsing
+      if (desc.includes('neft')) method = 'NEFT';
+      else if (desc.includes('cash')) method = 'CASH';
+      else if (desc.includes('upi')) method = 'UPI';
+      else if (desc.includes('imps')) method = 'IMPS';
+      else if (desc.includes('rtgs')) method = 'RTGS';
+      else if (desc.includes('cheque')) method = 'CHEQUE';
+      else if (desc.includes('bank_transfer')) method = 'BANK_TRANSFER';
+      else if (desc.includes('internal') || desc.includes('(to ') || desc.includes('(from ')) method = 'INTERNAL';
+    }
+
+    if (method === 'NEFT') return { label: 'NEFT', icon: 'M3 21h18M5 21V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v13M9 21V10M15 21V10', color: '#6366f1', bg: '#e0e7ff' };
+    if (method === 'CASH') return { label: 'CASH', icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', color: '#10b981', bg: '#d1fae5' };
+    if (method === 'UPI') return { label: 'UPI', icon: 'M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z', color: '#8b5cf6', bg: '#ede9fe' };
+    if (method === 'IMPS') return { label: 'IMPS', icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z', color: '#f59e0b', bg: '#fef3c7' };
+    if (method === 'RTGS') return { label: 'RTGS', icon: 'M17 1l4 4-4 4 M3 11V9a4 4 0 0 1 4-4h14 M7 23l-4-4 4-4 M21 13v2a4 4 0 0 1-4 4H3', color: '#0ea5e9', bg: '#e0f2fe' };
+    if (method === 'CHEQUE') return { label: 'CHEQUE', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8', color: '#f43f5e', bg: '#ffe4e6' };
+    if (method === 'BANK_TRANSFER') return { label: 'BANK TRF', icon: 'M3 21h18M5 21V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v13M9 21V10M15 21V10', color: '#0369a1', bg: '#e0f2fe' };
+    if (method === 'INTERNAL') return { label: 'INTERNAL', icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m4 5H4m0 0l4 4m-4-4l4-4', color: '#64748b', bg: '#f1f5f9' };
+    
+    return { label: method === 'OTHER' ? 'OTHER' : method, icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', color: '#64748b', bg: '#f1f5f9' };
+  }
+
+  getSelectedPaymentMethod() {
+    return this.paymentMethods.find(p => p.id === this.depositForm.paymentMethod) || this.paymentMethods[0];
+  }
+
+  selectPaymentMethod(methodId: string) {
+    this.depositForm.paymentMethod = methodId;
+    this.showPaymentDropdown = false;
+  }
+
+
+  openDepositModal() {
+    this.showDepositModal = true;
+    this.depositStep = 'form';
+    this.depositError = '';
+    this.depositForm = {
+      destId: null,
+      paymentMethod: 'NEFT',
+      depositorName: '',
+      depositedDate: '',
+      amount: null,
+      transactionId: ''
+    };
+  }
+
+  closeDepositModal() {
+    this.showDepositModal = false;
+  }
+
+  get isDepositValid(): boolean {
+    const f = this.depositForm;
+    if (!f.destId || !f.paymentMethod || !f.depositorName || !f.depositedDate || !f.amount) {
+      return false;
+    }
+    if (f.amount <= 0) return false;
+    return true;
+  }
+
+  submitDeposit() {
+    if (!this.isDepositValid) {
+      this.showToast('Please fill all required fields correctly.', 'error');
+      return;
+    }
+
+    this.depositStep = 'processing';
+    this.depositError = '';
+
+    const payload = { ...this.depositForm };
+
+    const startTime = Date.now();
+    this.http.post('http://localhost:8080/api/accountant/subaccounts/deposit', payload).subscribe({
+      next: (res: any) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 3000 - elapsed);
+
+        setTimeout(() => {
+          this.depositStep = 'success';
+          this.loadSubAccounts(); // Refresh balances
+          this.cdr.detectChanges();
+        }, delay);
+      },
+      error: (err) => {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 3000 - elapsed);
+
+        setTimeout(() => {
+          this.depositStep = 'error';
+          this.depositError = err.error || 'Transaction Declined: Unable to process the deposit at this time.';
           this.cdr.detectChanges();
         }, delay);
       }
@@ -376,6 +954,19 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     if (type.includes('PAID')) return { color: '#0284c7', bg: '#e0f2fe' }; // Blue
     if (type.includes('REJECTED') || type.includes('FAILED')) return { color: '#dc2626', bg: '#fee2e2' }; // Red
     return { color: '#4b5563', bg: '#f3f4f6' }; // Gray
+  }
+
+  getBeneficiaryTypeDetails(type: string): { icon: string, color: string, bg: string } {
+    if (!type) return { icon: 'M12 4v16m8-8H4', color: '#6b7280', bg: '#f3f4f6' };
+    const t = type.toLowerCase();
+    if (t.includes('university')) return { icon: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z', color: '#4f46e5', bg: '#e0e7ff' }; // Indigo
+    if (t.includes('visa')) return { icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M2 10h20', color: '#059669', bg: '#d1fae5' }; // Emerald
+    if (t.includes('travel')) return { icon: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z', color: '#0ea5e9', bg: '#e0f2fe' }; // Sky Blue
+    if (t.includes('courier')) return { icon: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12', color: '#d97706', bg: '#fef3c7' }; // Amber
+    if (t.includes('agent')) return { icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', color: '#8b5cf6', bg: '#ede9fe' }; // Violet
+    if (t.includes('admission')) return { icon: 'M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z M10 2c1 .5 2 2 2 5', color: '#f43f5e', bg: '#ffe4e6' }; // Rose
+    if (t.includes('freelancer')) return { icon: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z', color: '#14b8a6', bg: '#ccfbf1' }; // Teal
+    return { icon: 'M12 2v20 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', color: '#475569', bg: '#f1f5f9' }; // Slate
   }
 
   getPendingAmount(req: any): number {
@@ -797,11 +1388,36 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       next: (data: SubAccount[]) => {
         this.subAccounts = data;
         this.cdr.detectChanges();
+        this.ensureGlobalPettyCashExists();
       },
       error: (err: any) => {
         console.error('Error fetching SubAccounts', err);
       }
     });
+  }
+
+  private isEnsuringWallet = false;
+
+  ensureGlobalPettyCashExists(): void {
+    if (this.isEnsuringWallet) return;
+    const existingWallet = this.subAccounts.find(acc => acc.accountType === 'WALLET');
+    if (!existingWallet) {
+      this.isEnsuringWallet = true;
+      const payload: any = {
+        bankName: 'Global Petty Cash',
+        accountNumber: 'PETTYCASH-' + Date.now(),
+        accountType: 'WALLET',
+        branchAddress: 'HQ',
+        beneficiaryName: 'Accountant'
+      };
+      this.accountantService.createSubAccount(payload).pipe(finalize(() => this.isEnsuringWallet = false)).subscribe({
+        next: (saved: SubAccount) => {
+          this.subAccounts.push(saved);
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => console.error('Failed to auto-create Global Petty Cash Wallet', err)
+      });
+    }
   }
 
   // Add/Update SubAccount
@@ -825,10 +1441,9 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   submitSubAccount(): void {
     if (this.newSubAccount.accountType === 'BANK') {
       if (!this.newSubAccount.bankName || !this.newSubAccount.accountNumber) return;
-    } else {
+    } else if (this.newSubAccount.accountType === 'CASH') {
       if (!this.newSubAccount.cashAccountName) return;
-      // Provide dummy values for DB non-null constraints if necessary
-      this.newSubAccount.bankName = 'CASH';
+      this.newSubAccount.bankName = this.newSubAccount.cashAccountName;
       this.newSubAccount.accountNumber = 'CASH-' + Date.now();
     }
     this.isSubmitting = true;
@@ -883,6 +1498,102 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.txFilterStartDate = '';
     this.txFilterEndDate = '';
     this.cdr.detectChanges();
+  }
+
+  loadAllTransactions(): void {
+    this.isTxLoading = true;
+    this.accountantService.getAllSubAccountTransactions(
+      this.transactionCurrentPage, 
+      this.transactionPageSize,
+      this.txFilterBankId || undefined,
+      this.txFilterStartDate || undefined,
+      this.txFilterEndDate || undefined
+    ).subscribe({
+        next: (res: any) => {
+          this.isTxLoading = false;
+          this.allTransactions = res.content || [];
+          this.transactionTotalPages = res.totalPages || 0;
+          this.transactionTotalElements = res.totalElements || 0;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.error('Failed to fetch all transactions', err);
+          this.isTxLoading = false;
+          this.showErrorToast('Failed to load transactions');
+        }
+      });
+  }
+
+  applyTxFilters(): void {
+    this.transactionCurrentPage = 0;
+    this.loadAllTransactions();
+  }
+
+  clearTxFilters(): void {
+    this.txFilterBankId = '';
+    this.txFilterStartDate = '';
+    this.txFilterEndDate = '';
+    this.txFilterTab = 'ALL';
+    this.transactionCurrentPage = 0;
+    this.loadAllTransactions();
+  }
+
+  changeTransactionPage(page: number): void {
+    if (page >= 0 && page < this.transactionTotalPages) {
+      this.transactionCurrentPage = page;
+      this.loadAllTransactions();
+    }
+  }
+
+  min(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  setTxTab(tab: 'ALL' | 'INFLOW' | 'OUTFLOW' | 'INTERNAL') {
+    this.txFilterTab = tab;
+  }
+
+  isInternalTx(tx: any): boolean {
+    const pm = tx.paymentMethod ? String(tx.paymentMethod).toUpperCase() : 'UNKNOWN';
+    if (pm === 'INTERNAL') return true;
+    const desc = (tx.description || '').toLowerCase();
+    return desc.includes('internal') || desc.includes('(to ') || desc.includes('(from ');
+  }
+
+  get displayedTransactions() {
+    if (this.txFilterTab === 'ALL') return this.allTransactions;
+    if (this.txFilterTab === 'INFLOW') return this.allTransactions.filter(tx => tx.transactionType === 'CREDIT' && !this.isInternalTx(tx));
+    if (this.txFilterTab === 'OUTFLOW') return this.allTransactions.filter(tx => tx.transactionType === 'DEBIT' && !this.isInternalTx(tx));
+    if (this.txFilterTab === 'INTERNAL') return this.allTransactions.filter(tx => this.isInternalTx(tx));
+    return this.allTransactions;
+  }
+
+  exportTransactions() {
+    if (!this.displayedTransactions || this.displayedTransactions.length === 0) return;
+    
+    const headers = ['Date', 'Account / Source', 'Payment Type', 'Description', 'Type', 'Amount'];
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    
+    for (const tx of this.displayedTransactions) {
+      const date = new Date(tx.transactionDate).toLocaleString();
+      const account = `"${tx.subAccount?.bankName || tx.subAccount?.cashAccountName || 'Unknown Bank'} - ${tx.subAccount?.accountNumber || ''}"`;
+      const pmInfo = this.getPaymentMethodInfo(tx);
+      const paymentType = pmInfo ? pmInfo.label : 'OTHER';
+      const description = `"${(tx.description || '').replace(/"/g, '""')}"`;
+      const type = tx.transactionType;
+      const amount = tx.amount;
+      csvRows.push([date, account, paymentType, description, type, amount].join(','));
+    }
+    
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `transactions_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   animateCounters(): void {
@@ -958,6 +1669,9 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       this.loadBeneficiaries();
     } else if (view === 'credit-ledger') {
       this.loadPassbooks();
+    } else if (view === 'transactions') {
+      this.transactionCurrentPage = 0;
+      this.loadAllTransactions();
     }
 
     this.searchTerm = '';
@@ -1869,7 +2583,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.closeRejectModal();
-          this.showSuccess('Payment marked as NOT RECEIVED.');
+          this.showSuccess('Payment marked as NOT RECEIVED.', 'Payment Rejected');
           this.refreshData();
         },
         error: (err: any) => {
@@ -1914,7 +2628,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.closePayVisaManModal();
-          this.showSuccess('Payment accurately recorded and subtracted from pending Visa Man payout!');
+          this.showSuccess('Payment accurately recorded and subtracted from pending Visa Man payout!', 'Payment Recorded');
           this.refreshData();
         },
         error: (err: any) => {
@@ -2397,7 +3111,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     const visaFee = student.visaPaymentRequestedAmount || 0;
     const serviceCharge = student.visaManServiceCharge || 0;
     const received = student.visaPaymentReceivedAmount || 0;
-    this.bankDetailsAmount = (visaFee + serviceCharge) - received;
+    const rawTotal = (visaFee + serviceCharge) - received;
+    this.bankDetailsAmount = Number(rawTotal.toFixed(2));
 
     this.bankDetailsCurrency = student.visaPaymentRequestedCurrency || 'USD';
     // Reset bank details form
@@ -2489,7 +3204,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.showSuccess('Bank details sent to agent successfully!');
+          this.showSuccess('Bank details sent to agent successfully!', 'Details Sent!');
           this.refreshData();
           this.closeSendBankDetailsModal();
         },
@@ -2523,7 +3238,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.showSuccess('Reminder sent successfully!');
+          this.showSuccess('Reminder sent successfully!', 'Reminder Sent');
           this.refreshData();
         },
         error: (err: any) => {
@@ -2566,7 +3281,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.showSuccess('Visa payment confirmed!');
+          this.showSuccess('Visa payment confirmed!', 'Payment Confirmed');
           this.closeConfirmPaymentModal();
           // Reload both students and passbooks fresh — no delay
           this.refreshData();
@@ -2637,16 +3352,46 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // ============================================
   fundRequests: PaymentRequest[] = [];
   filteredFundRequests: PaymentRequest[] = [];
+  
+  // Filters
+  fundFilterRequester: string = '';
+  fundFilterDate: string = '';
+  fundFilterStatus: string = '';
   selectedFundRequest: PaymentRequest | null = null;
   showFundPaymentModal = false;
 
   fundPaymentForm = {
     amountPaid: 0,
     transactionId: '',
-    paymentMode: 'CASH',
-    subAccountId: null as number | null
+    paymentMode: 'NEFT',
+    subAccountId: null as number | null,
+    beneficiaryId: null as number | null
   };
   isFundSubmitting = false;
+  isFundPaymentSuccess = false;
+  isRejectingFund = false;
+  showFundPaymentMenu = false;
+  fundRejectionRemarks = '';
+  showRejectionReasonModal = false;
+  viewingRejectionReason = '';
+
+  get fundSourceAccounts() {
+    return this.subAccounts.filter(a => a.accountType !== 'CASH' && a.bankName !== 'CASH');
+  }
+
+  get isFundPaymentBalanceSufficient(): boolean {
+    if (!this.fundPaymentForm.subAccountId || !this.fundPaymentForm.amountPaid) return true;
+    const acc = this.fundSourceAccounts.find(a => a.id === this.fundPaymentForm.subAccountId);
+    if (!acc) return false;
+    return (acc.balance || 0) >= this.fundPaymentForm.amountPaid;
+  }
+
+  get isBeneficiarySelectionValid(): boolean {
+    if (this.fundPaymentForm.paymentMode === 'CASH' || this.fundPaymentForm.paymentMode === 'AUTO_FILL') {
+      return true;
+    }
+    return !!this.fundPaymentForm.beneficiaryId;
+  }
 
   loadFundRequests(): void {
     this.isLoading = true;
@@ -2660,7 +3405,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
             req.remainingAmount = (req.requestedAmount || 0) - (req.amountPaid || 0);
           }
         });
-        this.filteredFundRequests = [...this.fundRequests];
+        this.applyFundFilters();
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -2672,32 +3417,147 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     });
   }
 
+  applyFundFilters(): void {
+    this.filteredFundRequests = this.fundRequests.filter(req => {
+      let match = true;
+      if (this.fundFilterStatus) {
+        match = match && req.status === this.fundFilterStatus;
+      }
+      if (this.fundFilterRequester) {
+        const q = this.fundFilterRequester.toLowerCase();
+        const fName = (req.requesterFullName || '').toLowerCase();
+        const uName = (req.requesterUsername || '').toLowerCase();
+        match = match && (fName.includes(q) || uName.includes(q));
+      }
+      if (this.fundFilterDate) {
+        if (req.createdAt) {
+          try {
+            const d = new Date(req.createdAt).toISOString().split('T')[0];
+            match = match && d === this.fundFilterDate;
+          } catch(e) { match = false; }
+        } else {
+          match = false;
+        }
+      }
+      return match;
+    });
+  }
+
+  resetFundFilters(): void {
+    this.fundFilterRequester = '';
+    this.fundFilterDate = '';
+    this.fundFilterStatus = '';
+    this.applyFundFilters();
+  }
+
   openFundPaymentModal(request: PaymentRequest): void {
     this.selectedFundRequest = request;
     // Default to remaining amount
     const remaining = request.remainingAmount !== undefined ? request.remainingAmount : ((request.requestedAmount || 0) - (request.amountPaid || 0));
 
+    // Try to pre-select a payment mode based on requesterPaymentMode
+    let defaultMode = 'NEFT';
+    if (request.requesterPaymentMode) {
+        const reqMode = request.requesterPaymentMode.toUpperCase();
+        if (reqMode.includes('UPI')) defaultMode = 'UPI';
+        else if (reqMode.includes('CASH')) defaultMode = 'CASH';
+        else if (reqMode.includes('IMPS')) defaultMode = 'IMPS';
+        else if (reqMode.includes('RTGS')) defaultMode = 'RTGS';
+        else if (reqMode.includes('CHEQUE')) defaultMode = 'CHEQUE';
+        else defaultMode = 'AUTO_FILL'; // Auto-fill from details
+    }
+
     this.fundPaymentForm = {
       amountPaid: remaining > 0 ? remaining : 0,
       transactionId: '',
-      paymentMode: 'CASH',
-      subAccountId: null
+      paymentMode: defaultMode,
+      subAccountId: null,
+      beneficiaryId: null
     };
+    this.isFundPaymentSuccess = false;
+    this.isFundSubmitting = false;
+    this.isRejectingFund = false;
+    this.showFundPaymentMenu = false;
+    this.fundRejectionRemarks = '';
     this.showFundPaymentModal = true;
     this.cdr.detectChanges();
+  }
+
+  getGeneratedQrCodeUrl(request: PaymentRequest | null): string | null {
+    if (!request) return null;
+    if (request.qrCode) return request.qrCode;
+    
+    // If no explicit qrCode, but there's a UPI ID in the details, generate one
+    if (request.bankDetails) {
+        // Regex to find a standard UPI ID pattern (e.g. name@bank)
+        const match = request.bankDetails.match(/([a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64})/);
+        if (match) {
+            const upiId = match[1];
+            // Standard UPI Intent URI format
+            const remaining = request.remainingAmount !== undefined ? request.remainingAmount : ((request.requestedAmount || 0) - (request.amountPaid || 0));
+            const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(request.requesterFullName || '')}&am=${remaining > 0 ? remaining : 0}`;
+            return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUrl)}`;
+        }
+    }
+    return null;
   }
 
   closeFundPaymentModal(): void {
     this.showFundPaymentModal = false;
     this.selectedFundRequest = null;
+    this.isFundPaymentSuccess = false;
+    this.isFundSubmitting = false;
     this.cdr.detectChanges();
+  }
+
+  openRejectionReason(reason: string): void {
+      this.viewingRejectionReason = reason || 'No rejection reason provided.';
+      this.showRejectionReasonModal = true;
+  }
+
+  closeRejectionReason(): void {
+      this.showRejectionReasonModal = false;
+  }
+
+  submitFundReject(): void {
+    if (!this.selectedFundRequest || !this.selectedFundRequest.id) return;
+    
+    if (!this.fundRejectionRemarks || this.fundRejectionRemarks.trim().length === 0) {
+        this.showErrorToast('Please provide a reason for rejection');
+        return;
+    }
+    
+    this.isFundSubmitting = true;
+    this.cdr.detectChanges();
+    
+    // Simulating 2.9 second spinner
+    setTimeout(() => {
+        this.paymentRequestService.updateStatus(this.selectedFundRequest!.id!, { status: 'REJECTED', rejectionRemarks: this.fundRejectionRemarks }).subscribe({
+            next: (res: any) => {
+                this.isFundSubmitting = false;
+                this.isRejectingFund = false;
+                this.showFundPaymentModal = false;
+                this.showSuccess('Fund request rejected successfully', 'Request Rejected');
+                this.loadFundRequests();
+            },
+            error: (err: any) => {
+                this.isFundSubmitting = false;
+                this.showErrorToast('Failed to reject fund request');
+                console.error(err);
+            }
+        });
+    }, 2900);
   }
 
   submitFundPayment(): void {
     if (!this.selectedFundRequest || !this.selectedFundRequest.id) return;
 
+    if (!this.isFundPaymentBalanceSufficient || !this.isBeneficiarySelectionValid) return;
+
+    this.isFundSubmitting = true;
+
     // Validation
-    if (this.fundPaymentForm.paymentMode === 'ONLINE' && !this.fundPaymentForm.transactionId) {
+    if (this.fundPaymentForm.paymentMode !== 'CASH' && !this.fundPaymentForm.transactionId) {
       this.showErrorToast('Transaction ID is required for online payments.');
       return;
     }
@@ -2717,7 +3577,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
     // SubAccount balance validation
     if (!this.fundPaymentForm.subAccountId) {
-      this.showErrorToast('Please select a Bank Account to pay from.');
+      this.showErrorToast('Please select a Source Account to pay from.');
       return;
     }
     const selectedAcc = this.subAccounts.find(a => a.id === this.fundPaymentForm.subAccountId);
@@ -2727,24 +3587,54 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }
 
     this.isFundSubmitting = true;
+    
+    // Auto-fill logic handling
+    let finalPaymentMode = this.fundPaymentForm.paymentMode;
+    if (finalPaymentMode === 'AUTO_FILL') {
+        finalPaymentMode = this.selectedFundRequest.requesterPaymentMode || 'NEFT';
+    }
+
+    let finalTransactionId = finalPaymentMode === 'CASH' ? null : this.fundPaymentForm.transactionId;
+    if (this.fundPaymentForm.beneficiaryId && finalTransactionId) {
+        const b = this.beneficiaries.find((x: any) => x.id === this.fundPaymentForm.beneficiaryId);
+        if (b) {
+            finalTransactionId += ` (To: ${b.beneficiaryName})`;
+        }
+    }
+
     const payload = {
       amountPaid: this.fundPaymentForm.amountPaid,
-      accountantPaymentMode: this.fundPaymentForm.paymentMode,
-      transactionId: this.fundPaymentForm.paymentMode === 'CASH' ? null : this.fundPaymentForm.transactionId,
-      subAccountId: this.fundPaymentForm.subAccountId
+      accountantPaymentMode: finalPaymentMode,
+      transactionId: finalTransactionId,
+      subAccountId: this.fundPaymentForm.subAccountId,
+      beneficiaryId: this.fundPaymentForm.beneficiaryId
     };
+
+    this.isFundSubmitting = true;
+    const startTime = Date.now();
 
     this.paymentRequestService.payRequest(this.selectedFundRequest.id, payload).subscribe({
       next: () => {
-        this.showSuccess('Payment recorded successfully');
-        this.closeFundPaymentModal();
-        this.loadFundRequests();
-        this.isFundSubmitting = false;
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 2900 - elapsed); // Ensure spinner shows for 2.9 seconds
+
+        setTimeout(() => {
+            this.isFundSubmitting = false;
+            this.isFundPaymentSuccess = true;
+            this.cdr.detectChanges();
+            
+            // Show the success screen inside the modal for 1.5 seconds, then close
+            setTimeout(() => {
+                this.closeFundPaymentModal();
+                this.loadFundRequests();
+            }, 1500);
+        }, delay);
       },
       error: (err: any) => {
         console.error('Error processing payment', err);
         this.isFundSubmitting = false;
         this.showErrorToast('Failed to process payment');
+        this.cdr.detectChanges();
       }
     });
   }
@@ -3046,7 +3936,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.http.post(`${environment.apiUrl}/api/fund-release/release/${student.id}`, formData).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.showSuccess('Funds released to Visa Manager successfully!');
+        this.showSuccess('Funds released to Visa Manager successfully!', 'Payment Released Successfully');
         this.closeConfirmReleaseModal();
         this.closeReleaseFundModal();
 
@@ -3107,6 +3997,22 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     return this.beneficiaries.filter(b => b.status === 'Active');
   }
 
+  beneficiarySearchTerm: string = '';
+  isEditingBeneficiary: boolean = false;
+
+  get filteredBeneficiaries(): any[] {
+    if (!this.beneficiarySearchTerm.trim()) {
+      return this.beneficiaries;
+    }
+    const term = this.beneficiarySearchTerm.toLowerCase();
+    return this.beneficiaries.filter(b => 
+      (b.beneficiaryName && b.beneficiaryName.toLowerCase().includes(term)) ||
+      (b.bankName && b.bankName.toLowerCase().includes(term)) ||
+      (b.accountNumber && b.accountNumber.toLowerCase().includes(term)) ||
+      (b.beneficiaryType && b.beneficiaryType.toLowerCase().includes(term))
+    );
+  }
+
   hasReleasedFunds(studentId: number): boolean {
     return this.fundReleases.some(r => r.student?.id === studentId);
   }
@@ -3114,6 +4020,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   openBeneficiaryWizard(): void {
     this.isBeneficiaryWizardOpen = true;
     this.beneficiaryWizardStep = 1;
+    this.isEditingBeneficiary = false;
     this.newBeneficiary = {
       beneficiaryType: 'University',
       beneficiaryName: '',
@@ -3126,6 +4033,74 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       emailAddress: '',
       status: 'Active'
     };
+  }
+
+  editBeneficiary(beneficiary: any): void {
+    this.isEditingBeneficiary = true;
+    this.newBeneficiary = { ...beneficiary };
+    this.isEditBeneficiaryModalOpen = true;
+  }
+
+  isEditBeneficiaryModalOpen: boolean = false;
+  isUpdatingBeneficiary: boolean = false;
+  updateBeneficiarySuccess: boolean = false;
+
+  isViewBeneficiaryModalOpen: boolean = false;
+  selectedBeneficiaryToView: any = null;
+
+  viewBeneficiary(b: any): void {
+    this.selectedBeneficiaryToView = b;
+    this.isViewBeneficiaryModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeViewBeneficiaryModal(): void {
+    this.isViewBeneficiaryModalOpen = false;
+    this.selectedBeneficiaryToView = null;
+    this.cdr.detectChanges();
+  }
+
+  closeEditBeneficiaryModal(): void {
+    this.isEditBeneficiaryModalOpen = false;
+    this.isEditingBeneficiary = false;
+    setTimeout(() => this.updateBeneficiarySuccess = false, 300);
+  }
+
+  async updateBeneficiary(): Promise<void> {
+    if (this.newBeneficiary.id) {
+      this.isUpdatingBeneficiary = true;
+      this.updateBeneficiarySuccess = false;
+      this.cdr.detectChanges();
+      
+      const startTime = Date.now();
+      
+      try {
+        await import('rxjs').then(m => m.firstValueFrom(
+          this.http.put(`http://localhost:8080/api/accountant/beneficiary-accounts/${this.newBeneficiary.id}`, this.newBeneficiary)
+        ));
+        
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 3000 - elapsed);
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        this.loadBeneficiaries();
+        this.isUpdatingBeneficiary = false;
+        this.updateBeneficiarySuccess = true;
+        this.cdr.detectChanges();
+        
+      } catch (err) {
+        console.error('Error updating beneficiary:', err);
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 3000 - elapsed);
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        this.isUpdatingBeneficiary = false;
+        this.updateBeneficiarySuccess = false;
+        this.cdr.detectChanges();
+      }
+    }
   }
 
   closeBeneficiaryWizard(): void {

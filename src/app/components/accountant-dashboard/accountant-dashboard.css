@@ -397,6 +397,7 @@
 
 .search-wrapper input {
     width: 100%;
+    box-sizing: border-box;
     padding: 12px 18px 12px 50px;
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -3379,12 +3380,12 @@ textarea {
 
 /* Visa Modal Container */
 .modal-dialog.visa-modal {
-    width: 600px;
+    width: 460px;
     max-width: 95vw;
     background: var(--bg-card);
-    border-radius: 24px;
+    border-radius: 4px;
     box-shadow:
-        0 32px 64px rgba(0, 0, 0, 0.15),
+        0 16px 32px rgba(0, 0, 0, 0.12),
         0 0 0 1px rgba(255, 255, 255, 0.8),
         0 0 100px rgba(20, 184, 166, 0.1);
     animation: visaModalIn 0.4s var(--ease-spring);
@@ -3474,10 +3475,10 @@ textarea {
 /* Confirm Header */
 .dialog-header.confirm-header {
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    padding: 28px 32px;
+    padding: 20px 24px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     position: relative;
     overflow: hidden;
 }
@@ -3494,10 +3495,10 @@ textarea {
 }
 
 .confirm-header-icon {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 44px;
     background: rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3548,27 +3549,27 @@ textarea {
 
 /* Visa Body */
 .dialog-body.visa-body {
-    padding: 28px 32px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 /* Student Info Card */
 .visa-student-card {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 18px;
+    gap: 12px;
+    padding: 14px;
     background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-    border-radius: 16px;
+    border-radius: 4px;
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .visa-student-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3639,8 +3640,8 @@ textarea {
 /* Details Box */
 .visa-details-box {
     background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-    border-radius: 14px;
-    padding: 16px;
+    border-radius: 4px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -3675,7 +3676,7 @@ textarea {
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
     background: rgba(0, 0, 0, 0.05);
     padding: 4px 10px;
-    border-radius: 6px;
+    border-radius: 4px;
     font-size: 13px;
 }
 
@@ -3730,7 +3731,7 @@ textarea {
     box-sizing: border-box;
     padding: 14px 16px;
     border: 2px solid rgba(0, 0, 0, 0.06);
-    border-radius: 12px;
+    border-radius: 4px;
     font-size: 14px;
     font-family: inherit;
     font-weight: 500;
@@ -3775,7 +3776,7 @@ textarea {
     padding: 14px 16px;
     padding-right: 44px;
     border: 2px solid rgba(0, 0, 0, 0.06);
-    border-radius: 12px;
+    border-radius: 4px;
     font-size: 14px;
     font-family: inherit;
     font-weight: 500;
@@ -3817,7 +3818,7 @@ textarea {
 
 /* Visa Footer */
 .dialog-footer.visa-footer {
-    padding: 20px 32px 28px;
+    padding: 16px 24px 20px;
     display: flex;
     justify-content: flex-end;
     gap: 12px;
@@ -3830,7 +3831,7 @@ textarea {
     padding: 12px 24px;
     background: transparent;
     border: 2px solid rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    border-radius: 4px;
     font-size: 14px;
     font-weight: 600;
     color: var(--text-secondary);
@@ -3853,7 +3854,7 @@ textarea {
     padding: 12px 28px;
     background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
     border: none;
-    border-radius: 12px;
+    border-radius: 4px;
     font-size: 14px;
     font-weight: 600;
     color: white;
@@ -3888,7 +3889,7 @@ textarea {
     padding: 12px 28px;
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
     border: none;
-    border-radius: 12px;
+    border-radius: 4px;
     font-size: 14px;
     font-weight: 600;
     color: white;
@@ -5654,8 +5655,8 @@ textarea {
 
 .fund-request-container {
     background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 0px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.05),
         0 10px 20px -5px rgba(0, 0, 0, 0.05),
@@ -5749,7 +5750,7 @@ textarea {
 }
 
 .fund-request-table th {
-    padding: 16px 20px;
+    padding: 10px 16px;
     text-align: left;
     font-size: 0.7rem;
     font-weight: 700;
@@ -5805,10 +5806,10 @@ textarea {
 }
 
 .fund-request-table td {
-    padding: 18px 20px;
+    padding: 12px 16px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.04);
     vertical-align: middle;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #374151;
     transition: all 0.3s ease;
 }
@@ -5830,11 +5831,11 @@ textarea {
 .fund-id-badge {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
+    padding: 4px 8px;
     background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-    border-radius: 8px;
+    border-radius: 0px;
     font-family: 'SF Mono', 'Roboto Mono', monospace;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: #4f46e5;
     border: 1px solid rgba(79, 70, 229, 0.15);
@@ -5849,14 +5850,15 @@ textarea {
 /* Requester Info Cell */
 .fund-requester-info {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .fund-requester-info .name {
-    font-weight: 600;
+    font-weight: 700;
     color: #1e293b;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .fund-requester-info .meta {
@@ -5868,23 +5870,25 @@ textarea {
 }
 
 .fund-requester-info .role-tag {
-    padding: 2px 8px;
+    padding: 2px 6px;
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    border-radius: 4px;
-    font-weight: 500;
-    font-size: 0.7rem;
+    border-radius: 0px;
+    font-weight: 600;
+    font-size: 0.65rem;
     color: #374151;
+    text-transform: uppercase;
 }
 
 /* Purpose Cell */
 .fund-purpose-cell {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .fund-purpose-cell .purpose-text {
-    font-weight: 500;
+    font-weight: 600;
     color: #1e293b;
 }
 
@@ -5892,18 +5896,22 @@ textarea {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 8px;
+    padding: 2px 6px;
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    border-radius: 5px;
-    font-size: 0.7rem;
-    font-weight: 600;
+    border-radius: 0px;
+    font-size: 0.65rem;
+    font-weight: 700;
     color: #1d4ed8;
     width: fit-content;
+    text-transform: uppercase;
 }
 
 .fund-purpose-cell .date-text {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #9ca3af;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 /* Amount Cells */
@@ -5928,8 +5936,15 @@ textarea {
 
 .fund-paid-cell {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.fund-paid-cell > div {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .fund-paid-cell .txn-id {
@@ -5937,10 +5952,10 @@ textarea {
     align-items: center;
     padding: 2px 6px;
     background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-    border-radius: 4px;
+    border-radius: 0px;
     font-family: 'SF Mono', 'Roboto Mono', monospace;
     font-size: 0.65rem;
-    font-weight: 500;
+    font-weight: 600;
     color: #047857;
     width: fit-content;
 }
@@ -5955,9 +5970,9 @@ textarea {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 0px;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -6033,11 +6048,12 @@ textarea {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    margin-top: 6px;
-    padding: 4px 10px;
+    margin-top: 4px;
+    margin-left: 6px;
+    padding: 2px 8px;
     background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    border-radius: 6px;
-    font-size: 0.72rem;
+    border-radius: 0px;
+    font-size: 0.65rem;
     font-weight: 700;
     color: #b45309;
 }
@@ -6058,14 +6074,16 @@ textarea {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 0px;
+    font-size: 0.75rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .fund-action-btn.primary {
@@ -6112,9 +6130,9 @@ textarea {
 }
 
 .fund-history-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 0px;
     border: 1px solid #c7d2fe;
     background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
     color: #4f46e5;
@@ -6130,6 +6148,35 @@ textarea {
     color: white;
     border-color: transparent;
     transform: scale(1.08);
+}
+
+/* Colorful Icons */
+.fund-purpose-cell .fa-mobile-alt {
+    color: #8b5cf6;
+}
+
+.fund-purpose-cell .fa-university {
+    color: #f59e0b;
+}
+
+.fund-purpose-cell .fa-calendar-alt {
+    color: #10b981;
+}
+
+.fund-actions .fa-credit-card {
+    color: #60a5fa;
+}
+
+.fund-actions .fa-check-circle {
+    color: #10b981;
+}
+
+.fund-actions .fa-history {
+    color: #6366f1;
+}
+
+.fund-balance-tag .fa-exclamation-circle {
+    color: #f59e0b;
 }
 
 /* Empty State */
@@ -8609,6 +8656,7 @@ textarea {
     .vs-charts-row {
         grid-template-columns: 1fr;
     }
+
     .vs-kpi-row {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -8618,12 +8666,15 @@ textarea {
     .vs-kpi-row {
         grid-template-columns: repeat(2, 1fr);
     }
+
     .vs-filter-bar {
         flex-direction: column;
     }
+
     .vs-filter-group {
         min-width: 100%;
     }
+
     .vsh-table thead th:nth-child(3),
     .vsh-table tbody td:nth-child(3) {
         display: none;
@@ -9046,7 +9097,7 @@ textarea {
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     transition: transform 0.2s;
 }
 
@@ -9080,7 +9131,7 @@ textarea {
 
 /* Tighter layout adjustments for vsh-table */
 .vsh-table-wrapper {
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     border-radius: 16px;
     border: 1px solid #e2e8f0;
 }
@@ -9093,6 +9144,7 @@ textarea {
 .vsh-table tbody td {
     padding: 12px 16px;
 }
+
 /* =========================================================
    Payment Collection Redesign - Modern Light SaaS Theme
    ========================================================= */
@@ -9110,7 +9162,7 @@ textarea {
     border-radius: 16px;
     padding: 20px;
     border: 1px solid #f1f5f9;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -9121,17 +9173,20 @@ textarea {
 
 .pc-summary-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.06);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.06);
     border-color: #e2e8f0;
 }
 
 .pc-summary-card::after {
     content: '';
     position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     pointer-events: none;
     border-radius: 16px;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 .pc-summary-title {
@@ -9163,7 +9218,7 @@ textarea {
     align-items: center;
     gap: 16px;
     margin-bottom: 24px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.01);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
 }
 
 .pc-filter-pill {
@@ -9234,7 +9289,7 @@ textarea {
     background: #ffffff;
     border-radius: 16px;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
     overflow: hidden;
 }
 
@@ -9286,11 +9341,13 @@ textarea {
     background: #4f46e5;
     color: #ffffff;
 }
+
 .pc-action-indigo:hover {
     background: #4338ca;
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(79,70,229,0.25);
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
 }
+
 .pc-action-indigo:disabled {
     background: #94a3b8;
     transform: none;
@@ -9302,20 +9359,22 @@ textarea {
     background: #d97706;
     color: #ffffff;
 }
+
 .pc-action-amber:hover {
     background: #b45309;
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(217,119,6,0.25);
+    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
 }
 
 .pc-action-emerald {
     background: #059669;
     color: #ffffff;
 }
+
 .pc-action-emerald:hover {
     background: #047857;
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(5,150,105,0.25);
+    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.25);
 }
 
 .pc-action-secondary {
@@ -9332,8 +9391,15 @@ textarea {
 
 /* Animations */
 @keyframes pcToastSlideIn {
-    0% { opacity: 0; transform: translateY(50px) scale(0.95); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .pc-toast-container {
@@ -9354,7 +9420,7 @@ textarea {
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1) inset;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     animation: pcToastSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -9363,9 +9429,20 @@ textarea {
 }
 
 @keyframes pcBadgePulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-    50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
 }
 
 .pc-badge.updated {
@@ -9373,8 +9450,14 @@ textarea {
 }
 
 @keyframes pcDrawCheck {
-    0% { stroke-dasharray: 24; stroke-dashoffset: 24; }
-    100% { stroke-dashoffset: 0; }
+    0% {
+        stroke-dasharray: 24;
+        stroke-dashoffset: 24;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+    }
 }
 
 .pc-check-icon {
@@ -9383,7 +9466,9 @@ textarea {
 }
 
 @keyframes pcSpin {
-    100% { transform: rotate(360deg); }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .pc-spinner {
@@ -9392,8 +9477,15 @@ textarea {
 
 /* Global Thin Overlay Spinner */
 @keyframes pcOverlayFadeIn {
-    from { opacity: 0; backdrop-filter: blur(0px); }
-    to { opacity: 1; backdrop-filter: blur(6px); }
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+
+    to {
+        opacity: 1;
+        backdrop-filter: blur(6px);
+    }
 }
 
 .pc-global-overlay {
@@ -9433,13 +9525,27 @@ textarea {
 }
 
 @keyframes pcScaleIn {
-    0% { transform: scale(0.5); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 @keyframes pcPulseText {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
 }
 
 /* ==================================================== */
@@ -9508,9 +9614,21 @@ textarea {
     height: 28px;
     border-radius: 10px;
 }
-.ot-icon-wrapper.req { background: #e0f2fe; color: #0ea5e9; }
-.ot-icon-wrapper.conf { background: #dcfce7; color: #10b981; }
-.ot-icon-wrapper.out { background: #ffe4e6; color: #e11d48; }
+
+.ot-icon-wrapper.req {
+    background: #e0f2fe;
+    color: #0ea5e9;
+}
+
+.ot-icon-wrapper.conf {
+    background: #dcfce7;
+    color: #10b981;
+}
+
+.ot-icon-wrapper.out {
+    background: #ffe4e6;
+    color: #e11d48;
+}
 
 .ot-card-value {
     font-size: 1.5rem;
@@ -9526,9 +9644,17 @@ textarea {
     margin-top: 4px;
 }
 
-.text-success { color: #10b981; }
-.text-danger { color: #e11d48; }
-.text-warning { color: #f59e0b; }
+.text-success {
+    color: #10b981;
+}
+
+.text-danger {
+    color: #e11d48;
+}
+
+.text-warning {
+    color: #f59e0b;
+}
 
 .ot-progress-wrapper {
     margin-top: auto;
@@ -9587,7 +9713,7 @@ textarea {
     border-radius: 12px;
     padding: 12px;
     margin-bottom: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .ot-filter-row {
@@ -9607,15 +9733,21 @@ textarea {
     height: 32px;
     transition: all 0.2s;
 }
+
 .ot-filter-group:focus-within {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     background: #ffffff;
 }
 
-.ot-search-icon { color: #94a3b8; margin-right: 8px; }
+.ot-search-icon {
+    color: #94a3b8;
+    margin-right: 8px;
+}
 
-.ot-search-input, .ot-select, .ot-number-input {
+.ot-search-input,
+.ot-select,
+.ot-number-input {
     border: none;
     background: transparent;
     outline: none;
@@ -9623,14 +9755,30 @@ textarea {
     color: #334155;
     width: 100%;
 }
-.ot-search-input { width: 220px; }
-.ot-select { width: 180px; cursor: pointer; }
-.ot-number-input { width: 90px; text-align: center; }
+
+.ot-search-input {
+    width: 220px;
+}
+
+.ot-select {
+    width: 180px;
+    cursor: pointer;
+}
+
+.ot-number-input {
+    width: 90px;
+    text-align: center;
+}
 
 .ot-filter-group.amount-range {
     gap: 8px;
 }
-.ot-range-label { font-size: 0.85rem; font-weight: 600; color: #64748b; }
+
+.ot-range-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+}
 
 .ot-status-pills {
     display: flex;
@@ -9664,10 +9812,29 @@ textarea {
     box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
 }
 
-.ot-pill.pill-paid.active { background: #10b981; border-color: #10b981; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); }
-.ot-pill.pill-partial.active { background: #f59e0b; border-color: #f59e0b; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2); }
-.ot-pill.pill-pending.active { background: #ef4444; border-color: #ef4444; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2); }
-.ot-pill.pill-verify.active { background: #6366f1; border-color: #6366f1; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2); }
+.ot-pill.pill-paid.active {
+    background: #10b981;
+    border-color: #10b981;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+}
+
+.ot-pill.pill-partial.active {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
+}
+
+.ot-pill.pill-pending.active {
+    background: #ef4444;
+    border-color: #ef4444;
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+}
+
+.ot-pill.pill-verify.active {
+    background: #6366f1;
+    border-color: #6366f1;
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+}
 
 .ot-charts-grid {
     display: grid;
@@ -9681,7 +9848,7 @@ textarea {
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     padding: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .ot-chart-title {
@@ -9712,7 +9879,8 @@ textarea {
     -webkit-backdrop-filter: blur(4px);
     z-index: 1000;
     display: flex;
-    justify-content: flex-end; /* Align side modal to the right */
+    justify-content: flex-end;
+    /* Align side modal to the right */
     align-items: center;
 }
 
@@ -9722,7 +9890,8 @@ textarea {
     height: 100vh;
     max-height: 100vh;
     background: #ffffff;
-    border-radius: 0; /* Square edges for side panel */
+    border-radius: 0;
+    /* Square edges for side panel */
     box-shadow: -10px 0 50px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     display: flex;
@@ -9824,7 +9993,7 @@ textarea {
     border: 1px solid #e2e8f0;
     border-radius: 4px;
     padding: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .tx-summary-label {
@@ -9841,15 +10010,20 @@ textarea {
     letter-spacing: -0.02em;
 }
 
-.tx-summary-card.credit .tx-summary-val { color: #059669; }
-.tx-summary-card.debit .tx-summary-val { color: #dc2626; }
+.tx-summary-card.credit .tx-summary-val {
+    color: #059669;
+}
+
+.tx-summary-card.debit .tx-summary-val {
+    color: #dc2626;
+}
 
 .tx-modal-table-wrapper {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 4px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .tx-table {
@@ -9896,5 +10070,44 @@ textarea {
     letter-spacing: 0.02em;
 }
 
-.tx-badge.credit { background: #ecfdf5; color: #059669; }
-.tx-badge.debit { background: #fef2f2; color: #dc2626; }
+.tx-badge.credit {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.tx-badge.debit {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* Beneficiary Wizard Form */
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px !important;
+    color: var(--text-main);
+    font-weight: 600 !important;
+}
+
+.highlight-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-main);
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.highlight-input::placeholder {
+    color: var(--text-muted);
+}
+
+.highlight-input:focus {
+    background: #ffffff;
+    border-color: var(--accent-blue-txt);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}

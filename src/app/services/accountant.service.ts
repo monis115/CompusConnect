@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -370,6 +370,18 @@ export class AccountantService {
 
     getSubAccounts(): Observable<SubAccount[]> {
         return this.http.get<SubAccount[]>(`${this.API_URL}/accountant/subaccounts`);
+    }
+
+    getAllSubAccountTransactions(page: number = 0, size: number = 100, bankId?: string, startDate?: string, endDate?: string): Observable<any> {
+        let params = new HttpParams()
+          .set('page', page.toString())
+          .set('size', size.toString());
+          
+        if (bankId) params = params.set('bankId', bankId);
+        if (startDate) params = params.set('startDate', startDate);
+        if (endDate) params = params.set('endDate', endDate);
+          
+        return this.http.get(`${this.API_URL}/accountant/subaccounts/transactions/all`, { params });
     }
 
     createSubAccount(subAccount: SubAccount): Observable<SubAccount> {
