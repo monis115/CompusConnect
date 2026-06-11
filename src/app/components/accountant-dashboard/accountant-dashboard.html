@@ -2514,7 +2514,7 @@
               <tr>
                 <th>S. No</th>
                 <th>Requester</th>
-                <th>Purpose</th>
+                <th>Method & Date</th>
                 <th>Requested</th>
                 <th>Paid</th>
                 <th>Status</th>
@@ -2522,30 +2522,33 @@
               </tr>
             </thead>
             <tbody>
-              @for (req of filteredFundRequests; track req; let i = $index) {
+              @for (req of paginatedFundRequests; track req; let i = $index) {
               <tr>
                 <td>
-                  <span class="fund-id-badge">{{ i + 1 }}</span>
+                  <span class="fund-id-badge">{{ fundRequestsStartIndex + i }}</span>
                 </td>
                 <td>
-                  <div class="fund-requester-info">
-                    <span class="name">{{req.requesterFullName}}</span>
-                    <span class="meta-inline"
-                      style="font-size: 0.75rem; color: #64748b;">{{req.requesterUsername}}</span>
-                    <span class="role-tag">{{req.requesterRole}}</span>
+                  <div style="display: flex; align-items: center; gap: 12px; white-space: nowrap;">
+                    <span style="font-weight: 700; color: #1e293b; font-size: 13px;">{{req.requesterFullName}}</span>
+                    <span
+                      style="border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #475569; background: #ffffff;">{{req.requesterUsername}}</span>
+                    <span
+                      style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase;">
+                      <i class="fas fa-user-tag" style="margin-right: 4px; color: #94a3b8;"></i>{{req.requesterRole}}
+                    </span>
                   </div>
                 </td>
                 <td>
-                  <div class="fund-purpose-cell">
-                    <span class="purpose-text">{{req.purpose}}</span>
-                    <span class="payment-mode">
-                      <i class="fas"
-                        [ngClass]="req.requesterPaymentMode === 'UPI' ? 'fa-mobile-alt' : 'fa-university'"></i>
-                      {{req.requesterPaymentMode}}
+                  <div style="display: flex; align-items: center; gap: 12px; white-space: nowrap;">
+                    <span
+                      style="background: #eff6ff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #1d4ed8; text-transform: uppercase;">
+                      <i class="fas" [ngClass]="req.requesterPaymentMode === 'UPI' ? 'fa-mobile-alt' : 'fa-university'"
+                        style="margin-right: 4px;"></i>{{req.requesterPaymentMode}}
                     </span>
-                    <span class="date-text">
-                      <i class="fas fa-calendar-alt"></i>
-                      {{ formatDate(req.createdAt) }}
+                    <span
+                      style="border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #64748b; background: #ffffff;">
+                      <i class="fas fa-calendar-alt" style="margin-right: 4px; color: #10b981;"></i>{{
+                      formatDate(req.createdAt) }}
                     </span>
                   </div>
                 </td>
@@ -2553,28 +2556,25 @@
                   <span class="fund-amount requested">{{ formatCurrency(req.requestedAmount) }}</span>
                 </td>
                 <td>
-                  <div class="fund-paid-cell">
+                  <div style="display: flex; align-items: center; gap: 12px; white-space: nowrap;">
                     @if ((req.amountPaid || 0) > 0) {
-                    <span class="fund-amount paid">{{ formatCurrency(req.amountPaid) }}</span>
+                    <span class="fund-amount paid" style="font-size: 13px;">{{ formatCurrency(req.amountPaid) }}</span>
                     @if (req.accountantPaymentMode) {
-                    <span class="payment-mode"
-                      style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 0px; font-size: 0.65rem; font-weight: 700; color: #1d4ed8; text-transform: uppercase;">
+                    <span
+                      style="background: #eff6ff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #1d4ed8; text-transform: uppercase;">
                       {{req.accountantPaymentMode}}
                     </span>
                     }
-                    }
                     @if (req.transactionId) {
-                    <span class="txn-id">
-                      TXN: {{ req.transactionId }}
-                    </span>
+                    <span
+                      style="border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #475569; font-family: monospace; background: #ffffff;">TXN:
+                      {{ req.transactionId }}</span>
                     }
-                    @if ((req.amountPaid || 0) > 0 && req.updatedAt) {
-                    <span class="payment-date">
-                      on {{ formatDate(req.updatedAt) }}
-                    </span>
+                    @if (req.updatedAt) {
+                    <span style="color: #64748b; font-size: 12px;">{{ formatDate(req.updatedAt) }}</span>
                     }
-                    @if (!req.amountPaid || req.amountPaid === 0) {
-                    <span class="fund-amount pending">—</span>
+                    } @else {
+                    <span class="fund-amount pending" style="font-size: 13px;">—</span>
                     }
                   </div>
                 </td>
@@ -2597,6 +2597,11 @@
                 </td>
                 <td>
                   <div class="fund-actions">
+                    <button class="fund-action-btn"
+                      style="background: #f8fafc; color: #64748b; border: 1px solid #cbd5e1;"
+                      (click)="openPurposeModal(req.purpose)" title="View Purpose">
+                      <i class="fas fa-file-alt"></i>
+                    </button>
                     @if (req.status !== 'PAID' && req.status !== 'REJECTED') {
                     <button class="fund-action-btn primary" (click)="openFundPaymentModal(req)">
                       <i class="fas fa-credit-card"></i>
@@ -2606,9 +2611,8 @@
                     @if (req.status === 'REJECTED') {
                     <button class="fund-action-btn"
                       style="background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5;"
-                      (click)="openRejectionReason(req.rejectionRemarks)">
+                      (click)="openRejectionReason(req.rejectionRemarks)" title="Rejection Reason">
                       <i class="fas fa-info-circle"></i>
-                      Reason
                     </button>
                     }
                     <button class="fund-history-btn" (click)="openHistoryModal(req)" title="View History">
@@ -2633,6 +2637,31 @@
               }
             </tbody>
           </table>
+
+          <!-- Pagination Controls -->
+          <div class="pagination-controls"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid rgba(0,0,0,0.05); background: white;">
+            <div style="font-size: 13px; color: #64748b; font-weight: 500;">
+              Showing {{ fundRequestsStartIndex }} to {{ fundRequestsEndIndex }} of {{ filteredFundRequests.length }}
+              entries
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button (click)="prevFundRequestPage()" [disabled]="fundRequestsCurrentPage === 1"
+                style="padding: 6px 12px; border: 1px solid #cbd5e1; background: white; border-radius: 6px; cursor: pointer; color: #475569; font-size: 13px; font-weight: 600; transition: all 0.2s;"
+                [style.opacity]="fundRequestsCurrentPage === 1 ? '0.5' : '1'">
+                Previous
+              </button>
+              <div
+                style="display: flex; align-items: center; padding: 0 8px; font-size: 13px; font-weight: 600; color: #1e293b;">
+                Page {{ fundRequestsCurrentPage }} of {{ totalFundRequestPages }}
+              </div>
+              <button (click)="nextFundRequestPage()" [disabled]="fundRequestsCurrentPage === totalFundRequestPages"
+                style="padding: 6px 12px; border: 1px solid #cbd5e1; background: white; border-radius: 6px; cursor: pointer; color: #475569; font-size: 13px; font-weight: 600; transition: all 0.2s;"
+                [style.opacity]="fundRequestsCurrentPage === totalFundRequestPages ? '0.5' : '1'">
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       }
@@ -2894,8 +2923,8 @@
 
       <!-- ======================= CREDIT & LOAN MANAGEMENT ======================= -->
       @if (activeView === 'credit-ledger') {
-      <div class="credit-ledger-container" [@fadeIn] style="padding: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div class="credit-ledger-container" [@fadeIn] style="padding: 16px 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <h2 style="margin: 0; color: var(--primary-main); font-size: 20px; font-weight: 700;">Credit & Loan
             Management
           </h2>
@@ -2913,7 +2942,7 @@
 
         <!-- Sub-tabs -->
         <div class="pc-tabs"
-          style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
           <button class="pc-tab active"
             style="padding: 8px 16px; border: none; background: transparent; color: var(--primary-main); font-weight: 600; border-bottom: 2px solid var(--accent-blue-border); cursor: pointer;">Agent
             Wallets (Advance)</button>
@@ -2925,86 +2954,142 @@
             Schedule</button>
         </div>
 
-        <!-- KPI Cards -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
-          <div
-            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px;">
-            <div
-              style="color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">
-              Total Advance Taken (Agents)</div>
-            <div style="font-size: 24px; font-weight: 700; color: var(--primary-main);">$124,500</div>
-          </div>
-          <div
-            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px;">
-            <div
-              style="color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">
-              Pending Loan Approvals</div>
-            <div style="font-size: 24px; font-weight: 700; color: var(--accent-amber-txt);">4</div>
-          </div>
-          <div
-            style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px;">
-            <div
-              style="color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">
-              Upcoming EMI (This Month)</div>
-            <div style="font-size: 24px; font-weight: 700; color: var(--accent-red-txt);">$8,200</div>
-          </div>
-        </div>
 
-        <!-- Active Tab Content: Agent Wallets (Advance) -->
+
+        <!-- Active Tab Content: Credits -->
         <div
           style="background: #fff; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-sm);">
           <div
             style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-body);">
-            <h3 style="margin: 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Agent Advance Wallets
+            <h3 style="margin: 0; font-size: 14px; font-weight: 600; color: var(--text-main);">Company Credits & Loans
             </h3>
-            <button class="vt-btn primary"
-              style="background: var(--primary-main); padding: 6px 12px; font-size: 12px;">Add Advance Entry</button>
           </div>
           <table class="vsh-table" style="width: 100%; border-collapse: collapse;">
             <thead>
               <tr style="background: var(--bg-body); border-bottom: 1px solid var(--border-color); text-align: left;">
                 <th
-                  style="padding: 12px 16px; font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">
-                  Agent / Agency</th>
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  ID</th>
                 <th
-                  style="padding: 12px 16px; font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">
-                  Total Advance</th>
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  Lender</th>
                 <th
-                  style="padding: 12px 16px; font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">
-                  Adjusted Amount</th>
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  Type</th>
                 <th
-                  style="padding: 12px 16px; font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">
-                  Remaining Balance</th>
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  Date</th>
                 <th
-                  style="padding: 12px 16px; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; text-align: right;">
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  Principal</th>
+                <th
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  Rate</th>
+                <th
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  Outstanding</th>
+                <th
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  Paid</th>
+
+                <th
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  Next EMI</th>
+                <th
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                  Status</th>
+                <th
+                  style="padding: 8px 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; text-align: right;">
                   Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 16px;">
-                  <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Global Ed Partners</div>
-                  <div style="font-size: 12px; color: var(--text-muted);">john@globaled.com</div>
+              @if (credits.length === 0) {
+              <tr>
+                <td colspan="11" style="padding: 32px; text-align: center; color: var(--text-muted);">No credits or
+                  loans
+                  recorded yet.</td>
+              </tr>
+              } @else {
+              @for (credit of credits; track credit.id) {
+              <tr style="border-bottom: 1px solid var(--border-color); height: 44px;">
+                <td style="padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--text-muted);">
+                  #{{credit.id}}
                 </td>
-                <td style="padding: 16px; font-weight: 500;">$50,000.00</td>
-                <td style="padding: 16px; font-weight: 500; color: var(--accent-emerald-txt);">$12,500.00</td>
-                <td style="padding: 16px; font-weight: 600; color: var(--accent-red-txt);">$37,500.00</td>
-                <td style="padding: 16px; text-align: right;">
-                  <button class="vt-btn secondary" style="padding: 6px 12px; font-size: 12px;">View Ledger</button>
+                <td
+                  style="padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--text-main); white-space: nowrap;">
+                  {{ credit.method === 'FRIEND' ? credit.friendName : (credit.method === 'LOAN' ? credit.bankName :
+                  credit.cardInfo) }}
+                </td>
+                <td style="padding: 6px 10px;">
+                  <span
+                    style="display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;"
+                    [style.background]="credit.method === 'FRIEND' ? '#fef3c7' : (credit.method === 'LOAN' ? '#dbeafe' : '#fce7f3')"
+                    [style.color]="credit.method === 'FRIEND' ? '#92400e' : (credit.method === 'LOAN' ? '#1e40af' : '#9d174d')">{{credit.method}}</span>
+                </td>
+                <td style="padding: 6px 10px; font-size: 11px; color: var(--text-muted); white-space: nowrap;">
+                  {{credit.creditDate | date:'dd MMM yy'}}</td>
+                <td style="padding: 6px 10px; font-size: 12px; font-weight: 700; color: var(--primary-main);">
+                  ₹{{credit.amount | number:'1.0-0'}}</td>
+                <td style="padding: 6px 10px; font-size: 11px; color: var(--text-muted); font-weight: 600;">
+                  {{credit.interestRate || 0}}%</td>
+                <td style="padding: 6px 10px; font-size: 12px; font-weight: 700; color: var(--accent-red-txt);">
+                  ₹{{credit.outstandingAmount | number:'1.0-0'}}</td>
+                <td style="padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--accent-emerald-txt);">
+                  ₹{{credit.amountRepaid | number:'1.0-0'}}</td>
+
+                <td style="padding: 6px 10px;">
+                  @if (credit.repaymentStructure === 'INSTALLMENTS') {
+                  <div
+                    style="font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+                    <span style="font-weight: 600; color: var(--text-main);">{{getCurrentEmiInfo(credit)}}</span>
+                    <span style="font-size: 9px; padding: 1px 4px; border-radius: 3px;"
+                      [style.background]="getCurrentEmiStatus(credit) === 'Upcoming' ? 'var(--bg-body)' : 'var(--accent-blue-bg)'"
+                      [style.color]="getCurrentEmiStatus(credit) === 'Upcoming' ? 'var(--text-muted)' : 'var(--accent-blue-txt)'">
+                      {{getCurrentEmiStatus(credit)}}
+                    </span>
+                  </div>
+                  } @else {
+                  <span style="font-size: 11px; color: var(--text-muted); opacity: 0.5;">—</span>
+                  }
+                </td>
+                <td style="padding: 6px 10px;">
+                  <span
+                    style="padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;"
+                    [style.background]="credit.status === 'ACTIVE' ? 'var(--accent-blue-bg)' : (credit.status === 'CLOSED' ? 'var(--accent-emerald-bg)' : 'var(--accent-amber-bg)')"
+                    [style.color]="credit.status === 'ACTIVE' ? 'var(--accent-blue-txt)' : (credit.status === 'CLOSED' ? 'var(--accent-emerald-txt)' : 'var(--accent-amber-txt)')">
+                    {{credit.status}}
+                  </span>
+                </td>
+                <td style="padding: 6px 10px; text-align: right; white-space: nowrap;">
+                  <div style="display: inline-flex; gap: 6px; align-items: center;">
+                    @if (credit.status !== 'CLOSED') {
+                    <button class="vt-btn"
+                      style="padding: 5px 10px; font-size: 11px; font-weight: 600; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 5px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;"
+                      onmouseover="this.style.background='#d1fae5'; this.style.borderColor='#6ee7b7';"
+                      onmouseout="this.style.background='#ecfdf5'; this.style.borderColor='#a7f3d0';"
+                      (click)="openRepaymentModal(credit)"><i class="fas fa-hand-holding-usd"
+                        style="font-size: 11px;"></i> Repay</button>
+                    }
+                    <button class="vt-btn"
+                      style="padding: 5px 10px; font-size: 11px; font-weight: 600; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 5px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;"
+                      onmouseover="this.style.background='#dbeafe'; this.style.borderColor='#93c5fd';"
+                      onmouseout="this.style.background='#eff6ff'; this.style.borderColor='#bfdbfe';"
+                      (click)="openInstallmentsModal(credit)"><i class="fas fa-calendar-check"
+                        style="font-size: 11px;"></i> Schedule</button>
+                    @if (credit.purpose) {
+                    <button class="vt-btn"
+                      style="padding: 5px 10px; font-size: 11px; font-weight: 600; background: #fdf4ff; color: #9333ea; border: 1px solid #e9d5ff; border-radius: 5px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;"
+                      onmouseover="this.style.background='#f3e8ff'; this.style.borderColor='#d8b4fe';"
+                      onmouseout="this.style.background='#fdf4ff'; this.style.borderColor='#e9d5ff';"
+                      (click)="openPurposeModal(credit.purpose)"><i class="fas fa-file-alt"
+                        style="font-size: 11px;"></i> Purpose</button>
+                    }
+                  </div>
                 </td>
               </tr>
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 16px;">
-                  <div style="font-size: 14px; font-weight: 600; color: var(--text-main);">Visa Experts Ltd</div>
-                  <div style="font-size: 12px; color: var(--text-muted);">contact@visaexperts.com</div>
-                </td>
-                <td style="padding: 16px; font-weight: 500;">$10,000.00</td>
-                <td style="padding: 16px; font-weight: 500; color: var(--accent-emerald-txt);">$10,000.00</td>
-                <td style="padding: 16px; font-weight: 600; color: var(--text-main);">$0.00</td>
-                <td style="padding: 16px; text-align: right;">
-                  <button class="vt-btn secondary" style="padding: 6px 12px; font-size: 12px;">View Ledger</button>
-                </td>
-              </tr>
+              }
+              }
             </tbody>
           </table>
         </div>
@@ -6444,31 +6529,68 @@
 
 <!-- Add Funds (Credit) Modal -->
 @if (showAddFundsModal) {
-<div class="modal-backdrop" (click)="closeAddFundsModal()">
-  <div class="modal-content" style="max-width: 500px;" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-title-wrapper" style="display: flex; align-items: center; gap: 12px;">
+<div class="sidebar-overlay"
+  style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 100; display: flex; justify-content: flex-end;"
+  (click)="closeAddFundsModal()">
+  <div class="sidebar-panel"
+    style="width: 520px; max-width: 90vw; background: #f8fafc; height: 100vh; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;"
+    (click)="$event.stopPropagation()">
+
+    <div class="modal-header"
+      style="background: white; padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+      <div class="modal-title-wrapper" style="display: flex; align-items: center; gap: 16px;">
         <div class="icon-box"
-          style="background: #ecfdf5; color: #10b981; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+          style="background: #ecfdf5; color: #10b981; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="5" width="20" height="14" rx="2"></rect>
             <line x1="2" y1="10" x2="22" y2="10"></line>
           </svg>
         </div>
         <div>
-          <h2 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #111827;">Add Borrowed Funds</h2>
-          <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">Log incoming loans to offset cash balances.</p>
+          <h2 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #0f172a;">Add Borrowed Funds</h2>
+          <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 500;">Log incoming loans to offset cash
+            balances.</p>
         </div>
       </div>
-      <button class="close-btn" (click)="closeAddFundsModal()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
+      <button
+        style="background: #f1f5f9; border: none; color: #64748b; cursor: pointer; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+        onmouseover="this.style.background='#e2e8f0'; this.style.color='#ef4444';"
+        onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';" (click)="closeAddFundsModal()">
+        <i class="fas fa-times" style="font-size: 16px;"></i>
       </button>
     </div>
 
-    <div class="modal-body" style="padding: 24px;">
+    <div class="modal-body" style="padding: 24px; flex: 1; overflow-y: auto;">
+      <!-- Dynamic Fields -->
+      @if(showAddFundsSuccess) {
+      <div
+        style="padding: 40px 20px; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+        <div
+          style="width: 80px; height: 80px; background: #d1fae5; color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3 style="font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Credit Recorded!</h3>
+        <p style="color: #64748b; font-size: 14px; margin: 0 0 24px 0;">The borrowed funds have been successfully added
+          to your ledger.</p>
+        <button class="btn btn-primary" (click)="closeAddFundsModal()"
+          style="width: 100%; max-width: 200px;">Done</button>
+      </div>
+      } @else if(isSubmitting) {
+      <div
+        style="padding: 40px 20px; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
+          style="animation: spin 1s linear infinite; margin-bottom: 24px;">
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+        </svg>
+        <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">Processing Record...</h3>
+        <p style="color: #64748b; font-size: 14px; margin: 8px 0 0 0;">Please wait while the transaction is securely
+          recorded.</p>
+      </div>
+      } @else {
       <div class="form-group">
         <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Credit Method</label>
         <div class="radio-group" style="display: flex; gap: 12px; margin-bottom: 16px;">
@@ -6497,71 +6619,169 @@
         </div>
       </div>
 
-      <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px;">
-        <div class="form-group" style="flex: 1;">
-          <label>Amount (₹)*</label>
-          <input type="number" class="modal-input" [(ngModel)]="creditForm.amount" placeholder="Enter Amount">
+      <!-- Massive Centered Amount Input -->
+      <div style="text-align: center; margin: 32px 0 40px 0;">
+        <div
+          style="color: #a855f7; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 16px; text-transform: uppercase;">
+          RECEIVING AMOUNT
         </div>
-        <div class="form-group" style="flex: 1;">
-          <label>Due Date</label>
-          <input type="date" class="modal-input" [(ngModel)]="creditForm.dueDate">
+        <div style="display: flex; align-items: baseline; justify-content: center; gap: 12px;">
+          <span style="font-size: 48px; color: #d8b4fe; font-weight: 500;">₹</span>
+          <input type="number" [(ngModel)]="creditForm.amount" (ngModelChange)="calculateEMI()" placeholder="0"
+            style="border: none; background: transparent; font-size: 64px; font-weight: 700; color: #4b5563; text-align: center; width: 100%; max-width: 320px; outline: none; caret-color: #a855f7; padding: 0;">
         </div>
       </div>
 
-      <!-- Dynamic Fields -->
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Date Received</label>
+        <input type="date" class="modal-input" [(ngModel)]="creditForm.creditDate">
+      </div>
       <div
-        style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #f1f5f9;">
+        style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 24px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+
+        <!-- Specific Fields -->
         @if (creditForm.method === 'FRIEND') {
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label>Friend's Name*</label>
-          <input type="text" class="modal-input" [(ngModel)]="creditForm.friendName" placeholder="Enter Full Name">
-        </div>
-        <div class="form-group">
-          <label>Phone Number*</label>
-          <input type="text" class="modal-input" [(ngModel)]="creditForm.friendPhone" placeholder="Enter Contact Info">
+        <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px;">
+          <div class="form-group" style="flex: 1;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Friend's Name*</label>
+            <input type="text" class="modal-input" [(ngModel)]="creditForm.friendName" placeholder="Enter Full Name">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Phone Number*</label>
+            <input type="text" class="modal-input" [(ngModel)]="creditForm.friendPhone" placeholder="Contact Info">
+          </div>
         </div>
         }
-
         @if (creditForm.method === 'LOAN') {
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label>Bank Name*</label>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Bank / Lender
+            Name*</label>
           <input type="text" class="modal-input" [(ngModel)]="creditForm.bankName" placeholder="e.g. HDFC, SBI">
         </div>
-        <div class="form-row" style="display: flex; gap: 16px;">
-          <div class="form-group" style="flex: 1;">
-            <label>Tenure (Months)</label>
-            <input type="number" class="modal-input" [(ngModel)]="creditForm.loanTenureMonths" placeholder="e.g. 24">
-          </div>
-          <div class="form-group" style="flex: 1;">
-            <label>Interest Rate (%)</label>
-            <input type="number" class="modal-input" [(ngModel)]="creditForm.interestRate" placeholder="e.g. 9.5">
-          </div>
-        </div>
         }
-
         @if (creditForm.method === 'CREDIT_CARD') {
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label>Card Info / Emitting Bank*</label>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Card Info / Emitting
+            Bank*</label>
           <input type="text" class="modal-input" [(ngModel)]="creditForm.cardInfo"
             placeholder="e.g. ICICI Platinum ending 1234">
         </div>
-        <div class="form-group">
-          <label>EMI Details (Optional)</label>
-          <input type="text" class="modal-input" [(ngModel)]="creditForm.emiDetails"
-            placeholder="e.g. ₹5000/mo over 6 months">
-        </div>
         }
+
+        <!-- Universal Repayment Engine -->
+        <div style="background: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
+          <h4
+            style="margin: 0 0 16px 0; color: #0f172a; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+            <i class="fas fa-calculator" style="color: #64748b;"></i> Universal Repayment Engine
+          </h4>
+
+          <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px;">
+            <div class="form-group" style="flex: 1;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Repayment
+                Structure</label>
+              <select class="modal-input" [(ngModel)]="creditForm.repaymentStructure" (ngModelChange)="calculateEMI()">
+                <option value="LUMP_SUM">Lump Sum (Simple Interest)</option>
+                <option value="INSTALLMENTS">Installments (EMI)</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Tenure
+                (Months)</label>
+              <input type="number" class="modal-input" [(ngModel)]="creditForm.loanTenureMonths"
+                (ngModelChange)="calculateEMI()" placeholder="e.g. 12">
+            </div>
+          </div>
+
+          <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px;">
+            <div class="form-group" style="flex: 1;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Interest Rate
+                (%)</label>
+              <input type="number" class="modal-input" [(ngModel)]="creditForm.interestRate"
+                (ngModelChange)="calculateEMI()" placeholder="Annual Rate">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label
+                style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">{{creditForm.repaymentStructure
+                === 'INSTALLMENTS' ? 'First EMI Date' : 'Due Date'}}</label>
+              <input type="date" class="modal-input" [(ngModel)]="creditForm.dueDate"
+                (ngModelChange)="generateSchedule()">
+            </div>
+          </div>
+
+          <div class="form-row" style="display: flex; gap: 16px; margin-bottom: 16px;">
+            <div class="form-group" style="flex: 1;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Total Repayment
+                (₹)</label>
+              <input type="number" class="modal-input" [ngModel]="creditForm.totalRepaymentAmount" readonly
+                style="background: #e2e8f0; color: #0f172a; font-weight: 700; cursor: not-allowed;">
+            </div>
+            @if(creditForm.repaymentStructure === 'INSTALLMENTS') {
+            <div class="form-group" style="flex: 1;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">EMI Amount
+                (₹)</label>
+              <input type="number" class="modal-input" [ngModel]="creditForm.installmentAmount" readonly
+                style="background: #e2e8f0; color: #0f172a; font-weight: 700; cursor: not-allowed;">
+            </div>
+            }
+          </div>
+
+          <!-- Schedule Preview -->
+          @if(generatedSchedule.length > 0) {
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px dashed #cbd5e1;">
+            <label
+              style="display: block; margin-bottom: 12px; font-weight: 600; color: #0f172a; font-size: 13px;">Auto-Generated
+              EMI Schedule</label>
+            <div
+              style="max-height: 180px; overflow-y: auto; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f8fafc; position: sticky; top: 0; box-shadow: 0 1px 0 #e2e8f0;">
+                  <tr>
+                    <th
+                      style="padding: 10px 12px; text-align: left; font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase;">
+                      #</th>
+                    <th
+                      style="padding: 10px 12px; text-align: left; font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase;">
+                      Due Date</th>
+                    <th
+                      style="padding: 10px 12px; text-align: right; font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase;">
+                      Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for(item of generatedSchedule; track item.installmentNum) {
+                  <tr style="border-top: 1px solid #f1f5f9; transition: background 0.15s;"
+                    onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 10px 12px; font-size: 13px; color: #64748b;">{{item.installmentNum}}</td>
+                    <td style="padding: 10px 12px; font-size: 13px; color: #0f172a; font-weight: 500;">{{item.date |
+                      date:'mediumDate'}}</td>
+                    <td
+                      style="padding: 10px 12px; font-size: 13px; color: #0f172a; font-weight: 700; text-align: right;">
+                      ₹{{item.amount | number:'1.0-2'}}</td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+          }
+        </div>
       </div>
 
-      <!-- Select Bank Account to Credit To -->
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Purpose</label>
+        <textarea class="modal-input" [(ngModel)]="creditForm.purpose" rows="2"
+          placeholder="Why is this credit/loan taken?"></textarea>
+      </div>
+
       <div class="form-group">
         <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Credit to Bank
           Account*</label>
         <div class="visa-select-wrapper">
           <select class="visa-select" [(ngModel)]="creditForm.subAccountId">
-            <option [ngValue]="null" disabled selected>Select a bank account...</option>
+            <option [ngValue]="null" disabled selected>Select a bank or cash account...</option>
             @for (acc of subAccounts; track acc.id) {
-            <option [ngValue]="acc.id">{{acc.bankName}} — A/C: {{acc.accountNumber}}</option>
+            <option [ngValue]="acc.id">{{acc.bankName}}{{acc.accountNumber ? ' — A/C: ' + acc.accountNumber : ''}}
+            </option>
             }
           </select>
           <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -6569,25 +6789,458 @@
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </div>
+        @if (creditForm.subAccountId) {
+        <div style="margin-top: 6px; font-size: 12px; color: #64748b; font-weight: 500;">
+          Current Balance: <span
+            style="color: #0f172a; font-weight: 700;">₹{{getSubAccountBalance(creditForm.subAccountId) |
+            number:'1.0-2'}}</span>
+        </div>
+        }
       </div>
-
+      }
     </div>
-
+    @if(!showAddFundsSuccess && !isSubmitting) {
     <div class="modal-footer"
-      style="padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb; display: flex; justify-content: flex-end; gap: 12px;">
+      style="padding: 24px; border-top: 1px solid #e2e8f0; background: white; display: flex; justify-content: flex-end; gap: 12px;">
       <button class="btn btn-secondary" (click)="closeAddFundsModal()" [disabled]="isSubmitting">Cancel</button>
       <button class="btn btn-primary" (click)="submitCredit()" [disabled]="isSubmitting">
-        @if(isSubmitting) {
-        <svg class="modal-spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;">
+        Submit Credit Record
+      </button>
+    </div>
+    }
+  </div>
+</div>
+}
+
+<!-- Repay Credit Modal -->
+@if (showRepaymentModal) {
+<div class="sidebar-overlay"
+  style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 110; display: flex; justify-content: flex-end;"
+  (click)="closeRepaymentModal()">
+  <div class="sidebar-panel"
+    style="width: 480px; max-width: 90vw; background: #f8fafc; height: 100vh; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;"
+    (click)="$event.stopPropagation()">
+
+    <div class="modal-header"
+      style="background: white; padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+      <h2
+        style="margin: 0; font-size: 18px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 10px;">
+        <div
+          style="width: 32px; height: 32px; border-radius: 8px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        </div>
+        Record Repayment
+      </h2>
+      <button
+        style="background: #f1f5f9; border: none; color: #64748b; cursor: pointer; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+        onmouseover="this.style.background='#e2e8f0'; this.style.color='#ef4444';"
+        onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';" (click)="closeRepaymentModal()">
+        <i class="fas fa-times" style="font-size: 16px;"></i>
+      </button>
+    </div>
+
+    <div class="modal-body" style="padding: 24px; flex: 1; overflow-y: auto;">
+      @if(showRepaymentSuccess) {
+      <div
+        style="padding: 40px 20px; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+        <div
+          style="width: 80px; height: 80px; background: #d1fae5; color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3 style="font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">Repayment Recorded!</h3>
+        <p style="color: #64748b; font-size: 14px; margin: 0 0 24px 0;">The repayment has been successfully deducted and
+          applied to the credit.</p>
+        <button class="btn btn-primary" (click)="closeRepaymentModal()"
+          style="width: 100%; max-width: 200px;">Done</button>
+      </div>
+      } @else if(isRepaying) {
+      <div
+        style="padding: 40px 20px; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
+          style="animation: spin 1s linear infinite; margin-bottom: 24px;">
           <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
           <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
         </svg>
-        Processing...
-        } @else {
-        Submit
+        <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">Processing Repayment...</h3>
+        <p style="color: #64748b; font-size: 14px; margin: 8px 0 0 0;">Please wait while the transaction is securely
+          recorded.</p>
+      </div>
+      } @else {
+      <!-- Outstanding Card -->
+      <div
+        style="background: white; border-radius: 10px; padding: 16px; margin-bottom: 24px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+        <div>
+          <div
+            style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">
+            Outstanding Balance</div>
+          <div style="font-size: 20px; font-weight: 800; color: #0f172a;">
+            ₹{{selectedCreditForRepayment?.outstandingAmount | number:'1.0-2'}}</div>
+        </div>
+        <div style="text-align: right;">
+          <div
+            style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">
+            Credit Method</div>
+          <div style="font-size: 14px; font-weight: 700; color: #3b82f6;">{{selectedCreditForRepayment?.method}}</div>
+        </div>
+      </div>
+
+      <!-- Repayment Type Selector (Only for Installments) -->
+      @if(selectedCreditForRepayment?.repaymentStructure === 'INSTALLMENTS') {
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Payment Type</label>
+        <div style="display: flex; gap: 12px;">
+          <label style="flex: 1; position: relative; cursor: pointer;">
+            <input type="radio" name="repayType" value="STANDARD" [(ngModel)]="repaymentForm.repaymentType"
+              (ngModelChange)="onRepaymentTypeChange()" style="position: absolute; opacity: 0; width: 0; height: 0;">
+            <div style="padding: 12px; border: 2px solid; border-radius: 8px; transition: all 0.2s;"
+              [style.borderColor]="repaymentForm.repaymentType === 'STANDARD' ? '#3b82f6' : '#e2e8f0'"
+              [style.background]="repaymentForm.repaymentType === 'STANDARD' ? '#eff6ff' : '#ffffff'">
+              <div style="font-weight: 600; color: #1e293b; font-size: 14px; margin-bottom: 4px;">Standard Installment
+              </div>
+              <div style="font-size: 12px; color: #64748b;">Paying Installment {{currentInstallmentNum}} of
+                {{totalInstallments}}</div>
+            </div>
+          </label>
+          <label style="flex: 1; position: relative; cursor: pointer;">
+            <input type="radio" name="repayType" value="CUSTOM" [(ngModel)]="repaymentForm.repaymentType"
+              (ngModelChange)="onRepaymentTypeChange()" style="position: absolute; opacity: 0; width: 0; height: 0;">
+            <div style="padding: 12px; border: 2px solid; border-radius: 8px; transition: all 0.2s;"
+              [style.borderColor]="repaymentForm.repaymentType === 'CUSTOM' ? '#3b82f6' : '#e2e8f0'"
+              [style.background]="repaymentForm.repaymentType === 'CUSTOM' ? '#eff6ff' : '#ffffff'">
+              <div style="font-weight: 600; color: #1e293b; font-size: 14px; margin-bottom: 4px;">Custom / Early Pay
+              </div>
+              <div style="font-size: 12px; color: #64748b;">Pay extra or settle loan early</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      }
+
+      <!-- Massive Centered Repayment Amount Input -->
+      <div style="text-align: center; margin: 32px 0 40px 0;">
+        <div
+          style="color: #a855f7; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 16px; text-transform: uppercase;">
+          PAYING AMOUNT
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: center; gap: 12px;">
+          <span style="font-size: 48px; color: #d8b4fe; font-weight: 500;">₹</span>
+          <input type="number" [(ngModel)]="repaymentForm.amount"
+            [disabled]="repaymentForm.repaymentType === 'STANDARD' && selectedCreditForRepayment?.repaymentStructure === 'INSTALLMENTS'"
+            placeholder="0"
+            style="border: none; background: transparent; font-size: 64px; font-weight: 700; color: #4b5563; text-align: center; width: 100%; max-width: 320px; outline: none; caret-color: #a855f7; padding: 0;">
+        </div>
+        @if(repaymentForm.repaymentType === 'STANDARD' && selectedCreditForRepayment?.repaymentStructure ===
+        'INSTALLMENTS') {
+        <div
+          style="margin-top: 16px; font-size: 12px; color: #10b981; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          <i class="fas fa-lock" style="font-size: 10px;"></i> Amount locked to standard EMI
+        </div>
         }
+      </div>
+
+      <!-- Select Account -->
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Pay From Account*</label>
+        <div class="visa-select-wrapper">
+          <select class="visa-select" [(ngModel)]="repaymentForm.subAccountId">
+            <option [ngValue]="null" disabled selected>Select a bank or cash account...</option>
+            @for (acc of subAccounts; track acc.id) {
+            <option [ngValue]="acc.id">{{acc.bankName}}{{acc.accountNumber ? ' — A/C: ' + acc.accountNumber : ''}}
+            </option>
+            }
+          </select>
+          <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        @if (repaymentForm.subAccountId) {
+        <div style="margin-top: 6px; font-size: 12px; color: #64748b; font-weight: 500;">
+          Current Balance: <span
+            style="color: #0f172a; font-weight: 700;">₹{{getSubAccountBalance(repaymentForm.subAccountId) |
+            number:'1.0-2'}}</span>
+          @if(getSubAccountBalance(repaymentForm.subAccountId) < repaymentForm.amount) { <span
+            style="color: #ef4444; margin-left: 8px;">(Insufficient Balance!)</span>
+            }
+        </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Notes (Optional)</label>
+        <textarea class="modal-input" [(ngModel)]="repaymentForm.notes" rows="4"
+          placeholder="Any remarks..."></textarea>
+      </div>
+
+      }
+    </div>
+
+    @if(!showRepaymentSuccess && !isRepaying) {
+    <div class="modal-footer"
+      style="padding: 24px; border-top: 1px solid #e2e8f0; background: white; display: flex; justify-content: flex-end; gap: 12px;">
+      <button class="btn btn-secondary" (click)="closeRepaymentModal()" [disabled]="isRepaying">Cancel</button>
+      <button class="btn btn-primary" (click)="submitRepayment()"
+        [disabled]="isRepaying || (repaymentForm.subAccountId && getSubAccountBalance(repaymentForm.subAccountId) < repaymentForm.amount)">
+        Confirm Repayment
       </button>
+    </div>
+    }
+  </div>
+</div>
+}
+
+<!-- Installment Schedule Side Modal -->
+@if (showInstallmentsModal) {
+<div class="sidebar-overlay"
+  style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 110; display: flex; justify-content: flex-end;"
+  (click)="closeInstallmentsModal()">
+  <div class="sidebar-panel"
+    style="width: 480px; max-width: 90vw; background: #f8fafc; height: 100vh; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;"
+    (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div
+      style="padding: 24px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div
+          style="width: 48px; height: 48px; border-radius: 12px; background: #f0fdf4; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div>
+          <h2 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #0f172a;">Repayment Schedule</h2>
+          <span style="font-size: 13px; color: #64748b; font-weight: 500;">Credit ID:
+            #{{selectedCreditForInstallments?.id}}</span>
+        </div>
+      </div>
+      <button
+        style="background: #f1f5f9; border: none; color: #64748b; cursor: pointer; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+        onmouseover="this.style.background='#e2e8f0'; this.style.color='#ef4444';"
+        onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';" (click)="closeInstallmentsModal()">
+        <i class="fas fa-times" style="font-size: 16px;"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 20px; flex: 1; overflow-y: auto; background: #f8fafc;">
+      @if(isScheduleLoading) {
+      <div style="text-align: center; padding: 40px 20px; color: #64748b;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 12px; color: var(--primary-main);"></i>
+        <p style="margin: 0; font-weight: 500;">Loading schedule...</p>
+      </div>
+      } @else if(selectedCreditInstallments.length === 0) {
+      <div style="text-align: center; padding: 40px 20px; color: #64748b;">
+        <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 12px; opacity: 0.5;"></i>
+        <p style="margin: 0;">No installments found for this credit.</p>
+      </div>
+      } @else {
+
+      <!-- Summary Stats Row -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+        <div
+          style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; text-align: center;">
+          <div
+            style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            Total EMIs</div>
+          <div style="font-size: 20px; font-weight: 800; color: #0f172a;">{{selectedCreditInstallments.length}}</div>
+        </div>
+        <div
+          style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; text-align: center;">
+          <div
+            style="font-size: 10px; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            Paid</div>
+          <div style="font-size: 20px; font-weight: 800; color: #059669;">{{countInstallmentsByStatus('PAID')}}</div>
+        </div>
+        <div
+          style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; text-align: center;">
+          <div
+            style="font-size: 10px; font-weight: 700; color: #dc2626; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            Remaining</div>
+          <div style="font-size: 20px; font-weight: 800; color: #dc2626;">{{selectedCreditInstallments.length -
+            countInstallmentsByStatus('PAID')}}</div>
+        </div>
+      </div>
+
+      <!-- Installment Table -->
+      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+              <th
+                style="padding: 8px 12px; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
+                #</th>
+              <th
+                style="padding: 8px 12px; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
+                Due Date</th>
+              <th
+                style="padding: 8px 12px; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: right;">
+                Amount</th>
+              <th
+                style="padding: 8px 12px; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: right;">
+                Paid</th>
+              <th
+                style="padding: 8px 12px; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">
+                Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (inst of selectedCreditInstallments; track inst.id; let i = $index) {
+            <tr style="border-bottom: 1px solid #f1f5f9; height: 40px;"
+              [style.background]="inst.status === 'PAID' ? '#fafffe' : 'white'">
+              <td style="padding: 6px 12px; font-size: 12px; font-weight: 700; color: #94a3b8;">{{inst.installmentNum ||
+                (i + 1)}}</td>
+              <td style="padding: 6px 12px; font-size: 12px; font-weight: 500; color: #334155; white-space: nowrap;">
+                <i class="far fa-calendar"
+                  style="color: #94a3b8; margin-right: 4px; font-size: 10px;"></i>{{inst.dueDate | date:'dd MMM yyyy'}}
+              </td>
+              <td style="padding: 6px 12px; font-size: 12px; font-weight: 700; color: #0f172a; text-align: right;">
+                ₹{{inst.installmentAmount | number:'1.0-0'}}</td>
+              <td style="padding: 6px 12px; font-size: 12px; font-weight: 600; text-align: right;"
+                [style.color]="inst.paidAmount > 0 ? '#059669' : '#cbd5e1'">
+                @if(inst.paidAmount > 0) { ₹{{inst.paidAmount | number:'1.0-0'}} } @else { — }
+              </td>
+              <td style="padding: 6px 12px; text-align: center;">
+                @if (inst.status === 'PAID') {
+                <span
+                  style="display: inline-flex; align-items: center; gap: 3px; background: #ecfdf5; color: #059669; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;">
+                  <i class="fas fa-check" style="font-size: 8px;"></i> Paid
+                </span>
+                } @else if (inst.status === 'OVERDUE') {
+                <span
+                  style="display: inline-flex; align-items: center; gap: 3px; background: #fef2f2; color: #dc2626; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;">
+                  <i class="fas fa-exclamation" style="font-size: 8px;"></i> Overdue
+                </span>
+                } @else {
+                <span
+                  style="display: inline-flex; align-items: center; gap: 3px; background: #f8fafc; color: #64748b; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; border: 1px solid #e2e8f0;">
+                  <i class="far fa-clock" style="font-size: 8px;"></i> Upcoming
+                </span>
+                }
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div
+      style="padding: 20px 24px; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+      <button class="vt-btn"
+        style="background: #f1f5f9; color: #475569; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s;"
+        onmouseover="this.style.background='#e2e8f0'; this.style.color='#0f172a';"
+        onmouseout="this.style.background='#f1f5f9'; this.style.color='#475569';"
+        (click)="closeInstallmentsModal()">Close Panel</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Credit Details Side Modal -->
+@if (showCreditDetailsModal) {
+<div class="sidebar-overlay"
+  style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 100; display: flex; justify-content: flex-end;"
+  (click)="closeCreditDetailsModal()">
+  <div class="sidebar-panel"
+    style="width: 440px; max-width: 90vw; background: #f8fafc; height: 100vh; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;"
+    (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div
+      style="padding: 24px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div
+          style="width: 48px; height: 48px; border-radius: 8px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+          <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+        <div>
+          <h2 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #0f172a;">Manage Credit</h2>
+          <span style="font-size: 13px; color: #64748b; font-weight: 500;">ID:
+            #CRD-{{selectedCreditForDetails?.id}}</span>
+        </div>
+      </div>
+      <button
+        style="background: transparent; border: none; color: #64748b; cursor: pointer; width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+        onmouseover="this.style.background='#f1f5f9'; this.style.color='#ef4444';"
+        onmouseout="this.style.background='transparent'; this.style.color='#64748b';"
+        (click)="closeCreditDetailsModal()">
+        <i class="fas fa-times" style="font-size: 16px;"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 24px; flex: 1; overflow-y: auto;">
+
+      <div
+        style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 24px;">
+        <div style="font-size: 13px; color: #64748b; margin-bottom: 8px; font-weight: 500; text-transform: uppercase;">
+          Outstanding Amount</div>
+        <div style="font-size: 32px; font-weight: 700; color: #ef4444;">₹{{selectedCreditForDetails?.outstandingAmount |
+          number:'1.0-2'}}</div>
+      </div>
+
+      <h3
+        style="font-size: 13px; font-weight: 700; color: #64748b; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+        Quick Actions</h3>
+
+      <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 32px;">
+        @if (selectedCreditForDetails?.status !== 'CLOSED') {
+        <button class="vt-btn"
+          style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.2s; text-align: left; box-shadow: 0 1px 2px rgba(0,0,0,0.02);"
+          onmouseover="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.1)';"
+          onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.02)';"
+          (click)="openRepaymentModal(selectedCreditForDetails)">
+          <div
+            style="width: 48px; height: 48px; border-radius: 8px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fas fa-hand-holding-usd"></i>
+          </div>
+          <div>
+            <div style="font-weight: 700; color: #0f172a; font-size: 15px; margin-bottom: 4px;">Repay Credit</div>
+            <div style="font-size: 12px; color: #64748b; font-weight: 500;">Record a new repayment transaction</div>
+          </div>
+        </button>
+        }
+
+        <button class="vt-btn"
+          style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.2s; text-align: left; box-shadow: 0 1px 2px rgba(0,0,0,0.02);"
+          onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 12px rgba(16,185,129,0.1)';"
+          onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.02)';"
+          (click)="openInstallmentsModal(selectedCreditForDetails)">
+          <div
+            style="width: 48px; height: 48px; border-radius: 8px; background: #ecfdf5; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div>
+            <div style="font-weight: 700; color: #0f172a; font-size: 15px; margin-bottom: 4px;">View Schedule</div>
+            <div style="font-size: 12px; color: #64748b; font-weight: 500;">Check EMI dates and payment history</div>
+          </div>
+        </button>
+
+        @if (selectedCreditForDetails?.purpose) {
+        <button class="vt-btn"
+          style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.2s; text-align: left; box-shadow: 0 1px 2px rgba(0,0,0,0.02);"
+          onmouseover="this.style.borderColor='#8b5cf6'; this.style.boxShadow='0 4px 12px rgba(139,92,246,0.1)';"
+          onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.02)';"
+          (click)="openPurposeModal(selectedCreditForDetails.purpose)">
+          <div
+            style="width: 48px; height: 48px; border-radius: 8px; background: #f5f3ff; color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fas fa-bullseye"></i>
+          </div>
+          <div>
+            <div style="font-weight: 700; color: #0f172a; font-size: 15px; margin-bottom: 4px;">View Purpose</div>
+            <div style="font-size: 12px; color: #64748b; font-weight: 500;">Read the registered purpose of this credit
+            </div>
+          </div>
+        </button>
+        }
+      </div>
+
     </div>
   </div>
 </div>
@@ -8272,6 +8925,61 @@
         style="background: #e2e8f0; color: #0f172a; border-radius: 6px; padding: 8px 16px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s;"
         onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'"
         (click)="closeRejectionReason()">Close</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Purpose Modal -->
+@if (showPurposeModal) {
+<div class="sidebar-overlay"
+  style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 110; display: flex; justify-content: flex-end;"
+  (click)="closePurposeModal()">
+  <div class="sidebar-panel"
+    style="width: 420px; max-width: 90vw; background: #f8fafc; height: 100vh; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;"
+    (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div
+      style="padding: 24px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div
+          style="width: 48px; height: 48px; border-radius: 12px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div>
+          <h2 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #0f172a;">Fund Purpose</h2>
+          <span style="font-size: 13px; color: #64748b; font-weight: 500;">Details of the request</span>
+        </div>
+      </div>
+      <button
+        style="background: #f1f5f9; border: none; color: #64748b; cursor: pointer; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+        onmouseover="this.style.background='#e2e8f0'; this.style.color='#ef4444';"
+        onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b';" (click)="closePurposeModal()">
+        <i class="fas fa-times" style="font-size: 16px;"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 24px; flex: 1; overflow-y: auto;">
+      <div
+        style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <h4
+          style="margin: 0 0 16px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-align-left"></i> Description
+        </h4>
+        <div style="font-size: 15px; color: #334155; line-height: 1.6; white-space: pre-wrap;">{{viewingPurpose}}</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div
+      style="padding: 20px 24px; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+      <button class="vt-btn"
+        style="background: #f1f5f9; color: #475569; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s;"
+        onmouseover="this.style.background='#e2e8f0'; this.style.color='#0f172a';"
+        onmouseout="this.style.background='#f1f5f9'; this.style.color='#475569';" (click)="closePurposeModal()">Close
+        Panel</button>
     </div>
   </div>
 </div>

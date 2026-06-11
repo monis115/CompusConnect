@@ -112,8 +112,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // SubAccounts
   subAccounts: SubAccount[] = [];
   get bankSubAccounts() { return this.subAccounts.filter(a => a.accountType !== 'CASH' && a.accountType !== 'WALLET' && a.bankName !== 'CASH'); }
-  get walletSubAccounts() { 
-    const wallets = this.subAccounts.filter(a => a.accountType === 'WALLET'); 
+  get walletSubAccounts() {
+    const wallets = this.subAccounts.filter(a => a.accountType === 'WALLET');
     return wallets.length > 0 ? [wallets[0]] : [];
   }
   get cashSubAccounts() { return this.subAccounts.filter(a => a.accountType === 'CASH' || a.bankName === 'CASH'); }
@@ -127,13 +127,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // --- Transactions Modal & Tab ---
   selectedSubAccountForTx: any = null;
   subAccountTransactions: any[] = [];
-  
+
   allTransactions: any[] = [];
   transactionCurrentPage: number = 0;
   transactionTotalPages: number = 0;
   transactionTotalElements: number = 0;
   transactionPageSize: number = 100;
-  
+
   isTxLoading = false;
   txFilterTab: 'ALL' | 'INFLOW' | 'OUTFLOW' | 'INTERNAL' = 'ALL';
   txFilterType: 'ALL' | 'CREDIT' | 'DEBIT' = 'ALL';
@@ -284,7 +284,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     const f = this.fundWalletForm;
     if (!f.sourceId || !f.destId || !f.amount || !f.reason) return false;
     if (f.amount <= 0) return false;
-    
+
     // Check balance
     const sourceAcc = this.subAccounts.find(a => a.id === f.sourceId);
     if (sourceAcc && (sourceAcc.balance || 0) < f.amount) return false;
@@ -366,13 +366,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.showExpenseModal = true;
     this.expenseStep = 'form';
     this.expenseError = '';
-    this.expenseForm = { 
-      sourceId: walletId, 
-      amount: null, 
-      spenderName: '', 
-      expenseDate: new Date().toISOString().split('T')[0], 
+    this.expenseForm = {
+      sourceId: walletId,
+      amount: null,
+      spenderName: '',
+      expenseDate: new Date().toISOString().split('T')[0],
       category: 'Office Supplies',
-      reason: '' 
+      reason: ''
     };
   }
 
@@ -479,7 +479,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       return false;
     }
     if (f.amount <= 0) return false;
-    
+
     if (f.paymentMethod === 'CHEQUE') {
       if (!f.chequeDetails || f.chequeDetails.trim() === '') return false;
     }
@@ -528,23 +528,23 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   fundsTransferError: string = '';
   showFundsTransferPaymentDropdown = false;
   transferCategories = [
-    'FEE SETTLEMENT', 'COURIER', 'VISA SERVICES', 'TRAVEL', 'FOOD', 'HOTEL & STAYS', 
+    'FEE SETTLEMENT', 'COURIER', 'VISA SERVICES', 'TRAVEL', 'FOOD', 'HOTEL & STAYS',
     'UNIVERSITY', 'TICKET', 'MARKETING', 'OFFICE EXPENSE', 'MISC'
   ];
-  
+
   fundsTransferForm = {
     sourceId: null as number | null,
     destinationType: 'MANUAL' as 'BENEFICIARY' | 'MANUAL',
     beneficiaryId: null as number | null,
     paymentMethod: 'NEFT',
-    
+
     // Manual Details
     accountNumber: '',
     ifscCode: '',
     accountHolderName: '',
     upiId: '',
     chequeNumber: '',
-    
+
     amount: null as number | null,
     category: 'FEE SETTLEMENT',
     reason: '',
@@ -603,7 +603,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         if (!f.chequeNumber) return false;
       }
     }
-    
+
     return true;
   }
 
@@ -617,7 +617,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.fundsTransferError = '';
 
     const f = this.fundsTransferForm;
-    
+
     // Construct withdrawal name and chequeDetails for the backend /withdraw endpoint
     let beneficiaryName = '';
     let detailsStr = '';
@@ -627,9 +627,9 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       if (b) {
         beneficiaryName = b.beneficiaryName;
         if (f.paymentMethod === 'UPI') {
-            detailsStr = `To Beneficiary: ${b.beneficiaryName} (UPI: ${b.upiId || 'N/A'})`;
+          detailsStr = `To Beneficiary: ${b.beneficiaryName} (UPI: ${b.upiId || 'N/A'})`;
         } else {
-            detailsStr = `To Beneficiary: ${b.beneficiaryName} (A/C: ${b.accountNumber || 'N/A'}, Bank: ${b.bankName || 'N/A'})`;
+          detailsStr = `To Beneficiary: ${b.beneficiaryName} (A/C: ${b.accountNumber || 'N/A'}, Bank: ${b.bankName || 'N/A'})`;
         }
       } else {
         beneficiaryName = 'Unknown Beneficiary';
@@ -714,7 +714,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   getPaymentMethodInfo(tx: any) {
     if (!tx) return null;
-    
+
     let method = 'OTHER';
     const pm = tx.paymentMethod ? String(tx.paymentMethod).toUpperCase() : 'UNKNOWN';
     const desc = (tx.description || '').toLowerCase();
@@ -741,7 +741,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     if (method === 'CHEQUE') return { label: 'CHEQUE', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8', color: '#f43f5e', bg: '#ffe4e6' };
     if (method === 'BANK_TRANSFER') return { label: 'BANK TRF', icon: 'M3 21h18M5 21V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v13M9 21V10M15 21V10', color: '#0369a1', bg: '#e0f2fe' };
     if (method === 'INTERNAL') return { label: 'INTERNAL', icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m4 5H4m0 0l4 4m-4-4l4-4', color: '#64748b', bg: '#f1f5f9' };
-    
+
     return { label: method === 'OTHER' ? 'OTHER' : method, icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', color: '#64748b', bg: '#f1f5f9' };
   }
 
@@ -1090,7 +1090,10 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     bankName: '',
     loanTenureMonths: 0,
     cardInfo: '',
-    emiDetails: ''
+    emiDetails: '',
+    totalRepaymentAmount: 0,
+    installmentAmount: 0,
+    repaymentStructure: 'LUMP_SUM'
   };
 
   // Logout
@@ -1503,25 +1506,171 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   loadAllTransactions(): void {
     this.isTxLoading = true;
     this.accountantService.getAllSubAccountTransactions(
-      this.transactionCurrentPage, 
+      this.transactionCurrentPage,
       this.transactionPageSize,
       this.txFilterBankId || undefined,
       this.txFilterStartDate || undefined,
       this.txFilterEndDate || undefined
     ).subscribe({
+      next: (res: any) => {
+        this.isTxLoading = false;
+        this.allTransactions = res.content || [];
+        this.transactionTotalPages = res.totalPages || 0;
+        this.transactionTotalElements = res.totalElements || 0;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Failed to fetch all transactions', err);
+        this.isTxLoading = false;
+        this.showErrorToast('Failed to load transactions');
+      }
+    });
+  }
+
+  // --- Repayment Logic ---
+  openRepaymentModal(credit: any): void {
+    this.selectedCreditForRepayment = credit;
+    this.repaymentForm = {
+      amount: 0,
+      subAccountId: null,
+      notes: '',
+      repaymentType: credit.repaymentStructure === 'INSTALLMENTS' ? 'STANDARD' : 'CUSTOM'
+    };
+
+    if (credit.repaymentStructure === 'INSTALLMENTS') {
+      this.currentInstallmentNum = 0;
+      this.totalInstallments = credit.loanTenureMonths || 1;
+
+      this.http.get<any[]>(`http://localhost:8080/api/accountant/credits/${credit.id}/installments`).subscribe(installments => {
+        const active = installments.find(i => i.status !== 'PAID');
+        if (active) {
+          this.currentInstallmentNum = active.installmentNum;
+          const remaining = active.installmentAmount - (active.paidAmount || 0);
+          this.repaymentForm.amount = remaining;
+        } else {
+          this.currentInstallmentNum = this.totalInstallments;
+          this.repaymentForm.amount = credit.outstandingAmount;
+        }
+        this.cdr.detectChanges();
+      });
+    } else {
+      this.repaymentForm.amount = credit.outstandingAmount;
+    }
+
+    this.showRepaymentModal = true;
+    this.cdr.detectChanges();
+  }
+
+  onRepaymentTypeChange(): void {
+    if (this.repaymentForm.repaymentType === 'STANDARD' && this.selectedCreditForRepayment?.repaymentStructure === 'INSTALLMENTS') {
+      this.repaymentForm.amount = this.selectedCreditForRepayment.installmentAmount;
+    }
+  }
+
+  closeRepaymentModal(): void {
+    this.showRepaymentModal = false;
+    this.showRepaymentSuccess = false;
+    this.selectedCreditForRepayment = null;
+    this.cdr.detectChanges();
+  }
+
+  submitRepayment(): void {
+    if (!this.repaymentForm.amount || this.repaymentForm.amount <= 0) {
+      this.showErrorToast('Amount must be greater than 0.');
+      return;
+    }
+    if (this.repaymentForm.amount > this.selectedCreditForRepayment.outstandingAmount) {
+      this.showErrorToast('Repayment cannot exceed outstanding balance.');
+      return;
+    }
+    if (!this.repaymentForm.subAccountId) {
+      this.showErrorToast('Please select an account to pay from.');
+      return;
+    }
+
+    this.isRepaying = true;
+    this.accountantService.repayCredit(this.selectedCreditForRepayment.id, this.repaymentForm.amount, this.repaymentForm.subAccountId, this.repaymentForm.notes)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.isRepaying = false; this.cdr.detectChanges(); })
+      )
+      .subscribe({
         next: (res: any) => {
-          this.isTxLoading = false;
-          this.allTransactions = res.content || [];
-          this.transactionTotalPages = res.totalPages || 0;
-          this.transactionTotalElements = res.totalElements || 0;
+          this.selectedCreditForRepayment.outstandingAmount -= this.repaymentForm.amount;
+          this.selectedCreditForRepayment.amountRepaid += this.repaymentForm.amount;
+          if (this.selectedCreditForRepayment.outstandingAmount <= 0) {
+            this.selectedCreditForRepayment.status = 'CLOSED';
+          } else {
+            this.selectedCreditForRepayment.status = 'PARTIALLY_PAID';
+          }
+          this.showRepaymentSuccess = true;
+          this.loadDashboardData(); // Reload to refresh balances and credits
           this.cdr.detectChanges();
         },
-        error: (err: any) => {
-          console.error('Failed to fetch all transactions', err);
-          this.isTxLoading = false;
-          this.showErrorToast('Failed to load transactions');
+        error: (err) => {
+          this.showErrorToast('Failed to record repayment: ' + (err.error || 'Unknown error'));
         }
       });
+  }
+
+  // --- Installments / Schedule Logic ---
+  isScheduleLoading: boolean = false;
+
+  openInstallmentsModal(credit: any): void {
+    this.selectedCreditForInstallments = credit;
+    this.selectedCreditInstallments = [];
+    this.isScheduleLoading = true;
+    this.showInstallmentsModal = true;
+    this.cdr.detectChanges();
+
+    this.accountantService.getCreditInstallments(credit.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isScheduleLoading = false;
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (data) => {
+          setTimeout(() => {
+            this.selectedCreditInstallments = data || [];
+            this.cdr.markForCheck();
+            this.cdr.detectChanges();
+          });
+        },
+        error: (err) => {
+          this.showErrorToast('Failed to load installments.');
+        }
+      });
+  }
+
+  closeInstallmentsModal(): void {
+    this.showInstallmentsModal = false;
+    this.selectedCreditForInstallments = null;
+    this.cdr.detectChanges();
+  }
+
+  countInstallmentsByStatus(status: string): number {
+    if (!this.selectedCreditInstallments) return 0;
+    return this.selectedCreditInstallments.filter(i => i.status === status).length;
+  }
+
+  // --- Credit Details Modal ---
+  showCreditDetailsModal: boolean = false;
+  selectedCreditForDetails: any = null;
+
+  openCreditDetailsModal(credit: any): void {
+    this.selectedCreditForDetails = credit;
+    this.showCreditDetailsModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeCreditDetailsModal(): void {
+    this.showCreditDetailsModal = false;
+    this.selectedCreditForDetails = null;
+    this.cdr.detectChanges();
   }
 
   applyTxFilters(): void {
@@ -1570,11 +1719,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   exportTransactions() {
     if (!this.displayedTransactions || this.displayedTransactions.length === 0) return;
-    
+
     const headers = ['Date', 'Account / Source', 'Payment Type', 'Description', 'Type', 'Amount'];
     const csvRows = [];
     csvRows.push(headers.join(','));
-    
+
     for (const tx of this.displayedTransactions) {
       const date = new Date(tx.transactionDate).toLocaleString();
       const account = `"${tx.subAccount?.bankName || tx.subAccount?.cashAccountName || 'Unknown Bank'} - ${tx.subAccount?.accountNumber || ''}"`;
@@ -1585,7 +1734,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       const amount = tx.amount;
       csvRows.push([date, account, paymentType, description, type, amount].join(','));
     }
-    
+
     const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -3352,7 +3501,41 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // ============================================
   fundRequests: PaymentRequest[] = [];
   filteredFundRequests: PaymentRequest[] = [];
-  
+
+  // Pagination
+  fundRequestsCurrentPage: number = 1;
+  fundRequestsPageSize: number = 50;
+
+  get paginatedFundRequests(): PaymentRequest[] {
+    const startIndex = (this.fundRequestsCurrentPage - 1) * this.fundRequestsPageSize;
+    return this.filteredFundRequests.slice(startIndex, startIndex + this.fundRequestsPageSize);
+  }
+
+  get totalFundRequestPages(): number {
+    return Math.ceil(this.filteredFundRequests.length / this.fundRequestsPageSize) || 1;
+  }
+
+  nextFundRequestPage(): void {
+    if (this.fundRequestsCurrentPage < this.totalFundRequestPages) {
+      this.fundRequestsCurrentPage++;
+    }
+  }
+
+  prevFundRequestPage(): void {
+    if (this.fundRequestsCurrentPage > 1) {
+      this.fundRequestsCurrentPage--;
+    }
+  }
+
+  get fundRequestsStartIndex(): number {
+    if (this.filteredFundRequests.length === 0) return 0;
+    return (this.fundRequestsCurrentPage - 1) * this.fundRequestsPageSize + 1;
+  }
+
+  get fundRequestsEndIndex(): number {
+    return Math.min(this.fundRequestsCurrentPage * this.fundRequestsPageSize, this.filteredFundRequests.length);
+  }
+
   // Filters
   fundFilterRequester: string = '';
   fundFilterDate: string = '';
@@ -3434,13 +3617,14 @@ export class AccountantDashboard implements OnInit, OnDestroy {
           try {
             const d = new Date(req.createdAt).toISOString().split('T')[0];
             match = match && d === this.fundFilterDate;
-          } catch(e) { match = false; }
+          } catch (e) { match = false; }
         } else {
           match = false;
         }
       }
       return match;
     });
+    this.fundRequestsCurrentPage = 1;
   }
 
   resetFundFilters(): void {
@@ -3458,13 +3642,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     // Try to pre-select a payment mode based on requesterPaymentMode
     let defaultMode = 'NEFT';
     if (request.requesterPaymentMode) {
-        const reqMode = request.requesterPaymentMode.toUpperCase();
-        if (reqMode.includes('UPI')) defaultMode = 'UPI';
-        else if (reqMode.includes('CASH')) defaultMode = 'CASH';
-        else if (reqMode.includes('IMPS')) defaultMode = 'IMPS';
-        else if (reqMode.includes('RTGS')) defaultMode = 'RTGS';
-        else if (reqMode.includes('CHEQUE')) defaultMode = 'CHEQUE';
-        else defaultMode = 'AUTO_FILL'; // Auto-fill from details
+      const reqMode = request.requesterPaymentMode.toUpperCase();
+      if (reqMode.includes('UPI')) defaultMode = 'UPI';
+      else if (reqMode.includes('CASH')) defaultMode = 'CASH';
+      else if (reqMode.includes('IMPS')) defaultMode = 'IMPS';
+      else if (reqMode.includes('RTGS')) defaultMode = 'RTGS';
+      else if (reqMode.includes('CHEQUE')) defaultMode = 'CHEQUE';
+      else defaultMode = 'AUTO_FILL'; // Auto-fill from details
     }
 
     this.fundPaymentForm = {
@@ -3486,18 +3670,18 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   getGeneratedQrCodeUrl(request: PaymentRequest | null): string | null {
     if (!request) return null;
     if (request.qrCode) return request.qrCode;
-    
+
     // If no explicit qrCode, but there's a UPI ID in the details, generate one
     if (request.bankDetails) {
-        // Regex to find a standard UPI ID pattern (e.g. name@bank)
-        const match = request.bankDetails.match(/([a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64})/);
-        if (match) {
-            const upiId = match[1];
-            // Standard UPI Intent URI format
-            const remaining = request.remainingAmount !== undefined ? request.remainingAmount : ((request.requestedAmount || 0) - (request.amountPaid || 0));
-            const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(request.requesterFullName || '')}&am=${remaining > 0 ? remaining : 0}`;
-            return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUrl)}`;
-        }
+      // Regex to find a standard UPI ID pattern (e.g. name@bank)
+      const match = request.bankDetails.match(/([a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64})/);
+      if (match) {
+        const upiId = match[1];
+        // Standard UPI Intent URI format
+        const remaining = request.remainingAmount !== undefined ? request.remainingAmount : ((request.requestedAmount || 0) - (request.amountPaid || 0));
+        const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(request.requesterFullName || '')}&am=${remaining > 0 ? remaining : 0}`;
+        return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUrl)}`;
+      }
     }
     return null;
   }
@@ -3511,41 +3695,53 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   openRejectionReason(reason: string): void {
-      this.viewingRejectionReason = reason || 'No rejection reason provided.';
-      this.showRejectionReasonModal = true;
+    this.viewingRejectionReason = reason || 'No rejection reason provided.';
+    this.showRejectionReasonModal = true;
   }
 
   closeRejectionReason(): void {
-      this.showRejectionReasonModal = false;
+    this.showRejectionReasonModal = false;
+  }
+
+  showPurposeModal = false;
+  viewingPurpose = '';
+
+  openPurposeModal(purpose: string): void {
+    this.viewingPurpose = purpose || 'No purpose provided.';
+    this.showPurposeModal = true;
+  }
+
+  closePurposeModal(): void {
+    this.showPurposeModal = false;
   }
 
   submitFundReject(): void {
     if (!this.selectedFundRequest || !this.selectedFundRequest.id) return;
-    
+
     if (!this.fundRejectionRemarks || this.fundRejectionRemarks.trim().length === 0) {
-        this.showErrorToast('Please provide a reason for rejection');
-        return;
+      this.showErrorToast('Please provide a reason for rejection');
+      return;
     }
-    
+
     this.isFundSubmitting = true;
     this.cdr.detectChanges();
-    
+
     // Simulating 2.9 second spinner
     setTimeout(() => {
-        this.paymentRequestService.updateStatus(this.selectedFundRequest!.id!, { status: 'REJECTED', rejectionRemarks: this.fundRejectionRemarks }).subscribe({
-            next: (res: any) => {
-                this.isFundSubmitting = false;
-                this.isRejectingFund = false;
-                this.showFundPaymentModal = false;
-                this.showSuccess('Fund request rejected successfully', 'Request Rejected');
-                this.loadFundRequests();
-            },
-            error: (err: any) => {
-                this.isFundSubmitting = false;
-                this.showErrorToast('Failed to reject fund request');
-                console.error(err);
-            }
-        });
+      this.paymentRequestService.updateStatus(this.selectedFundRequest!.id!, { status: 'REJECTED', rejectionRemarks: this.fundRejectionRemarks }).subscribe({
+        next: (res: any) => {
+          this.isFundSubmitting = false;
+          this.isRejectingFund = false;
+          this.showFundPaymentModal = false;
+          this.showSuccess('Fund request rejected successfully', 'Request Rejected');
+          this.loadFundRequests();
+        },
+        error: (err: any) => {
+          this.isFundSubmitting = false;
+          this.showErrorToast('Failed to reject fund request');
+          console.error(err);
+        }
+      });
     }, 2900);
   }
 
@@ -3587,19 +3783,19 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }
 
     this.isFundSubmitting = true;
-    
+
     // Auto-fill logic handling
     let finalPaymentMode = this.fundPaymentForm.paymentMode;
     if (finalPaymentMode === 'AUTO_FILL') {
-        finalPaymentMode = this.selectedFundRequest.requesterPaymentMode || 'NEFT';
+      finalPaymentMode = this.selectedFundRequest.requesterPaymentMode || 'NEFT';
     }
 
     let finalTransactionId = finalPaymentMode === 'CASH' ? null : this.fundPaymentForm.transactionId;
     if (this.fundPaymentForm.beneficiaryId && finalTransactionId) {
-        const b = this.beneficiaries.find((x: any) => x.id === this.fundPaymentForm.beneficiaryId);
-        if (b) {
-            finalTransactionId += ` (To: ${b.beneficiaryName})`;
-        }
+      const b = this.beneficiaries.find((x: any) => x.id === this.fundPaymentForm.beneficiaryId);
+      if (b) {
+        finalTransactionId += ` (To: ${b.beneficiaryName})`;
+      }
     }
 
     const payload = {
@@ -3619,15 +3815,15 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         const delay = Math.max(0, 2900 - elapsed); // Ensure spinner shows for 2.9 seconds
 
         setTimeout(() => {
-            this.isFundSubmitting = false;
-            this.isFundPaymentSuccess = true;
-            this.cdr.detectChanges();
-            
-            // Show the success screen inside the modal for 1.5 seconds, then close
-            setTimeout(() => {
-                this.closeFundPaymentModal();
-                this.loadFundRequests();
-            }, 1500);
+          this.isFundSubmitting = false;
+          this.isFundPaymentSuccess = true;
+          this.cdr.detectChanges();
+
+          // Show the success screen inside the modal for 1.5 seconds, then close
+          setTimeout(() => {
+            this.closeFundPaymentModal();
+            this.loadFundRequests();
+          }, 1500);
         }, delay);
       },
       error: (err: any) => {
@@ -3758,6 +3954,18 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     return this.credits.reduce((sum, credit) => sum + (credit.amount || 0), 0);
   }
 
+  getTotalCredits(): number {
+    return this.credits.reduce((sum, credit) => sum + (credit.amount || 0), 0);
+  }
+
+  getOutstandingCredits(): number {
+    return this.credits.reduce((sum, credit) => sum + (credit.outstandingAmount || 0), 0);
+  }
+
+  getRepaidCredits(): number {
+    return this.credits.reduce((sum, credit) => sum + (credit.amountRepaid || 0), 0);
+  }
+
   getNetCashBalance(): number {
     let balance = this.getTotalConfirmedFromAgents() - this.getTotalPaidToVisaMan() - this.getTotalPaidToFundRequests();
     if (this.includeCreditInBalance) {
@@ -3771,6 +3979,30 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   // --- Add Funds Modal Logic ---
+  showAddFundsSuccess = false;
+  generatedSchedule: any[] = [];
+
+  // Repayment & Installments
+  showRepaymentSuccess = false;
+  showRepaymentModal = false;
+  repaymentForm: any = { amount: 0, subAccountId: null, notes: '', repaymentType: 'STANDARD' };
+  selectedCreditForRepayment: any = null;
+  isRepaying = false;
+
+  // Installment Tracking
+  currentInstallmentNum: number = 1;
+  totalInstallments: number = 1;
+
+  showInstallmentsModal = false;
+  selectedCreditInstallments: any[] = [];
+  selectedCreditForInstallments: any = null;
+
+  getSubAccountBalance(id: number | null | undefined): number {
+    if (!id) return 0;
+    const acc = this.subAccounts.find(a => a.id === id);
+    return acc?.balance || 0;
+  }
+
   openAddFundsModal(): void {
     this.creditForm = {
       amount: 0,
@@ -3784,7 +4016,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       loanTenureMonths: 0,
       cardInfo: '',
       emiDetails: '',
-      subAccountId: null
+      subAccountId: null,
+      purpose: '',
+      totalRepaymentAmount: 0,
+      installmentAmount: 0,
+      repaymentStructure: 'LUMP_SUM'
     };
     this.showAddFundsModal = true;
     this.cdr.detectChanges();
@@ -3792,7 +4028,68 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   closeAddFundsModal(): void {
     this.showAddFundsModal = false;
+    this.showAddFundsSuccess = false;
+    this.generatedSchedule = [];
     this.cdr.detectChanges();
+  }
+
+  calculateEMI(): void {
+    const principal = this.creditForm.amount || 0;
+    const months = this.creditForm.loanTenureMonths || 0;
+    const rate = this.creditForm.interestRate || 0;
+
+    if (principal <= 0 || months <= 0) {
+      this.creditForm.installmentAmount = 0;
+      this.creditForm.totalRepaymentAmount = principal;
+      this.generatedSchedule = [];
+      return;
+    }
+
+    if (this.creditForm.repaymentStructure === 'LUMP_SUM') {
+      // Simple Interest: P + (P * r/100 * months/12)
+      if (rate > 0) {
+        const interest = principal * (rate / 100) * (months / 12);
+        this.creditForm.totalRepaymentAmount = Math.round(principal + interest);
+      } else {
+        this.creditForm.totalRepaymentAmount = principal;
+      }
+      this.creditForm.installmentAmount = 0;
+      this.generatedSchedule = [];
+    } else {
+      // Installments - Reducing Balance EMI
+      if (rate > 0) {
+        const r = rate / 12 / 100;
+        const num = principal * r * Math.pow(1 + r, months);
+        const den = Math.pow(1 + r, months) - 1;
+        const emi = num / den;
+
+        this.creditForm.installmentAmount = Math.round(emi);
+        this.creditForm.totalRepaymentAmount = Math.round(emi * months);
+      } else {
+        this.creditForm.installmentAmount = Math.round(principal / months);
+        this.creditForm.totalRepaymentAmount = principal;
+      }
+      this.generateSchedule();
+    }
+  }
+
+  generateSchedule(): void {
+    this.generatedSchedule = [];
+    if (this.creditForm.repaymentStructure !== 'INSTALLMENTS' || !this.creditForm.dueDate || (this.creditForm.loanTenureMonths || 0) <= 0) {
+      return;
+    }
+
+    let currentDate = new Date(this.creditForm.dueDate);
+    const months = this.creditForm.loanTenureMonths || 0;
+    for (let i = 1; i <= months; i++) {
+      this.generatedSchedule.push({
+        installmentNum: i,
+        date: currentDate.toISOString().split('T')[0],
+        amount: this.creditForm.installmentAmount
+      });
+      // Increment by 1 month
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
   }
 
   submitCredit(): void {
@@ -3804,6 +4101,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       this.showErrorToast('Please select a Bank Account to credit to.');
       return;
     }
+
 
     // Set basic validation based on method
     if (this.creditForm.method === 'FRIEND' && (!this.creditForm.friendName || !this.creditForm.friendPhone)) {
@@ -3828,8 +4126,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       .subscribe({
         next: (res: any) => {
           this.credits.unshift(res);
-          this.closeAddFundsModal();
-          this.showSuccess(`Successfully added ₹${res.amount} via ${res.method}!`, 'Credit Added!');
+          this.showAddFundsSuccess = true;
+          this.cdr.detectChanges();
         },
         error: (err: any) => {
           console.error('Failed to add credit', err);
@@ -3970,6 +4268,61 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   // Calculate Visa Settlement Status
+  getCurrentEmiStatus(credit: any): string {
+    if (credit.repaymentStructure !== 'INSTALLMENTS' || !credit.installmentAmount) {
+      return 'N/A';
+    }
+    if (credit.status === 'CLOSED') {
+      return 'Fully Paid';
+    }
+    const repaid = Number(credit.amountRepaid) || 0;
+    const emi = Number(credit.installmentAmount);
+
+    const ratio = repaid / emi;
+    const fullEmisPaid = Math.floor(ratio + 0.001);
+    const remainder = repaid - (fullEmisPaid * emi);
+
+    if (remainder > 0.01) {
+      return 'Partial Paid';
+    } else {
+      return 'Upcoming';
+    }
+  }
+
+  getCurrentEmiInfo(credit: any): string {
+    if (credit.repaymentStructure !== 'INSTALLMENTS' || !credit.installmentAmount) {
+      return 'N/A';
+    }
+    const repaid = Number(credit.amountRepaid) || 0;
+    const emi = Number(credit.installmentAmount);
+
+    const ratio = repaid / emi;
+    const fullEmisPaid = Math.floor(ratio + 0.001);
+    const currentActiveEmi = fullEmisPaid + 1;
+    const total = credit.loanTenureMonths || 1;
+
+    if (credit.status === 'CLOSED' || currentActiveEmi > total) {
+      return 'Completed';
+    }
+    return `EMI ${currentActiveEmi}/${total}`;
+  }
+
+  getLastPaidEmiInfo(credit: any): string | null {
+    if (credit.repaymentStructure !== 'INSTALLMENTS' || !credit.installmentAmount) {
+      return null;
+    }
+    const repaid = Number(credit.amountRepaid) || 0;
+    const emi = Number(credit.installmentAmount);
+
+    const ratio = repaid / emi;
+    const fullEmisPaid = Math.floor(ratio + 0.001);
+
+    if (fullEmisPaid > 0) {
+      return `EMI ${fullEmisPaid} Paid`;
+    }
+    return null;
+  }
+
   getFundReleaseStatus(student: any): string {
     if (student.accToVisaManStatus === 'CONFIRMED' || student.accToVisaManStatus === 'FUNDS_CONFIRMED' || student.accToVisaManStatus === 'FULLY_PAID' || student.accToVisaManStatus === 'SETTLED' || student.accToVisaManStatus === 'FEE_RECEIVED') {
       return 'SETTLED';
@@ -4005,7 +4358,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       return this.beneficiaries;
     }
     const term = this.beneficiarySearchTerm.toLowerCase();
-    return this.beneficiaries.filter(b => 
+    return this.beneficiaries.filter(b =>
       (b.beneficiaryName && b.beneficiaryName.toLowerCase().includes(term)) ||
       (b.bankName && b.bankName.toLowerCase().includes(term)) ||
       (b.accountNumber && b.accountNumber.toLowerCase().includes(term)) ||
@@ -4071,31 +4424,31 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       this.isUpdatingBeneficiary = true;
       this.updateBeneficiarySuccess = false;
       this.cdr.detectChanges();
-      
+
       const startTime = Date.now();
-      
+
       try {
         await import('rxjs').then(m => m.firstValueFrom(
           this.http.put(`http://localhost:8080/api/accountant/beneficiary-accounts/${this.newBeneficiary.id}`, this.newBeneficiary)
         ));
-        
+
         const elapsed = Date.now() - startTime;
         const delay = Math.max(0, 3000 - elapsed);
-        
+
         await new Promise(resolve => setTimeout(resolve, delay));
-        
+
         this.loadBeneficiaries();
         this.isUpdatingBeneficiary = false;
         this.updateBeneficiarySuccess = true;
         this.cdr.detectChanges();
-        
+
       } catch (err) {
         console.error('Error updating beneficiary:', err);
         const elapsed = Date.now() - startTime;
         const delay = Math.max(0, 3000 - elapsed);
-        
+
         await new Promise(resolve => setTimeout(resolve, delay));
-        
+
         this.isUpdatingBeneficiary = false;
         this.updateBeneficiarySuccess = false;
         this.cdr.detectChanges();

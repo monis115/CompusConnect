@@ -204,6 +204,11 @@ export interface AccountantCredit {
     cardInfo?: string;
     emiDetails?: string;
     amountRepaid?: number;
+    outstandingAmount?: number;
+    totalRepaymentAmount?: number;
+    installmentAmount?: number;
+    repaymentStructure?: string; // LUMP_SUM, INSTALLMENTS
+    purpose?: string;
     status?: string; // ACTIVE, REPAID
     accountantUsername?: string;
     subAccountId?: number | null;
@@ -362,6 +367,18 @@ export class AccountantService {
 
     addCredit(credit: AccountantCredit, username: string): Observable<AccountantCredit> {
         return this.http.post<AccountantCredit>(`${this.API_URL}/accountant/credits/${username}`, credit);
+    }
+
+    repayCredit(creditId: number, amount: number, subAccountId: number, notes: string): Observable<any> {
+        let params = new HttpParams()
+            .set('amount', amount.toString())
+            .set('subAccountId', subAccountId.toString())
+            .set('notes', notes);
+        return this.http.post(`${this.API_URL}/accountant/credits/${creditId}/repay`, null, { params });
+    }
+
+    getCreditInstallments(creditId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/accountant/credits/${creditId}/installments`);
     }
 
     // ==========================================
