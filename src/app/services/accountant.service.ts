@@ -101,6 +101,22 @@ export interface RejectPaymentPayload {
 
 // --- NEW Dashboard Interfaces ---
 
+export interface LiabilityDashboardSummary {
+    totalBorrowed: number;
+    totalOutstanding: number;
+    totalRepaid: number;
+    activeLoansCount: number;
+    criticalLoansCount: number;
+    purposeDistribution: { [key: string]: number };
+    agingAnalysis: { [key: string]: number };
+    cashFlowForecast: { [key: string]: number };
+    creditCardAnalytics?: {
+        totalCardLimit: number;
+        totalCardOutstanding: number;
+        limitUtilization: number;
+    };
+}
+
 export interface DashboardStats {
     totalStudentsAssigned: number;
     pendingPayments: number;
@@ -209,6 +225,9 @@ export interface AccountantCredit {
     installmentAmount?: number;
     repaymentStructure?: string; // LUMP_SUM, INSTALLMENTS
     purpose?: string;
+    lateFeeType?: string;
+    lateFeeValue?: number;
+    fixedLateFine?: number;
     status?: string; // ACTIVE, REPAID
     accountantUsername?: string;
     subAccountId?: number | null;
@@ -369,16 +388,73 @@ export class AccountantService {
         return this.http.post<AccountantCredit>(`${this.API_URL}/accountant/credits/${username}`, credit);
     }
 
-    repayCredit(creditId: number, amount: number, subAccountId: number, notes: string): Observable<any> {
+    updateCreditDetails(creditId: number, data: any): Observable<AccountantCredit> {
+        return this.http.put<AccountantCredit>(`${this.API_URL}/accountant/credits/${creditId}/details`, data);
+    }
+
+    repayCredit(creditId: number, amount: number, subAccountId: number | null, notes: string, username: string): Observable<any> {
         let params = new HttpParams()
             .set('amount', amount.toString())
-            .set('subAccountId', subAccountId.toString())
-            .set('notes', notes);
+            .set('username', username);
+        
+        if (subAccountId !== null) {
+            params = params.set('subAccountId', subAccountId.toString());
+        }
+        if (notes) {
+            params = params.set('notes', notes);
+        }
         return this.http.post(`${this.API_URL}/accountant/credits/${creditId}/repay`, null, { params });
+    }
+
+    forecloseCredit(creditId: number, chargePercentage: number, username: string, subAccountId?: number | null): Observable<any> {
+        let params = new HttpParams()
+            .set('foreclosureChargePercentage', chargePercentage.toString())
+            .set('username', username);
+        if (subAccountId != null) {
+            params = params.set('subAccountId', subAccountId.toString());
+        }
+        return this.http.post(`${this.API_URL}/accountant/credits/${creditId}/foreclose`, null, { params });
+    }
+
+    prepayCredit(creditId: number, amount: number, strategy: string, username: string): Observable<any> {
+        let params = new HttpParams()
+            .set('amount', amount.toString())
+            .set('strategy', strategy)
+            .set('username', username);
+        return this.http.post(`${this.API_URL}/accountant/credits/${creditId}/prepay`, null, { params });
     }
 
     getCreditInstallments(creditId: number): Observable<any[]> {
         return this.http.get<any[]>(`${this.API_URL}/accountant/credits/${creditId}/installments`);
+    }
+
+    getCreditLedger(creditId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/accountant/credits/${creditId}/ledger`);
+    }
+
+    getCreditTimeline(creditId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/accountant/credits/${creditId}/timeline`);
+    }
+
+    // --- Liability Dashboard API ---
+    getLiabilityDashboardSummary(username: string): Observable<any> {
+        return this.http.get<any>(`${this.API_URL}/accountant/liability-dashboard/${username}/summary`);
+    }
+
+    getLiabilityCalendar(username: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/accountant/credits/calendar/${username}`);
+    }
+
+    getFinancialAlerts(username: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/accountant/credits/alerts/${username}`);
+    }
+    
+    markAlertAsRead(alertId: number): Observable<any> {
+        return this.http.post(`${this.API_URL}/accountant/credits/alerts/${alertId}/read`, {});
+    }
+
+    downloadClosureCertificate(creditId: number): Observable<Blob> {
+        return this.http.get(`${this.API_URL}/accountant/credits/${creditId}/closure-certificate`, { responseType: 'blob' });
     }
 
     // ==========================================
