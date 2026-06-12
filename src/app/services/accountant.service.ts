@@ -477,11 +477,19 @@ export class AccountantService {
         return this.http.get(`${this.API_URL}/accountant/subaccounts/transactions/all`, { params });
     }
 
+    getAdvancedTransactionSummary(payload: any): Observable<any> {
+        return this.http.post<any>(`${this.API_URL}/accountant/transactions/advanced-summary`, payload);
+    }
+
     createSubAccount(subAccount: SubAccount): Observable<SubAccount> {
         return this.http.post<SubAccount>(`${this.API_URL}/accountant/subaccounts`, subAccount);
     }
 
     updateSubAccount(id: number, subAccount: SubAccount): Observable<SubAccount> {
         return this.http.put<SubAccount>(`${this.API_URL}/accountant/subaccounts/${id}`, subAccount);
+    }
+
+    getAdvancedFilterOptions(): Observable<any> {
+        return this.http.get<any>(`${this.API_URL}/accountant/transactions/advanced-filter-options`);
     }
 }

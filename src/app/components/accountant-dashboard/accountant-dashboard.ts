@@ -22,6 +22,7 @@ import { PaymentRequestService, PaymentRequest } from '../../services/payment-re
 import { environment } from '../../../environments/environment';
 import { FileService } from '../../services/file.service';
 import { ChartConfiguration, ChartOptions, ChartData, ChartType } from 'chart.js';
+import { ReportService, ReportResponseDTO, ReportRequest } from '../../services/report.service';
 
 @Component({
   selector: 'app-accountant-dashboard',
@@ -122,6 +123,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     return wallets.length > 0 ? [wallets[0]] : [];
   }
   get cashSubAccounts() { return this.subAccounts.filter(a => a.accountType === 'CASH' || a.bankName === 'CASH'); }
+  get cashAndWalletSubAccounts() { return [...this.cashSubAccounts, ...this.walletSubAccounts]; }
   get totalBankBalance() { return this.bankSubAccounts.reduce((acc, curr) => acc + (curr.balance || 0), 0); }
   get totalCashBalance() { return this.cashSubAccounts.reduce((acc, curr) => acc + (curr.balance || 0), 0); }
   get totalWalletBalance() { return this.walletSubAccounts.reduce((acc, curr) => acc + (curr.balance || 0), 0); }
@@ -138,12 +140,28 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   transactionTotalPages: number = 0;
   transactionTotalElements: number = 0;
   transactionPageSize: number = 100;
+
+  // Advanced Transaction Filters
+  showAdvancedTxFilters: boolean = false;
+  advFilterRole: string = 'AGENT';
+  advFilterUserId: string = 'all';
+  advFilterCollege: string = 'all';
+
+  advTotalInflow: number = 0;
+  advTotalOutflow: number = 0;
+  advBalance: number = 0;
+  advTransactions: any[] = [];
+
+  uniqueAdvAgents: string[] = [];
+  uniqueAdvDocManagers: string[] = [];
+  uniqueAdvColleges: string[] = [];
+
   creditsCurrentPage: number = 1;
   creditsPageSize: number = 10;
-  
+
   calendarCurrentPage: number = 1;
   calendarPageSize: number = 10;
-  
+
   selectedCalendarYear: number = new Date().getFullYear();
   selectedCalendarMonth: number = new Date().getMonth();
   monthsList = [
@@ -252,6 +270,10 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   get totalCreditsPages(): number {
     return Math.ceil(this.credits.length / this.creditsPageSize) || 1;
+  }
+
+  get activeLoansCount(): number {
+    return this.credits.filter(c => c.status === 'ACTIVE').length;
   }
 
   nextCreditsPage(): void {
@@ -1135,7 +1157,6 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   accountsSearchTerm: string = '';
 
   // Reports Section
-  reportAgentFilter: string = 'ALL';
   reportDateFrom: string = '';
   reportDateTo: string = '';
   reportPaidToFilter: string = 'ALL';
@@ -1160,7 +1181,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   isBeneficiaryWizardOpen = false;
   beneficiaryWizardStep = 1;
   newBeneficiary: any = {
-    beneficiaryType: 'University',
+    beneficiaryType: 'Visa Manager',
     beneficiaryName: '',
     bankName: '',
     accountNumber: '',
@@ -1179,7 +1200,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // Visa Payment Form Data
   bankDetailsAmount: number = 0;
-  bankDetailsCurrency: string = 'USD';
+  bankDetailsCurrency: string = 'INR';
   bankName: string = '';
   accountNumber: string = '';
   swiftCode: string = '';
@@ -1252,6 +1273,70 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   ];
   currentLogoutMessage = '';
 
+  // --- Reports State ---
+  reportCategories = [
+    {
+      name: 'FINANCIAL REPORTS',
+      reports: [
+        { id: 'profit-loss-statement', name: 'Profit & Loss Statement', icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', color: '#10b981', bg: '#ecfdf5' }, // Green (Money)
+        { id: 'balance-sheet', name: 'Balance Sheet', icon: 'M3 3v18h18M18 17V9M13 17V5M8 17v-3', color: '#6366f1', bg: '#e0e7ff' }, // Indigo (Chart)
+        { id: 'cash-book', name: 'Cash Book', icon: 'M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2m2 4h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2z', color: '#f59e0b', bg: '#fef3c7' }, // Amber (Wallet)
+        { id: 'bank-book', name: 'Bank Book', icon: 'M4 19h16M2 23h20M12 2L2 7l10 5 10-5-10-5zM4 10v9M20 10v9M8 10v9M16 10v9', color: '#3b82f6', bg: '#eff6ff' }, // Blue (Bank)
+        { id: 'general-ledger', name: 'General Ledger', icon: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z', color: '#8b5cf6', bg: '#f5f3ff' }, // Violet (Book)
+        { id: 'unified-transaction-summary', name: 'Unified User Transaction Summary', icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 14v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75', color: '#ec4899', bg: '#fdf2f8' } // Pink (Users)
+      ]
+    },
+    {
+      name: 'COLLECTION REPORTS',
+      reports: [
+        { id: 'collection-summary', name: 'Collection Summary', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8', color: '#0ea5e9', bg: '#e0f2fe' }, // Sky
+        { id: 'student-collection', name: 'Student Collection', icon: 'M12 14v4M12 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', color: '#14b8a6', bg: '#ccfbf1' }, // Teal
+        { id: 'student-detailed-statement', name: 'Student Detailed Statement', icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2', color: '#06b6d4', bg: '#cffafe' }, // Cyan
+        { id: 'agent-collection', name: 'Agent Collection', icon: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z', color: '#f43f5e', bg: '#ffe4e6' }, // Rose
+        { id: 'agent-detailed-statement', name: 'Agent Detailed Statement', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8', color: '#d946ef', bg: '#fae8ff' }, // Fuchsia
+        { id: 'agent-college-wise', name: 'Agent College-Wise Performance', icon: 'M12 20V10M18 20V4M6 20v-4', color: '#84cc16', bg: '#ecfccb' }, // Lime
+        { id: 'university-collection', name: 'University Collection', icon: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 0 1 .665 6.479A11.952 11.952 0 0 0 12 20.055a11.952 11.952 0 0 0-6.824-2.998 12.078 12.078 0 0 1 .665-6.479L12 14z M12 14v7', color: '#3b82f6', bg: '#eff6ff' }, // Blue
+        { id: 'purpose-wise-collection', name: 'Purpose Wise Collection', icon: 'M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z', color: '#a855f7', bg: '#f3e8ff' } // Purple
+      ]
+    },
+    {
+      name: 'TRANSACTION REPORTS',
+      reports: [
+        { id: 'transaction-summary', name: 'Transaction Summary', icon: 'M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z M13 2v7h7', color: '#f97316', bg: '#ffedd5' }, // Orange
+        { id: 'inflow-report', name: 'Inflow Report', icon: 'M12 19V5M5 12l7-7 7 7', color: '#10b981', bg: '#ecfdf5' }, // Green (Arrow Up)
+        { id: 'outflow-report', name: 'Outflow Report', icon: 'M12 5v14M19 12l-7 7-7-7', color: '#ef4444', bg: '#fef2f2' } // Red (Arrow Down)
+      ]
+    },
+    {
+      name: 'ACCOUNT & OTHER REPORTS',
+      reports: [
+        { id: 'account-statement', name: 'Account Statement', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8', color: '#64748b', bg: '#f1f5f9' }, // Slate
+        { id: 'beneficiary-report', name: 'Beneficiary Report', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', color: '#eab308', bg: '#fef9c3' }, // Yellow
+        { id: 'fund-request-report', name: 'Fund Request Report', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', color: '#0ea5e9', bg: '#e0f2fe' }, // Sky Blue
+        { id: 'credit-loan-report', name: 'Credit / Loan Report', icon: 'M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2m2 4h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2z', color: '#f43f5e', bg: '#ffe4e6' }, // Rose
+        { id: 'interest-report', name: 'Interest Report', icon: 'M23 6l-9.5 9.5-5-5L1 18', color: '#8b5cf6', bg: '#f5f3ff' } // Violet
+      ]
+    }
+  ];
+
+  selectedReportCategory: string | null = null;
+  selectedReportId: string | null = null;
+  selectedReportName: string | null = null;
+  selectedReportConfig: any = null;
+  reportData: ReportResponseDTO | null = null;
+  isReportLoading: boolean = false;
+  reportSearch: string = '';
+  reportDateRange: string = 'month';
+
+  activeReportTab: string = 'All Reports';
+
+  get filteredReportCategories() {
+    if (this.activeReportTab === 'All Reports') {
+      return this.reportCategories;
+    }
+    return this.reportCategories.filter(c => c.name.toLowerCase().includes(this.activeReportTab.toLowerCase().replace(' reports', '')));
+  }
+
   constructor(
     private accountantService: AccountantService,
     private router: Router,
@@ -1260,8 +1345,187 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     private http: HttpClient,
     private paymentRequestService: PaymentRequestService,
     private fileService: FileService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private reportService: ReportService
   ) { }
+
+  getBackendCategory(categoryName: string): string {
+    return categoryName.toLowerCase().replace(/ & other/g, '').replace(/ & /g, '-').replace(/ /g, '-');
+  }
+
+  selectReport(categoryName: string, report: any) {
+    this.selectedReportCategory = this.getBackendCategory(categoryName);
+    this.selectedReportId = report.id;
+    this.selectedReportName = report.name;
+    this.selectedReportConfig = report;
+    this.fetchReportData();
+  }
+
+  closeReport() {
+    this.selectedReportId = null;
+    this.selectedReportName = null;
+    this.selectedReportConfig = null;
+    this.reportData = null;
+  }
+
+  onDateRangeChange() {
+    if (this.reportDateRange !== 'custom') {
+      this.reportDateFrom = '';
+      this.reportDateTo = '';
+    }
+    this.fetchReportData();
+  }
+
+  onCustomDateChange() {
+    if (this.reportDateFrom || this.reportDateTo) {
+      this.reportDateRange = 'custom';
+    }
+  }
+
+  resetReportFilters() {
+    this.reportDateRange = 'month';
+    this.reportDateFrom = '';
+    this.reportDateTo = '';
+    this.reportSearch = '';
+    this.fetchReportData();
+  }
+
+  fetchReportData() {
+    if (!this.selectedReportCategory || !this.selectedReportId) return;
+
+    this.isReportLoading = true;
+
+    let startDate: string | undefined = undefined;
+    let endDate: string | undefined = undefined;
+    const today = new Date();
+
+    if (this.reportDateRange === 'custom') {
+      startDate = this.reportDateFrom || undefined;
+      endDate = this.reportDateTo || undefined;
+    } else if (this.reportDateRange !== 'all') {
+      const getLocalDateStr = (d: Date) => {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      };
+      endDate = getLocalDateStr(today);
+      const start = new Date(today);
+      if (this.reportDateRange === 'today') {
+        // start is today
+      } else if (this.reportDateRange === 'week') {
+        start.setDate(today.getDate() - 7);
+      } else if (this.reportDateRange === 'month') {
+        start.setMonth(today.getMonth() - 1);
+      } else if (this.reportDateRange === 'year') {
+        start.setMonth(today.getMonth() - 12);
+      }
+      startDate = getLocalDateStr(start);
+    }
+
+    const req: ReportRequest = {
+      category: this.selectedReportCategory,
+      reportName: this.selectedReportId,
+      page: 0,
+      size: 50,
+      search: this.reportSearch,
+      startDate: startDate,
+      endDate: endDate
+    };
+
+    this.reportService.getReportData(req).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (data) => {
+        this.reportData = data;
+        this.isReportLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch report', err);
+        this.reportData = null;
+        this.isReportLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  exportReport(format: 'pdf' | 'excel') {
+    if (!this.selectedReportCategory || !this.selectedReportId) return;
+
+    const req: ReportRequest = {
+      category: this.selectedReportCategory,
+      reportName: this.selectedReportId,
+      page: 0,
+      size: 50,
+      search: this.reportSearch,
+      startDate: this.reportDateRange === 'custom' ? (this.reportDateFrom || undefined) : undefined,
+      endDate: this.reportDateRange === 'custom' ? (this.reportDateTo || undefined) : undefined
+    };
+
+    // If using predefined range, calculate it for export
+    if (this.reportDateRange !== 'custom' && this.reportDateRange !== 'all') {
+      const today = new Date();
+      const getLocalDateStr = (d: Date) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      req.endDate = getLocalDateStr(today);
+      const start = new Date(today);
+      if (this.reportDateRange === 'week') start.setDate(today.getDate() - 7);
+      else if (this.reportDateRange === 'month') start.setMonth(today.getMonth() - 1);
+      else if (this.reportDateRange === 'year') start.setMonth(today.getMonth() - 12);
+      req.startDate = getLocalDateStr(start);
+    }
+
+    this.reportService.exportReport(req, format).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.selectedReportId}.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Export failed', err);
+        this.showToast('Export failed. Make sure the backend is running and the report is implemented.', 'error');
+      }
+    });
+  }
+
+  exportReportFromCard(category: string, report: any, format: 'pdf' | 'excel') {
+    // List of reports that require user input (like search/filtering) before downloading
+    const requiresInputReports = [
+      'student-detailed-statement',
+      'agent-detailed-statement',
+      'agent-college-wise'
+    ];
+
+    if (requiresInputReports.includes(report.id)) {
+      this.showToast(`The ${report.name} requires specific filters. Please click 'View Report' to select options before downloading.`, 'info');
+      return;
+    }
+
+    // Convert category to backend format
+    const backendCategory = this.getBackendCategory(category);
+
+    // For reports that don't strictly require input, download directly with default parameters
+    const req: ReportRequest = {
+      category: backendCategory,
+      reportName: report.id,
+      page: 0,
+      size: 50,
+      search: '' // default empty search
+    };
+
+    this.reportService.exportReport(req, format).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${report.id}.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Export failed', err);
+        this.showToast('Export failed. Make sure the backend is running and the report is implemented.', 'error');
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.username = sessionStorage.getItem('userId') || '';
@@ -1717,6 +1981,10 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   loadAllTransactions(): void {
+    if (this.showAdvancedTxFilters) {
+      this.applyAdvancedTxFilters();
+      return;
+    }
     this.isTxLoading = true;
     this.accountantService.getAllSubAccountTransactions(
       this.transactionCurrentPage,
@@ -1736,6 +2004,61 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         console.error('Failed to fetch all transactions', err);
         this.isTxLoading = false;
         this.showErrorToast('Failed to load transactions');
+      }
+    });
+  }
+
+  loadAdvancedFilterOptions(): void {
+    this.accountantService.getAdvancedFilterOptions().subscribe({
+      next: (res: any) => {
+        this.uniqueAdvAgents = res.agents || [];
+        this.uniqueAdvDocManagers = res.docManagers || [];
+        this.uniqueAdvColleges = res.colleges || [];
+      },
+      error: (err: any) => {
+        console.error('Failed to load advanced filter options', err);
+      }
+    });
+  }
+
+  toggleAdvancedTxFilters(): void {
+    this.showAdvancedTxFilters = !this.showAdvancedTxFilters;
+    if (!this.showAdvancedTxFilters) {
+      // Reset back to normal view
+      this.loadAllTransactions();
+    } else {
+      // Fetch options when we open the view
+      this.loadAdvancedFilterOptions();
+    }
+  }
+
+  applyAdvancedTxFilters(): void {
+    this.isTxLoading = true;
+    const payload = {
+      role: this.advFilterRole,
+      userId: this.advFilterUserId,
+      collegeName: this.advFilterCollege,
+      startDate: this.txFilterStartDate || null,
+      endDate: this.txFilterEndDate || null
+    };
+
+    this.accountantService.getAdvancedTransactionSummary(payload).subscribe({
+      next: (res: any) => {
+        this.isTxLoading = false;
+        this.advTransactions = res.transactions || [];
+        this.advTotalInflow = res.totalInflow || 0;
+        this.advTotalOutflow = res.totalOutflow || 0;
+        this.advBalance = res.balance || 0;
+        // Mock pagination for advanced view since it returns a list
+        this.allTransactions = this.advTransactions;
+        this.transactionTotalPages = 1;
+        this.transactionTotalElements = this.advTransactions.length;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Failed to fetch advanced transactions', err);
+        this.isTxLoading = false;
+        this.showErrorToast('Failed to load advanced transactions');
       }
     });
   }
@@ -2037,6 +2360,14 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   get displayedTransactions() {
+    if (this.showAdvancedTxFilters) {
+      if (this.txFilterTab === 'ALL') return this.allTransactions;
+      if (this.txFilterTab === 'INFLOW') return this.allTransactions.filter(tx => tx.inflow > 0);
+      if (this.txFilterTab === 'OUTFLOW') return this.allTransactions.filter(tx => tx.outflow > 0);
+      if (this.txFilterTab === 'INTERNAL') return []; // Internal not applicable for advanced
+      return this.allTransactions;
+    }
+
     if (this.txFilterTab === 'ALL') return this.allTransactions;
     if (this.txFilterTab === 'INFLOW') return this.allTransactions.filter(tx => tx.transactionType === 'CREDIT' && !this.isInternalTx(tx));
     if (this.txFilterTab === 'OUTFLOW') return this.allTransactions.filter(tx => tx.transactionType === 'DEBIT' && !this.isInternalTx(tx));
@@ -2482,6 +2813,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     } else if (actionType === 'cash_settlement' || actionType === 'record_payment') {
       this.selectedSettlementStudent = student;
       this.showCashSettlementModal = true;
+      this.cashSettlementStep = 'form';
       this.cashSettlementData = {
         depositType: 'BANK',
         amount: pendingAmount,
@@ -2504,10 +2836,13 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }
   }
 
+  cashSettlementStep: 'form' | 'processing' | 'success' = 'form';
+
   submitCashSettlement(): void {
     if (!this.selectedSettlementStudent || !this.cashSettlementData.amount || !this.cashSettlementData.subAccountId) return;
 
     this.isSubmitting = true;
+    this.cashSettlementStep = 'processing';
     this.cdr.detectChanges();
 
     const formData = new FormData();
@@ -2535,16 +2870,19 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       .subscribe({
         next: (res: any) => {
           this.recentStatusChange[this.selectedSettlementStudent.id] = 'updated';
-          this.showGlobalSuccess('Cash settlement recorded successfully!');
-          this.closeCashSettlementModal();
+          this.cashSettlementStep = 'success';
+          this.cdr.detectChanges();
           this.refreshData();
+
           setTimeout(() => {
+            this.closeCashSettlementModal();
             delete this.recentStatusChange[res.id || this.selectedSettlementStudent.id];
             this.cdr.detectChanges();
-          }, 3000);
+          }, 2000);
         },
         error: (err: any) => {
           console.error('Error submitting cash settlement', err);
+          this.cashSettlementStep = 'form';
           this.showToast('Failed to record cash settlement', 'error');
         }
       });
@@ -2695,20 +3033,36 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   get reportBaseStudents(): any[] {
     return this.students.filter(s => {
       if (!s.paidAmount || s.paidAmount <= 0) return false;
-      const matchAgent = this.reportAgentFilter === 'ALL' || s.agentFullName === this.reportAgentFilter;
       const matchPaidTo = this.reportPaidToFilter === 'ALL' || s.paidTo === this.reportPaidToFilter;
       // Use a generic date field — try payment received or fallback
       const dateStr = (s as any).paymentReceivedDate || (s as any).visaPaymentReceivedDate;
       const dateVal = dateStr ? new Date(dateStr) : null;
       const matchDateFrom = !this.reportDateFrom || !dateVal || dateVal >= new Date(this.reportDateFrom);
       const matchDateTo = !this.reportDateTo || !dateVal || dateVal <= new Date(this.reportDateTo);
-      return matchAgent && matchPaidTo && matchDateFrom && matchDateTo;
+      return matchPaidTo && matchDateFrom && matchDateTo;
     });
   }
 
   get uniqueAgents(): string[] {
     return [...new Set(this.students.map(s => s.agentFullName).filter(Boolean))] as string[];
   }
+
+  get reportUniqueAgents(): string[] {
+    const agents = new Set<string>();
+    this.students.forEach(s => {
+      if (s.agentFullName) agents.add(s.agentFullName);
+    });
+    this.agentPassbooks.forEach(pb => {
+      if (pb.paidByAgentFullName) agents.add(pb.paidByAgentFullName);
+      else if (pb.paidByAgent) agents.add(pb.paidByAgent);
+    });
+    return Array.from(agents).sort();
+  }
+
+  get reportUniqueUsers(): { label: string, value: string, role: string }[] {
+    return [];
+  }
+
 
   get uniqueColleges(): string[] {
     return [...new Set(this.students.map(s => s.collegeName).filter(Boolean))] as string[];
@@ -2994,7 +3348,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       visaPaymentRequestedAmount: record.visaAmountRequest || 0,
       visaManServiceCharge: record.serviceChargeRequested || 0,
       accToVisaManPaidAmount: record.totalAmountPaidByAccountant || 0,
-      visaPaymentRequestedCurrency: 'USD',
+      visaPaymentRequestedCurrency: 'INR',
       visaMan: { username: record.requesterName }
     };
 
@@ -3587,6 +3941,8 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     return 'PENDING_COLLECTION';
   }
 
+  sendBankDetailsStep: 'form' | 'processing' | 'success' = 'form';
+
   /**
    * Open modal to send bank details to agent
    */
@@ -3600,13 +3956,14 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     const rawTotal = (visaFee + serviceCharge) - received;
     this.bankDetailsAmount = Number(rawTotal.toFixed(2));
 
-    this.bankDetailsCurrency = student.visaPaymentRequestedCurrency || 'USD';
+    this.bankDetailsCurrency = student.visaPaymentRequestedCurrency || 'INR';
     // Reset bank details form
     this.bankName = '';
     this.accountNumber = '';
     this.swiftCode = '';
     this.beneficiaryName = '';
     this.branchAddress = '';
+    this.sendBankDetailsStep = 'form';
     this.showSendBankDetailsModal = true;
     this.cdr.detectChanges();
   }
@@ -3623,8 +3980,11 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.swiftCode = '';
     this.beneficiaryName = '';
     this.branchAddress = '';
+    this.sendBankDetailsStep = 'form';
     this.cdr.detectChanges();
   }
+
+  confirmPaymentStep: 'form' | 'processing' | 'success' = 'form';
 
   /**
    * Open modal to confirm visa payment received
@@ -3642,7 +4002,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     const alreadyReceived = student.visaPaymentReceivedAmount || 0;
     this.receivedAmount = (baseFee + serviceCharge) - alreadyReceived;
     this.receivedDate = new Date().toISOString().split('T')[0];
-
+    this.confirmPaymentStep = 'form';
     this.showConfirmPaymentModal = true;
     this.cdr.detectChanges();
   }
@@ -3653,6 +4013,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   closeConfirmPaymentModal(): void {
     this.showConfirmPaymentModal = false;
     this.selectedStudent = null;
+    this.confirmPaymentStep = 'form';
     this.cdr.detectChanges();
   }
 
@@ -3671,6 +4032,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }
 
     this.processingId = studentId;
+    this.sendBankDetailsStep = 'processing';
     this.cdr.detectChanges();
 
     const body = {
@@ -3690,11 +4052,16 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.showSuccess('Bank details sent to agent successfully!', 'Details Sent!');
+          this.sendBankDetailsStep = 'success';
           this.refreshData();
-          this.closeSendBankDetailsModal();
+          setTimeout(() => {
+            if (this.showSendBankDetailsModal) {
+              this.closeSendBankDetailsModal();
+            }
+          }, 2000);
         },
         error: (err: any) => {
+          this.sendBankDetailsStep = 'form';
           console.error('Error sending bank details:', err);
           this.showErrorToast('Failed to send bank details: ' + (err.error?.message || err.message || 'Unknown error'));
         }
@@ -3749,10 +4116,12 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     }
 
     this.processingId = studentId;
+    this.confirmPaymentStep = 'processing';
     this.cdr.detectChanges();
 
     const body = {
       accountantUsername: this.username,
+      amount: receivedAmt, // Make sure amount is correct here
       receivedAmount: receivedAmt,
       receivedDate: receivedDt
     };
@@ -3767,12 +4136,17 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.showSuccess('Visa payment confirmed!', 'Payment Confirmed');
-          this.closeConfirmPaymentModal();
+          this.confirmPaymentStep = 'success';
           // Reload both students and passbooks fresh — no delay
           this.refreshData();
+          setTimeout(() => {
+            if (this.showConfirmPaymentModal) {
+              this.closeConfirmPaymentModal();
+            }
+          }, 2000);
         },
         error: (err: any) => {
+          this.confirmPaymentStep = 'form';
           console.error('Error confirming payment:', err);
           this.showErrorToast('Failed to confirm payment: ' + (err.error?.message || err.message || 'Unknown error'));
         }
@@ -4029,6 +4403,18 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.isFundPaymentSuccess = false;
     this.isFundSubmitting = false;
     this.cdr.detectChanges();
+  }
+
+  showPurposeModalFlag: boolean = false;
+  viewingPurposeText: string = '';
+
+  openPurposeModal(purpose: string): void {
+    this.viewingPurposeText = purpose || 'No purpose provided.';
+    this.showPurposeModalFlag = true;
+  }
+
+  closePurposeModal(): void {
+    this.showPurposeModalFlag = false;
   }
 
   openRejectionReason(reason: string): void {
@@ -4829,7 +5215,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.beneficiaryWizardStep = 1;
     this.isEditingBeneficiary = false;
     this.newBeneficiary = {
-      beneficiaryType: 'University',
+      beneficiaryType: 'Visa Manager',
       beneficiaryName: '',
       bankName: '',
       accountNumber: '',

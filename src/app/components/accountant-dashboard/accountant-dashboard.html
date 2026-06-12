@@ -167,10 +167,9 @@
             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
           </svg>
           @if (!isSidebarCollapsed) {
-          <span style="flex: 1;">Credit & Loan Management</span>
+          <span style="flex: 1;">Credit & Loan</span>
           <span class="nav-badge"
-            style="background: var(--bg-body); color: var(--text-secondary); padding: 2px 8px; border-radius: 2px; font-size: 0.75rem; font-weight: 600;">{{visaManPassbooks.length
-            + agentPassbooks.length}}</span>
+            style="background: var(--bg-body); color: var(--text-secondary); padding: 2px 8px; border-radius: 2px; font-size: 0.75rem; font-weight: 600;">{{activeLoansCount}}</span>
           }
         </a>
 
@@ -246,7 +245,7 @@
         <h1>Outstanding Recovery</h1>
         }
         @if (activeView === 'credit-ledger') {
-        <h1>Credit & Loan Management</h1>
+        <h1>Credit & Loan</h1>
         }
         @if (activeView === 'reports') {
         <h1>Reports</h1>
@@ -2926,7 +2925,7 @@
       </div>
       }
 
-      <!-- ======================= CREDIT & LOAN MANAGEMENT ======================= -->
+      <!-- ======================= CREDIT & LOAN ======================= -->
       @if (activeView === 'credit-ledger') {
       <div class="credit-ledger-container" [@fadeIn] style="padding: 10px 16px;">
 
@@ -9453,6 +9452,40 @@
 }
 </div>
 
+<!-- Purpose Modal -->
+@if (showPurposeModalFlag) {
+<div class="logout-modal-overlay" style="z-index: 100;" (click)="closePurposeModal()">
+  <div class="logout-modal-content"
+    style="padding: 24px; border-radius: 2px; max-width: 400px; text-align: left; background: white; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);"
+    (click)="$event.stopPropagation()" [@scaleIn]>
+    <div
+      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+      <h2
+        style="margin: 0; font-size: 18px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-bullseye" style="color: #3b82f6;"></i>
+        Purpose Details
+      </h2>
+      <button (click)="closePurposeModal()"
+        style="background: none; border: none; cursor: pointer; color: #64748b; padding: 4px; border-radius: 2px; transition: background 0.2s;"
+        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+        <i class="fas fa-times" style="font-size: 16px;"></i>
+      </button>
+    </div>
+
+    <div
+      style="background: #f8fafc; padding: 16px; border-radius: 2px; border-left: 4px solid #3b82f6; font-size: 14px; color: #334155; line-height: 1.6; white-space: pre-wrap;">
+      {{viewingPurposeText}}</div>
+
+    <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+      <button class="vt-btn"
+        style="background: #e2e8f0; color: #0f172a; border-radius: 2px; padding: 8px 16px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s;"
+        onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'"
+        (click)="closePurposeModal()">Close</button>
+    </div>
+  </div>
+</div>
+}
+
 <!-- Rejection Reason Modal -->
 @if (showRejectionReasonModal) {
 <div class="logout-modal-overlay" style="z-index: 100;" (click)="closeRejectionReason()">
@@ -9727,12 +9760,14 @@
     </div>
   </div>
 </div>
+}
 
 
 
 <!-- ======================= NOTIFICATIONS MODAL ======================= -->
-<div class="vt-modal-backdrop" *ngIf="showNotificationsModal" (click)="closeNotificationsModal()"
-  style="display: flex; align-items: flex-start; justify-content: flex-end; padding: 60px 20px;">
+@if (showNotificationsModal) {
+<div class="vt-modal-backdrop" (click)="closeNotificationsModal()"
+  style="position: fixed; inset: 0; z-index: 100000; background: rgba(15, 23, 42, 0.4); display: flex; align-items: flex-start; justify-content: flex-end; padding: 60px 20px;">
   <div class="vt-modal-content" (click)="$event.stopPropagation()"
     style="width: 400px; max-height: 80vh; border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin: 0;">
     <div class="vt-modal-header"
