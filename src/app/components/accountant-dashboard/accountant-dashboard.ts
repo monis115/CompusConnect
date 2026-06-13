@@ -118,6 +118,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   // SubAccounts
   subAccounts: SubAccount[] = [];
   get bankSubAccounts() { return this.subAccounts.filter(a => a.accountType !== 'CASH' && a.accountType !== 'WALLET' && a.bankName !== 'CASH'); }
+  get topBankAccounts() { return [...this.bankSubAccounts].sort((a, b) => (b.balance || 0) - (a.balance || 0)); }
   get walletSubAccounts() {
     const wallets = this.subAccounts.filter(a => a.accountType === 'WALLET');
     return wallets.length > 0 ? [wallets[0]] : [];
@@ -165,6 +166,101 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   selectedCalendarYear: number = new Date().getFullYear();
   selectedCalendarMonth: number = new Date().getMonth();
+
+  // --- NEW DASHBOARD WIDGETS ---
+  selectedCashFlowPeriod: 'day' | 'week' | 'month' | 'year' = 'month';
+
+  setCashFlowPeriod(period: 'day' | 'week' | 'month' | 'year') {
+    this.selectedCashFlowPeriod = period;
+  }
+
+  get cashFlowTransactions(): any[] {
+    const now = new Date();
+    return this.allTransactions.filter(tx => {
+      const txDate = new Date(tx.transactionDate);
+      if (this.selectedCashFlowPeriod === 'day') {
+        return txDate.toDateString() === now.toDateString();
+      } else if (this.selectedCashFlowPeriod === 'week') {
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        return txDate >= weekAgo;
+      } else if (this.selectedCashFlowPeriod === 'month') {
+        return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
+      } else if (this.selectedCashFlowPeriod === 'year') {
+        return txDate.getFullYear() === now.getFullYear();
+      }
+      return true;
+    });
+  }
+
+  get cashFlowInflow(): number {
+    return this.cashFlowTransactions
+      .filter(tx => tx.transactionType === 'CREDIT' || tx.inflow > 0)
+      .reduce((sum, tx) => sum + (tx.amount || tx.inflow || 0), 0);
+  }
+
+  get cashFlowOutflow(): number {
+    return this.cashFlowTransactions
+      .filter(tx => tx.transactionType === 'DEBIT' || tx.outflow > 0)
+      .reduce((sum, tx) => sum + (tx.amount || tx.outflow || 0), 0);
+  }
+
+  get cashFlowDonutStyle(): string {
+    const inflow = this.cashFlowInflow;
+    const outflow = this.cashFlowOutflow;
+    const total = inflow + outflow;
+    if (total === 0) {
+      return 'conic-gradient(#e2e8f0 0% 100%)';
+    }
+    const inflowPercent = (inflow / total) * 100;
+    return `conic-gradient(#10b981 0% ${inflowPercent}%, #ef4444 ${inflowPercent}% 100%)`;
+  }
+
+  get topInflowBank(): any {
+    const bankTotals: { [key: string]: number } = {};
+    this.cashFlowTransactions
+      .filter(tx => tx.transactionType === 'CREDIT' || tx.inflow > 0)
+      .forEach(tx => {
+        const name = tx.subAccount?.bankName || tx.subAccount?.cashAccountName || tx.accountName || tx.bankName || 'Other';
+        bankTotals[name] = (bankTotals[name] || 0) + (tx.amount || tx.inflow || 0);
+      });
+    const sorted = Object.entries(bankTotals).sort((a, b) => b[1] - a[1]);
+    if (sorted.length === 0) return { name: 'N/A', amount: 0, percent: 0 };
+    const maxAmount = sorted[0][1];
+    return { name: sorted[0][0], amount: maxAmount, percent: this.cashFlowInflow ? (maxAmount / this.cashFlowInflow) * 100 : 0 };
+  }
+
+  get topOutflowBank(): any {
+    const bankTotals: { [key: string]: number } = {};
+    this.cashFlowTransactions
+      .filter(tx => tx.transactionType === 'DEBIT' || tx.outflow > 0)
+      .forEach(tx => {
+        const name = tx.subAccount?.bankName || tx.subAccount?.cashAccountName || tx.accountName || tx.bankName || 'Other';
+        bankTotals[name] = (bankTotals[name] || 0) + (tx.amount || tx.outflow || 0);
+      });
+    const sorted = Object.entries(bankTotals).sort((a, b) => b[1] - a[1]);
+    if (sorted.length === 0) return { name: 'N/A', amount: 0, percent: 0 };
+    const maxAmount = sorted[0][1];
+    return { name: sorted[0][0], amount: maxAmount, percent: this.cashFlowOutflow ? (maxAmount / this.cashFlowOutflow) * 100 : 0 };
+  }
+
+  get recentTransactions(): any[] {
+    return [...this.cashFlowTransactions]
+      .sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
+      .slice(0, 11);
+  }
+
+  get upcomingCredits(): any[] {
+    // For loans due this month, we look at the calendarInstallments
+    const now = new Date();
+    return this.calendarInstallments.filter(inst => {
+      if (inst.status !== 'PENDING' && inst.status !== 'OVERDUE') return false;
+      const dueDate = new Date(inst.dueDate);
+      const diffTime = dueDate.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays <= 30;
+    }).slice(0, 3);
+  }
+  // -----------------------------
   monthsList = [
     { value: 0, label: 'Jan' }, { value: 1, label: 'Feb' },
     { value: 2, label: 'Mar' }, { value: 3, label: 'Apr' },
@@ -304,6 +400,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   txFilterBankId: string = '';
   txFilterStartDate: string = '';
   txFilterEndDate: string = '';
+  showTransactionTotals: boolean = false;
 
   // --- Payment Collection Redesign State ---
   isSendingReminder: Record<number, boolean> = {};
@@ -1651,6 +1748,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.loadPassbooks();
     this.loadFundRequests();
     this.loadSubAccounts();
+    this.loadAllTransactions(); // Ensure all transactions are loaded for dashboard widgets
     if (!this.username) {
       this.isLoading = false;
       this.router.navigate(['/AdminLogin']);
@@ -2449,6 +2547,24 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     return this.allTransactions;
   }
 
+  get displayedTotalInflow(): number {
+    if (!this.displayedTransactions) return 0;
+    return this.displayedTransactions.reduce((sum, tx) => {
+      const isCredit = tx.transactionType === 'CREDIT' || tx.inflow > 0;
+      if (isCredit && !this.isInternalTx(tx)) return sum + Number(tx.amount || tx.inflow || 0);
+      return sum;
+    }, 0);
+  }
+
+  get displayedTotalOutflow(): number {
+    if (!this.displayedTransactions) return 0;
+    return this.displayedTransactions.reduce((sum, tx) => {
+      const isDebit = tx.transactionType === 'DEBIT' || tx.outflow > 0;
+      if (isDebit && !this.isInternalTx(tx)) return sum + Number(tx.amount || tx.outflow || 0);
+      return sum;
+    }, 0);
+  }
+
   exportTransactions() {
     if (!this.displayedTransactions || this.displayedTransactions.length === 0) return;
 
@@ -2522,6 +2638,34 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     this.cdr.detectChanges();
     this.loadDashboardData();
     this.loadPassbooks();
+  }
+
+  viewPettyCashTransactions() {
+    if (this.walletSubAccounts && this.walletSubAccounts.length > 0) {
+      this.txFilterBankId = this.walletSubAccounts[0]?.id?.toString() || '';
+    }
+    this.switchView('transactions');
+  }
+
+  openProfitAndLossReport() {
+    this.switchView('reports');
+    const report = this.reportCategories
+      .find(c => c.name === 'FINANCIAL REPORTS')
+      ?.reports.find(r => r.id === 'profit-loss-statement');
+    if (report) {
+      this.selectReport('FINANCIAL REPORTS', report);
+    }
+  }
+
+  openCollectionsFromHub() {
+    this.switchView('payment-collection');
+    this.collectionFilterStatuses = ['PENDING_COLLECTION', 'PENDING_AGENT_PAYMENT'];
+  }
+
+  openVisaDeptFromHub() {
+    this.switchView('pending');
+    this.settlementStatusFilter = 'FUND_RELEASE_PENDING';
+    this.visaSettlementCurrentPage = 1;
   }
 
   // --- Navigation & View Switching ---
@@ -2753,6 +2897,89 @@ export class AccountantDashboard implements OnInit, OnDestroy {
     };
 
     this.cdr.detectChanges();
+  }
+
+  // Global Collection Dashboard Getters
+  getTotalCollectionRequested(): number {
+    return this.students ? this.students.reduce((sum, s) => sum + (s.visaPaymentRequestedAmount || 0) + (s.visaManServiceCharge || 0), 0) : 0;
+  }
+
+  getTotalCollectionConfirmed(): number {
+    return this.students ? this.students.reduce((sum, s) => sum + (s.visaPaymentReceivedAmount || 0), 0) : 0;
+  }
+
+  // Recent Petty Cash / Wallet Outflows
+  get recentPettyCashOutflows(): any[] {
+    return this.allTransactions
+      .filter(tx => {
+        const sub = tx.subAccount;
+        const isCashOrWallet = sub && (sub.accountType === 'CASH' || sub.accountType === 'WALLET' || sub.bankName === 'CASH');
+        const isOutflow = tx.transactionType === 'DEBIT' || tx.outflow > 0;
+        return isCashOrWallet && isOutflow;
+      })
+      .sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
+      .slice(0, 5);
+  }
+
+  // AI Financial Insights
+  get aiInsights(): { type: 'success' | 'warning' | 'danger' | 'info', icon: string, text: string }[] {
+    const insights: { type: 'success' | 'warning' | 'danger' | 'info', icon: string, text: string }[] = [];
+
+    const netBalance = this.totalBalance + (this.stats?.totalAmountPending || 0)
+      - ((this.stats?.totalVisaRequestedByVisaMan || 0) - (this.stats?.totalAccToVisaManPaidAmount || 0))
+      - this.getTotalBorrowedFunds();
+
+    const pendingVisa = this.getPendingToVisaMan();
+    const cashBalance = this.totalCashBalance + this.totalWalletBalance;
+    const bankBalance = this.totalBankBalance;
+    const totalAssets = this.totalBalance;
+    const outstanding = this.stats?.totalAmountPending || 0;
+    const borrowed = this.getTotalBorrowedFunds();
+
+    // Net Balance Analysis
+    if (netBalance < 0) {
+      insights.push({ type: 'danger', icon: 'alert-triangle', text: `Net balance is negative (₹${Math.abs(netBalance).toLocaleString('en-IN', { maximumFractionDigits: 0 })}). Consider collecting outstanding receivables or reducing liabilities urgently.` });
+    } else if (netBalance > 0 && netBalance < totalAssets * 0.1) {
+      insights.push({ type: 'warning', icon: 'trending-down', text: `Net balance is thin at just ${((netBalance / totalAssets) * 100).toFixed(1)}% of assets. Build a buffer by accelerating collections.` });
+    } else if (netBalance > 0) {
+      insights.push({ type: 'success', icon: 'check-circle', text: `Net position is healthy. Continue maintaining current collection pace.` });
+    }
+
+    // Visa Dues
+    if (pendingVisa > 0 && pendingVisa > outstanding) {
+      insights.push({ type: 'danger', icon: 'globe', text: `Visa dues (₹${pendingVisa.toLocaleString('en-IN', { maximumFractionDigits: 0 })}) exceed outstanding receivables. Prioritize agent collections to cover visa payments.` });
+    } else if (pendingVisa > 0) {
+      insights.push({ type: 'warning', icon: 'globe', text: `₹${pendingVisa.toLocaleString('en-IN', { maximumFractionDigits: 0 })} in visa dues pending. Once agent collections confirm, settle visa payments promptly.` });
+    }
+
+    // Cash Concentration
+    if (cashBalance > 0 && totalAssets > 0 && (cashBalance / totalAssets) > 0.4) {
+      insights.push({ type: 'info', icon: 'lightbulb', text: `${((cashBalance / totalAssets) * 100).toFixed(0)}% of assets are in cash/wallet. Consider moving excess to bank accounts for better security.` });
+    }
+
+    // Collection Efficiency
+    const requested = this.getTotalCollectionRequested();
+    const confirmed = this.getTotalCollectionConfirmed();
+    if (requested > 0) {
+      const rate = (confirmed / requested) * 100;
+      if (rate >= 95) {
+        insights.push({ type: 'success', icon: 'target', text: `Collection rate is excellent at ${rate.toFixed(1)}%. Keep up the follow-ups with agents.` });
+      } else if (rate < 80) {
+        insights.push({ type: 'warning', icon: 'bar-chart', text: `Collection rate is ${rate.toFixed(1)}%. Follow up with agents who have outstanding balances.` });
+      }
+    }
+
+    // Borrowed Funds
+    if (borrowed > 0 && totalAssets > 0 && (borrowed / totalAssets) > 0.5) {
+      insights.push({ type: 'danger', icon: 'bank', text: `Borrowed funds are ${((borrowed / totalAssets) * 100).toFixed(0)}% of total assets. Plan repayments to reduce credit exposure.` });
+    }
+
+    // If no warnings or issues, add encouraging message
+    if (insights.length === 0) {
+      insights.push({ type: 'success', icon: 'star', text: `All financial metrics look stable. No immediate actions required.` });
+    }
+
+    return insights.slice(0, 4);
   }
 
   get filteredPaymentCollectionStudents(): any[] {
