@@ -12,6 +12,68 @@
   </div>
   }
 
+  <!-- QUICK ACTION MODAL -->
+  @if (isQuickActionModalOpen) {
+  <div class="modal-backdrop" (click)="closeQuickActionModal()">
+    <div class="modal-content quick-modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          <i class="fas"
+            [ngClass]="{'fa-upload': quickActionType === 'UPLOAD', 'fa-certificate': quickActionType === 'ISSUE'}"></i>
+          Quick Action: {{ quickActionType === 'UPLOAD' ? 'Telex Requests' : 'Issue Telex Number' }}
+        </h3>
+        <button class="close-icon-btn" (click)="closeQuickActionModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="quick-search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search student by name or ID..." [value]="quickActionSearchQuery"
+            (input)="quickActionSearchQuery = $any($event.target).value">
+        </div>
+
+        <div class="quick-student-list">
+          @if (quickActionStudents.length > 0) {
+          @for (student of quickActionStudents; track student.id) {
+          <div class="quick-student-card">
+            <div class="qs-info">
+              <div class="qs-avatar">{{ getInitials(student.fullName) }}</div>
+              <div class="qs-details">
+                <h4>{{ student.fullName }}</h4>
+                <span>{{ student.applicationId }}</span>
+              </div>
+            </div>
+            <div class="qs-action">
+              @if (quickActionType === 'UPLOAD') {
+              <input type="file" [id]="'quick-file-' + student.id" (change)="onFileSelected($event, student.id)"
+                multiple style="display: none;" />
+              <label [for]="'quick-file-' + student.id" class="icon-btn outline-btn"
+                style="cursor: pointer; font-size: 0.75rem; padding: 4px 10px;">Select Files</label>
+              @if (selectedFiles[student.id]) {
+              <button class="icon-btn" (click)="handleUploadDocs(student)"
+                style="font-size: 0.75rem; padding: 4px 10px;">Upload</button>
+              }
+              }
+              @if (quickActionType === 'ISSUE') {
+              <input type="text" placeholder="TX-12345" class="quick-telex-input"
+                [(ngModel)]="telexInputs[student.id]" />
+              <button class="icon-btn" (click)="handleIssueTelex(student)"
+                style="font-size: 0.75rem; padding: 4px 10px;">Issue</button>
+              }
+            </div>
+          </div>
+          }
+          } @else {
+          <div class="empty-state" style="padding: 20px;">
+            <i class="fas fa-check-circle"></i>
+            <p>No students found for this action.</p>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
   <!-- SUCCESS MODAL -->
   @if (showSuccessModal) {
   <div class="modal-backdrop" (click)="closeSuccessModal()">
@@ -105,33 +167,64 @@
         <span>Dashboard</span>
       </div>
 
-      <div class="nav-item" [class.active]="activeTab === 'actions'" (click)="activeTab = 'actions'">
-        <i class="fas fa-bolt"></i>
-        <span>Action Required</span>
-        @if (actionRequiredStudents.length > 0) {
-        <span class="nav-badge">{{ actionRequiredStudents.length
-          }}</span>
+      <div class="nav-item" [class.active]="activeTab === 'upload-docs'" (click)="activeTab = 'upload-docs'">
+        <i class="fas fa-upload"></i>
+        <span>Telex Requests</span>
+        @if (uploadDocsStudents.length > 0) {
+        <span class="nav-badge">{{ uploadDocsStudents.length }}</span>
         }
       </div>
 
-      <div class="nav-item" [class.active]="activeTab === 'pipeline'" (click)="activeTab = 'pipeline'">
-        <i class="fas fa-clock"></i>
-        <span>In Pipeline</span>
-        @if (pipelineStudents.length > 0) {
-        <span class="nav-badge">{{ pipelineStudents.length }}</span>
+      <div class="nav-item" [class.active]="activeTab === 'submit-uni'" (click)="activeTab = 'submit-uni'">
+        <i class="fas fa-university"></i>
+        <span>University Sub.</span>
+        @if (submitUniStudents.length > 0) {
+        <span class="nav-badge">{{ submitUniStudents.length }}</span>
         }
       </div>
 
-      <div class="nav-item" [class.active]="activeTab === 'visa'" (click)="activeTab = 'visa'">
-        <i class="fas fa-stamp"></i>
-        <span>Visa Stamped</span>
+      <div class="nav-item" [class.active]="activeTab === 'submit-mfa'" (click)="activeTab = 'submit-mfa'">
+        <i class="fas fa-building"></i>
+        <span>MFA Processing</span>
+        @if (submitMfaStudents.length > 0) {
+        <span class="nav-badge">{{ submitMfaStudents.length }}</span>
+        }
+      </div>
+
+      <div class="nav-item" [class.active]="activeTab === 'issue-telex'" (click)="activeTab = 'issue-telex'">
+        <i class="fas fa-certificate"></i>
+        <span>Issue Telex No.</span>
+        @if (issueTelexStudents.length > 0) {
+        <span class="nav-badge">{{ issueTelexStudents.length }}</span>
+        }
+      </div>
+
+      <div class="nav-item" [class.active]="activeTab === 'assign-visa'" (click)="activeTab = 'assign-visa'">
+        <i class="fas fa-user-plus"></i>
+        <span>Assign Visa Man</span>
+        @if (assignVisaStudents.length > 0) {
+        <span class="nav-badge">{{ assignVisaStudents.length }}</span>
+        }
+      </div>
+
+      <div class="nav-item" [class.active]="activeTab === 'telex-issued'" (click)="activeTab = 'telex-issued'">
+        <i class="fas fa-award"></i>
+        <span>Telex Issued</span>
+      </div>
+
+      <div class="nav-item" [class.active]="activeTab === 'rejected'" (click)="activeTab = 'rejected'">
+        <i class="fas fa-times-circle"></i>
+        <span>Rejected</span>
+        @if (rejectedStudents.length > 0) {
+        <span class="nav-badge" style="background: #dc2626;">{{ rejectedStudents.length }}</span>
+        }
       </div>
 
       <div class="nav-section-title">Records</div>
 
       <div class="nav-item" [class.active]="activeTab === 'records'" (click)="activeTab = 'records'">
         <i class="fas fa-folder-open"></i>
-        <span>All Students</span>
+        <span>My Applications</span>
       </div>
 
       <div class="nav-item" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">
@@ -141,15 +234,6 @@
     </nav>
 
     <div class="sidebar-footer">
-      <div class="user-profile" (click)="activeTab = 'profile'">
-        <div class="user-avatar" [style.background]="getAvatarColor(profileData?.fullName || currentUsername)">
-          {{ getInitials(profileData?.fullName || currentUsername) }}
-        </div>
-        <div class="user-info">
-          <div class="user-name">{{ profileData?.fullName || currentUsername }}</div>
-          <div class="user-role">Telex Manager</div>
-        </div>
-      </div>
       <button class="logout-btn" (click)="logout()">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
@@ -167,14 +251,26 @@
           @if (activeTab === 'dashboard') {
           <i class="fas fa-th-large"></i>
           }
-          @if (activeTab === 'actions') {
-          <i class="fas fa-bolt"></i>
+          @if (activeTab === 'upload-docs') {
+          <i class="fas fa-upload"></i>
           }
-          @if (activeTab === 'pipeline') {
-          <i class="fas fa-clock"></i>
+          @if (activeTab === 'submit-uni') {
+          <i class="fas fa-university"></i>
           }
-          @if (activeTab === 'visa') {
-          <i class="fas fa-stamp"></i>
+          @if (activeTab === 'submit-mfa') {
+          <i class="fas fa-building"></i>
+          }
+          @if (activeTab === 'issue-telex') {
+          <i class="fas fa-certificate"></i>
+          }
+          @if (activeTab === 'assign-visa') {
+          <i class="fas fa-user-plus"></i>
+          }
+          @if (activeTab === 'telex-issued') {
+          <i class="fas fa-award"></i>
+          }
+          @if (activeTab === 'rejected') {
+          <i class="fas fa-times-circle"></i>
           }
           @if (activeTab === 'records') {
           <i class="fas fa-folder-open"></i>
@@ -184,23 +280,47 @@
           }
           {{ getTabTitle() }}
         </h1>
-        <p>Welcome back, {{ currentUsername }}</p>
       </div>
       <div class="header-right">
         <div class="search-box">
           <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search students..." [value]="searchQuery" (input)="searchQuery = $any($event.target).value; onSearch()">
+          <input type="text" placeholder="Search students..." [value]="searchQuery"
+            (input)="searchQuery = $any($event.target).value; onSearch()">
         </div>
         <button class="icon-btn" title="Refresh Data" (click)="refreshData()">
           <i class="fas fa-sync-alt"></i>
         </button>
+
+        <!-- Top Right Profile -->
+        <input type="file" #profilePhotoInput accept="image/*" style="display: none;"
+          (change)="onProfilePhotoSelected($event)">
+        <div class="top-profile" (click)="triggerProfileUpload(profilePhotoInput)">
+          <div class="user-avatar top-avatar"
+            [style.background]="getAvatarColor(profileData?.fullName || currentUsername)">
+            @if (profileData?.profilePhotoPath) {
+            <img [src]="getProfilePhotoUrl(profileData?.profilePhotoPath)" alt="Profile Photo">
+            } @else {
+            {{ getInitials(profileData?.fullName || currentUsername) }}
+            }
+          </div>
+          <div class="top-profile-info">
+            <div class="top-profile-name">
+              Telex Manager
+            </div>
+            <div class="top-profile-status">
+              <span class="online-indicator"></span> Online
+            </div>
+          </div>
+          <i class="fas fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; margin-left: 4px;"></i>
+        </div>
+
       </div>
     </header>
 
     <!-- CONTENT BODY -->
     <div class="content-body">
 
-      @if (!loading && activeTab !== 'profile') {
+      @if (!loading && activeTab !== 'profile' && activeTab !== 'dashboard') {
       <!-- Smart Filter Bar -->
       <div class="filter-bar"
         style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
@@ -230,240 +350,549 @@
 
       <!-- DASHBOARD VIEW -->
       @if (activeTab === 'dashboard' && !loading) {
-      <div class="lurni-dashboard fade-in">
-        <div class="lurni-header">
-          <h1>Welcome back, {{ telexManagerProfile?.fullName || currentUsername }}</h1>
-        </div>
+      <div class="fade-in">
+        <div class="dashboard-wrapper">
 
-        <div class="lurni-stats-grid">
-          <div class="lurni-stat-card" (click)="activeTab = 'actions'">
-            <div class="lurni-stat-icon icon-blue"><i class="fas fa-bolt"></i></div>
-            <div class="lurni-stat-info">
-              <p class="lurni-stat-label">Pending Actions</p>
-              <h3 class="lurni-stat-value">{{ getFilteredActionStudents().length }}</h3>
-            </div>
-          </div>
-          <div class="lurni-stat-card" (click)="activeTab = 'pipeline'">
-            <div class="lurni-stat-icon icon-green"><i class="fas fa-clock"></i></div>
-            <div class="lurni-stat-info">
-              <p class="lurni-stat-label">In Pipeline</p>
-              <h3 class="lurni-stat-value">{{ getFilteredPipelineStudents().length }}</h3>
-            </div>
-          </div>
-          <div class="lurni-stat-card" (click)="activeTab = 'visa'">
-            <div class="lurni-stat-icon icon-orange"><i class="fas fa-stamp"></i></div>
-            <div class="lurni-stat-info">
-              <p class="lurni-stat-label">Visa Stamped</p>
-              <h3 class="lurni-stat-value">{{ getFilteredVisaStudents().length }}</h3>
-            </div>
-          </div>
-          <div class="lurni-stat-card" (click)="activeTab = 'records'">
-            <div class="lurni-stat-icon icon-red"><i class="fas fa-users"></i></div>
-            <div class="lurni-stat-info">
-              <p class="lurni-stat-label">Total Students</p>
-              <h3 class="lurni-stat-value">{{ getFilteredAllStudents().length }}</h3>
-            </div>
-          </div>
-        </div>
-
-        <div class="lurni-main-grid">
-          <!-- Left: Top Engaged Courses (Top Universities) -->
-          <div class="lurni-card">
-            <div class="lurni-card-header">
-              <h3 class="lurni-card-title">Top Universities (Students)</h3>
-            </div>
-            <div class="lurni-chart-container">
-              <div style="position: absolute; left: 0; bottom: 20px;">
-                <h2 style="margin:0; font-size: 24px; font-weight: 700; color: #111827;">{{
-                  getFilteredAllStudents().length }}</h2>
-                <p style="margin:0; font-size: 13px; color: #16a34a; font-weight: 500;"><i class="fas fa-arrow-up"></i>
-                  Active Students</p>
+          <!-- TOP STATS ROW -->
+          <div class="stats-row">
+            <div class="stat-card" (click)="activeTab = 'upload-docs'">
+              <div class="stat-icon" style="color: #2563eb; background: #eff6ff;"><i class="fas fa-file-invoice"></i>
               </div>
-
-              @for(uni of topUniversities; track uni.name; let i = $index) {
-              <div class="lurni-bar-wrapper">
-                <!-- Using percentage to set height, e.g., if max is 100%, we set height: uni.percentage% -->
-                <div class="lurni-bar" [style.height]="uni.percentage + '%'" [class.active]="i === 0"
-                  [title]="uni.name + ': ' + uni.count"></div>
-                <span class="lurni-bar-label" [title]="uni.name"
-                  style="width: 40px; overflow: hidden; text-overflow: ellipsis;">{{ uni.name }}</span>
+              <div class="stat-info">
+                <div class="stat-label">Telex Requests</div>
+                <div class="stat-value">{{ uploadDocsStudents.length }}</div>
               </div>
-              }
+            </div>
+            <div class="stat-card" (click)="activeTab = 'records'">
+              <div class="stat-icon" style="color: #8b5cf6; background: #f3e8ff;"><i class="fas fa-users"></i></div>
+              <div class="stat-info">
+                <div class="stat-label">My Applications</div>
+                <div class="stat-value">{{ students.length }}</div>
+              </div>
+            </div>
+            <div class="stat-card" (click)="activeTab = 'submit-mfa'">
+              <div class="stat-icon" style="color: #ea580c; background: #fff7ed;"><i class="fas fa-university"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Submitted to MFA</div>
+                <div class="stat-value">{{ submitMfaStudents.length }}</div>
+              </div>
+            </div>
+            <div class="stat-card" (click)="activeTab = 'telex-issued'">
+              <div class="stat-icon" style="color: #16a34a; background: #f0fdf4;"><i class="fas fa-check-circle"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Telex Issued</div>
+                <div class="stat-value">{{ telexIssuedStudents.length }}</div>
+              </div>
+            </div>
+            <div class="stat-card" (click)="activeTab = 'rejected'">
+              <div class="stat-icon" style="color: #dc2626; background: #fef2f2;"><i class="fas fa-times-circle"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Rejected</div>
+                <div class="stat-value">{{ rejectedStudents.length }}</div>
+              </div>
             </div>
           </div>
 
-          <!-- Right: Recent Activity -->
-          <div class="lurni-card">
-            <div class="lurni-card-header">
-              <h3 class="lurni-card-title">Recent Activity</h3>
-            </div>
-            <div class="lurni-activity-tabs">
-              <div class="lurni-activity-tab active">All</div>
-              <div class="lurni-activity-tab">Updates</div>
-            </div>
-            <div class="lurni-activity-list">
-              @for(act of recentActivitiesList; track act.title + $index) {
-              <div class="lurni-activity-item">
-                <div class="lurni-activity-avatar">{{ act.initials }}</div>
-                <div class="lurni-activity-content">
-                  <h4 class="lurni-activity-title">{{ act.title }}</h4>
-                  <p class="lurni-activity-desc">{{ act.desc }}</p>
-                  <span class="lurni-activity-time"><i class="far fa-clock"></i> {{ act.time }}</span>
+          <!-- MIDDLE CHARTS ROW -->
+          <div class="charts-row">
+            <!-- Applications By Status Donut Chart -->
+            <div class="chart-panel donut-panel">
+              <div class="panel-header">
+                <h3>Applications by Status</h3>
+              </div>
+              <div class="donut-content">
+                <div class="donut-chart-wrapper">
+                  <div class="donut-chart" [style.background]="getDonutGradient()"></div>
+                  <div class="donut-inner">
+                    <span class="donut-total">{{ students.length }}</span>
+                    <span class="donut-label">Total</span>
+                  </div>
+                </div>
+                <div class="donut-legend">
+                  <div class="legend-item">
+                    <span class="legend-color" style="background: #2563eb;"></span>
+                    <span class="legend-text">Telex Requests</span>
+                    <span class="legend-val">{{ uploadDocsStudents.length }}</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color" style="background: #ea580c;"></span>
+                    <span class="legend-text">Submitted to MFA</span>
+                    <span class="legend-val">{{ submitMfaStudents.length }}</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color" style="background: #16a34a;"></span>
+                    <span class="legend-text">Telex Issued</span>
+                    <span class="legend-val">{{ telexIssuedStudents.length }}</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color" style="background: #dc2626;"></span>
+                    <span class="legend-text">Rejected</span>
+                    <span class="legend-val">{{ rejectedStudents.length }}</span>
+                  </div>
                 </div>
               </div>
-              }
+              <div class="panel-footer">
+                Last updated: Just now <i class="fas fa-sync-alt" (click)="refreshData()"
+                  style="cursor:pointer; margin-left: 4px;"></i>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div class="lurni-main-grid">
-          <!-- Left: Table Engagement Breakdown (Agent Breakdown) -->
-          <div class="lurni-card">
-            <div class="lurni-card-header">
-              <h3 class="lurni-card-title">Agent Performance Breakdown</h3>
+            <!-- Requests Over Time Line Chart -->
+            <div class="chart-panel line-panel">
+              <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Requests Over Time <span style="color:#94a3b8;font-weight:400;font-size:0.8rem">(This Month)</span>
+                </h3>
+                <select class="chart-select">
+                  <option>This Month</option>
+                  <option>Last Month</option>
+                </select>
+              </div>
+              <div class="line-chart-area">
+                <svg class="line-chart-svg" viewBox="0 0 640 220" preserveAspectRatio="xMidYMid meet">
+                  <!-- Y-axis labels -->
+                  <text x="24" y="22" class="chart-axis-text" text-anchor="end">20</text>
+                  <text x="24" y="67" class="chart-axis-text" text-anchor="end">15</text>
+                  <text x="24" y="112" class="chart-axis-text" text-anchor="end">10</text>
+                  <text x="24" y="157" class="chart-axis-text" text-anchor="end">5</text>
+                  <text x="24" y="202" class="chart-axis-text" text-anchor="end">0</text>
+                  <!-- Horizontal grid lines (dashed) -->
+                  <line x1="32" y1="18" x2="630" y2="18" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4" />
+                  <line x1="32" y1="63" x2="630" y2="63" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4" />
+                  <line x1="32" y1="108" x2="630" y2="108" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4" />
+                  <line x1="32" y1="153" x2="630" y2="153" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4" />
+                  <line x1="32" y1="198" x2="630" y2="198" stroke="#cbd5e1" stroke-width="1" />
+                  <!-- Gradient fill definition -->
+                  <defs>
+                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15" />
+                      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <!-- Area fill -->
+                  <path
+                    d="M 32 178 C 72 168, 92 158, 132 148 C 172 138, 192 128, 232 118 C 272 108, 292 98, 332 108 C 372 118, 392 78, 432 88 C 472 98, 492 68, 532 58 C 572 48, 592 38, 630 48 L 630 198 L 32 198 Z"
+                    fill="url(#areaGrad)" />
+                  <!-- Line path (smooth) -->
+                  <path
+                    d="M 32 178 C 72 168, 92 158, 132 148 C 172 138, 192 128, 232 118 C 272 108, 292 98, 332 108 C 372 118, 392 78, 432 88 C 472 98, 492 68, 532 58 C 572 48, 592 38, 630 48"
+                    fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <!-- Data points -->
+                  <circle cx="32" cy="178" r="3.5" fill="#fff" stroke="#3b82f6" stroke-width="2" />
+                  <circle cx="132" cy="148" r="3.5" fill="#fff" stroke="#3b82f6" stroke-width="2" />
+                  <circle cx="232" cy="118" r="3.5" fill="#fff" stroke="#3b82f6" stroke-width="2" />
+                  <circle cx="332" cy="108" r="3.5" fill="#fff" stroke="#3b82f6" stroke-width="2" />
+                  <circle cx="432" cy="88" r="3.5" fill="#fff" stroke="#3b82f6" stroke-width="2" />
+                  <circle cx="532" cy="58" r="3.5" fill="#fff" stroke="#3b82f6" stroke-width="2" />
+                  <circle cx="630" cy="48" r="3.5" fill="#3b82f6" stroke="#3b82f6" stroke-width="2" />
+                  <!-- X-axis labels -->
+                  <text x="32" y="215" class="chart-axis-text" text-anchor="start">Week 1</text>
+                  <text x="182" y="215" class="chart-axis-text" text-anchor="middle">Week 2</text>
+                  <text x="332" y="215" class="chart-axis-text" text-anchor="middle">Week 3</text>
+                  <text x="482" y="215" class="chart-axis-text" text-anchor="middle">Week 4</text>
+                  <text x="630" y="215" class="chart-axis-text" text-anchor="end">Week 5</text>
+                </svg>
+              </div>
             </div>
-            <table class="lurni-table">
-              <thead>
-                <tr>
-                  <th>Agent</th>
-                  <th>Total Students</th>
-                  <th>Success Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for(agent of agentBreakdown; track agent.name) {
-                <tr>
-                  <td>{{ agent.name }}</td>
-                  <td>{{ agent.total }}</td>
-                  <td style="color: #16a34a;">{{ agent.successRate }}%</td>
-                </tr>
-                }
-              </tbody>
-            </table>
           </div>
 
-          <!-- Right: Progress Overview -->
-          <div class="lurni-card">
-            <div class="lurni-card-header">
-              <h3 class="lurni-card-title">Pipeline Overview</h3>
-            </div>
-            <div class="lurni-progress-item">
-              <div class="lurni-progress-header">
-                <span class="lurni-progress-title">Action Required</span>
-                <span class="lurni-progress-stats" style="color: #0284c7;">{{ getFilteredActionStudents().length }} / {{
-                  getFilteredAllStudents().length }}</span>
+          <!-- BOTTOM ROW -->
+          <div class="bottom-row">
+
+            <!-- Recent Telex Requests Table -->
+            <div class="recent-requests-panel">
+              <div class="panel-header"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Recent Telex Requests</h3>
+                <span class="view-all-link" (click)="activeTab = 'upload-docs'"
+                  style="color: #2563eb; font-size: 0.9rem; font-weight: 600; cursor: pointer;">View all &rarr;</span>
               </div>
-              <div class="lurni-progress-bar-bg">
-                <div class="lurni-progress-bar-fill" style="background: #0284c7;"
-                  [style.width]="(getFilteredActionStudents().length / (getFilteredAllStudents().length || 1) * 100) + '%'">
+              <div class="recent-table-wrapper">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                  <thead>
+                    <tr style="color: #64748b; font-size: 0.8rem; font-weight: 600; border-bottom: 1px solid #e2e8f0;">
+                      <th style="padding: 12px 8px;">Student Name</th>
+                      <th style="padding: 12px 8px;">Application ID</th>
+                      <th style="padding: 12px 8px;">University</th>
+                      <th style="padding: 12px 8px;">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (student of recentRequestsList; track student.id) {
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                      <td style="padding: 12px 8px; display: flex; align-items: center; gap: 10px;">
+                        <div
+                          style="width: 30px; height: 30px; border-radius: 50%; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600;">
+                          {{ getInitials(student.fullName) }}
+                        </div>
+                        <span style="font-size: 0.9rem; font-weight: 500; color: #1e293b;">{{ student.fullName }}</span>
+                      </td>
+                      <td style="padding: 12px 8px; font-size: 0.85rem; color: #475569;">{{ student.applicationId }}
+                      </td>
+                      <td style="padding: 12px 8px; font-size: 0.85rem; color: #475569;">{{ student.college?.collegeName
+                        || 'N/A' }}</td>
+                      <td style="padding: 12px 8px;">
+                        <span class="small-badge" [ngClass]="getMiniBadgeClass(student)">
+                          {{ formatMiniStatus(student) }}
+                        </span>
+                      </td>
+                    </tr>
+                    }
+                    @if (recentRequestsList.length === 0) {
+                    <tr>
+                      <td colspan="4" style="text-align:center; padding: 20px; color: #64748b;">No recent requests found
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Quick Actions Panel -->
+            <div class="quick-actions-panel" style="margin-bottom: 0;">
+              <h2 class="quick-actions-title">Quick Actions</h2>
+              <div class="quick-actions-grid">
+
+                <div class="quick-action-card" (click)="activeTab = 'upload-docs'">
+                  <div class="quick-action-icon" style="color: #2563eb; background: #eff6ff;">
+                    <i class="fas fa-file-upload"></i>
+                  </div>
+                  <div class="quick-action-text">
+                    <h3>New Telex Request</h3>
+                    <p>Create new telex request</p>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div class="lurni-progress-item">
-              <div class="lurni-progress-header">
-                <span class="lurni-progress-title">In Pipeline</span>
-                <span class="lurni-progress-stats" style="color: #ea580c;">{{ getFilteredPipelineStudents().length }} /
-                  {{ getFilteredAllStudents().length }}</span>
-              </div>
-              <div class="lurni-progress-bar-bg">
-                <div class="lurni-progress-bar-fill" style="background: #ea580c;"
-                  [style.width]="(getFilteredPipelineStudents().length / (getFilteredAllStudents().length || 1) * 100) + '%'">
+
+                <div class="quick-action-card" (click)="activeTab = 'records'">
+                  <div class="quick-action-icon" style="color: #475569; background: #f1f5f9;">
+                    <i class="fas fa-users"></i>
+                  </div>
+                  <div class="quick-action-text">
+                    <h3>My Applications</h3>
+                    <p>View all my applications</p>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div class="lurni-progress-item">
-              <div class="lurni-progress-header">
-                <span class="lurni-progress-title">Visa Stamped</span>
-                <span class="lurni-progress-stats" style="color: #16a34a;">{{ getFilteredVisaStudents().length }} / {{
-                  getFilteredAllStudents().length }}</span>
-              </div>
-              <div class="lurni-progress-bar-bg">
-                <div class="lurni-progress-bar-fill" style="background: #16a34a;"
-                  [style.width]="(getFilteredVisaStudents().length / (getFilteredAllStudents().length || 1) * 100) + '%'">
+
+                <div class="quick-action-card" (click)="activeTab = 'submit-mfa'">
+                  <div class="quick-action-icon"
+                    style="color: #0f172a; background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <i class="fas fa-university"></i>
+                  </div>
+                  <div class="quick-action-text">
+                    <h3>Submitted to MFA</h3>
+                    <p>View applications at MFA</p>
+                  </div>
                 </div>
+
+                <div class="quick-action-card" (click)="activeTab = 'telex-issued'">
+                  <div class="quick-action-icon" style="color: #16a34a; background: #dcfce7;">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <div class="quick-action-text">
+                    <h3>Telex Issued</h3>
+                    <p>View issued telex list</p>
+                  </div>
+                </div>
+
+                <div class="quick-action-card" (click)="activeTab = 'rejected'">
+                  <div class="quick-action-icon" style="color: #dc2626; background: #fee2e2;">
+                    <i class="fas fa-times-circle"></i>
+                  </div>
+                  <div class="quick-action-text">
+                    <h3>Telex Rejected</h3>
+                    <p>View rejected applications</p>
+                  </div>
+                </div>
+
+                <div class="quick-action-card"
+                  style="display: block; padding: 12px 16px; cursor: default; background: #f8fafc;"
+                  (click)="$event.stopPropagation()">
+                  <div
+                    style="font-size: 0.85rem; font-weight: 700; color: #16a34a; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <i class="fas fa-broadcast-tower"></i> Recently Issued Telexes
+                  </div>
+                  <marquee scrollamount="3" onmouseover="this.stop();" onmouseout="this.start();"
+                    style="width: 100%; font-size: 0.85rem; color: #475569;">
+                    @for (s of getRecentlyIssuedTelex(); track s.id) {
+                    <span style="margin-right: 30px;"><i class="fas fa-check-circle"
+                        style="color:#16a34a;margin-right:4px;"></i><b>{{ s.fullName }}</b> ({{ s.applicationId }}):
+                      <span style="color:#2563eb;font-family:monospace;font-weight:600;">{{ s.telexNumber
+                        }}</span></span>
+                    }
+                    @if (getRecentlyIssuedTelex().length === 0) {
+                    <span>No telex issued recently.</span>
+                    }
+                  </marquee>
+                </div>
+
               </div>
             </div>
+
           </div>
+
         </div>
       </div>
       }
 
-      <!-- ACTIONS VIEW -->
-      @if (activeTab === 'actions' && !loading) {
+      <!-- UPLOAD DOCS VIEW -->
+      @if (activeTab === 'upload-docs' && !loading) {
       <div class="fade-in">
-        <div class="section-header">
-          <div class="section-title">
-            <h2><i class="fas fa-bolt"></i> Action Required</h2>
-            <span class="count-badge">{{ getFilteredActionStudents().length }} Students</span>
-          </div>
+        @if (getFilteredUploadDocsStudents().length > 0) {
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Passport No.</th>
+                <th>Application ID</th>
+                <th>University</th>
+                <th>Agent</th>
+                <th>Current Status</th>
+                <th>Telex</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (student of getFilteredUploadDocsStudents(); track student; let i = $index) {
+              <ng-container
+                *ngTemplateOutlet="studentRowTemplate; context: { $implicit: student, index: i, showActions: true }"></ng-container>
+              }
+            </tbody>
+          </table>
         </div>
-        @if (getFilteredActionStudents().length > 0) {
-        <div class="cards-grid">
-          @for (student of getFilteredActionStudents(); track student) {
-          <ng-container
-            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: true }"></ng-container>
-          }
-        </div>
-        }
-        @if (getFilteredActionStudents().length === 0) {
+        } @else {
         <div class="empty-state">
           <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
           <h3>All Caught Up!</h3>
-          <p>No pending actions. Excellent work!</p>
+          <p>No documents to upload.</p>
         </div>
         }
       </div>
       }
 
-      <!-- PIPELINE VIEW -->
-      @if (activeTab === 'pipeline' && !loading) {
+      <!-- SUBMIT TO UNI VIEW -->
+      @if (activeTab === 'submit-uni' && !loading) {
       <div class="fade-in">
-        <div class="section-header">
-          <div class="section-title">
-            <h2><i class="fas fa-clock"></i> In Pipeline</h2>
-            <span class="count-badge">{{ getFilteredPipelineStudents().length }} Students</span>
-          </div>
+        @if (getFilteredSubmitUniStudents().length > 0) {
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Passport No.</th>
+                <th>Application ID</th>
+                <th>University</th>
+                <th>Agent</th>
+                <th>Current Status</th>
+                <th>Telex</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (student of getFilteredSubmitUniStudents(); track student; let i = $index) {
+              <ng-container
+                *ngTemplateOutlet="studentRowTemplate; context: { $implicit: student, index: i, showActions: true }"></ng-container>
+              }
+            </tbody>
+          </table>
         </div>
-        @if (getFilteredPipelineStudents().length > 0) {
-        <div class="cards-grid">
-          @for (student of getFilteredPipelineStudents(); track student) {
-          <ng-container
-            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
-          }
-        </div>
-        }
-        @if (getFilteredPipelineStudents().length === 0) {
+        } @else {
         <div class="empty-state">
-          <div class="empty-icon"><i class="fas fa-inbox"></i></div>
-          <h3>Pipeline Empty</h3>
-          <p>No students in processing pipeline.</p>
+          <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+          <h3>All Caught Up!</h3>
+          <p>No university submissions pending.</p>
         </div>
         }
       </div>
       }
 
-      <!-- VISA STAMPED VIEW -->
-      @if (activeTab === 'visa' && !loading) {
+      <!-- MFA PROCESSING VIEW -->
+      @if (activeTab === 'submit-mfa' && !loading) {
       <div class="fade-in">
-        <div class="section-header">
-          <div class="section-title">
-            <h2><i class="fas fa-stamp"></i> Visa Stamped</h2>
-            <span class="count-badge">{{ getFilteredVisaStudents().length }} Completed</span>
-          </div>
+        @if (getFilteredSubmitMfaStudents().length > 0) {
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Passport No.</th>
+                <th>Application ID</th>
+                <th>University</th>
+                <th>Agent</th>
+                <th>Current Status</th>
+                <th>Telex</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (student of getFilteredSubmitMfaStudents(); track student; let i = $index) {
+              <ng-container
+                *ngTemplateOutlet="studentRowTemplate; context: { $implicit: student, index: i, showActions: true }"></ng-container>
+              }
+            </tbody>
+          </table>
         </div>
-        @if (getFilteredVisaStudents().length > 0) {
-        <div class="cards-grid">
-          @for (student of getFilteredVisaStudents(); track student) {
-          <ng-container
-            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
-          }
+        } @else {
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+          <h3>All Caught Up!</h3>
+          <p>No MFA processing pending.</p>
         </div>
         }
-        @if (getFilteredVisaStudents().length === 0) {
+      </div>
+      }
+
+      <!-- ISSUE TELEX VIEW -->
+      @if (activeTab === 'issue-telex' && !loading) {
+      <div class="fade-in">
+        @if (getFilteredIssueTelexStudents().length > 0) {
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Passport No.</th>
+                <th>Application ID</th>
+                <th>University</th>
+                <th>Agent</th>
+                <th>Current Status</th>
+                <th>Telex</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (student of getFilteredIssueTelexStudents(); track student; let i = $index) {
+              <ng-container
+                *ngTemplateOutlet="studentRowTemplate; context: { $implicit: student, index: i, showActions: true }"></ng-container>
+              }
+            </tbody>
+          </table>
+        </div>
+        } @else {
         <div class="empty-state">
-          <div class="empty-icon"><i class="fas fa-passport"></i></div>
-          <h3>No Completed Visas</h3>
-          <p>Visa stamped students will appear here.</p>
+          <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+          <h3>All Caught Up!</h3>
+          <p>No telex numbers to issue.</p>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- TELEX ISSUED VIEW -->
+      @if (activeTab === 'telex-issued' && !loading) {
+      <div class="fade-in">
+        @if (getFilteredTelexIssuedStudents().length > 0) {
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Passport No.</th>
+                <th>Application ID</th>
+                <th>University</th>
+                <th>Agent</th>
+                <th>Current Status</th>
+                <th>Telex</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (student of getFilteredTelexIssuedStudents(); track student; let i = $index) {
+              <ng-container
+                *ngTemplateOutlet="studentRowTemplate; context: { $implicit: student, index: i, showActions: false }"></ng-container>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+        @if (getFilteredTelexIssuedStudents().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-certificate"></i></div>
+          <h3>No Telex Issued</h3>
+          <p>Students with issued telex numbers will appear here.</p>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- REJECTED VIEW -->
+      @if (activeTab === 'rejected' && !loading) {
+      <div class="fade-in">
+        @if (getFilteredRejectedStudents().length > 0) {
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Passport No.</th>
+                <th>Application ID</th>
+                <th>University</th>
+                <th>Agent</th>
+                <th>Current Status</th>
+                <th>Telex</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (student of getFilteredRejectedStudents(); track student; let i = $index) {
+              <ng-container
+                *ngTemplateOutlet="studentRowTemplate; context: { $implicit: student, index: i, showActions: false }"></ng-container>
+              }
+            </tbody>
+          </table>
+        </div>
+        } @else {
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-smile"></i></div>
+          <h3>No Rejected Applications</h3>
+          <p>There are no rejected telex requests.</p>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- ASSIGN VISA VIEW -->
+      @if (activeTab === 'assign-visa' && !loading) {
+      <div class="fade-in">
+        @if (assignVisaStudents.length > 0) {
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Passport No.</th>
+                <th>Application ID</th>
+                <th>University</th>
+                <th>Agent</th>
+                <th>Current Status</th>
+                <th>Telex</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (student of assignVisaStudents; track student; let i = $index) {
+              <ng-container
+                *ngTemplateOutlet="studentRowTemplate; context: { $implicit: student, index: i, showActions: false }"></ng-container>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+        @if (assignVisaStudents.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-check-double"></i></div>
+          <h3>All Assigned!</h3>
+          <p>No eligible students need a Visa Manager assigned.</p>
         </div>
         }
       </div>
@@ -472,18 +901,29 @@
       <!-- ALL RECORDS VIEW -->
       @if (activeTab === 'records' && !loading) {
       <div class="fade-in">
-        <div class="section-header">
-          <div class="section-title">
-            <h2><i class="fas fa-folder-open"></i> All Students</h2>
-            <span class="count-badge">{{ getFilteredAllStudents().length }} Records</span>
-          </div>
-        </div>
         @if (getFilteredAllStudents().length > 0) {
-        <div class="cards-grid">
-          @for (student of getFilteredAllStudents(); track student) {
-          <ng-container
-            *ngTemplateOutlet="studentCardTemplate; context: { $implicit: student, showActions: false }"></ng-container>
-          }
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Passport No.</th>
+                <th>Application ID</th>
+                <th>University</th>
+                <th>Agent</th>
+                <th>Current Status</th>
+                <th>Telex</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (student of getFilteredAllStudents(); track student; let i = $index) {
+              <ng-container
+                *ngTemplateOutlet="studentRowTemplate; context: { $implicit: student, index: i, showActions: false }"></ng-container>
+              }
+            </tbody>
+          </table>
         </div>
         }
         @if (getFilteredAllStudents().length === 0) {
@@ -548,128 +988,134 @@
 </div>
 
 <!-- STUDENT LIST ROW TEMPLATE -->
-<ng-template #studentCardTemplate let-student let-showActions="showActions">
-  <div class="student-row" [class.processing]="processingId === student.id">
+<ng-template #studentRowTemplate let-student let-i="index" let-showActions="showActions">
+  <tr [class.processing]="processingId === student.id">
+    <!-- Index -->
+    <td>{{ i + 1 }}</td>
 
-    <!-- Main Row Content -->
-    <div class="row-content">
-      <!-- Student Name -->
-      <div class="row-cell name-cell">
-        <div class="row-avatar">{{ getInitials(student.fullName) }}</div>
-        <span class="student-name">{{ student.fullName }}</span>
+    <!-- Student Name -->
+    <td>
+      <div class="student-name-cell">
+        <div class="table-avatar">{{ getInitials(student.fullName) }}</div>
+        <span>{{ student.fullName }}</span>
       </div>
+    </td>
 
-      <!-- Application ID & Agent/College -->
-      <div class="row-cell info-cell" style="display: flex; flex-direction: column; gap: 4px;">
-        <span class="app-id" style="font-weight: 600; font-size: 0.9rem;">{{ student.applicationId }}</span>
-        <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
-          <i class="fas fa-user-tie" style="font-size: 0.75rem;"></i>
-          <span>{{ student.agent?.fullName || 'Direct' }}</span>
-        </div>
-        <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
-          <i class="fas fa-university" style="font-size: 0.75rem;"></i>
-          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"
-            [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned'
-            }}</span>
-        </div>
-      </div>
+    <!-- Passport No. -->
+    <td>
+      {{ student.passportNo || 'N/A' }}
+    </td>
 
-      <!-- Application Status -->
-      <div class="row-cell status-cell">
-        <span class="status-badge" [ngClass]="getStatusClass(student.applicationStatus)">
-          {{ formatStatus(student.applicationStatus) }}
-        </span>
-      </div>
+    <!-- Application ID -->
+    <td>
+      <span class="app-id">{{ student.applicationId }}</span>
+    </td>
 
-      <!-- Telex Number (Highlighted) -->
-      <div class="row-cell telex-cell">
-        @if (student.telexNumber) {
-        <span class="telex-number">
-          <i class="fas fa-certificate"></i> {{ student.telexNumber }}
-        </span>
-        }
-        @if (!student.telexNumber) {
-        <span class="no-telex">-</span>
-        }
-      </div>
+    <!-- University -->
+    <td>
+      <span [title]="student.college?.collegeName || 'Not Assigned'"
+        style="max-width: 150px; display: inline-block; overflow: hidden; text-overflow: ellipsis; vertical-align: middle;">
+        {{ student.college?.collegeName || 'Not Assigned' }}
+      </span>
+    </td>
 
-      <!-- Actions -->
-      <div class="row-cell actions-cell">
-        <!-- View Details Button -->
-        <button class="icon-btn view-btn" (click)="openDetailsModal(student)" title="View All Details">
+    <!-- Agent -->
+    <td>
+      {{ student.agent?.fullName || 'Direct' }}
+    </td>
+
+    <!-- Application Status -->
+    <td>
+      @if (student.telexNumber && student.telexNumber.trim() !== '') {
+      <span class="status-badge completed">
+        <i class="fas fa-check-circle"></i> Telex Issued
+      </span>
+      } @else {
+      <span class="status-badge" [ngClass]="getStatusClass(student.applicationStatus)">
+        <i [class]="getStatusIcon(student.applicationStatus)"></i> {{ formatStatus(student.applicationStatus) }}
+      </span>
+      }
+    </td>
+
+    <!-- Telex Number -->
+    <td>
+      @if (student.telexNumber) {
+      <span class="telex-number"><i class="fas fa-certificate"></i> {{ student.telexNumber }}</span>
+      } @else {
+      <span class="no-telex">-</span>
+      }
+    </td>
+
+    <!-- Actions -->
+    <td>
+      <div class="actions-cell">
+        <!-- Action/View Button based on tab -->
+        @if (activeTab === 'upload-docs') {
+          <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+            <button class="icon-btn" (click)="openDetailPanel(student)" title="View/Verify Required Documents"
+              style="color: #2563eb;">
+              <i class="fas" [ngClass]="student.isTelexDocsVerified ? 'fa-eye' : 'fa-clipboard-list'"></i>
+            </button>
+            
+            @if (student.isTelexDocsVerified) {
+              <label class="icon-btn" title="Documents Verified - Click to Upload"
+                style="cursor: pointer; color: #16a34a; position: relative;">
+                <i class="fas fa-check-circle"
+                  style="position: absolute; right: -4px; top: -4px; font-size: 0.6em; background: white; border-radius: 50%;"></i>
+                @if (processingId !== student.id) { <i class="fas fa-upload"></i> }
+                @if (processingId === student.id) { <i class="fas fa-spinner fa-spin"></i> }
+                <input type="file" multiple (change)="onFileSelected($event, student)" hidden
+                  [disabled]="processingId === student.id">
+              </label>
+            }
+          </div>
+        } @else {
+        <button class="icon-btn" (click)="openDetailsModal(student)" title="View Details">
           <i class="fas fa-eye"></i>
         </button>
+        }
 
-        <!-- Workflow Action Buttons (inline) -->
-        @if (showActions && student.action) {
-        <!-- UPLOAD_TELEX_DOCS -->
-        @if (student.action === 'UPLOAD_TELEX_DOCS') {
-        <label class="icon-btn upload-btn" title="Upload Documents">
-          <i class="fas fa-upload"></i>
-          <input type="file" multiple (change)="onFileSelected($event, student.id)" hidden>
-        </label>
-        <button class="action-btn" (click)="handleUploadDocs(student)"
-          [disabled]="processingId === student.id || !selectedFiles[student.id]?.length">
-          @if (processingId !== student.id) {
-          <span>Submit</span>
-          }
-          @if (processingId === student.id) {
-          <span><i class="fas fa-spinner fa-spin"></i></span>
-          }
+        <!-- Assign Visa Manager Button -->
+        @if (student.applicationStatus !== 'VISA_STAMPED' && student.telexNumber && !student.visaMan) {
+        <button class="icon-btn" style="color: #0284c7;" (click)="openAssignVisaModal(student)"
+          title="Assign Visa Manager">
+          <i class="fas fa-user-plus"></i>
         </button>
         }
+
+        <!-- Workflow Action Buttons -->
+        @if (showActions && student.action) {
         <!-- SUBMIT_TELEX_TO_UNIVERSITY -->
         @if (student.action === 'SUBMIT_TELEX_TO_UNIVERSITY') {
-        <button class="action-btn university-btn" (click)="handleSubmitToUniversity(student)"
-          [disabled]="processingId === student.id">
-          <i class="fas fa-university"></i>
-          @if (processingId !== student.id) {
-          <span>To University</span>
-          }
-          @if (processingId === student.id) {
-          <span><i class="fas fa-spinner fa-spin"></i></span>
-          }
+        <button class="icon-btn" style="color: #7c3aed;" (click)="handleSubmitToUniversity(student)"
+          [disabled]="processingId === student.id" title="Submit to University">
+          @if (processingId !== student.id) { <i class="fas fa-university"></i> }
+          @if (processingId === student.id) { <i class="fas fa-spinner fa-spin"></i> }
         </button>
         }
         <!-- SUBMIT_TELEX_TO_MEA -->
         @if (student.action === 'SUBMIT_TELEX_TO_MEA') {
-        <button class="action-btn mea-btn" (click)="handleSubmitToMEA(student)"
-          [disabled]="processingId === student.id">
-          <i class="fas fa-building"></i>
-          @if (processingId !== student.id) {
-          <span>To MEA</span>
-          }
-          @if (processingId === student.id) {
-          <span><i class="fas fa-spinner fa-spin"></i></span>
-          }
+        <button class="icon-btn" style="color: #0d9488;" (click)="handleSubmitToMEA(student)"
+          [disabled]="processingId === student.id" title="Submit to MFA">
+          @if (processingId !== student.id) { <i class="fas fa-building"></i> }
+          @if (processingId === student.id) { <i class="fas fa-spinner fa-spin"></i> }
         </button>
         }
         <!-- NEED_TO_ISSUE_TELEX -->
         @if (student.action === 'NEED_TO_ISSUE_TELEX') {
-        <input type="text" class="inline-input" placeholder="TX-XXXXX" [(ngModel)]="telexInputs[student.id]"
-          [disabled]="processingId === student.id">
-        <button class="action-btn issue-btn" (click)="handleIssueTelex(student)"
-          [disabled]="processingId === student.id || !telexInputs[student.id]">
-          <i class="fas fa-check"></i>
-          @if (processingId !== student.id) {
-          <span>Issue</span>
-          }
-          @if (processingId === student.id) {
-          <span><i class="fas fa-spinner fa-spin"></i></span>
-          }
+        <input type="text"
+          style="width: 100px; padding: 4px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.8rem;"
+          placeholder="TX-XXXXX" [(ngModel)]="telexInputs[student.id]" [disabled]="processingId === student.id">
+        <button class="icon-btn" style="color: #059669;" (click)="handleIssueTelex(student)"
+          [disabled]="processingId === student.id || !telexInputs[student.id]" title="Issue Telex">
+          @if (processingId !== student.id) { <i class="fas fa-check-circle"></i> }
+          @if (processingId === student.id) { <i class="fas fa-spinner fa-spin"></i> }
         </button>
         }
         }
       </div>
-    </div>
-
-    <!-- Files selected indicator -->
-    @if (selectedFiles[student.id]?.length) {
-    <div class="files-indicator">
-      <i class="fas fa-paperclip"></i> {{ getFileNames(student.id) }}
-    </div>
-    }
-  </div>
+    </td>
+  </tr>
 </ng-template>
 
 <!-- STUDENT DETAILS MODAL -->
@@ -950,6 +1396,346 @@
       </div>
       }
     </div>
+  </div>
+</div>
+}
+
+<!-- ASSIGN VISA MANAGER MODAL -->
+@if (isAssignVisaModalOpen) {
+<div class="modal-backdrop" (click)="closeAssignVisaModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()"
+    style="max-width: 500px; border-radius: 16px; padding: 24px;">
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+      <div
+        style="width: 48px; height: 48px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+        <i class="fas fa-user-plus"></i>
+      </div>
+      <div>
+        <h3 style="margin: 0; font-size: 18px; color: #0f172a; font-weight: 600;">Assign Visa Manager</h3>
+        <p style="margin: 4px 0 0; font-size: 13px; color: #64748b;">Directly assign a Visa Manager to this student.</p>
+      </div>
+    </div>
+
+    <div
+      style="background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
+      <div style="font-size: 12px; color: #64748b; margin-bottom: 4px; font-weight: 600;">Student</div>
+      <div style="font-size: 15px; color: #0f172a; font-weight: 500;">{{ studentForVisaAssignment?.fullName }}</div>
+      <div style="font-size: 13px; color: #64748b; margin-top: 2px;">App ID: {{ studentForVisaAssignment?.applicationId
+        }}</div>
+    </div>
+
+    <div style="margin-bottom: 24px;">
+      <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">Select Visa
+        Manager</label>
+      <select [(ngModel)]="selectedVisaManagerUsername"
+        style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-size: 14px; background: #fff;">
+        <option value="" disabled selected>-- Select a Visa Manager --</option>
+        @for (vm of visaManagers; track vm.username) {
+        <option [value]="vm.username">{{ vm.username }}</option>
+        }
+      </select>
+    </div>
+
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button class="modal-cancel-btn" (click)="closeAssignVisaModal()" [disabled]="isAssigningVisaManager"
+        style="padding: 10px 20px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; color: #64748b; font-weight: 500;">Cancel</button>
+      <button class="modal-confirm-btn" (click)="assignVisaManager()"
+        [disabled]="isAssigningVisaManager || !selectedVisaManagerUsername"
+        style="padding: 10px 20px; border-radius: 8px; border: none; background: #0284c7; color: #fff; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        @if (isAssigningVisaManager) {
+        <i class="fas fa-spinner fa-spin"></i> Assigning...
+        } @else {
+        <i class="fas fa-check"></i> Assign Manager
+        }
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ============================================ -->
+<!-- TELEX REQUEST DETAIL PANEL (SLIDE-IN) -->
+<!-- ============================================ -->
+@if (showDetailPanel && detailStudent) {
+<div class="detail-panel-overlay" (click)="closeDetailPanel()">
+  <div class="detail-panel" (click)="$event.stopPropagation()">
+    <div class="dp-header">
+      <div class="dp-header-left">
+        <button class="dp-back-btn" (click)="closeDetailPanel()"><i class="fas fa-arrow-left"></i> Back to
+          Requests</button>
+        <h2>Telex Request Details</h2>
+        <span class="dp-status-badge">{{ detailStudent.applicationStatus }}</span>
+      </div>
+    </div>
+    <div class="dp-meta-row">
+      <div class="dp-meta"><span class="dp-meta-label">Request ID</span><span class="dp-meta-val">{{
+          detailStudent.applicationId }}</span></div>
+      <div class="dp-meta"><span class="dp-meta-label">Student Name</span><span class="dp-meta-val">{{
+          detailStudent.fullName }}</span></div>
+      <div class="dp-meta"><span class="dp-meta-label">Requested By</span><span class="dp-meta-val">{{
+          detailStudent.agent?.fullName || 'Direct' }}</span></div>
+      <div class="dp-meta"><span class="dp-meta-label">College</span><span class="dp-meta-val">{{
+          detailStudent.college?.collegeName || '—' }}</span></div>
+    </div>
+    <div class="dp-body">
+      <div class="dp-section-title"><i class="fas fa-clipboard"></i> QUICK COPY</div>
+      <div class="dp-quick-copy">
+        <button class="qc-btn" (click)="copyField(detailStudent.fullName, 'name')"><span>Copy Full Name</span> <i
+            class="fas" [ngClass]="copiedField === 'name' ? 'fa-check' : 'fa-copy'"></i></button>
+        <button class="qc-btn" (click)="copyField(detailStudent.passportNo, 'passport')"><span>Copy Passport No</span>
+          <i class="fas" [ngClass]="copiedField === 'passport' ? 'fa-check' : 'fa-copy'"></i></button>
+        <button class="qc-btn" (click)="copyField(detailStudent.dob, 'dob')"><span>Copy Date of Birth</span> <i
+            class="fas" [ngClass]="copiedField === 'dob' ? 'fa-check' : 'fa-copy'"></i></button>
+        <button class="qc-btn" (click)="copyField(detailStudent.citizenship, 'cit')"><span>Copy Citizenship</span> <i
+            class="fas" [ngClass]="copiedField === 'cit' ? 'fa-check' : 'fa-copy'"></i></button>
+        <button class="qc-btn qc-btn-primary" (click)="copyAllPersonalDetails()"><span>Copy All Details</span> <i
+            class="fas" [ngClass]="copiedField === 'all' ? 'fa-check' : 'fa-copy'"></i></button>
+      </div>
+      <div class="dp-details-grid">
+        <div class="dp-details-card">
+          <div class="dp-card-title"><i class="fas fa-user"></i> STUDENT PERSONAL DETAILS</div>
+          <div class="dp-field-row"><span class="dp-field-label">Surname <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.surname || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.surname, 'surname')"><i class="fas"
+                [ngClass]="copiedField === 'surname' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Name <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.firstName || detailStudent.fullName || '—' }}</span><button
+              class="dp-copy-icon" (click)="copyField(detailStudent.firstName || detailStudent.fullName, 'fname')"><i
+                class="fas" [ngClass]="copiedField === 'fname' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Middle Name</span><span class="dp-field-val">{{
+              detailStudent.middleName || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.middleName, 'mname')"><i class="fas"
+                [ngClass]="copiedField === 'mname' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Sex <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.sex || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.sex, 'sex')"><i class="fas"
+                [ngClass]="copiedField === 'sex' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Country of Birth <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.countryOfBirth || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.countryOfBirth, 'cob')"><i class="fas"
+                [ngClass]="copiedField === 'cob' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Date of Birth <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.dob || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.dob, 'dobf')"><i class="fas"
+                [ngClass]="copiedField === 'dobf' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Place of Birth <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.placeOfBirth || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.placeOfBirth, 'pob')"><i class="fas"
+                [ngClass]="copiedField === 'pob' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Marital Status <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.maritalStatus || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.maritalStatus, 'ms')"><i class="fas"
+                [ngClass]="copiedField === 'ms' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Citizenship <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.citizenship || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.citizenship, 'citf')"><i class="fas"
+                [ngClass]="copiedField === 'citf' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Previous Citizenship</span><span
+              class="dp-field-val">{{ detailStudent.previousCitizenship || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.previousCitizenship, 'pcit')"><i class="fas"
+                [ngClass]="copiedField === 'pcit' ? 'fa-check' : 'fa-copy'"></i></button></div>
+        </div>
+        <div class="dp-details-card">
+          <div class="dp-card-title"><i class="fas fa-passport"></i> PASSPORT DETAILS</div>
+          <div class="dp-field-row"><span class="dp-field-label">Passport Type <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.passportType || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.passportType, 'pt')"><i class="fas"
+                [ngClass]="copiedField === 'pt' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Passport Number <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.passportNo || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.passportNo, 'pn')"><i class="fas"
+                [ngClass]="copiedField === 'pn' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Issue Date <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.passportIssueDate || '—' }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.passportIssueDate, 'pid')"><i class="fas"
+                [ngClass]="copiedField === 'pid' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Expiration Date <span class="req">*</span></span><span
+              class="dp-field-val">{{ detailStudent.passportExpirationDate || detailStudent.passportValidTill || '—'
+              }}</span><button class="dp-copy-icon"
+              (click)="copyField(detailStudent.passportExpirationDate || detailStudent.passportValidTill, 'ped')"><i
+                class="fas" [ngClass]="copiedField === 'ped' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Visa Procedure <span class="req">*</span></span><span
+              class="dp-field-val">Usual</span><button class="dp-copy-icon" (click)="copyField('Usual', 'dvp')"><i
+                class="fas" [ngClass]="copiedField === 'dvp' ? 'fa-check' : 'fa-copy'"></i></button></div>
+          <div class="dp-field-row"><span class="dp-field-label">Place of Issuance <span
+                class="req">*</span></span><span class="dp-field-val">New Delhi</span><button class="dp-copy-icon"
+              (click)="copyField('New Delhi', 'pvi')"><i class="fas"
+                [ngClass]="copiedField === 'pvi' ? 'fa-check' : 'fa-copy'"></i></button></div>
+        </div>
+      </div>
+      <div class="dp-section-title" style="margin-top: 24px;"><i class="fas fa-folder-open"></i> REQUIRED DOCUMENTS
+      </div>
+      <div class="dp-docs-grid">
+        <div class="dp-doc-card">
+          <div class="dp-doc-header"><span class="dp-doc-num">1</span><span class="dp-doc-name">Passport
+              Copy</span><span class="dp-doc-badge" [ngClass]="getDocStatusClass('passport')">{{
+              getDocStatusLabel('passport') }}</span></div>
+          <div class="dp-doc-preview">
+            @if (detailStudent.visaPassportCopyPath || detailStudent.passportPath) {
+            <img [src]="fileService.getFileUrl(detailStudent.visaPassportCopyPath || detailStudent.passportPath)"
+              alt="Passport" class="dp-doc-thumb" />
+            <button class="dp-zoom-btn"
+              (click)="openZoom(detailStudent.visaPassportCopyPath || detailStudent.passportPath)"><i
+                class="fas fa-search-plus"></i></button>
+            } @else { <div class="dp-doc-placeholder"><i class="fas fa-id-card"></i><span>Not uploaded</span></div> }
+          </div>
+          <div class="dp-checklist-title">Verification Checklist</div>
+          <div class="dp-checklist">
+            <label class="dp-check-item" (click)="toggleDocCheck('passport', 0)"><i class="fas"
+                [ngClass]="docVerification['passport']?.checklist[0] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Passport Number Visible</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('passport', 1)"><i class="fas"
+                [ngClass]="docVerification['passport']?.checklist[1] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Passport Not Expired</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('passport', 2)"><i class="fas"
+                [ngClass]="docVerification['passport']?.checklist[2] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Name Matches Admission Letter</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('passport', 3)"><i class="fas"
+                [ngClass]="docVerification['passport']?.checklist[3] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              DOB Matches Records</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('passport', 4)"><i class="fas"
+                [ngClass]="docVerification['passport']?.checklist[4] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Nationality Verified</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('passport', 5)"><i class="fas"
+                [ngClass]="docVerification['passport']?.checklist[5] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Passport Scan Clear</label>
+          </div>
+          <div class="dp-doc-status-row" style="justify-content: center;">
+            @if (docVerification['passport']?.status === 'verified') {
+            <button
+              style="width: 100%; padding: 8px; background: #16a34a; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;"
+              (click)="setDocStatus('passport', 'pending')" [disabled]="detailStudent.isTelexDocsVerified" [style.opacity]="detailStudent.isTelexDocsVerified ? '0.6' : '1'"><i class="fas fa-check-circle"></i> Verified</button>
+            } @else {
+            <button
+              style="width: 100%; padding: 8px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 600;"
+              (click)="setDocStatus('passport', 'verified')" [disabled]="detailStudent.isTelexDocsVerified">Verify Document</button>
+            }
+          </div>
+        </div>
+        <div class="dp-doc-card">
+          <div class="dp-doc-header"><span class="dp-doc-num">2</span><span class="dp-doc-name">Passport Size
+              Photo</span><span class="dp-doc-badge" [ngClass]="getDocStatusClass('photo')">{{
+              getDocStatusLabel('photo') }}</span></div>
+          <div class="dp-doc-preview">
+            @if (detailStudent.visaPhotoPath || detailStudent.profileImagePath) {
+            <img [src]="fileService.getFileUrl(detailStudent.visaPhotoPath || detailStudent.profileImagePath)"
+              alt="Photo" class="dp-doc-thumb" />
+            <button class="dp-zoom-btn"
+              (click)="openZoom(detailStudent.visaPhotoPath || detailStudent.profileImagePath)"><i
+                class="fas fa-search-plus"></i></button>
+            } @else { <div class="dp-doc-placeholder"><i class="fas fa-user-circle"></i><span>Not uploaded</span></div>
+            }
+          </div>
+          <div class="dp-checklist-title">Verification Checklist</div>
+          <div class="dp-checklist">
+            <label class="dp-check-item" (click)="toggleDocCheck('photo', 0)"><i class="fas"
+                [ngClass]="docVerification['photo']?.checklist[0] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              White Background</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('photo', 1)"><i class="fas"
+                [ngClass]="docVerification['photo']?.checklist[1] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Face Clearly Visible</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('photo', 2)"><i class="fas"
+                [ngClass]="docVerification['photo']?.checklist[2] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Correct Size</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('photo', 3)"><i class="fas"
+                [ngClass]="docVerification['photo']?.checklist[3] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Recent Photograph</label>
+          </div>
+          <div class="dp-doc-status-row" style="justify-content: center;">
+            @if (docVerification['photo']?.status === 'verified') {
+              <button style="width: 100%; padding: 8px; background: #16a34a; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;" (click)="setDocStatus('photo', 'pending')" [disabled]="detailStudent.isTelexDocsVerified" [style.opacity]="detailStudent.isTelexDocsVerified ? '0.6' : '1'"><i class="fas fa-check-circle"></i> Verified</button>
+            } @else {
+              <button style="width: 100%; padding: 8px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 600;" (click)="setDocStatus('photo', 'verified')" [disabled]="detailStudent.isTelexDocsVerified">Verify Document</button>
+            }
+          </div>
+        </div>
+        <div class="dp-doc-card">
+          <div class="dp-doc-header"><span class="dp-doc-num">3</span><span class="dp-doc-name">Admission
+              Letter</span><span class="dp-doc-badge" [ngClass]="getDocStatusClass('admission')">{{
+              getDocStatusLabel('admission') }}</span></div>
+          <div class="dp-doc-preview">
+            @if (detailStudent.admissionLetterPath) {
+            <img [src]="fileService.getFileUrl(detailStudent.admissionLetterPath)" alt="Admission"
+              class="dp-doc-thumb" />
+            <button class="dp-zoom-btn" (click)="openZoom(detailStudent.admissionLetterPath)"><i
+                class="fas fa-search-plus"></i></button>
+            } @else { <div class="dp-doc-placeholder"><i class="fas fa-file-alt"></i><span>Not uploaded</span></div> }
+          </div>
+          <div class="dp-checklist-title">Verification Checklist</div>
+          <div class="dp-checklist">
+            <label class="dp-check-item" (click)="toggleDocCheck('admission', 0)"><i class="fas"
+                [ngClass]="docVerification['admission']?.checklist[0] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              University Name Correct</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('admission', 1)"><i class="fas"
+                [ngClass]="docVerification['admission']?.checklist[1] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Student Name Correct</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('admission', 2)"><i class="fas"
+                [ngClass]="docVerification['admission']?.checklist[2] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Program Mentioned</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('admission', 3)"><i class="fas"
+                [ngClass]="docVerification['admission']?.checklist[3] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              Semester Mentioned</label>
+            <label class="dp-check-item" (click)="toggleDocCheck('admission', 4)"><i class="fas"
+                [ngClass]="docVerification['admission']?.checklist[4] ? 'fa-check-circle dp-checked' : 'fa-circle dp-unchecked'"></i>
+              University Stamp/Signature</label>
+          </div>
+          <div class="dp-doc-status-row" style="justify-content: center;">
+            @if (docVerification['admission']?.status === 'verified') {
+              <button style="width: 100%; padding: 8px; background: #16a34a; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;" (click)="setDocStatus('admission', 'pending')" [disabled]="detailStudent.isTelexDocsVerified" [style.opacity]="detailStudent.isTelexDocsVerified ? '0.6' : '1'"><i class="fas fa-check-circle"></i> Verified</button>
+            } @else {
+              <button style="width: 100%; padding: 8px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 600;" (click)="setDocStatus('admission', 'verified')">Verify Document</button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dp-action-bar">
+      <button class="dp-reject-btn" (click)="openRejectFromPanel()" [disabled]="detailStudent.isTelexDocsVerified" [style.opacity]="detailStudent.isTelexDocsVerified ? '0.5' : '1'">
+        <i class="fas fa-times-circle"></i> Reject Request
+      </button>
+      @if (detailStudent.isTelexDocsVerified) {
+        <button class="dp-approve-btn" disabled style="background-color: #16a34a; opacity: 0.7;">
+          <i class="fas fa-check-double"></i> Verified Successfully
+        </button>
+      } @else if (isAllDocsVerified()) {
+        <button class="dp-approve-btn" style="background-color: #16a34a;" (click)="markStudentAsVerified()">
+          <i class="fas fa-check-double"></i> Mark as Verified
+        </button>
+      } @else {
+        <button class="dp-approve-btn" disabled><i class="fas fa-check-circle"></i> Verify Docs to Proceed</button>
+      }
+    </div>
+  </div>
+</div>
+}
+@if (showRejectModal) {
+<div class="detail-panel-overlay" style="z-index:1100;" (click)="closeRejectModal()">
+  <div class="dp-reject-modal" (click)="$event.stopPropagation()">
+    <div class="dp-reject-modal-header">
+      <h3><i class="fas fa-exclamation-triangle" style="color:#dc2626;"></i> Reject Telex Request</h3><button
+        class="dp-close-btn" (click)="closeRejectModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="dp-reject-modal-body">
+      <p style="font-size:0.82rem;color:#64748b;margin-bottom:12px;">Please provide a reason for rejecting this telex
+        request.</p>
+      <textarea [(ngModel)]="rejectReason" rows="4" placeholder="Enter rejection reason..."
+        class="dp-reject-textarea"></textarea>
+    </div>
+    <div class="dp-reject-modal-footer">
+      <button class="dp-cancel-btn" (click)="closeRejectModal()">Cancel</button>
+      <button class="dp-confirm-reject-btn" (click)="submitReject()" [disabled]="!rejectReason.trim() || processingId">
+        @if (processingId) { <i class="fas fa-spinner fa-spin"></i> Rejecting... } @else { <i
+          class="fas fa-times-circle"></i> Confirm Reject }
+      </button>
+    </div>
+  </div>
+</div>
+}
+@if (zoomImageUrl) {
+<div class="dp-zoom-overlay" (click)="closeZoom()">
+  <div class="dp-zoom-container" (click)="$event.stopPropagation()">
+    <button class="dp-zoom-close" (click)="closeZoom()"><i class="fas fa-times"></i></button>
+    <img [src]="zoomImageUrl" alt="Zoomed" class="dp-zoom-img" />
   </div>
 </div>
 }

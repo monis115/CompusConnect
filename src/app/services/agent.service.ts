@@ -193,6 +193,11 @@ export class AgentService {
         return this.http.post(`${environment.apiUrl}/students/add`, formData);
     }
 
+    requestVisaStamping(studentId: number, agentUsername: string): Observable<any> {
+        const params = new HttpParams().set('agentUsername', agentUsername);
+        return this.http.post(`${this.baseUrl}/agents/request-visa-stamping/${studentId}`, {}, { params });
+    }
+
     initiateTelex(studentId: number, passportFile: File, agentUsername: string): Observable<any> {
         const formData = new FormData();
         formData.append('passport', passportFile);

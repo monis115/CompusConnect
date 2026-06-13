@@ -24,6 +24,7 @@ export enum StudentStatus {
   TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY = 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY',
   TELEX_APPLICATION_SUBMITTED_TO_MEA = 'TELEX_APPLICATION_SUBMITTED_TO_MEA',
   TELEX_NUMBER_ISSUED = 'TELEX_NUMBER_ISSUED',
+  REJECTED_BY_TELEX = 'REJECTED_BY_TELEX',
 
   VISA_FEE_PENDING = 'VISA_FEE_PENDING',
   VISA_FEE_RECEIVED = 'VISA_FEE_RECEIVED',
@@ -317,7 +318,7 @@ export class AgentDashboard implements OnInit {
   }
 
   get filteredAssignedTasks(): any[] {
-    let tasks: any[] = this.students.filter(s => this.showInitiateTelexButton(s) || this.showRequestDocsButton(s) || this.showVisaPaymentButton(s) || ((s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT') && s['action'] === 'SUBMIT_TRAVEL_DETAILS') || s.applicationStatus === 'REJECTED');
+    let tasks: any[] = this.students.filter(s => this.showInitiateTelexButton(s) || this.showRequestDocsButton(s) || this.showVisaPaymentButton(s) || this.showRequestVisaStampingButton(s) || ((s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT') && s['action'] === 'SUBMIT_TRAVEL_DETAILS') || s.applicationStatus === 'REJECTED');
 
     const drafts = this.studentDrafts.map(d => ({
       ...d,
@@ -394,6 +395,9 @@ export class AgentDashboard implements OnInit {
       s.telexDocumentsPath) {
       return 'IN_PROCESS';
     }
+    if (s.applicationStatus === StudentStatus.REJECTED_BY_TELEX) {
+      return 'REJECTED';
+    }
     // Check if Telex Manager is assigned
     if (s.telexMan && (s.applicationStatus === StudentStatus.TELEX_INITIATED || s.applicationStatus === StudentStatus.APPLIED_FOR_TELEX)) {
       return 'PENDING';
@@ -417,7 +421,8 @@ export class AgentDashboard implements OnInit {
         StudentStatus.TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY,
         StudentStatus.TELEX_APPLICATION_SUBMITTED_TO_MEA,
         StudentStatus.TELEX_NUMBER_ISSUED,
-        StudentStatus.ADMISSION_LETTER_APPROVED
+        StudentStatus.ADMISSION_LETTER_APPROVED,
+        StudentStatus.REJECTED_BY_TELEX
       ];
       if (telexStatuses.includes(s.applicationStatus as StudentStatus)) return true;
       if (s['action'] === 'INITIATE_TELEX' && (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT')) return true;
@@ -559,6 +564,9 @@ export class AgentDashboard implements OnInit {
     }
     if (category === 'INITIATED') {
       return { label: 'Initiated', class: 'status-initiated', icon: 'file-text', tooltip: 'You have initaited the telex. accountant and doc person will process now' };
+    }
+    if (category === 'REJECTED') {
+      return { label: 'Rejected by Telex', class: 'status-rejected', icon: 'x-circle', tooltip: 'Telex Manager rejected the verification. Please reapply.' };
     }
     return { label: 'ELIGIBLE', class: 'status-initiated', icon: 'file-text', tooltip: 'Please initiate telex' };
   }
@@ -803,6 +811,10 @@ export class AgentDashboard implements OnInit {
     students.filter(s => s.applicationStatus === 'VISA_STAMPED' && s.canRequestDocReturn === true)
       .forEach(s => pendingList.push({ student: s, taskName: 'Request Passport', actionText: 'Request Passport', actionClass: 'btn-passport', type: 'PASSPORT' }));
 
+    // Visa Stamping
+    students.filter(s => s['action'] === 'NEED_TO_REQUEST_VISA_STAMPING' && (s['actionOnUser'] === 'agent' || s['actionOnUser'] === 'AGENT'))
+      .forEach(s => pendingList.push({ student: s, taskName: 'Visa Stamping', actionText: 'Request Stamping', actionClass: 'btn-telex', type: 'VISA_STAMPING' }));
+
     // Rejected
     students.filter(s => s.applicationStatus === 'REJECTED')
       .forEach(s => pendingList.push({ student: s, taskName: 'Rejected', actionText: 'Review Rejection', actionClass: 'btn-reject', type: 'REJECTED' }));
@@ -853,6 +865,7 @@ export class AgentDashboard implements OnInit {
     if (item.type === 'TELEX') this.openTelexModal(item.student);
     if (item.type === 'PAYMENT') this.openPaymentConfirmationModal(item.student);
     if (item.type === 'PASSPORT') this.openRequestDocsModal(item.student);
+    if (item.type === 'VISA_STAMPING') this.openRequestVisaModal(item.student);
     if (item.type === 'REJECTED') this.viewStudentDetails(item.student);
   }
 
@@ -1928,6 +1941,48 @@ export class AgentDashboard implements OnInit {
     return false;
   }
 
+  showRequestVisaStampingButton(student: any): boolean {
+    return student.action === 'NEED_TO_REQUEST_VISA_STAMPING' && (student.actionOnUser === 'agent' || student.actionOnUser === 'AGENT');
+  }
+
+  isRequestingVisaStamping: { [key: number]: boolean } = {};
+  isRequestVisaModalOpen = false;
+  studentForVisaRequest: Student | null = null;
+
+  openRequestVisaModal(student: Student): void {
+    this.studentForVisaRequest = student;
+    this.isRequestVisaModalOpen = true;
+  }
+
+  closeRequestVisaModal(): void {
+    this.isRequestVisaModalOpen = false;
+    this.studentForVisaRequest = null;
+  }
+
+  confirmRequestVisaStamping(): void {
+    if (!this.studentForVisaRequest) return;
+    const student = this.studentForVisaRequest;
+    if (this.isRequestingVisaStamping[student.id]) return;
+
+    this.isRequestingVisaStamping[student.id] = true;
+    this.agentService.requestVisaStamping(student.id, this.agentData!.userId).subscribe({
+      next: (res) => {
+        alert('Visa Stamping Requested successfully!');
+        student.action = 'ASSIGN_TO_VISA_MAN';
+        student.actionOnUser = 'admission_manager';
+        this.isRequestingVisaStamping[student.id] = false;
+        this.closeRequestVisaModal();
+        this.loadAgentData(); // refresh data
+      },
+      error: (err) => {
+        console.error('Error requesting visa stamping', err);
+        alert('Failed to request visa stamping. Please try again.');
+        this.isRequestingVisaStamping[student.id] = false;
+        this.closeRequestVisaModal();
+      }
+    });
+  }
+
 
 
 
@@ -2004,8 +2059,9 @@ export class AgentDashboard implements OnInit {
       const nameControl = this.telexForm.get('selfPersonName');
       const phoneControl = this.telexForm.get('selfPersonPhone');
 
-      const step2Controls = [
-        'hasPaid', 'surname', 'firstName', 'sex', 'countryOfBirth', 'dateOfBirth', 'placeOfBirth',
+      const step2PaymentControls = ['hasPaid'];
+      const step2PersonalControls = [
+        'surname', 'firstName', 'sex', 'countryOfBirth', 'dateOfBirth', 'placeOfBirth',
         'maritalStatus', 'citizenship', 'passportType', 'passportNumber', 'passportIssueDate',
         'passportExpirationDate', 'durationOfVisaProcedure', 'placeOfVisaIssuance'
       ];
@@ -2013,7 +2069,10 @@ export class AgentDashboard implements OnInit {
       if (sent === true || sent === 'true') {
         methodControl?.setValidators(Validators.required);
         dateControl?.setValidators(Validators.required);
-        step2Controls.forEach(ctrl => this.telexForm.get(ctrl)?.setValidators(Validators.required));
+        step2PaymentControls.forEach(ctrl => this.telexForm.get(ctrl)?.setValidators(Validators.required));
+        if (this.studentForTelex?.applicationStatus === StudentStatus.REJECTED_BY_TELEX) {
+          step2PersonalControls.forEach(ctrl => this.telexForm.get(ctrl)?.setValidators(Validators.required));
+        }
       } else {
         methodControl?.clearValidators();
         methodControl?.setValue(null);
@@ -2031,10 +2090,20 @@ export class AgentDashboard implements OnInit {
         dateControl?.clearValidators();
         dateControl?.setValue(null);
       }
-      
-      // Step 2 is always required regardless of Document Dispatch answer
-      step2Controls.forEach(ctrl => {
+
+      // Payment is always required regardless of Document Dispatch answer
+      step2PaymentControls.forEach(ctrl => {
         this.telexForm.get(ctrl)?.setValidators(Validators.required);
+        this.telexForm.get(ctrl)?.updateValueAndValidity({ emitEvent: false });
+      });
+
+      // Personal Details are only required if REJECTED_BY_TELEX
+      step2PersonalControls.forEach(ctrl => {
+        if (this.studentForTelex?.applicationStatus === StudentStatus.REJECTED_BY_TELEX) {
+          this.telexForm.get(ctrl)?.setValidators(Validators.required);
+        } else {
+          this.telexForm.get(ctrl)?.clearValidators();
+        }
         this.telexForm.get(ctrl)?.updateValueAndValidity({ emitEvent: false });
       });
 

@@ -75,6 +75,7 @@ export interface Student {
     telexPaymentReceivedDate?: string; // LocalDate
     isTelexAccountantApproved?: boolean;
     isTelexDocApproved?: boolean;
+    isTelexDocsVerified?: boolean;
     docPersonComment?: string;
 
     telexTuitionFee?: boolean;
@@ -184,6 +185,7 @@ export enum StudentStatus {
     VISA_APPLIED = 'VISA_APPLIED',
     VISA_STAMPED = 'VISA_STAMPED',
     REJECTED = 'REJECTED',
+    REJECTED_BY_TELEX = 'REJECTED_BY_TELEX',
     COMPLETED = 'COMPLETED',
 }
 
