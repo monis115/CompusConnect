@@ -129,7 +129,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   get totalWalletBalance() { return this.walletSubAccounts.reduce((acc, curr) => acc + (curr.balance || 0), 0); }
   get totalBalance() { return this.totalBankBalance + this.totalCashBalance + this.totalWalletBalance; }
   showAddSubAccountModal = false;
-  newSubAccount: SubAccount = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '', relationshipManager: '', accountType: 'BANK', cashAccountName: '' };
+  newSubAccount: any = { bankName: '', accountNumber: '', swiftBic: '', beneficiaryName: '', branchAddress: '', relationshipManager: '', accountType: 'BANK', cashAccountName: '', companyAccount: '', location: '', contactNo: '' };
 
   // --- Transactions Modal & Tab ---
   selectedSubAccountForTx: any = null;
@@ -154,6 +154,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   uniqueAdvAgents: string[] = [];
   uniqueAdvDocManagers: string[] = [];
+  uniqueAdvVisaManagers: string[] = [];
   uniqueAdvColleges: string[] = [];
 
   creditsCurrentPage: number = 1;
@@ -2013,6 +2014,15 @@ export class AccountantDashboard implements OnInit, OnDestroy {
       next: (res: any) => {
         this.uniqueAdvAgents = res.agents || [];
         this.uniqueAdvDocManagers = res.docManagers || [];
+
+        // Backend doesn't reliably return visaManagers, extract them locally
+        const vmSet = new Set<string>(res.visaManagers || []);
+        this.visaManPassbooks.forEach((pb: any) => {
+          if (pb.requesterFullName) vmSet.add(pb.requesterFullName);
+          else if (pb.requesterName) vmSet.add(pb.requesterName);
+        });
+        this.uniqueAdvVisaManagers = Array.from(vmSet).sort();
+
         this.uniqueAdvColleges = res.colleges || [];
       },
       error: (err: any) => {
@@ -2023,10 +2033,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   toggleAdvancedTxFilters(): void {
     this.showAdvancedTxFilters = !this.showAdvancedTxFilters;
-    if (!this.showAdvancedTxFilters) {
-      // Reset back to normal view
-      this.loadAllTransactions();
-    } else {
+    if (this.showAdvancedTxFilters) {
       // Fetch options when we open the view
       this.loadAdvancedFilterOptions();
     }
@@ -2034,9 +2041,15 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   applyAdvancedTxFilters(): void {
     this.isTxLoading = true;
+
+    let finalUserId = this.advFilterUserId;
+    if (finalUserId && finalUserId !== 'all') {
+      finalUserId = finalUserId.replace(' (Visa Manager)', '').replace(' (Doc Manager)', '');
+    }
+
     const payload = {
       role: this.advFilterRole,
-      userId: this.advFilterUserId,
+      userId: finalUserId,
       collegeName: this.advFilterCollege,
       startDate: this.txFilterStartDate || null,
       endDate: this.txFilterEndDate || null
@@ -2050,7 +2063,20 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         this.advTotalOutflow = res.totalOutflow || 0;
         this.advBalance = res.balance || 0;
         // Mock pagination for advanced view since it returns a list
-        this.allTransactions = this.advTransactions;
+        this.allTransactions = this.advTransactions.map((tx: any, index: number) => {
+          const isCredit = tx.inflow > 0;
+          return {
+            id: 'adv_' + index,
+            transactionDate: tx.date,
+            subAccount: { bankName: tx.userName || tx.role || 'Unknown User' },
+            paymentMethod: 'OTHER',
+            description: tx.particulars,
+            referenceId: '-',
+            transactionType: isCredit ? 'CREDIT' : (tx.outflow > 0 ? 'DEBIT' : 'OTHER'),
+            amount: isCredit ? tx.inflow : tx.outflow,
+            status: 'COMPLETED'
+          };
+        });
         this.transactionTotalPages = 1;
         this.transactionTotalElements = this.advTransactions.length;
         this.cdr.detectChanges();
@@ -2061,6 +2087,54 @@ export class AccountantDashboard implements OnInit, OnDestroy {
         this.showErrorToast('Failed to load advanced transactions');
       }
     });
+  }
+
+  clearAdvancedTxFilters(): void {
+    this.advFilterRole = 'AGENT';
+    this.advFilterUserId = 'all';
+    this.advFilterCollege = 'all';
+    this.txFilterStartDate = '';
+    this.txFilterEndDate = '';
+    this.advTransactions = [];
+    this.advTotalInflow = 0;
+    this.advTotalOutflow = 0;
+    this.advBalance = 0;
+
+    // Close the modal
+    this.showAdvancedTxFilters = false;
+
+    // Reset to normal table data
+    this.loadAllTransactions();
+  }
+
+  exportAdvancedTransactions(): void {
+    if (!this.advTransactions || this.advTransactions.length === 0) {
+      this.showErrorToast('No transactions to export.');
+      return;
+    }
+
+    let csvContent = "Date,Role,User Name,Particulars,Inflow,Outflow\n";
+    this.advTransactions.forEach(tx => {
+      const row = [
+        `"${tx.date || ''}"`,
+        `"${tx.role || ''}"`,
+        `"${tx.userName || ''}"`,
+        `"${(tx.particulars || '').replace(/"/g, '""')}"`,
+        `"${tx.inflow || 0}"`,
+        `"${tx.outflow || 0}"`
+      ].join(",");
+      csvContent += row + "\n";
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Advanced_Report_${this.advFilterRole}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   // --- Repayment Logic ---
