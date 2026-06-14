@@ -170,6 +170,7 @@ export class TelexManagerDashboard implements OnInit {
   rejectReason: string = '';
   rejectingStudentId: number | null = null;
   zoomImageUrl: string | null = null;
+  zoomOriginalPath: string | null = null;
 
   // API Base
   private readonly BASE_URL = environment.apiUrl + '/api/telex';
@@ -646,14 +647,26 @@ export class TelexManagerDashboard implements OnInit {
     });
   }
 
+  isPdf(path: string | undefined | null): boolean {
+    if (!path) return false;
+    return path.toLowerCase().endsWith('.pdf');
+  }
+
   openZoom(url: string): void {
     if (!url) return;
-    this.zoomImageUrl = this.fileService.getFileUrl(url);
+    this.zoomOriginalPath = url;
+    const fullUrl = this.fileService.getFileUrl(url);
+    if (this.isPdf(url)) {
+      window.open(fullUrl, '_blank');
+      return;
+    }
+    this.zoomImageUrl = fullUrl;
     this.cdr.detectChanges();
   }
 
   closeZoom(): void {
     this.zoomImageUrl = null;
+    this.zoomOriginalPath = null;
     this.cdr.detectChanges();
   }
 

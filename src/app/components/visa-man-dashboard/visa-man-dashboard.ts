@@ -27,6 +27,7 @@ interface Student {
   actionOnUser: string;
   applicationStatus: string;
   profileImagePath: string;
+  visaNumber?: string;
   visaPaymentRequestedAmount?: number;
   visaPaymentRequestedCurrency?: string;
   visaManServiceCharge?: number;
@@ -38,6 +39,9 @@ interface Student {
   accToVisaManStatus?: string;
   agent?: any;
   college?: any;
+  createdAt?: string;
+  updatedAt?: string;
+  studentStatusHistory?: any[];
 }
 
 // VisaMan Profile Interface
@@ -65,7 +69,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   private destroy$ = new Subject<void>();
 
-  activeSection: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'accounts' | 'funds' | 'releasedFunds' = 'dashboard';
+  activeSection: 'dashboard' | 'visaRequests' | 'collectPassport' | 'applyForVisa' | 'submitToEmbassy' | 'markVisaStamp' | 'returnedToDocPerson' | 'visaStamped' | 'students' | 'accounts' | 'funds' | 'releasedFunds' = 'dashboard';
   currentUsername: string = 'VM_001';
   students: Student[] = [];
   visaManProfile: VisaManProfile | null = null;
@@ -93,12 +97,16 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
 
 
-  // Payment Form
-  paymentAmount: number | null = null;
-  paymentServiceCharge: number | null = null;
-  paymentCurrency: string = 'INR';
-  paymentPurpose: string = '';
-  paymentError: string = '';
+
+  // Visa Request Modal Variables
+  visaFeeAmount: number | null = null;
+  visaServiceCharge: number | null = null;
+  visaNote: string = "This total amount will be sent to Accountant for collection from agent and fund release process.";
+
+  get visaTotalAmount(): number {
+    return (this.visaFeeAmount || 0) + (this.visaServiceCharge || 0);
+  }
+
 
   // Currency Options
   currencies: { code: string; name: string; symbol: string }[] = [
@@ -287,14 +295,65 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   // FILTERING
   // ============================================
-  get actionRequiredStudents(): Student[] {
+  get visaRequestStudents(): Student[] {
     return this.filterBySearch(
-      this.students.filter(s => s.actionOnUser === 'visa_manager')
+      this.students.filter(s => s.action === 'REQUEST_FOR_VISA_PAYMENT_TO_ACCOUNTANT')
     );
   }
 
-  get pipelineStudents(): Student[] {
-    return this.filterBySearch(this.students);
+  get collectPassportStudents(): Student[] {
+    return this.filterBySearch(
+      this.students.filter(s => {
+        if (s.action === 'COLLECT_PASSPORT_FRM_DOC_PERSON') return true;
+        // If funds received but hasn't proceeded to collect passport yet
+        if (s.accToVisaManPaidAmount && s.accToVisaManPaidAmount > 0) {
+          const status = s.applicationStatus;
+          if (status !== 'PASSPORT_COLLECTED' && status !== 'VISA_APPLIED' && status !== 'PASSPORT_SUBMITTED_TO_EMBASSY' && status !== 'VISA_STAMPED' && status !== 'VISA_COMPLETED') {
+            return true;
+          }
+        }
+        return false;
+      })
+    );
+  }
+
+  get completedStudents(): Student[] {
+    return this.filterBySearch(
+      this.students.filter(s => s.action === 'VISA_COMPLETED')
+    );
+  }
+
+  get returnedToDocPersonStudents(): Student[] {
+    return this.filterBySearch(
+      this.students.filter(s =>
+        s.action === 'NEED_TO_RETURN_VISA' &&
+        s.applicationStatus === 'VISA_STAMPED'
+      )
+    );
+  }
+
+  get applyForVisaStudents(): Student[] {
+    return this.filterBySearch(
+      this.students.filter(s => s.action === 'NEED_APPLY_VISA')
+    );
+  }
+
+  get submitToEmbassyStudents(): Student[] {
+    return this.filterBySearch(
+      this.students.filter(s => s.action === 'NEED_SUBMIT_PASSPORT_TO_EMBASSY')
+    );
+  }
+
+  get markVisaStampStudents(): Student[] {
+    return this.filterBySearch(
+      this.students.filter(s => s.action === 'NEED_TO_ISSUE_VISA')
+    );
+  }
+
+  get visaStampedStudents() {
+    return this.filterBySearch(
+      this.students.filter(s => s.visaNumber != null)
+    );
   }
 
   get allFilteredStudents(): Student[] {
@@ -433,7 +492,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   // NAVIGATION
   // ============================================
-  setActiveSection(section: 'dashboard' | 'actions' | 'pipeline' | 'students' | 'accounts' | 'funds' | 'releasedFunds'): void {
+  setActiveSection(section: 'dashboard' | 'visaRequests' | 'collectPassport' | 'applyForVisa' | 'submitToEmbassy' | 'markVisaStamp' | 'returnedToDocPerson' | 'visaStamped' | 'students' | 'accounts' | 'funds' | 'releasedFunds'): void {
     this.activeSection = section;
     this.sidebarOpen = false;
     if (section === 'funds') {
@@ -454,83 +513,6 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ACTIONS - API CALLS
   // ============================================
 
-  // ============================================
-  // PAYMENT REQUEST MODAL
-  // ============================================
-  openPaymentModal(student: Student): void {
-    this.paymentStudent = student;
-    this.paymentAmount = null;
-    this.paymentServiceCharge = null;
-    this.paymentCurrency = 'INR';
-    this.paymentPurpose = `Visa Payment for ${student.fullName}`;
-    this.paymentError = '';
-    this.showPaymentModal = true;
-    this.cdr.detectChanges();
-  }
-
-  closePaymentModal(): void {
-    this.showPaymentModal = false;
-    this.paymentStudent = null;
-    this.paymentAmount = null;
-    this.paymentServiceCharge = null;
-    this.paymentPurpose = '';
-    this.paymentError = '';
-    this.cdr.detectChanges();
-  }
-
-  submitPaymentRequest(): void {
-    // Validate
-    if (!this.paymentAmount || this.paymentAmount <= 0) {
-      this.paymentError = 'Please enter a valid amount';
-      return;
-    }
-    if (!this.paymentCurrency) {
-      this.paymentError = 'Please select a currency';
-      return;
-    }
-    if (!this.paymentStudent) {
-      this.paymentError = 'No student selected';
-      return;
-    }
-
-    this.paymentError = '';
-    this.processingId = this.paymentStudent.id;
-
-    const payload = {
-      visaManUsername: this.currentUsername,
-      amount: this.paymentAmount,
-      currency: this.paymentCurrency,
-      visaManServiceCharge: this.paymentServiceCharge || 0.0,
-      purpose: this.paymentPurpose
-    };
-
-    this.http.post(`${this.API_URL}/visa/request-payment/${this.paymentStudent.id}`, payload)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.processingId = null;
-          this.cdr.detectChanges();
-        }),
-        catchError(err => {
-          console.error('Failed to request payment:', err);
-          this.paymentError = 'Failed to submit payment request. Please try again.';
-          return of(null);
-        })
-      )
-      .subscribe(response => {
-        if (response) {
-          const currencySymbol = this.currencies.find(c => c.code === this.paymentCurrency)?.symbol || '';
-          this.closePaymentModal();
-          this.showSuccess(`Payment request of ${currencySymbol}${this.paymentAmount} ${this.paymentCurrency} sent for ${this.paymentStudent?.fullName}`);
-          this.refreshData();
-        }
-      });
-  }
-
-  // Request Payment from Accountant (opens modal)
-  requestPayment(student: Student): void {
-    this.openPaymentModal(student);
-  }
 
   // 1. Collect Passport
   collectPassport(student: Student): void {
@@ -628,12 +610,16 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   showVisaNumberModal = false;
   visaNumberInput = '';
   studentForVisaStamp: Student | null = null;
+  isVisaSubmitting = false;
+  visaSubmitSuccess = false;
 
   // 4. Mark Visa Stamped
   markVisaStamped(student: Student): void {
     this.studentForVisaStamp = student;
     this.visaNumberInput = '';
     this.showVisaNumberModal = true;
+    this.isVisaSubmitting = false;
+    this.visaSubmitSuccess = false;
     this.cdr.detectChanges();
   }
 
@@ -641,32 +627,25 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     this.showVisaNumberModal = false;
     this.studentForVisaStamp = null;
     this.visaNumberInput = '';
+    this.isVisaSubmitting = false;
+    this.visaSubmitSuccess = false;
     this.cdr.detectChanges();
   }
 
   submitVisaNumber(): void {
     if (!this.visaNumberInput || !this.studentForVisaStamp) return;
-    
+
+    this.isVisaSubmitting = true;
     const student = this.studentForVisaStamp;
     const visaNumber = this.visaNumberInput;
-    
-    this.closeVisaNumberModal();
-    
-    this.openConfirmModal(
-      'Mark Visa Stamped',
-      `Confirm that Visa has been stamped for ${student.fullName}? \nVisa Number: ${visaNumber}`,
-      () => {
-        this.processMarkVisaStamped(student, visaNumber);
-      }
-    );
-  }
 
-  processMarkVisaStamped(student: Student, visaNumber: string): void {
-    this.processingId = student.id;
     this.visaService.markVisaStamped(student.id, this.currentUsername, visaNumber)
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => { this.processingId = null; this.cdr.detectChanges(); }),
+        finalize(() => {
+          this.isVisaSubmitting = false;
+          this.cdr.detectChanges();
+        }),
         catchError(err => {
           console.error('Failed to mark visa stamped:', err);
           this.showToast('error', 'Failed to mark visa.');
@@ -675,8 +654,12 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       )
       .subscribe(response => {
         if (response) {
-          this.showSuccess(`Visa successfully issued for ${student.fullName}! 🎉`);
+          this.visaSubmitSuccess = true;
           this.refreshData();
+
+          setTimeout(() => {
+            this.closeVisaNumberModal();
+          }, 2500);
         }
       });
   }
@@ -706,19 +689,83 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       )
       .subscribe(response => {
         if (response) {
-          this.showSuccess(`Documents returned to Doc Person for ${student.fullName}`);
+          this.showToast('success', `Documents for ${student.fullName} returned successfully.`);
           this.refreshData();
+          this.closeDetailModal();
         }
       });
+  }
+
+
+
+  // Quick Actions
+  emailStudent(): void {
+    if (this.selectedStudent?.email) {
+      window.location.href = `mailto:${this.selectedStudent.email}`;
+    }
+  }
+
+  callStudent(): void {
+    if (this.selectedStudent?.contactNo) {
+      window.location.href = `tel:${this.selectedStudent.contactNo}`;
+    }
   }
 
   // ============================================
   // MODALS
   // ============================================
-  openDetailModal(student: Student): void {
+  openDetailModal(student: any): void {
     this.selectedStudent = student;
+    this.showAllHistory = false;
+    if (student.visaPaymentRequestedAmount) {
+      this.visaFeeAmount = student.visaPaymentRequestedAmount;
+      this.visaServiceCharge = student.visaManServiceCharge || 0;
+    } else {
+      this.visaFeeAmount = null;
+      this.visaServiceCharge = null;
+    }
     this.showDetailModal = true;
     this.cdr.detectChanges();
+  }
+
+
+  submitVisaFeeRequest(): void {
+    if (!this.selectedStudent) return;
+    if (!this.visaFeeAmount || this.visaFeeAmount <= 0) {
+      this.showToast('error', 'Please enter a valid Visa Fee.');
+      return;
+    }
+
+    this.processingId = this.selectedStudent.id;
+
+    const payload = {
+      visaManUsername: this.currentUsername,
+      amount: this.visaFeeAmount,
+      currency: 'INR',
+      visaManServiceCharge: this.visaServiceCharge || 0.0,
+      purpose: 'Visa Fee & Service Charges'
+    };
+
+    this.http.post(`${this.API_URL}/visa/request-payment/${this.selectedStudent.id}`, payload)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.processingId = null;
+          this.cdr.detectChanges();
+        }),
+        catchError(err => {
+          console.error('Failed to request payment:', err);
+          this.showToast('error', 'Failed to submit payment request. Please try again.');
+          return of(null);
+        })
+      )
+      .subscribe(response => {
+        if (response) {
+          this.closeDetailModal();
+          this.showSuccess(`Visa Fee request of ₹${this.visaFeeAmount} INR sent for ${this.selectedStudent?.fullName}`);
+          this.refreshData();
+        }
+      });
   }
 
   closeDetailModal(): void {
@@ -739,6 +786,15 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     this.showSuccessModal = false;
     this.successMessage = '';
     this.cdr.detectChanges();
+  }
+
+  openDocumentByPath(path: string | undefined): void {
+    if (!path) {
+      this.showToast('warning', 'Document not uploaded yet.');
+      return;
+    }
+    const url = this.fileService.getFileUrl(path);
+    window.open(url, '_blank');
   }
 
 
@@ -838,6 +894,23 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       .replace(/\b\w/g, c => c.toUpperCase());
   }
 
+  getTimelineProgress(student: any): number {
+    if (!student) return 0;
+    const status = student.applicationStatus;
+
+    if (status === 'VISA_STAMPED' || status === 'VISA_COMPLETED') return 7;
+    if (status === 'PASSPORT_SUBMITTED_TO_EMBASSY') return 6;
+    if (status === 'VISA_APPLIED') return 5;
+    if (status === 'PASSPORT_COLLECTED') return 4;
+    if (status === 'VISA_FEE_RECEIVED') return 3;
+    if (student.accToVisaManPaidAmount && student.accToVisaManPaidAmount > 0) return 2;
+    if (status === 'VISA_PAYMENT_CONFIRMED' || student.accToVisaManStatus === 'PAID') return 2;
+    if (student.visaPaymentRequestedAmount && student.visaPaymentRequestedAmount > 0) return 1;
+    if (status === 'VISA_FEE_PENDING') return 1;
+
+    return 0;
+  }
+
   formatAction(action: string): string {
     if (!action) return 'No Action Required';
 
@@ -859,21 +932,19 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     switch (student.action) {
       case 'COLLECT_PASSPORT_FRM_DOC_PERSON':
         // 1. Collect Passport
-        return { label: 'Collect Passport', action: () => this.collectPassport(student), icon: '📖' };
+        return { label: 'Collect Passport', action: () => this.collectPassport(student), icon: 'fas fa-book' };
       case 'NEED_APPLY_VISA':
         // 2. Apply for Visa
-        return { label: 'Apply for Visa', action: () => this.applyForVisa(student), icon: '🎫' };
+        return { label: 'Apply for Visa', action: () => this.applyForVisa(student), icon: 'fas fa-file-signature' };
       case 'NEED_SUBMIT_PASSPORT_TO_EMBASSY':
         // 3. Submit to Embassy
-        return { label: 'Submit to Embassy', action: () => this.submitToEmbassy(student), icon: '📤' };
+        return { label: 'Submit to Embassy', action: () => this.submitToEmbassy(student), icon: 'fas fa-paper-plane' };
       case 'NEED_TO_ISSUE_VISA':
         // 4. Mark Stamped
-        return { label: 'Mark Visa Stamped', action: () => this.markVisaStamped(student), icon: '✅' };
+        return { label: 'Mark Visa Stamped', action: () => this.markVisaStamped(student), icon: 'fas fa-stamp' };
       case 'NEED_TO_RETURN_VISA':
         // 5. Return Docs
-        return { label: 'Return to Doc Person', action: () => this.confirmReturnDocs(student), icon: '↩️' };
-      case 'REQUEST_FOR_VISA_PAYMENT_TO_ACCOUNTANT':
-        return { label: 'Request Payment', action: () => this.requestPayment(student), icon: '💳' };
+        return { label: 'Return to Doc Person', action: () => this.confirmReturnDocs(student), icon: 'fas fa-undo' };
       default:
         return null;
     }
@@ -922,7 +993,22 @@ export class VisaManDashboard implements OnInit, OnDestroy {
 
   showHistoryModal: boolean = false;
   selectedHistoryRequest: any = null;
-  showFundRequestModal: boolean = false;
+  showAllHistory: boolean = false;
+
+  get displayedHistory(): any[] {
+    if (!this.selectedStudent || !this.selectedStudent.studentStatusHistory) return [];
+    // Clone and reverse so the latest is first
+    const reversed = [...this.selectedStudent.studentStatusHistory].reverse();
+    if (this.showAllHistory) {
+      return reversed;
+    }
+    // Show only the latest 2
+    return reversed.slice(0, 2);
+  }
+
+  toggleHistory(): void {
+    this.showAllHistory = !this.showAllHistory;
+  }
 
   openHistoryModal(req: any): void {
     this.selectedHistoryRequest = req;
@@ -1051,7 +1137,7 @@ Branch: ${this.fundRequestForm.branchName}`;
         error: (err) => {
           this.isFundSubmitting = false;
           console.error('Error submitting fund request', err);
-          this.showSuccess('Failed to submit request.');
+          this.showToast('error', 'Failed to submit request.');
         }
       });
   }
@@ -1074,17 +1160,17 @@ Branch: ${this.fundRequestForm.branchName}`;
   }
 
   loadMyRequests(): void {
-    this.isLoading = true;
+    this.isRefreshing = true;
     this.paymentRequestService.getRequestsByUsername(this.currentUsername)
       .subscribe({
         next: (requests: any) => {
           this.myFundRequests = requests;
-          this.isLoading = false;
+          this.isRefreshing = false;
           this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Error loading fund requests', err);
-          this.isLoading = false;
+          this.isRefreshing = false;
           this.cdr.detectChanges();
         }
       });
@@ -1145,16 +1231,16 @@ Branch: ${this.fundRequestForm.branchName}`;
 
   // ==================== COMPANY FUND RELEASES ====================
   fetchFundReleases() {
-    this.isLoading = true;
+    this.isRefreshing = true;
     this.http.get<any[]>(`${this.API_URL}/visa-man/fund-releases?username=${this.currentUsername}`).subscribe({
       next: (res) => {
         this.fundReleases = res;
-        this.isLoading = false;
+        this.isRefreshing = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to fetch fund releases', err);
-        this.isLoading = false;
+        this.isRefreshing = false;
       }
     });
   }
@@ -1227,13 +1313,13 @@ Branch: ${this.fundRequestForm.branchName}`;
       }
     );
   }
-  
+
   get pendingReleasesCount() {
-    return this.fundReleases.filter(r => r.releaseStatus === 'PENDING_CONFIRMATION').length;
+    return this.fundReleases.filter(r => r.releaseStatus === 'PENDING_CONFIRMATION' || r.releaseStatus === 'RELEASED_PENDING_CONFIRMATION').length;
   }
 
   get confirmedReleasesCount() {
-    return this.fundReleases.filter(r => r.releaseStatus === 'FUNDS_CONFIRMED').length;
+    return this.fundReleases.filter(r => r.releaseStatus === 'FUNDS_CONFIRMED' || r.releaseStatus === 'CONFIRMED').length;
   }
 
   get rejectedReleasesCount() {

@@ -305,7 +305,7 @@
           </div>
           <div class="top-profile-info">
             <div class="top-profile-name">
-              Telex Manager
+              {{ profileData?.fullName || currentUsername || 'Telex Manager' }}
             </div>
             <div class="top-profile-status">
               <span class="online-indicator"></span> Online
@@ -1572,11 +1572,18 @@
               getDocStatusLabel('passport') }}</span></div>
           <div class="dp-doc-preview">
             @if (detailStudent.visaPassportCopyPath || detailStudent.passportPath) {
-            <img [src]="fileService.getFileUrl(detailStudent.visaPassportCopyPath || detailStudent.passportPath)"
-              alt="Passport" class="dp-doc-thumb" />
-            <button class="dp-zoom-btn"
-              (click)="openZoom(detailStudent.visaPassportCopyPath || detailStudent.passportPath)"><i
-                class="fas fa-search-plus"></i></button>
+              @if (isPdf(detailStudent.visaPassportCopyPath || detailStudent.passportPath)) {
+                <div class="dp-pdf-preview" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc; border-radius:8px;">
+                  <i class="fas fa-file-pdf" style="font-size:3rem; color:#ef4444;"></i>
+                  <span style="font-size:12px; margin-top:8px; color:#64748b; font-weight:500;">PDF Document</span>
+                </div>
+              } @else {
+                <img [src]="fileService.getFileUrl(detailStudent.visaPassportCopyPath || detailStudent.passportPath)"
+                  alt="Passport" class="dp-doc-thumb" />
+              }
+              <button class="dp-zoom-btn"
+                (click)="openZoom(detailStudent.visaPassportCopyPath || detailStudent.passportPath)"><i
+                  class="fas fa-search-plus"></i></button>
             } @else { <div class="dp-doc-placeholder"><i class="fas fa-id-card"></i><span>Not uploaded</span></div> }
           </div>
           <div class="dp-checklist-title">Verification Checklist</div>
@@ -1655,10 +1662,15 @@
               getDocStatusLabel('admission') }}</span></div>
           <div class="dp-doc-preview">
             @if (detailStudent.admissionLetterPath) {
-            <img [src]="fileService.getFileUrl(detailStudent.admissionLetterPath)" alt="Admission"
-              class="dp-doc-thumb" />
-            <button class="dp-zoom-btn" (click)="openZoom(detailStudent.admissionLetterPath)"><i
-                class="fas fa-search-plus"></i></button>
+              @if (isPdf(detailStudent.admissionLetterPath)) {
+                <div class="dp-pdf-preview" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f8fafc; border-radius:8px;">
+                  <i class="fas fa-file-pdf" style="font-size:3rem; color:#ef4444;"></i>
+                  <span style="font-size:12px; margin-top:8px; color:#64748b; font-weight:500;">PDF Document</span>
+                </div>
+              } @else {
+                <img [src]="fileService.getFileUrl(detailStudent.admissionLetterPath)" alt="Admission" class="dp-doc-thumb" />
+              }
+              <button class="dp-zoom-btn" (click)="openZoom(detailStudent.admissionLetterPath)"><i class="fas fa-search-plus"></i></button>
             } @else { <div class="dp-doc-placeholder"><i class="fas fa-file-alt"></i><span>Not uploaded</span></div> }
           </div>
           <div class="dp-checklist-title">Verification Checklist</div>
