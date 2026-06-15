@@ -506,12 +506,12 @@
 }
 
 .top-bar {
-    height: 85px;
+    height: 60px;
     background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 44px;
+    padding: 0 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     z-index: 50;
     position: sticky;
@@ -520,13 +520,13 @@
 }
 
 .header-left h2 {
-    font-size: 1.6rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
 }
 
 .header-left h2 i {

@@ -42,12 +42,12 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // STATE MANAGEMENT
   // ============================================
-  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' = 'dashboard';
+  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request' = 'dashboard';
   isLoading: boolean = false;
   isLoggingOut: boolean = false;
   isDarkMode: boolean = false;
 
-  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students'): void {
+  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request'): void {
     this.activeTab = tab;
     this.pagination.currentPage = 1; // Reset pagination
     this.applyFilters(); // Re-apply filters based on the new tab
@@ -60,15 +60,21 @@ export class DocPersonDashbaord implements OnInit {
   getTabTitle(): string {
     const titles: { [key: string]: string } = {
       'dashboard': 'Dashboard',
-      'receive': 'Receive Docs',
-      'verify': 'Verify Docs',
-      'return': 'Return Docs',
+      'receive': 'Incoming Documents',
+      'verify': 'Active Custody',
+      'return': 'Return Requests',
       'pipeline': 'In Pipeline',
       'stamped': 'Visa Stamped',
       'reports': 'Reports',
       'profile': 'My Profile',
       'funds': 'Fund Requests',
-      'all-students': 'All Students'
+      'all-students': 'All Students',
+      'inventory': 'Document Inventory',
+      'transfers': 'Document Transfers',
+      'passport-requests': 'Passport Requests',
+      'travel-info': 'Travel Information',
+      'courier-requests': 'Courier Requests',
+      'fund-request': 'Fund Request'
     };
     return titles[this.activeTab] || 'Dashboard';
   }
@@ -1012,13 +1018,21 @@ export class DocPersonDashbaord implements OnInit {
   getTabIcon(): string {
     const iconMap: any = {
       'dashboard': 'fas fa-th-large',
-      'receive': 'fas fa-inbox',
-      'verify': 'fas fa-file-contract',
-      'return': 'fas fa-reply',
+      'receive': 'fas fa-download',
+      'verify': 'fas fa-user-shield',
+      'return': 'fas fa-undo',
       'pipeline': 'fas fa-clock',
       'stamped': 'fas fa-stamp',
       'reports': 'fas fa-chart-line',
-      'profile': 'fas fa-user'
+      'profile': 'fas fa-user',
+      'funds': 'fas fa-money-bill-wave',
+      'all-students': 'fas fa-users',
+      'inventory': 'far fa-folder',
+      'transfers': 'fas fa-exchange-alt',
+      'passport-requests': 'fas fa-passport',
+      'travel-info': 'fas fa-plane',
+      'courier-requests': 'fas fa-truck',
+      'fund-request': 'fas fa-money-bill-wave'
     };
     return iconMap[this.activeTab] || 'fas fa-home';
   }

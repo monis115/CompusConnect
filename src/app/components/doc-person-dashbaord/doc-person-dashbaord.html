@@ -25,29 +25,65 @@
       <a (click)="setActiveTab('dashboard')" [class.active]="activeTab === 'dashboard'">
         <i class="fas fa-th-large"></i> Dashboard
       </a>
+
+      <!-- Incoming Documents (replaces Receive Docs) -->
       <a (click)="setActiveTab('receive')" [class.active]="activeTab === 'receive'" class="nav-item-badge">
-        <span><i class="fas fa-inbox"></i> Receive Docs</span>
+        <span><i class="fas fa-download"></i> Incoming Documents</span>
         @if (receiveList.length > 0) {
         <span class="badge">{{ receiveList.length }}</span>
         }
       </a>
+
+      <!-- Document Inventory -->
+      <a (click)="setActiveTab('inventory')" [class.active]="activeTab === 'inventory'">
+        <i class="far fa-folder"></i> Document Inventory
+      </a>
+
+      <!-- Active Custody (Replaces Verify Docs) -->
       <a (click)="setActiveTab('verify')" [class.active]="activeTab === 'verify'" class="nav-item-badge">
-        <span><i class="fas fa-file-contract"></i> Verify Docs</span>
+        <span><i class="fas fa-user-shield"></i> Active Custody</span>
         @if (verifyList.length > 0) {
         <span class="badge">{{ verifyList.length }}</span>
         }
       </a>
+
+      <!-- Document Transfers -->
+      <a (click)="setActiveTab('transfers')" [class.active]="activeTab === 'transfers'">
+        <i class="fas fa-exchange-alt"></i> Document Transfers
+      </a>
+
+      <!-- Passport Requests (Passport Collect) -->
+      <a (click)="setActiveTab('passport-requests')" [class.active]="activeTab === 'passport-requests'">
+        <i class="fas fa-passport"></i> Passport Requests
+      </a>
+
+      <!-- Travel Information -->
+      <a (click)="setActiveTab('travel-info')" [class.active]="activeTab === 'travel-info'">
+        <i class="fas fa-plane"></i> Travel Information
+      </a>
+
+      <!-- Return Requests -->
       <a (click)="setActiveTab('return')" [class.active]="activeTab === 'return'" class="nav-item-badge">
-        <span><i class="fas fa-reply"></i> Returns</span>
+        <span><i class="fas fa-undo"></i> Return Requests</span>
         @if (returnList.length > 0) {
         <span class="badge">{{ returnList.length }}</span>
         }
       </a>
+
+      <!-- Courier Requests -->
+      <a (click)="setActiveTab('courier-requests')" [class.active]="activeTab === 'courier-requests'">
+        <i class="fas fa-truck"></i> Courier Requests
+      </a>
+
+      <!-- Fund Request -->
+      <a (click)="setActiveTab('fund-request')" [class.active]="activeTab === 'fund-request'">
+        <i class="fas fa-money-bill-wave"></i> Fund Request
+      </a>
+
+      <!-- All Students -->
       <a (click)="setActiveTab('all-students')" [class.active]="activeTab === 'all-students'">
         <i class="fas fa-users"></i> All Students
       </a>
-
-
     </nav>
 
     <div class="sidebar-footer">
@@ -293,142 +329,103 @@
 
       <!-- DASHBOARD VIEW -->
       @if (activeTab === 'dashboard' && !isLoading && !errorState.hasError) {
-      <div class="lurni-dashboard fade-in">
-        <div class="lurni-header">
-          <h1>Welcome back, {{ docPerson?.fullName || 'Doc Person' }}</h1>
-        </div>
-
-        <div class="lurni-stats-grid">
-          <div class="lurni-stat-card" (click)="setActiveTab('receive')">
-            <div class="lurni-stat-icon icon-blue"><i class="fas fa-inbox"></i></div>
-            <div class="lurni-stat-info">
-              <p class="lurni-stat-label">To Receive</p>
-              <h3 class="lurni-stat-value">{{ receiveCount }}</h3>
-            </div>
+      <div class="coming-soon-container fade-in">
+        <div class="glass-card">
+          <div class="icon-wrapper">
+            <i class="fas fa-tools"></i>
           </div>
-          <div class="lurni-stat-card" (click)="setActiveTab('verify')">
-            <div class="lurni-stat-icon icon-orange"><i class="fas fa-file-contract"></i></div>
-            <div class="lurni-stat-info">
-              <p class="lurni-stat-label">To Verify</p>
-              <h3 class="lurni-stat-value">{{ verifyCount }}</h3>
-            </div>
-          </div>
-          <div class="lurni-stat-card" (click)="setActiveTab('return')">
-            <div class="lurni-stat-icon icon-green"><i class="fas fa-reply"></i></div>
-            <div class="lurni-stat-info">
-              <p class="lurni-stat-label">To Return</p>
-              <h3 class="lurni-stat-value">{{ returnCount }}</h3>
-            </div>
-          </div>
-          <div class="lurni-stat-card" (click)="setActiveTab('stamped')">
-            <div class="lurni-stat-icon icon-red"><i class="fas fa-check-circle"></i></div>
-            <div class="lurni-stat-info">
-              <p class="lurni-stat-label">Approved Docs</p>
-              <h3 class="lurni-stat-value">{{ stats.approved }}</h3>
-            </div>
-          </div>
-        </div>
-
-        <div class="lurni-main-grid">
-          <!-- Left: Top Engaged Courses (Top Universities) -->
-          <div class="lurni-card">
-            <div class="lurni-card-header">
-              <h3 class="lurni-card-title">Top Universities (Documents)</h3>
-            </div>
-            <div class="lurni-chart-container">
-              <div style="position: absolute; left: 0; bottom: 20px;">
-                <h2 style="margin:0; font-size: 24px; font-weight: 700; color: #111827;">{{ stats.totalStudents }}</h2>
-                <p style="margin:0; font-size: 13px; color: #16a34a; font-weight: 500;"><i class="fas fa-arrow-up"></i> Total Students</p>
-              </div>
-              
-              @for(uni of topUniversities; track uni.name; let i = $index) {
-                <div class="lurni-bar-wrapper">
-                  <div class="lurni-bar" [style.height]="uni.percentage + '%'" [class.active]="i === 0" [title]="uni.name + ': ' + uni.count"></div>
-                  <span class="lurni-bar-label" [title]="uni.name" style="width: 40px; overflow: hidden; text-overflow: ellipsis;">{{ uni.name }}</span>
-                </div>
-              }
-            </div>
-          </div>
-
-          <!-- Right: Recent Activity -->
-          <div class="lurni-card">
-            <div class="lurni-card-header">
-              <h3 class="lurni-card-title">Recent Activity</h3>
-            </div>
-            <div class="lurni-activity-tabs">
-              <div class="lurni-activity-tab active">All</div>
-              <div class="lurni-activity-tab">Updates</div>
-            </div>
-            <div class="lurni-activity-list" style="max-height: 250px; overflow-y: auto;">
-              @for(act of recentActivities.slice(0, 4); track act.time + $index) {
-                <div class="lurni-activity-item">
-                  <div class="lurni-activity-avatar"><i [class]="'fas ' + (act.type === 'success' ? 'fa-check' : act.type === 'warning' ? 'fa-exclamation' : 'fa-info')"></i></div>
-                  <div class="lurni-activity-content">
-                    <h4 class="lurni-activity-title">{{ act.message }}</h4>
-                    <p class="lurni-activity-desc">{{ act.type | titlecase }} Update</p>
-                    <span class="lurni-activity-time"><i class="far fa-clock"></i> {{ act.time }}</span>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-
-        <div class="lurni-main-grid">
-          <!-- Left: Table Engagement Breakdown (Agent Breakdown) -->
-          <div class="lurni-card">
-            <div class="lurni-card-header">
-              <h3 class="lurni-card-title">Agent Performance Breakdown</h3>
-            </div>
-            <table class="lurni-table">
-              <thead>
-                <tr>
-                  <th>Agent</th>
-                  <th>Total Students</th>
-                  <th>Success Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for(agent of agentBreakdown; track agent.name) {
-                  <tr>
-                    <td>{{ agent.name }}</td>
-                    <td>{{ agent.total }}</td>
-                    <td style="color: #16a34a;">{{ agent.successRate }}%</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Right: Progress Overview -->
-          <div class="lurni-card">
-            <div class="lurni-card-header">
-              <h3 class="lurni-card-title">Pipeline Overview</h3>
-            </div>
-            <div class="lurni-progress-item">
-              <div class="lurni-progress-header">
-                <span class="lurni-progress-title">To Receive</span>
-                <span class="lurni-progress-stats" style="color: #0284c7;">{{ receiveCount }} / {{ stats.totalStudents }}</span>
-              </div>
-              <div class="lurni-progress-bar-bg"><div class="lurni-progress-bar-fill" style="background: #0284c7;" [style.width]="(receiveCount / (stats.totalStudents || 1) * 100) + '%'"></div></div>
-            </div>
-            <div class="lurni-progress-item">
-              <div class="lurni-progress-header">
-                <span class="lurni-progress-title">To Verify</span>
-                <span class="lurni-progress-stats" style="color: #ea580c;">{{ verifyCount }} / {{ stats.totalStudents }}</span>
-              </div>
-              <div class="lurni-progress-bar-bg"><div class="lurni-progress-bar-fill" style="background: #ea580c;" [style.width]="(verifyCount / (stats.totalStudents || 1) * 100) + '%'"></div></div>
-            </div>
-            <div class="lurni-progress-item">
-              <div class="lurni-progress-header">
-                <span class="lurni-progress-title">Approved Docs</span>
-                <span class="lurni-progress-stats" style="color: #16a34a;">{{ stats.approved }} / {{ stats.totalStudents }}</span>
-              </div>
-              <div class="lurni-progress-bar-bg"><div class="lurni-progress-bar-fill" style="background: #16a34a;" [style.width]="(stats.approved / (stats.totalStudents || 1) * 100) + '%'"></div></div>
-            </div>
+          <h1 class="gradient-text">Implementing Soon</h1>
+          <p class="subtitle">We're building a new and improved experience for the Document Dashboard. Check back later!</p>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
           </div>
         </div>
       </div>
+
+      <style>
+      .coming-soon-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        padding: 20px;
+        margin: 20px;
+      }
+
+      .glass-card {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 24px;
+        padding: 60px 40px;
+        text-align: center;
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
+        max-width: 480px;
+        width: 100%;
+      }
+
+      .icon-wrapper {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto 30px;
+        box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+      }
+
+      .icon-wrapper i {
+        font-size: 32px;
+        color: white;
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.25rem;
+        font-weight: 800;
+        margin-bottom: 16px;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        color: #64748b;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 40px;
+      }
+
+      .progress-bar {
+        background: rgba(203, 213, 225, 0.4);
+        height: 6px;
+        border-radius: 999px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .progress-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 30%;
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        border-radius: 999px;
+        animation: loading 2s infinite alternate ease-in-out;
+      }
+
+      @keyframes loading {
+        0% { width: 10%; }
+        100% { width: 80%; }
+      }
+      </style>
       }
 
       <!-- RECEIVE VIEW - PREMIUM PROFESSIONAL DESIGN -->
