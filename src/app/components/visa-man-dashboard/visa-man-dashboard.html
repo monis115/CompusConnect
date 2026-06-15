@@ -5,15 +5,14 @@ Premium Angular Dashboard with Glassmorphism
 
 <!-- LOADING OVERLAY -->
 @if (isLoading) {
-<div class="loading-overlay">
+<div class="loading-overlay transparent-loader">
   <div class="passport-loader"></div>
-  <div class="stamp-loader">Processing Visa Documents...</div>
+  <div class="stamp-loader" style="color: #1e293b; font-weight: 600;">Processing Visa Documents...</div>
 </div>
 }
 
 <!-- MAIN DASHBOARD CONTAINER -->
-@if (!isLoading) {
-<div class="dashboard-container">
+<div class="dashboard-container" [class.blurred-bg]="isLoading">
   <!-- TOAST NOTIFICATIONS -->
   <div class="toast-container">
     @for (toast of toasts; track toast) {
@@ -247,42 +246,313 @@ Premium Angular Dashboard with Glassmorphism
     <!-- Content Body -->
     <div class="content-body">
 
-      @if (!isLoading && activeSection !== 'accounts' && activeSection !== 'funds') {
-      <!-- Smart Filter Bar -->
-      <div class="filter-bar"
-        style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-        <i class="fas fa-filter" style="color: #64748b; font-size: 14px;"></i>
-        <select [(ngModel)]="filterAgent" (change)="refreshData()"
-          style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
-          <option value="">All Agents</option>
-          @for (agent of uniqueAgents; track agent.fullName) {
-          <option [value]="agent.fullName">{{ agent.fullName }}</option>
-          }
-        </select>
-        <select [(ngModel)]="filterCollege" (change)="refreshData()"
-          style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
-          <option value="">All Universities</option>
-          @for (col of uniqueColleges; track col) {
-          <option [value]="col">{{ col }}</option>
-          }
-        </select>
-        @if (hasActiveFilters) {
-        <button (click)="clearFilters()"
-          style="padding: 8px 14px; border: 1px solid #fee2e2; border-radius: 8px; font-size: 12px; font-weight: 600; background: #fef2f2; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
-          <i class="fas fa-times"></i> Clear Filters
-        </button>
-        }
-      </div>
-      }
 
       <!-- ============================================
         DASHBOARD SECTION
         ============================================ -->
       @if (activeSection === 'dashboard') {
-      <div class="empty-state"
-        style="margin-top: 40px; padding: 40px; text-align: center; background: white; border-radius: 8px; border: 1px solid #e2e8f0;">
-        <h2 style="color: #334155; font-size: 1.5rem; font-weight: 600;">Implementing something bigger 🚀</h2>
-        <p style="color: #64748b; margin-top: 10px;">We are working on an exciting new dashboard view. Stay tuned!</p>
+      <div class="vd-dashboard-grid">
+        <!-- Top Stats Cards -->
+        <div class="vd-stats-row">
+          <div class="vd-stat-card" (click)="setActiveSection('students')">
+            <div class="vd-icon-wrapper" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #3b82f6;"><i class="fas fa-users"></i></div>
+            <div class="vd-stat-content">
+              <p>Total Students</p>
+              <h3>{{ dashboardStatusCounts.total }}</h3>
+              <span class="vd-trend positive"><i class="fas fa-circle" style="font-size:6px;"></i> All applications</span>
+            </div>
+          </div>
+          <div class="vd-stat-card" (click)="setActiveSection('visaRequests')">
+            <div class="vd-icon-wrapper" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #10b981;"><i class="fas fa-file-alt"></i></div>
+            <div class="vd-stat-content">
+              <p>Active Requests</p>
+              <h3>{{ dashboardStatusCounts.newRequest.count }}</h3>
+              <span class="vd-trend positive"><i class="fas fa-circle" style="font-size:6px;"></i> In pipeline</span>
+            </div>
+          </div>
+          <div class="vd-stat-card" (click)="setActiveSection('submitToEmbassy')">
+            <div class="vd-icon-wrapper" style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: #8b5cf6;"><i class="fas fa-plane-departure"></i></div>
+            <div class="vd-stat-content">
+              <p>Submitted to Embassy</p>
+              <h3>{{ dashboardStatusCounts.submitted.count }}</h3>
+              <span class="vd-trend"><i class="fas fa-circle" style="font-size:6px;"></i> Awaiting result</span>
+            </div>
+          </div>
+          <div class="vd-stat-card" (click)="setActiveSection('visaStamped')">
+            <div class="vd-icon-wrapper" style="background: linear-gradient(135deg, #fef2f2, #fce7f3); color: #e11d48;"><i class="fas fa-check-double"></i></div>
+            <div class="vd-stat-content">
+              <p>Visa Completed</p>
+              <h3>{{ dashboardStatusCounts.completed.count }}</h3>
+              <span class="vd-trend positive"><i class="fas fa-circle" style="font-size:6px;"></i> Stamped</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Middle Section -->
+        <div class="vd-middle-row">
+          <!-- LEFT: Donut + Trend stacked -->
+          <div class="vd-mid-left">
+            <!-- Donut Chart -->
+            <div class="vd-card">
+              <div class="vd-card-header">
+                <h3>Visa Requests by Status</h3>
+                <a class="vd-link" (click)="setActiveSection('students')">View All →</a>
+              </div>
+              <div class="vd-status-chart-row">
+                <div class="vd-donut" [style.background]="dashboardStatusDonutStyle">
+                  <div class="vd-donut-inner">
+                    <h3>{{ dashboardStatusCounts.total }}</h3>
+                    <p>Total</p>
+                  </div>
+                </div>
+                <div class="vd-donut-legend">
+                  <div class="vd-legend-item"><span class="vd-dot" style="background:#3b82f6;"></span> New Request <b>{{dashboardStatusCounts.newRequest.count}}</b></div>
+                  <div class="vd-legend-item"><span class="vd-dot" style="background:#f59e0b;"></span> Document Collection <b>{{dashboardStatusCounts.documentCollection.count}}</b></div>
+                  <div class="vd-legend-item"><span class="vd-dot" style="background:#8b5cf6;"></span> In Process <b>{{dashboardStatusCounts.inProcess.count}}</b></div>
+                  <div class="vd-legend-item"><span class="vd-dot" style="background:#ef4444;"></span> At Embassy <b>{{dashboardStatusCounts.submitted.count}}</b></div>
+                  <div class="vd-legend-item"><span class="vd-dot" style="background:#10b981;"></span> Completed <b>{{dashboardStatusCounts.completed.count}}</b></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trend Chart -->
+            <div class="vd-card vd-trend-card-container">
+              <div class="vd-card-header">
+                <h3>Visa Requests Trend (7 Days)</h3>
+              </div>
+              <div class="vd-trend-chart">
+                <svg viewBox="0 0 500 100" preserveAspectRatio="none">
+                  <line x1="0" y1="20" x2="500" y2="20" stroke="#f1f5f9" />
+                  <line x1="0" y1="40" x2="500" y2="40" stroke="#f1f5f9" />
+                  <line x1="0" y1="60" x2="500" y2="60" stroke="#f1f5f9" />
+                  <line x1="0" y1="80" x2="500" y2="80" stroke="#f1f5f9" />
+                  <polyline [attr.points]="trendChartData.points" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                  @for (pt of trendChartData.points.split(' '); track $index) {
+                    @if (pt) {
+                      <circle [attr.cx]="pt.split(',')[0]" [attr.cy]="pt.split(',')[1]" r="3.5" fill="#ffffff" stroke="#3b82f6" stroke-width="2" />
+                    }
+                  }
+                </svg>
+                <div class="vd-trend-labels">
+                  @for (label of trendChartData.labels; track $index) {
+                    <span>{{ label }}</span>
+                  }
+                </div>
+              </div>
+              <div class="vd-trend-stats">
+                <div class="vd-ts-item"><p>Received</p><h3>{{trendChartData.receivedSum}}</h3></div>
+                <div class="vd-ts-item"><p>In Process</p><h3>{{trendChartData.processSum}}</h3></div>
+                <div class="vd-ts-item"><p>Completed</p><h3>{{trendChartData.completedSum}}</h3></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Finance + Quick Actions stacked -->
+          <div class="vd-mid-right">
+            <!-- Finance Overview -->
+            <div class="vd-card">
+              <div class="vd-card-header">
+                <h3>Finance Overview</h3>
+              </div>
+              <!-- Fund Released (Visa Funds) -->
+              <div class="vd-fin-grid">
+                <div class="vd-fin-box" (click)="setActiveSection('releasedFunds')">
+                  <div class="vd-fin-box-icon" style="background:#eef2ff; color:#4f46e5;"><i class="fas fa-hand-holding-usd"></i></div>
+                  <div class="vd-fin-box-info">
+                    <span class="vd-fin-label">Fund Released</span>
+                    <span class="vd-fin-value">₹{{financeOverview.released | number}}</span>
+                  </div>
+                  <div class="vd-fin-box-meta">
+                    <span class="vd-fin-tag green">{{financeOverview.confirmedReleases}} confirmed</span>
+                    <span class="vd-fin-tag yellow">{{financeOverview.pendingReleases}} pending</span>
+                  </div>
+                </div>
+
+                <div class="vd-fin-box" (click)="setActiveSection('funds')">
+                  <div class="vd-fin-box-icon" style="background:#fffbeb; color:#d97706;"><i class="fas fa-file-invoice-dollar"></i></div>
+                  <div class="vd-fin-box-info">
+                    <span class="vd-fin-label">Fund Requests</span>
+                    <span class="vd-fin-value">₹{{financeOverview.requests | number}}</span>
+                  </div>
+                  <div class="vd-fin-box-meta">
+                    <span class="vd-fin-tag green">{{financeOverview.paidFundRequestsCount}} paid</span>
+                    <span class="vd-fin-tag yellow">{{financeOverview.totalFundRequestsCount - financeOverview.paidFundRequestsCount}} pending</span>
+                  </div>
+                </div>
+
+                <div class="vd-fin-box" (click)="setActiveSection('students')">
+                  <div class="vd-fin-box-icon" style="background:#f0fdf4; color:#16a34a;"><i class="fas fa-receipt"></i></div>
+                  <div class="vd-fin-box-info">
+                    <span class="vd-fin-label">Visa Fee Collected</span>
+                    <span class="vd-fin-value">₹{{financeOverview.visaFunds | number}}</span>
+                  </div>
+                  <div class="vd-fin-box-meta">
+                    <span class="vd-fin-tag blue">{{students.length}} students</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="vd-card">
+              <h3>Quick Actions</h3>
+              <div class="vd-qa-grid">
+                <div class="vd-qa-item" (click)="setActiveSection('applyForVisa')">
+                  <div class="vd-qa-icon" style="background:#eff6ff; color:#3b82f6;"><i class="fas fa-plus"></i></div>
+                  <span>New Visa</span>
+                </div>
+                <div class="vd-qa-item" (click)="setActiveSection('students')">
+                  <div class="vd-qa-icon" style="background:#ecfdf5; color:#10b981;"><i class="fas fa-users"></i></div>
+                  <span>Students</span>
+                </div>
+                <div class="vd-qa-item" (click)="setActiveSection('funds')">
+                  <div class="vd-qa-icon" style="background:#fffbeb; color:#d97706;"><i class="fas fa-money-bill-wave"></i></div>
+                  <span>Funds</span>
+                </div>
+                <div class="vd-qa-item" (click)="setActiveSection('accounts')">
+                  <div class="vd-qa-icon" style="background:#f5f3ff; color:#8b5cf6;"><i class="fas fa-wallet"></i></div>
+                  <span>Accounts</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lower Section: Table & Tasks -->
+        <div class="vd-lower-row">
+          <div class="vd-card vd-recent-table">
+            <div class="vd-card-header">
+              <h3>Recent Visa Requests</h3>
+              <a class="vd-link" (click)="setActiveSection('students')">View All &rarr;</a>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Student Name</th>
+                  <th>Application ID</th>
+                  <th>University</th>
+                  <th>Agent</th>
+                  <th>Current Status</th>
+                  <th>Last Update</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (student of recentVisaRequests; track student; let i = $index) {
+                <tr>
+                  <td>{{ i+1 }}</td>
+                  <td>
+                    <div class="vd-student-name">
+                      <div class="vd-avatar">{{ getInitials(student.fullName) }}</div>
+                      <span>{{ student.fullName }}</span>
+                    </div>
+                  </td>
+                  <td><span class="app-id">{{ student.applicationId }}</span></td>
+                  <td>{{ student.college?.collegeName || 'Not Assigned' }}</td>
+                  <td>{{ student.agent?.fullName || 'Direct' }}</td>
+                  <td><span class="status-badge" [class]="getStatusClass(student.applicationStatus)">{{ formatStatus(student.applicationStatus) }}</span></td>
+                  <td class="vd-date">{{ formatDate(student.updatedAt || student.createdAt) }}</td>
+                  <td><button class="vd-btn-small" (click)="openDetailModal(student)">View</button></td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pending Tasks -->
+          <div class="vd-card vd-pending-tasks">
+            <h3>Pending Tasks</h3>
+            <ul>
+              <li (click)="setActiveSection('collectPassport')">
+                <span><i class="far fa-folder-open text-danger"></i> Document Collection</span> 
+                <span class="vd-badge">{{dashboardStatusCounts.documentCollection.count}}</span>
+              </li>
+              <li (click)="setActiveSection('collectPassport')">
+                <span><i class="fas fa-passport text-danger"></i> Passport Collection</span> 
+                <span class="vd-badge">{{collectPassportStudents.length}}</span>
+              </li>
+              <li (click)="setActiveSection('visaRequests')">
+                <span><i class="fas fa-coins text-danger"></i> Payments Pending</span> 
+                <span class="vd-badge">{{feePendingStudents.length}}</span>
+              </li>
+              <li (click)="setActiveSection('submitToEmbassy')">
+                <span><i class="fas fa-university text-danger"></i> Embassy Submission</span> 
+                <span class="vd-badge">{{submitToEmbassyStudents.length}}</span>
+              </li>
+            </ul>
+
+            <div class="vd-announcements mt-3">
+              <div class="vd-ann-header">
+                <h3><i class="fas fa-bullhorn" style="color:#3b82f6;"></i> Announcements</h3>
+                @if (announcements.length > 0) {
+                  <span class="vd-badge-new">New</span>
+                }
+              </div>
+              @if (announcements.length > 0) {
+                <div class="vd-announcements-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                  @for (news of announcements; track news.id) {
+                    <div class="vd-announcement-item" style="padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
+                      <p style="margin: 0 0 4px; font-size: 0.85rem; color: #334155;">{{news.heading}}</p>
+                      <p style="margin: 0 0 6px; font-size: 0.8rem; color: #64748b; line-height: 1.4;">{{news.content}}</p>
+                      <small style="font-size: 0.7rem; color: #94a3b8;">{{news.activeFrom | date:'mediumDate'}} &bull; By {{news.username || 'Admin'}}</small>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p style="margin-top: 10px; font-size: 0.85rem; color: #64748b;">No new announcements.</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="vd-bottom-row">
+          <!-- Top Agents -->
+          <div class="vd-card">
+            <h3>Top Agents (By Requests)</h3>
+            <div class="vd-bars-list">
+              @for (agent of agentBreakdown; track agent.name) {
+                <div class="vd-bar-item">
+                  <div class="vd-bar-info"><span>{{agent.name}}</span> <b>{{agent.total}}</b></div>
+                  <div class="vd-bar-bg"><div class="vd-bar-fill" [style.width]="(agent.total / dashboardStatusCounts.total * 100) + '%'" [style.background]="getAvatarColor(agent.name)"></div></div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Top Universities -->
+          <div class="vd-card">
+            <div class="vd-card-header">
+              <h3>Top Universities (By Requests)</h3>
+              <a class="vd-link" (click)="setActiveSection('students')">View All</a>
+            </div>
+            <ul class="vd-bullet-list">
+              @for (uni of topUniversities; track uni.name) {
+                <li><span>&bull; {{uni.name}}</span> <b>{{uni.count}}</b></li>
+              }
+            </ul>
+          </div>
+
+          <!-- Requests by Intake -->
+          <div class="vd-card vd-donut-card">
+            <h3>Requests by Intake</h3>
+            <div class="vd-donut-container small">
+              <div class="vd-donut" [style.background]="dashboardIntakeDonutStyle">
+                <div class="vd-donut-inner">
+                  <h3>{{dashboardStatusCounts.total}}</h3>
+                  <p>Total</p>
+                </div>
+              </div>
+              <div class="vd-donut-legend small">
+                @for (intake of dashboardIntakeCounts; track intake.name; let i = $index) {
+                  <div class="vd-legend-item"><span class="vd-dot" [style.background]="['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'][i % 5]"></span> {{intake.name}} <b>{{intake.count}} ({{intake.percent}}%)</b></div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
       }
 
@@ -1186,7 +1456,7 @@ Premium Angular Dashboard with Glassmorphism
     </div>
   </main>
 </div>
-}
+
 
 <!-- ============================================
 MODALS
@@ -1738,7 +2008,7 @@ MODALS
 
 <!-- Success Modal -->
 @if (showSuccessModal) {
-<div class="modal-overlay" (click)="closeSuccessModal()">
+<div class="modal-overlay success-modal" (click)="closeSuccessModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="success-stamp">✓</div>
     <h2>Success!</h2>

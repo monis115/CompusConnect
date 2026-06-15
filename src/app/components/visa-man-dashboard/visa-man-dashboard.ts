@@ -42,18 +42,36 @@ interface Student {
   createdAt?: string;
   updatedAt?: string;
   studentStatusHistory?: any[];
+  citizenship?: string;
+  intake?: string;
+  placeOfVisaIssuance?: string;
+  telexIssueDate?: string;
+  admissionLetterPath?: string;
+  telexDocumentsPath?: string;
 }
 
 // VisaMan Profile Interface
 interface VisaManProfile {
   id: number;
-  username: string;
+  visaPersonId: string;
   fullName: string;
   email: string;
-  contactNumber: string;
-  role: string;
   status: string;
   students: Student[];
+}
+
+interface News {
+  id: number;
+  activeFrom: string;
+  tillDate: string;
+  heading: string;
+  content: string;
+  tag: string;
+  username: string;
+  forUser: string;
+  createdAt: string;
+  updatedAt: string;
+  active: boolean;
 }
 
 @Component({
@@ -183,6 +201,9 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // Passbooks
   myPassbooks: any[] = [];
 
+  // News / Announcements
+  announcements: News[] = [];
+
   constructor(
     private http: HttpClient,
     private router: Router,
@@ -205,6 +226,9 @@ export class VisaManDashboard implements OnInit, OnDestroy {
     }
     this.loadDashboardData();
     this.loadPassbooks();
+    this.fetchFundReleases();
+    this.loadMyRequests();
+    this.loadNews();
   }
 
   ngOnDestroy(): void {
@@ -221,6 +245,18 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(data => {
         this.myPassbooks = data;
+        this.cdr.detectChanges();
+      });
+  }
+
+  loadNews(): void {
+    this.http.get<News[]>(`${this.API_URL}/news/active`)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => {
+        if (res && res.length > 0) {
+          // Filter for VISA_MAN or ALL
+          this.announcements = res.filter(n => n.forUser === 'VISA_MAN' || n.forUser === 'ALL');
+        }
         this.cdr.detectChanges();
       });
   }
@@ -419,6 +455,165 @@ export class VisaManDashboard implements OnInit, OnDestroy {
         total: stats.total,
         successRate: Math.round((stats.stamped / (stats.total || 1)) * 100) || 0
       }));
+  }
+
+  // ============================================
+  // DASHBOARD CHARTS & STATS COMPUTATION
+  // ============================================
+
+  get dashboardStatusCounts() {
+    const total = this.students.length || 1; // avoid div by 0
+    const newRequest = this.feePendingStudents.length;
+    const documentCollection = this.collectPassportStudents.length;
+    const inProcess = this.visaAppliedStudents.length;
+    const submitted = this.submitToEmbassyStudents.length + this.atEmbassyStudents.length;
+    const completed = this.visaIssuedStudents.length + this.completedStudents.length;
+
+    return {
+      newRequest: { count: newRequest, percent: Math.round((newRequest / total) * 100) },
+      documentCollection: { count: documentCollection, percent: Math.round((documentCollection / total) * 100) },
+      inProcess: { count: inProcess, percent: Math.round((inProcess / total) * 100) },
+      submitted: { count: submitted, percent: Math.round((submitted / total) * 100) },
+      completed: { count: completed, percent: Math.round((completed / total) * 100) },
+      total: this.students.length
+    };
+  }
+
+  get dashboardStatusDonutStyle() {
+    const counts = this.dashboardStatusCounts;
+    const c1 = counts.newRequest.percent;
+    const c2 = c1 + counts.documentCollection.percent;
+    const c3 = c2 + counts.inProcess.percent;
+    const c4 = c3 + counts.submitted.percent;
+    // the rest is completed
+    if (this.students.length === 0) {
+      return 'conic-gradient(#e2e8f0 0% 100%)';
+    }
+    return `conic-gradient(
+      #3b82f6 0% ${c1}%, 
+      #f59e0b ${c1}% ${c2}%, 
+      #8b5cf6 ${c2}% ${c3}%, 
+      #ef4444 ${c3}% ${c4}%, 
+      #10b981 ${c4}% 100%
+    )`;
+  }
+
+  get dashboardIntakeCounts() {
+    const intakeCounts = new Map<string, number>();
+    this.students.forEach(s => {
+      const intake = s.intake || 'Others';
+      intakeCounts.set(intake, (intakeCounts.get(intake) || 0) + 1);
+    });
+    const total = this.students.length || 1;
+    const sorted = Array.from(intakeCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([name, count]) => ({ name, count, percent: Math.round((count / total) * 100) }));
+    return sorted;
+  }
+
+  get dashboardIntakeDonutStyle() {
+    const counts = this.dashboardIntakeCounts;
+    let style = 'conic-gradient(';
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'];
+    let currentPercent = 0;
+    
+    if (counts.length === 0) {
+      return 'conic-gradient(#e2e8f0 0% 100%)';
+    }
+
+    counts.forEach((c, index) => {
+      const nextPercent = currentPercent + c.percent;
+      style += `${colors[index % colors.length]} ${currentPercent}% ${nextPercent}%, `;
+      currentPercent = nextPercent;
+    });
+    // add remaining if any
+    if (currentPercent < 100) {
+      style += `#e2e8f0 ${currentPercent}% 100%`;
+    } else {
+      style = style.slice(0, -2); // remove last comma
+    }
+    style += ')';
+    return style;
+  }
+
+  get recentVisaRequests() {
+    return [...this.students]
+      .sort((a, b) => {
+        const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+        const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+        return dateB - dateA;
+      })
+      .slice(0, 5);
+  }
+
+  get financeOverview() {
+    // "Fund Released" = total visa payment amounts that were requested for visa processing (settled funds)
+    const totalVisaFundsRequested = this.students.reduce((sum, s) => sum + (Number(s.visaPaymentRequestedAmount) || 0), 0);
+    // Also count confirmed fund releases from company
+    const totalFundReleased = this.totalReleasedAmount || 0;
+    // "Fund Requests" = expense fund requests made by visa man
+    const totalFundRequests = this.myFundRequests.reduce((sum, req) => sum + (Number(req.requestedAmount) || 0), 0);
+    const paidFundRequests = this.myFundRequests
+      .filter(r => r.status === 'PAID' || r.status === 'PARTIAL')
+      .reduce((sum, req) => sum + (Number(req.paidAmount || req.requestedAmount) || 0), 0);
+    const pendingFundRequests = this.myFundRequests
+      .filter(r => r.status === 'PENDING')
+      .reduce((sum, req) => sum + (Number(req.requestedAmount) || 0), 0);
+    return {
+      visaFunds: totalVisaFundsRequested,
+      released: totalFundReleased,
+      requests: totalFundRequests,
+      requestsPaid: paidFundRequests,
+      requestsPending: pendingFundRequests,
+      pendingReleases: this.pendingReleasesCount,
+      confirmedReleases: this.confirmedReleasesCount,
+      totalFundRequestsCount: this.myFundRequests.length,
+      paidFundRequestsCount: this.paidFundRequestsCount
+    };
+  }
+
+  get trendChartData() {
+    // Generate trend for the last 7 days based on updatedAt
+    const days = 7;
+    const counts = new Array(days).fill(0);
+    const labels = new Array(days).fill('');
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      labels[days - 1 - i] = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+    }
+
+    this.students.forEach(s => {
+      const d = new Date(s.updatedAt || s.createdAt || 0);
+      d.setHours(0,0,0,0);
+      const diffTime = today.getTime() - d.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays >= 0 && diffDays < days) {
+        counts[days - 1 - diffDays]++;
+      }
+    });
+
+    const maxVal = Math.max(...counts, 5);
+    const points = counts.map((val, idx) => {
+      const x = (idx / (days - 1)) * 500;
+      const y = 100 - ((val / maxVal) * 80); // padding top
+      return `${x},${y}`;
+    }).join(' ');
+
+    return { 
+      receivedSum: counts.slice(0, 3).reduce((a,b)=>a+b, 0),
+      processSum: counts.slice(3, 6).reduce((a,b)=>a+b, 0),
+      completedSum: counts[6],
+      counts, 
+      labels, 
+      points 
+    };
   }
 
   // Pipeline Stage Filters
@@ -736,36 +931,45 @@ export class VisaManDashboard implements OnInit, OnDestroy {
       return;
     }
 
-    this.processingId = this.selectedStudent.id;
+    const totalAmount = this.visaFeeAmount + (this.visaServiceCharge || 0);
+    const studentName = this.selectedStudent.fullName;
 
-    const payload = {
-      visaManUsername: this.currentUsername,
-      amount: this.visaFeeAmount,
-      currency: 'INR',
-      visaManServiceCharge: this.visaServiceCharge || 0.0,
-      purpose: 'Visa Fee & Service Charges'
-    };
+    this.openConfirmModal(
+      'Confirm Visa Fee Request',
+      `Are you sure you want to submit a visa fee request of ₹${totalAmount.toFixed(2)} (Fee: ₹${this.visaFeeAmount} + Service: ₹${this.visaServiceCharge || 0}) for ${studentName}? This will be sent to the Accountant for collection.`,
+      () => {
+        this.processingId = this.selectedStudent!.id;
 
-    this.http.post(`${this.API_URL}/visa/request-payment/${this.selectedStudent.id}`, payload)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.processingId = null;
-          this.cdr.detectChanges();
-        }),
-        catchError(err => {
-          console.error('Failed to request payment:', err);
-          this.showToast('error', 'Failed to submit payment request. Please try again.');
-          return of(null);
-        })
-      )
-      .subscribe(response => {
-        if (response) {
-          this.closeDetailModal();
-          this.showSuccess(`Visa Fee request of ₹${this.visaFeeAmount} INR sent for ${this.selectedStudent?.fullName}`);
-          this.refreshData();
-        }
-      });
+        const payload = {
+          visaManUsername: this.currentUsername,
+          amount: this.visaFeeAmount,
+          currency: 'INR',
+          visaManServiceCharge: this.visaServiceCharge || 0.0,
+          purpose: 'Visa Fee & Service Charges'
+        };
+
+        this.http.post(`${this.API_URL}/visa/request-payment/${this.selectedStudent!.id}`, payload)
+          .pipe(
+            takeUntil(this.destroy$),
+            finalize(() => {
+              this.processingId = null;
+              this.cdr.detectChanges();
+            }),
+            catchError(err => {
+              console.error('Failed to request payment:', err);
+              this.showToast('error', 'Failed to submit payment request. Please try again.');
+              return of(null);
+            })
+          )
+          .subscribe(response => {
+            if (response) {
+              this.closeDetailModal();
+              this.showSuccess(`Visa Fee request of ₹${this.visaFeeAmount} INR sent for ${studentName}`);
+              this.refreshData();
+            }
+          });
+      }
+    );
   }
 
   closeDetailModal(): void {
