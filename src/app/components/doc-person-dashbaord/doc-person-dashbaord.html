@@ -17,8 +17,10 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-header" style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px 0;">
-      <img src="rare-education-logo.png" alt="Rare Education" style="max-height: 45px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+    <div class="sidebar-header"
+      style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px 0;">
+      <img src="rare-education-logo.png" alt="Rare Education"
+        style="max-height: 45px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
     </div>
 
     <nav class="sidebar-nav">
@@ -197,22 +199,26 @@
 
       @if (!isLoading && activeTab !== 'funds' && activeTab !== 'profile') {
       <!-- Smart Filter Bar -->
-      <div class="filter-bar" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <div class="filter-bar"
+        style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
         <i class="fas fa-filter" style="color: #64748b; font-size: 14px;"></i>
-        <select [(ngModel)]="filterAgent" (change)="onGlobalFilterChange()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
+        <select [(ngModel)]="filterAgent" (change)="onGlobalFilterChange()"
+          style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
           <option value="">All Agents</option>
           @for (agent of uniqueAgents; track agent.fullName) {
           <option [value]="agent.fullName">{{ agent.fullName }}</option>
           }
         </select>
-        <select [(ngModel)]="filterCollege" (change)="onGlobalFilterChange()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
+        <select [(ngModel)]="filterCollege" (change)="onGlobalFilterChange()"
+          style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
           <option value="">All Universities</option>
           @for (col of uniqueColleges; track col) {
           <option [value]="col">{{ col }}</option>
           }
         </select>
         @if (hasActiveFilters) {
-        <button (click)="clearFilters()" style="padding: 8px 14px; border: 1px solid #fee2e2; border-radius: 8px; font-size: 12px; font-weight: 600; background: #fef2f2; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+        <button (click)="clearFilters()"
+          style="padding: 8px 14px; border: 1px solid #fee2e2; border-radius: 8px; font-size: 12px; font-weight: 600; background: #fef2f2; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
           <i class="fas fa-times"></i> Clear Filters
         </button>
         }
@@ -279,13 +285,16 @@
                 </td>
                 <td>
                   <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <div style="font-size: 0.85rem; color: #334155; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                    <div
+                      style="font-size: 0.85rem; color: #334155; font-weight: 500; display: flex; align-items: center; gap: 6px;">
                       <i class="fas fa-user-tie" style="color: #64748b;"></i>
                       <span>{{ student.agent?.fullName || 'Direct' }}</span>
                     </div>
                     <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
                       <i class="fas fa-university"></i>
-                      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned' }}</span>
+                      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"
+                        [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not
+                        Assigned' }}</span>
                     </div>
                   </div>
                 </td>
@@ -335,7 +344,8 @@
             <i class="fas fa-tools"></i>
           </div>
           <h1 class="gradient-text">Implementing Soon</h1>
-          <p class="subtitle">We're building a new and improved experience for the Document Dashboard. Check back later!</p>
+          <p class="subtitle">We're building a new and improved experience for the Document Dashboard. Check back later!
+          </p>
           <div class="progress-bar">
             <div class="progress-fill"></div>
           </div>
@@ -343,245 +353,603 @@
       </div>
 
       <style>
-      .coming-soon-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 60vh;
-        border-radius: 20px;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        padding: 20px;
-        margin: 20px;
-      }
+        .coming-soon-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 60vh;
+          border-radius: 20px;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          font-family: 'Inter', system-ui, -apple-system, sans-serif;
+          padding: 20px;
+          margin: 20px;
+        }
 
-      .glass-card {
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        border-radius: 24px;
-        padding: 60px 40px;
-        text-align: center;
-        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
-        max-width: 480px;
-        width: 100%;
-      }
+        .glass-card {
+          background: rgba(255, 255, 255, 0.6);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          border-radius: 24px;
+          padding: 60px 40px;
+          text-align: center;
+          box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
+          max-width: 480px;
+          width: 100%;
+        }
 
-      .icon-wrapper {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        width: 80px;
-        height: 80px;
-        border-radius: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0 auto 30px;
-        box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
-      }
+        .icon-wrapper {
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          width: 80px;
+          height: 80px;
+          border-radius: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0 auto 30px;
+          box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+        }
 
-      .icon-wrapper i {
-        font-size: 32px;
-        color: white;
-      }
+        .icon-wrapper i {
+          font-size: 32px;
+          color: white;
+        }
 
-      .gradient-text {
-        background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 2.25rem;
-        font-weight: 800;
-        margin-bottom: 16px;
-        letter-spacing: -0.02em;
-      }
+        .gradient-text {
+          background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-size: 2.25rem;
+          font-weight: 800;
+          margin-bottom: 16px;
+          letter-spacing: -0.02em;
+        }
 
-      .subtitle {
-        color: #64748b;
-        font-size: 1.1rem;
-        line-height: 1.6;
-        margin-bottom: 40px;
-      }
+        .subtitle {
+          color: #64748b;
+          font-size: 1.1rem;
+          line-height: 1.6;
+          margin-bottom: 40px;
+        }
 
-      .progress-bar {
-        background: rgba(203, 213, 225, 0.4);
-        height: 6px;
-        border-radius: 999px;
-        overflow: hidden;
-        position: relative;
-      }
+        .progress-bar {
+          background: rgba(203, 213, 225, 0.4);
+          height: 6px;
+          border-radius: 999px;
+          overflow: hidden;
+          position: relative;
+        }
 
-      .progress-fill {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 30%;
-        background: linear-gradient(90deg, #3b82f6, #60a5fa);
-        border-radius: 999px;
-        animation: loading 2s infinite alternate ease-in-out;
-      }
+        .progress-fill {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 30%;
+          background: linear-gradient(90deg, #3b82f6, #60a5fa);
+          border-radius: 999px;
+          animation: loading 2s infinite alternate ease-in-out;
+        }
 
-      @keyframes loading {
-        0% { width: 10%; }
-        100% { width: 80%; }
-      }
+        @keyframes loading {
+          0% {
+            width: 10%;
+          }
+
+          100% {
+            width: 80%;
+          }
+        }
       </style>
       }
 
-      <!-- RECEIVE VIEW - PREMIUM PROFESSIONAL DESIGN -->
+      <!-- INCOMING DOCUMENTS VIEW - NEW DESIGN -->
       @if (activeTab === 'receive' && !isLoading && !errorState.hasError) {
-      <div class="receive-view-premium animate-fade-in">
-        <!-- Section Header -->
-        <div class="receive-header">
-          <div class="header-left">
-            <div class="header-icon-wrap">
-              <i class="fas fa-inbox"></i>
+      <div class="incoming-docs-view animate-fade-in">
+
+        <!-- Summary Cards -->
+        <div class="docs-summary-cards">
+          <div class="summary-card">
+            <div class="card-icon-wrapper bg-blue-light">
+              <i class="fas fa-file-invoice text-blue"></i>
             </div>
-            <div class="header-text">
-              <h2>Receive Documents</h2>
-              <p>Pending document deliveries awaiting confirmation</p>
+            <div class="card-info">
+              <span class="card-title">New Incoming Requests</span>
+              <span class="card-number">{{ getIncomingMetrics().newRequests }}</span>
+            </div>
+            <a href="javascript:void(0)" class="view-all-link text-blue">View all &rarr;</a>
+          </div>
+
+          <div class="summary-card">
+            <div class="card-icon-wrapper bg-orange-light">
+              <i class="fas fa-truck text-orange"></i>
+            </div>
+            <div class="card-info">
+              <span class="card-title">Documents In Transit</span>
+              <span class="card-number">{{ getIncomingMetrics().inTransit }}</span>
+            </div>
+            <a href="javascript:void(0)" class="view-all-link text-blue">View all &rarr;</a>
+          </div>
+
+          <div class="summary-card">
+            <div class="card-icon-wrapper bg-green-light">
+              <i class="fas fa-box-open text-green"></i>
+            </div>
+            <div class="card-info">
+              <span class="card-title">Documents Received</span>
+              <span class="card-number">{{ getIncomingMetrics().received }}</span>
+            </div>
+            <a href="javascript:void(0)" class="view-all-link text-blue">View all &rarr;</a>
+          </div>
+
+          <div class="summary-card">
+            <div class="card-icon-wrapper bg-purple-light">
+              <i class="far fa-clock text-purple"></i>
+            </div>
+            <div class="card-info">
+              <span class="card-title">Waiting for Documents</span>
+              <span class="card-number">{{ getIncomingMetrics().waiting }}</span>
+            </div>
+            <a href="javascript:void(0)" class="view-all-link text-blue">View all &rarr;</a>
+          </div>
+
+          <div class="summary-card">
+            <div class="card-icon-wrapper bg-red-light">
+              <i class="fas fa-exclamation-triangle text-red"></i>
+            </div>
+            <div class="card-info">
+              <span class="card-title">Follow-up Required</span>
+              <span class="card-number">{{ getIncomingMetrics().followUp }}</span>
+            </div>
+            <a href="javascript:void(0)" class="view-all-link text-blue">View all &rarr;</a>
+          </div>
+        </div>
+
+        @if (!selectedIncomingStudent) {
+        <!-- Main Table View -->
+        <div class="docs-table-container">
+          <div class="table-header-toolbar">
+            <h3>Incoming Document Requests</h3>
+            <div class="toolbar-actions">
+              <select class="status-filter" [(ngModel)]="incomingStatusFilter" (ngModelChange)="filterIncomingDocs()">
+                <option value="ALL">All Status</option>
+                <option value="PENDING">Pending Verification</option>
+                <option value="WAITING">Waiting for Documents</option>
+                <option value="IN_TRANSIT">In Transit</option>
+              </select>
+              <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search by student, application ID, agent..."
+                  [(ngModel)]="receiveSearchQuery" (ngModelChange)="filterReceiveList()">
+              </div>
             </div>
           </div>
-          <div class="header-right">
-            <div class="search-box-premium">
-              <i class="fas fa-search"></i>
-              <input type="text" [(ngModel)]="receiveSearchQuery" (ngModelChange)="filterReceiveList()"
-                placeholder="Search by ID or name...">
-              @if (receiveSearchQuery) {
-              <button class="clear-search" (click)="receiveSearchQuery = ''; filterReceiveList()">
-                <i class="fas fa-times"></i>
-              </button>
+
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Application ID</th>
+                <th>Agent</th>
+                <th>Docs Status (Agent)</th>
+                <th>Courier Status</th>
+                <th>Tracking No.</th>
+                <th>Expected Delivery</th>
+                <th>Received Status (DM)</th>
+                <th>Last Update</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (filteredReceiveList.length === 0) {
+              <tr>
+                <td colspan="11" class="text-center py-4">No incoming document requests found.</td>
+              </tr>
               }
-            </div>
-            <div class="count-badge">
-              <span class="count-number">{{ filteredReceiveList.length }}</span>
-              <span class="count-label">Pending</span>
-            </div>
-          </div>
-        </div>
-        <!-- Empty State -->
-        @if (filteredReceiveList.length === 0) {
-        <div class="empty-state-premium">
-          <div class="empty-icon-container">
-            <i class="fas fa-check-circle"></i>
-            <div class="success-ring"></div>
-          </div>
-          <h3>All Documents Received!</h3>
-          <p>No pending deliveries at the moment. Great job staying on top of things!</p>
-        </div>
-        }
-        <!-- Student Cards Grid -->
-        @if (filteredReceiveList.length > 0) {
-        <div class="receive-cards-container">
-          @for (student of filteredReceiveList; track student; let i = $index) {
-          <div class="receive-card" [style.animation-delay]="(i * 0.08) + 's'">
-            <!-- Card Main Content -->
-            <div class="card-main">
-              <!-- Left: Avatar & Info -->
-              <div class="student-section">
-                <div class="avatar-premium">
-                  <span>{{ getInitials(student.fullName) }}</span>
-                  <div class="avatar-status online"></div>
-                </div>
-                <div class="student-info">
-                  <div class="name-line">
-                    <h4>{{ student.fullName }}</h4>
-                    <button class="btn-view-profile" (click)="openDetailsModal(student)" title="View Profile">
-                      <i class="fas fa-external-link-alt"></i>
-                    </button>
+              @for (student of filteredReceiveList; track student.id; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>
+                  <div class="student-name-cell">
+                    <i class="far fa-user"></i>
+                    <span>{{ student.fullName }}</span>
                   </div>
-                  <div class="meta-chips">
-                    <span class="chip chip-id">
-                      <i class="fas fa-hashtag"></i>
-                      {{ student.applicationId || student.id }}
-                    </span>
-                    <span class="chip" style="background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0;">
-                      <i class="fas fa-user-tie"></i>
-                      {{ student.agent?.fullName || 'Direct' }}
-                    </span>
-                    <span class="chip" style="background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="student.college?.collegeName || 'Not Assigned'">
-                      <i class="fas fa-university"></i>
-                      {{ student.college?.collegeName || 'Not Assigned' }}
-                    </span>
-                    @if (student.email) {
-                    <span class="chip chip-email">
-                      <i class="fas fa-envelope"></i>
-                      {{ student.email }}
-                    </span>
+                </td>
+                <td>{{ student.applicationId || student.id }}</td>
+                <td>{{ student.agent?.fullName || 'Direct' }}</td>
+
+                <!-- Docs Status (Agent) -->
+                <td>
+                  @if (student.originalDocsSent) {
+                  <div class="status-badge-container">
+                    <span class="badge-success-light">Already Sent</span>
+                    @if (student.telexIssueDate) {
+                    <span class="date-subtext">{{ formatDate(student.telexIssueDate) }}</span>
                     }
                   </div>
-                </div>
+                  } @else {
+                  <div class="status-badge-container">
+                    <span class="badge-purple-light">Will Send Later</span>
+                    @if (student.docTentativeReachDate) {
+                    <span class="date-subtext">Expected: {{ formatDate(student.docTentativeReachDate) }}</span>
+                    }
+                  </div>
+                  }
+                </td>
+
+                <!-- Courier Status -->
+                <td>
+                  @if (student.originalDocsSent && student.docDeliveryMethod === 'COURIER') {
+                  <span class="badge-blue-light"><i class="fas fa-shipping-fast" style="margin-right: 4px;"></i>In
+                    Transit</span>
+                  } @else if (student.originalDocsSent && student.docDeliveryMethod === 'SELF_PERSON') {
+                  <span class="badge-blue-light"><i class="fas fa-hand-holding" style="margin-right: 4px;"></i>Hand
+                    Delivery</span>
+                  } @else {
+                  <span class="badge-gray-light"><i class="fas fa-minus" style="margin-right: 4px;"></i>N/A</span>
+                  }
+                </td>
+
+                <!-- Tracking No -->
+                <td>{{ student.courierTrackingId || '-' }}</td>
+
+                <!-- Expected Delivery -->
+                <td>{{ formatDate(student.docTentativeReachDate) || '-' }}</td>
+
+                <!-- Received Status (DM) -->
+                <td>
+                  <span class="badge-warning-light" style="display: inline-flex; align-items: center;"><i
+                      class="fas fa-hourglass-half" style="margin-right: 6px;"></i>Pending Receiving</span>
+                </td>
+
+                <!-- Last Update -->
+                <td>
+                  <div class="date-time-cell">
+                    <span>{{ formatDate(student.updatedAt || student.createdAt) }}</span>
+                  </div>
+                </td>
+
+                <!-- Action -->
+                <td>
+                  @if (!student.docReceivedDate && student.originalDocsSent) {
+                  <button class="btn-primary btn-sm" title="Receive Package"
+                    style="display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 1rem; background: #f59e0b; border: none; box-shadow: 0 4px 10px rgba(245,158,11,0.3);"
+                    (click)="openIncomingVerification(student)">
+                    <i class="fas fa-box-open"></i>
+                  </button>
+                  } @else if (student.docReceivedDate) {
+                  <button class="btn-primary btn-sm" title="Verify Documents"
+                    style="display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 1rem; background: #10b981; border: none; box-shadow: 0 4px 10px rgba(16,185,129,0.3);"
+                    (click)="openVerifyModal(student)">
+                    <i class="fas fa-check-double"></i>
+                  </button>
+                  } @else {
+                  <div style="display: flex; gap: 8px;">
+                    <button class="btn-primary btn-sm" title="Receive Package"
+                      style="display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 1rem; background: #3b82f6; border: none; box-shadow: 0 4px 10px rgba(59,130,246,0.3);"
+                      (click)="openIncomingVerification(student)">
+                      <i class="fas fa-box-open"></i>
+                    </button>
+                    <button class="btn-primary btn-sm" title="Follow Up"
+                      style="display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 1rem; background: #f59e0b; border: none; box-shadow: 0 4px 10px rgba(245,158,11,0.3);"
+                      (click)="openFollowUpModal(student)">
+                      <i class="fas fa-bell"></i>
+                    </button>
+                  </div>
+                  }
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+          <div class="table-footer">
+            <span>Showing 1 to {{ filteredReceiveList.length }} of {{ getIncomingMetrics().total }} entries</span>
+          </div>
+        </div>
+        } @else {
+        <!-- Detail Verification View -->
+        <div class="request-details-container">
+          <div class="details-header">
+            <h3>Request Details - {{ selectedIncomingStudent.fullName }} ({{ selectedIncomingStudent.applicationId ||
+              selectedIncomingStudent.id }})
+              <span class="badge-warning-light ms-2">{{ getDMReceivedStatus(selectedIncomingStudent) }}</span>
+            </h3>
+            <button class="btn-back" (click)="closeIncomingVerification()">
+              <i class="fas fa-chevron-left"></i> Back to List
+            </button>
+          </div>
+
+          <div class="details-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+              <div class="info-card">
+                <h4>Student Information</h4>
+                <div class="info-row"><span class="label">Student Name</span><span class="value">{{
+                    selectedIncomingStudent.fullName }}</span></div>
+                <div class="info-row"><span class="label">Application ID</span><span class="value">{{
+                    selectedIncomingStudent.applicationId || selectedIncomingStudent.id }}</span></div>
+                <div class="info-row"><span class="label">Passport No.</span><span class="value">{{
+                    selectedIncomingStudent.passportNo || 'N/A' }}</span></div>
+                <div class="info-row"><span class="label">Agent Name</span><span class="value">{{
+                    selectedIncomingStudent.agent?.fullName || 'Direct' }}</span></div>
+                <div class="info-row"><span class="label">Course / University</span><span class="value">{{
+                    selectedIncomingStudent.college?.collegeName || 'N/A' }}</span></div>
+                <div class="info-row"><span class="label">Intake</span><span class="value">{{
+                    selectedIncomingStudent.intake || 'N/A' }}</span></div>
               </div>
-              <!-- Right: Action Button -->
-              <button class="btn-receive" (click)="openReceiveModal(student)">
-                <span class="btn-icon">
-                  <i class="fas fa-box-open"></i>
-                </span>
-                <span class="btn-text">Mark Received</span>
-                <span class="btn-arrow">
-                  <i class="fas fa-arrow-right"></i>
-                </span>
-              </button>
+
+              <div class="info-card mt-3">
+                <div class="card-header-flex">
+                  <h4>Original Documents Status <br><small>(as per Agent)</small></h4>
+                  @if (selectedIncomingStudent.originalDocsSent) {
+                  <span class="badge-success-light">Already Sent</span>
+                  } @else {
+                  <span class="badge-purple-light">Will Send Later</span>
+                  }
+                </div>
+
+                @if (selectedIncomingStudent.docDeliveryMethod === 'COURIER') {
+                <div class="info-row"><span class="label">Courier Company</span><span class="value">{{
+                    selectedIncomingStudent.courierPartner || 'N/A' }}</span></div>
+                <div class="info-row"><span class="label">Tracking Number</span><span class="value">{{
+                    selectedIncomingStudent.courierTrackingId || 'N/A' }}</span></div>
+                } @else if (selectedIncomingStudent.docDeliveryMethod === 'SELF_PERSON') {
+                <div class="info-row"><span class="label">Delivery Method</span><span class="value">Hand Delivery</span>
+                </div>
+                <div class="info-row"><span class="label">Contact</span><span class="value">{{
+                    selectedIncomingStudent.selfPersonContact || 'N/A' }}</span></div>
+                }
+
+                <div class="info-row"><span class="label">Dispatch Date</span><span class="value">{{
+                    formatDate(selectedIncomingStudent.telexIssueDate) || 'Unknown' }}</span></div>
+                <div class="info-row"><span class="label">Expected Delivery</span><span class="value">{{
+                    formatDate(selectedIncomingStudent.docTentativeReachDate) || 'Unknown' }}</span></div>
+                <div class="info-row mt-2" style="flex-direction: column; align-items: flex-start;">
+                  <span class="label mb-1">Agent Remarks</span>
+                  <span class="value text-muted" style="text-align: left;">
+                    {{ selectedIncomingStudent.originalDocsSent ? 'Documents dispatched. Please confirm once received.'
+                    : 'Will dispatch documents soon.' }}
+                  </span>
+                </div>
+
+                <!-- Agent Checklist Display -->
+                <div class="info-row mt-3"
+                  style="flex-direction: column; align-items: flex-start; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                  <span class="label mb-2" style="color: #334155;">Documents Claimed Sent:</span>
+                  <ul style="margin: 0; padding-left: 18px; color: #475569; font-size: 0.85rem; line-height: 1.6;">
+                    @if (selectedIncomingStudent.agentSentPassport) { <li>Original Passport</li> }
+                    @if (selectedIncomingStudent.agentSent10thMarksheet) { <li>10th Marksheet</li> }
+                    @if (selectedIncomingStudent.agentSent12thMarksheet) { <li>12th Marksheet</li> }
+                    @if (selectedIncomingStudent.agentSentAadharCard) { <li>Aadhar Card</li> }
+                    @if (selectedIncomingStudent.agentSentMedicalReport) { <li>Medical Report</li> }
+                    @if (selectedIncomingStudent.agentSentOtherDocuments) {
+                    <li>Other: {{ selectedIncomingStudent.agentOtherDocumentsRemarks || 'Not specified' }}</li>
+                    }
+                    @if (!selectedIncomingStudent.agentSentPassport && !selectedIncomingStudent.agentSent10thMarksheet
+                    && !selectedIncomingStudent.agentSent12thMarksheet && !selectedIncomingStudent.agentSentAadharCard
+                    && !selectedIncomingStudent.agentSentMedicalReport &&
+                    !selectedIncomingStudent.agentSentOtherDocuments) {
+                    <li style="color: #94a3b8; list-style-type: none; margin-left: -18px;">No specific documents marked.
+                    </li>
+                    }
+                  </ul>
+                </div>
+
+              </div>
             </div>
-            <!-- Delivery Info Strip -->
-            @if (student.docDeliveryMethod) {
-            <div class="delivery-strip">
-              <div class="strip-left">
-                <!-- Delivery Type -->
-                <div class="delivery-badge"
-                  [ngClass]="{'badge-courier': student.docDeliveryMethod === 'COURIER', 'badge-person': student.docDeliveryMethod === 'SELF_PERSON'}">
-                  <i [class]="student.docDeliveryMethod === 'COURIER' ? 'fas fa-truck' : 'fas fa-user'"></i>
-                  <span>{{ student.docDeliveryMethod === 'COURIER' ? 'Courier' : 'Hand Delivery'
-                    }}</span>
+
+            <!-- Middle Column -->
+            <div class="middle-column">
+              <div class="verification-card">
+                <h4>Receive Package Details</h4>
+
+                <div class="form-group mb-4" style="margin-bottom: 24px;">
+                  <label class="section-label"
+                    style="font-weight: 600; font-size: 14px; color: #334155; margin-bottom: 12px; display: block;">Physical
+                    Documents Received?</label>
+                  <div class="radio-group" style="display: flex; gap: 20px;">
+                    <label class="radio-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                      <input type="radio" name="physicalStatus" value="ALL"
+                        [(ngModel)]="incomingVerificationForm.physicalStatus" (change)="onPhysicalStatusChange()">
+                      <span style="font-size: 14px; color: #475569;">All Received</span>
+                    </label>
+                    <label class="radio-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                      <input type="radio" name="physicalStatus" value="PARTIAL"
+                        [(ngModel)]="incomingVerificationForm.physicalStatus" (change)="onPhysicalStatusChange()">
+                      <span style="font-size: 14px; color: #475569;">Partially Received</span>
+                    </label>
+                    <label class="radio-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                      <input type="radio" name="physicalStatus" value="NOT_RECEIVED"
+                        [(ngModel)]="incomingVerificationForm.physicalStatus" (change)="onPhysicalStatusChange()">
+                      <span style="font-size: 14px; color: #475569;">Not Received</span>
+                    </label>
+                  </div>
                 </div>
-                <!-- Partner Badge -->
-                @if (student.docDeliveryMethod === 'COURIER' && student.courierPartner) {
-                <div class="partner-badge" [style.--brand]="getCourierBrandColor(student.courierPartner)">
-                  <i [class]="getCourierIcon(student.courierPartner)"></i>
-                  <span>{{ student.courierPartner }}</span>
+
+                <div class="documents-checklist">
+                  <label class="section-label">Documents Checklist</label>
+                  <div class="checklist-table-header">
+                    <span style="flex: 2;"></span>
+                    <span style="flex: 1; text-align: center;">Received</span>
+                    <span style="flex: 2;">Remarks</span>
+                  </div>
+
+                  <!-- Passport -->
+                  <div class="checklist-row">
+                    <label class="checkbox-label" style="flex: 2;">
+                      <input type="checkbox" [(ngModel)]="incomingVerificationForm.receivedPassport"
+                        [disabled]="incomingVerificationForm.physicalStatus !== 'PARTIAL'">
+                      <span>Original Passport</span>
+                    </label>
+                    <div style="flex: 1; text-align: center;">
+                      @if (incomingVerificationForm.receivedPassport) { <i class="fas fa-check text-green"></i> } @else
+                      { <span>-</span> }
+                    </div>
+                    <input type="text" class="form-control-sm" style="flex: 2;" placeholder="Not received"
+                      [(ngModel)]="incomingVerificationForm.passportRemarks">
+                  </div>
+
+                  <!-- 10th Marksheet -->
+                  <div class="checklist-row">
+                    <label class="checkbox-label" style="flex: 2;">
+                      <input type="checkbox" [(ngModel)]="incomingVerificationForm.received10thMarksheet"
+                        [disabled]="incomingVerificationForm.physicalStatus !== 'PARTIAL'">
+                      <span>10th Marksheet</span>
+                    </label>
+                    <div style="flex: 1; text-align: center;">
+                      @if (incomingVerificationForm.received10thMarksheet) { <i class="fas fa-check text-green"></i> }
+                      @else { <span>-</span> }
+                    </div>
+                    <input type="text" class="form-control-sm" style="flex: 2;" placeholder="Not received"
+                      [(ngModel)]="incomingVerificationForm.marksheet10Remarks">
+                  </div>
+
+                  <!-- 12th Marksheet -->
+                  <div class="checklist-row">
+                    <label class="checkbox-label" style="flex: 2;">
+                      <input type="checkbox" [(ngModel)]="incomingVerificationForm.received12thMarksheet"
+                        [disabled]="incomingVerificationForm.physicalStatus !== 'PARTIAL'">
+                      <span>12th Marksheet</span>
+                    </label>
+                    <div style="flex: 1; text-align: center;">
+                      @if (incomingVerificationForm.received12thMarksheet) { <i class="fas fa-check text-green"></i> }
+                      @else { <span>-</span> }
+                    </div>
+                    <input type="text" class="form-control-sm" style="flex: 2;" placeholder="Not received"
+                      [(ngModel)]="incomingVerificationForm.marksheet12Remarks">
+                  </div>
+
+                  <!-- NEET Scorecard -->
+                  <div class="checklist-row">
+                    <label class="checkbox-label" style="flex: 2;">
+                      <input type="checkbox" [(ngModel)]="incomingVerificationForm.receivedNeetScorecard"
+                        [disabled]="incomingVerificationForm.physicalStatus !== 'PARTIAL'">
+                      <span>NEET Scorecard</span>
+                    </label>
+                    <div style="flex: 1; text-align: center;">
+                      @if (incomingVerificationForm.receivedNeetScorecard) { <i class="fas fa-check text-green"></i> }
+                      @else { <span>-</span> }
+                    </div>
+                    <input type="text" class="form-control-sm" style="flex: 2;" placeholder="Not received"
+                      [(ngModel)]="incomingVerificationForm.neetRemarks">
+                  </div>
+
+                  <!-- Aadhar Card -->
+                  <div class="checklist-row">
+                    <label class="checkbox-label" style="flex: 2;">
+                      <input type="checkbox" [(ngModel)]="incomingVerificationForm.receivedAadharCard"
+                        [disabled]="incomingVerificationForm.physicalStatus !== 'PARTIAL'">
+                      <span>Aadhar Card</span>
+                    </label>
+                    <div style="flex: 1; text-align: center;">
+                      @if (incomingVerificationForm.receivedAadharCard) { <i class="fas fa-check text-green"></i> }
+                      @else { <span>-</span> }
+                    </div>
+                    <input type="text" class="form-control-sm" style="flex: 2;" placeholder="Not received"
+                      [(ngModel)]="incomingVerificationForm.aadharRemarks">
+                  </div>
+
+                  <!-- Medical Report -->
+                  <div class="checklist-row">
+                    <label class="checkbox-label" style="flex: 2;">
+                      <input type="checkbox" [(ngModel)]="incomingVerificationForm.receivedMedicalReport"
+                        [disabled]="incomingVerificationForm.physicalStatus !== 'PARTIAL'">
+                      <span>Medical Report</span>
+                    </label>
+                    <div style="flex: 1; text-align: center;">
+                      @if (incomingVerificationForm.receivedMedicalReport) { <i class="fas fa-check text-green"></i> }
+                      @else { <span>-</span> }
+                    </div>
+                    <input type="text" class="form-control-sm" style="flex: 2;" placeholder="Not received"
+                      [(ngModel)]="incomingVerificationForm.medicalRemarks">
+                  </div>
+
+                  <!-- Other Documents -->
+                  <div class="checklist-row">
+                    <label class="checkbox-label" style="flex: 2;">
+                      <input type="checkbox" [(ngModel)]="incomingVerificationForm.receivedOtherDocuments"
+                        [disabled]="incomingVerificationForm.physicalStatus !== 'PARTIAL'">
+                      <span>Other Documents</span>
+                    </label>
+                    <div style="flex: 1; text-align: center;">
+                      @if (incomingVerificationForm.receivedOtherDocuments) { <i class="fas fa-check text-green"></i> }
+                      @else { <span>-</span> }
+                    </div>
+                    <input type="text" class="form-control-sm" style="flex: 2;" placeholder="Remarks or doc list"
+                      [(ngModel)]="incomingVerificationForm.receivedOtherDocumentsRemarks">
+                  </div>
                 </div>
-                }
-                <!-- Track Link -->
-                @if (getCourierTrackingUrl(student.courierPartner, student.courierTrackingId)) {
-                <a [href]="getCourierTrackingUrl(student.courierPartner, student.courierTrackingId)" target="_blank"
-                  rel="noopener noreferrer" class="track-btn"
-                  [style.--brand]="getCourierBrandColor(student.courierPartner)">
-                  <i class="fas fa-external-link-alt"></i>
-                  Track
-                </a>
-                }
-              </div>
-              <div class="strip-right">
-                <!-- AWB with Copy -->
-                @if (student.courierTrackingId && student.docDeliveryMethod === 'COURIER') {
-                <div class="info-pill">
-                  <span class="pill-label">AWB</span>
-                  <code class="pill-value">{{ student.courierTrackingId }}</code>
-                  <button class="copy-mini"
-                    (click)="copyTrackingId(student.courierTrackingId); $event.stopPropagation()" title="Copy">
-                    <i class="fas fa-copy"></i>
+
+                <div class="action-buttons mt-4">
+                  <button class="btn-primary" (click)="saveIncomingVerification()"
+                    [disabled]="isSubmittingVerification">
+                    @if (isSubmittingVerification) {
+                    <i class="fas fa-spinner fa-spin"></i> Saving...
+                    } @else {
+                    Save Receive Details
+                    }
                   </button>
                 </div>
-                }
-                <!-- Self Person Contact -->
-                @if (student.selfPersonContact && student.docDeliveryMethod === 'SELF_PERSON') {
-                <div class="info-pill">
-                  <span class="pill-label">Contact</span>
-                  <span class="pill-value">{{ student.selfPersonContact }}</span>
-                </div>
-                }
-                <!-- ETA -->
-                @if (student.docTentativeReachDate) {
-                <div class="info-pill pill-eta">
-                  <i class="fas fa-calendar-alt"></i>
-                  <span class="pill-value">{{ formatDate(student.docTentativeReachDate) }}</span>
-                </div>
-                }
               </div>
             </div>
-            }
+
+            <!-- Right Column -->
+            <div class="right-column">
+              <div class="audit-trail-card">
+                <h4>Activity / Audit Trail</h4>
+                <div class="timeline">
+                  <!-- Example Timeline Item -->
+                  @if (selectedIncomingStudent.telexIssueDate || selectedIncomingStudent.createdAt) {
+                  <div class="timeline-item">
+                    <div class="timeline-icon bg-green-light">
+                      <i class="fas fa-check text-green"></i>
+                    </div>
+                    <div class="timeline-content">
+                      <div class="time">{{ formatDate(selectedIncomingStudent.telexIssueDate ||
+                        selectedIncomingStudent.createdAt) }}</div>
+                      <div class="title">Agent Submitted Request</div>
+                      <div class="desc">Agent marked documents as {{ selectedIncomingStudent.originalDocsSent ? 'Already
+                        Sent' : 'Will Send Later' }}.</div>
+                    </div>
+                  </div>
+                  }
+
+                  @if (selectedIncomingStudent.docDeliveryMethod === 'COURIER') {
+                  <div class="timeline-item">
+                    <div class="timeline-icon bg-orange-light">
+                      <i class="fas fa-truck text-orange"></i>
+                    </div>
+                    <div class="timeline-content">
+                      <div class="time">{{ formatDate(selectedIncomingStudent.telexIssueDate ||
+                        selectedIncomingStudent.createdAt) }}</div>
+                      <div class="title">Courier In Transit</div>
+                      <div class="desc">Tracking shows documents are in transit via {{
+                        selectedIncomingStudent.courierPartner }}.</div>
+                    </div>
+                  </div>
+                  }
+
+                  <div class="timeline-item">
+                    <div class="timeline-icon bg-gray-light">
+                      <i class="far fa-clock text-gray"></i>
+                    </div>
+                    <div class="timeline-content">
+                      <div class="title">Waiting for Document Receipt</div>
+                      <div class="desc">Please verify once documents are received.</div>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn-view-history">View Full History</button>
+              </div>
+            </div>
           </div>
-          }
+
+          <div class="bottom-info-bar mt-4">
+            <i class="fas fa-info-circle text-blue"></i>
+            <span>Please ensure all original documents are received and verified before handing over to Visa
+              Manager.</span>
+          </div>
         </div>
         }
       </div>
@@ -589,66 +957,108 @@
 
       <!-- VERIFY VIEW -->
       @if (activeTab === 'verify' && !isLoading && !errorState.hasError) {
-      <div class="approval-view animate-fade-in">
-        <div class="action-section-header">
-          <div class="action-title">
-            <h3><i class="fas fa-file-contract"></i> Verify Documents</h3>
-            <span class="badge-pill">{{ verifyList.length }} Students</span>
-          </div>
-          <div class="action-search">
-            <i class="fas fa-search"></i>
-            <input type="text" [(ngModel)]="verifySearchQuery" (ngModelChange)="filterVerifyList()"
-              placeholder="Search by Application ID...">
-          </div>
-        </div>
-        @if (filteredVerifyList.length === 0) {
-        <div class="empty-state">
-          <i class="fas fa-clipboard-check empty-icon"></i>
-          <h3>All Verified!</h3>
-          <p>No documents pending verification.</p>
-        </div>
-        }
-        @for (student of filteredVerifyList; track student) {
-        <div class="student-card-enhanced">
-          <div class="card-header">
-            <div class="student-info-detailed">
-              <div class="avatar-lg-initials">{{ getInitials(student.fullName) }}</div>
-              <div class="student-details">
-                <div class="name-row">
-                  <h3>{{ student.fullName }}</h3>
-                  <button class="btn-icon-small ripple-effect" (click)="openDetailsModal(student)"
-                    title="View Full Profile">
-                    <i class="fas fa-external-link-alt"></i>
-                  </button>
-                </div>
-                <div class="student-meta-inline">
-                  <span class="meta-badge highlight-badge"><i class="fas fa-id-badge"></i> {{
-                    student.applicationId || student.id }}</span>
-                  <span class="meta-badge"><i class="fas fa-user-tie"></i> {{ student.agent?.fullName || 'Direct' }}</span>
-                  <span class="meta-badge" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="student.college?.collegeName || 'Not Assigned'"><i class="fas fa-university"></i> {{ student.college?.collegeName || 'Not Assigned' }}</span>
-                </div>
+      <div class="incoming-docs-view animate-fade-in">
+        <div class="docs-table-container">
+          <div class="table-header-toolbar">
+            <h3>Verify Documents</h3>
+            <div class="toolbar-actions">
+              <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search by student, application ID..." [(ngModel)]="verifySearchQuery"
+                  (ngModelChange)="filterVerifyList()">
               </div>
             </div>
-            <button class="btn-verify-action ripple-effect" (click)="openVerifyModal(student)">
-              <i class="fas fa-file-check"></i>
-              <span>Verify Docs</span>
-            </button>
           </div>
-          <!-- Mini Document Preview Grid -->
-          <div class="docs-mini-grid">
-            @if (student.passport || student.passportPath) {
-            <div class="mini-doc-item">
-              <i class="fas fa-passport"></i> Passport
-            </div>
-            }
-            @if (student.telexDocumentsPath) {
-            <div class="mini-doc-item">
-              <i class="fas fa-file-medical"></i> Telex Docs
-            </div>
-            }
-          </div>
+
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student Name</th>
+                <th>Application ID</th>
+                <th>Agent</th>
+                <th>Docs Received Status</th>
+                <th>Courier Status</th>
+                <th>Tracking No.</th>
+                <th>Received Date</th>
+                <th>Last Update</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (filteredVerifyList.length === 0) {
+              <tr>
+                <td colspan="10" class="text-center py-4">No documents pending verification.</td>
+              </tr>
+              }
+              @for (student of filteredVerifyList; track student.id; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>
+                  <div class="student-name-cell">
+                    <i class="far fa-user"></i>
+                    <span>{{ student.fullName }}</span>
+                  </div>
+                </td>
+                <td>{{ student.applicationId || student.id }}</td>
+                <td>{{ student.agent?.fullName || 'Direct' }}</td>
+
+                <!-- Docs Received Status -->
+                <td>
+                  <div class="status-badge-container">
+                    @if (getDMReceivedStatus(student) === 'All Received') {
+                      <span class="badge-success-light" style="display: inline-flex; align-items: center; border: 1px solid rgba(16, 185, 129, 0.2);">
+                        <i class="fas fa-check-circle" style="margin-right: 6px; color: #10b981;"></i>All Received
+                      </span>
+                    } @else if (getDMReceivedStatus(student) === 'Partially Received') {
+                      <span class="badge-warning-light" style="display: inline-flex; align-items: center; border: 1px solid rgba(245, 158, 11, 0.2);">
+                        <i class="fas fa-exclamation-circle" style="margin-right: 6px; color: #f59e0b;"></i>Partially Received
+                      </span>
+                    } @else {
+                      <span class="badge-gray-light">{{ getDMReceivedStatus(student) }}</span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Courier Status -->
+                <td>
+                  @if (student.originalDocsSent && student.docDeliveryMethod === 'COURIER') {
+                  <span class="badge-blue-light"><i class="fas fa-shipping-fast" style="margin-right: 4px;"></i>In
+                    Transit</span>
+                  } @else if (student.originalDocsSent && student.docDeliveryMethod === 'SELF_PERSON') {
+                  <span class="badge-blue-light"><i class="fas fa-hand-holding" style="margin-right: 4px;"></i>Hand
+                    Delivery</span>
+                  } @else {
+                  <span class="badge-gray-light"><i class="fas fa-minus" style="margin-right: 4px;"></i>N/A</span>
+                  }
+                </td>
+
+                <!-- Tracking No -->
+                <td>{{ student.courierTrackingId || '-' }}</td>
+
+                <!-- Received Date -->
+                <td>{{ formatDate(student.docReceivedDate) || '-' }}</td>
+
+                <!-- Last Update -->
+                <td>
+                  <div class="date-time-cell">
+                    <span>{{ formatDate(student.updatedAt || student.createdAt) }}</span>
+                  </div>
+                </td>
+
+                <!-- Action -->
+                <td>
+                  <button class="btn-primary btn-sm" title="Verify Documents"
+                    style="display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 1rem; background: #10b981; border: none; box-shadow: 0 4px 10px rgba(16,185,129,0.3);"
+                    (click)="openVerifyModal(student)">
+                    <i class="fas fa-check-double"></i>
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
         </div>
-        }
       </div>
       }
 
@@ -689,8 +1099,12 @@
                 <div class="student-meta-inline">
                   <span class="meta-badge highlight-badge"><i class="fas fa-id-badge"></i> {{
                     student.applicationId || student.id }}</span>
-                  <span class="meta-badge"><i class="fas fa-user-tie"></i> {{ student.agent?.fullName || 'Direct' }}</span>
-                  <span class="meta-badge" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="student.college?.collegeName || 'Not Assigned'"><i class="fas fa-university"></i> {{ student.college?.collegeName || 'Not Assigned' }}</span>
+                  <span class="meta-badge"><i class="fas fa-user-tie"></i> {{ student.agent?.fullName || 'Direct'
+                    }}</span>
+                  <span class="meta-badge"
+                    style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                    [title]="student.college?.collegeName || 'Not Assigned'"><i class="fas fa-university"></i> {{
+                    student.college?.collegeName || 'Not Assigned' }}</span>
                 </div>
               </div>
             </div>
@@ -819,13 +1233,16 @@
               <td>{{ student.email }}</td>
               <td>
                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <div style="font-size: 0.85rem; color: #334155; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                  <div
+                    style="font-size: 0.85rem; color: #334155; font-weight: 500; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-user-tie" style="color: #64748b;"></i>
                     <span>{{ student.agent?.fullName || 'Direct' }}</span>
                   </div>
                   <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-university"></i>
-                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned' }}</span>
+                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"
+                      [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not
+                      Assigned' }}</span>
                   </div>
                 </div>
               </td>
@@ -1134,13 +1551,13 @@
   @if (selectedStudent && !showReceiveModal && !showReturnModal && !showRequestDetailsModal) {
   <div class="modal-backdrop" (click)="closeVerifyModal()">
     <div class="modal-content modal-large" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3><i class="fas fa-file-check"></i> Verify Documents</h3>
+      <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 600; color: #1e293b;"><i class="fas fa-clipboard-check" style="color: #3b82f6; margin-right: 8px;"></i> Verify Documents</h3>
         <button class="close-btn" (click)="closeVerifyModal()">
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <div class="modal-body modal-scrollable">
+      <div class="modal-body modal-scrollable" style="font-size: 0.85rem;">
         <!-- Student Header Info -->
         <div class="student-modal-header">
           <div class="avatar-container">
@@ -1151,8 +1568,8 @@
               {{ selectedStudent.status || selectedStudent.applicationStatus || 'PENDING' }}
             </div>
           </div>
-          <div class="student-header-info">
-            <h2>{{ selectedStudent.fullName }}</h2>
+          <div class="student-header-info" style="font-size: 0.85rem;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #0f172a;">{{ selectedStudent.fullName }}</h2>
             <div class="student-meta-grid">
               <div class="meta-item">
                 <i class="fas fa-id-badge"></i>
@@ -1166,6 +1583,7 @@
             </div>
           </div>
         </div>
+        
         <!-- Tabbed Content -->
         <div class="modal-tabs">
           <button class="tab-btn" [class.active]="modalActiveTab === 'details'" (click)="modalActiveTab = 'details'">
@@ -1724,18 +2142,18 @@
       }
     </div>
     <!-- MODAL ACTIONS: REJECT & APPROVE -->
-    <div class="modal-footer">
+    <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding-top: 1rem;">
       <div class="footer-left">
-        <button class="btn-secondary" (click)="closeVerifyModal()">
-          Cancel
+        <button class="btn-secondary" style="border-radius: 4px; font-size: 0.85rem; padding: 0.5rem 1rem; border: 1px solid #cbd5e1; background: #fff; color: #475569; display: flex; align-items: center; gap: 6px;" (click)="closeVerifyModal()">
+          <i class="fas fa-times"></i> Cancel
         </button>
       </div>
       @if (selectedStudent.action === 'VERIFY_DOCS') {
-      <div class="footer-right">
-        <button class="btn-danger btn-lg" (click)="submitVerification(false)" [disabled]="!approvalComment.trim()">
+      <div class="footer-right" style="display: flex; gap: 10px;">
+        <button class="btn-danger" style="border-radius: 4px; font-size: 0.85rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 6px;" (click)="submitVerification(false)" [disabled]="!approvalComment.trim()">
           <i class="fas fa-times-circle"></i> Reject Docs
         </button>
-        <button class="btn-success btn-lg" (click)="submitVerification(true)" [disabled]="!approvalComment.trim()">
+        <button class="btn-success" style="border-radius: 4px; font-size: 0.85rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 6px;" (click)="submitVerification(true)" [disabled]="!approvalComment.trim()">
           <i class="fas fa-check-circle"></i> Approve & Verified
         </button>
       </div>
@@ -2002,6 +2420,39 @@
   </div>
 </div>
 }
+
+<!-- FOLLOW UP CONFIRMATION MODAL -->
+@if (selectedFollowUpStudent) {
+<div class="modal-backdrop" (click)="closeFollowUpModal()" style="z-index: 1060;">
+  <div class="modal-content"
+    style="background: white; max-width: 450px; text-align: center; border-radius: 16px; padding: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2);"
+    (click)="$event.stopPropagation()">
+    <div class="warning-icon"
+      style="width: 75px; height: 75px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.35);">
+      <i class="fas fa-bell"></i>
+    </div>
+    <h3 style="font-size: 1.5rem; color: #1e293b; margin-bottom: 0.75rem;">Send Follow Up?</h3>
+    <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.5;">
+      Are you sure you want to notify the agent (<strong>{{ selectedFollowUpStudent.agent?.fullName || 'Agent'
+        }}</strong>) to send the physical documents for <strong>{{ selectedFollowUpStudent.fullName }}</strong>?
+    </p>
+    <div class="modal-footer" style="display: flex; gap: 12px; justify-content: center; border-top: none; padding: 0;">
+      <button class="btn-secondary" style="border-radius: 8px; padding: 0.6rem 1.5rem;" (click)="closeFollowUpModal()"
+        [disabled]="isSubmittingFollowUp">Cancel</button>
+      <button class="btn-primary"
+        style="background: #f59e0b; border: none; border-radius: 8px; padding: 0.6rem 1.5rem; display: flex; align-items: center; gap: 8px;"
+        (click)="confirmFollowUp()" [disabled]="isSubmittingFollowUp">
+        @if (isSubmittingFollowUp) {
+        <i class="fas fa-spinner fa-spin"></i> Sending...
+        } @else {
+        <i class="fas fa-paper-plane"></i> Notify Agent
+        }
+      </button>
+    </div>
+  </div>
+</div>
+}
+
 
 <!-- TOAST NOTIFICATIONS -->
 <div class="toast-container">

@@ -147,6 +147,30 @@ export class DocPersonDashbaord implements OnInit {
 
   // Search queries for specific tabs
   receiveSearchQuery: string = '';
+  incomingStatusFilter: string = 'ALL';
+  selectedIncomingStudent: Student | null = null;
+  selectedFollowUpStudent: Student | null = null;
+  isSubmittingFollowUp: boolean = false;
+  incomingVerificationForm: any = {
+    physicalStatus: 'NOT_RECEIVED',
+    receivedPassport: false,
+    passportRemarks: '',
+    received10thMarksheet: false,
+    marksheet10Remarks: '',
+    received12thMarksheet: false,
+    marksheet12Remarks: '',
+    receivedNeetScorecard: false,
+    neetRemarks: '',
+    receivedAadharCard: false,
+    aadharRemarks: '',
+    receivedMedicalReport: false,
+    medicalRemarks: '',
+    receivedOtherDocuments: false,
+    receivedOtherDocumentsRemarks: '',
+    internalRemarks: '',
+    setStatus: 'WAITING'
+  };
+  isSubmittingVerification: boolean = false;
   verifySearchQuery: string = '';
   returnSearchQuery: string = '';
 
@@ -199,7 +223,7 @@ export class DocPersonDashbaord implements OnInit {
   get hasActiveFilters(): boolean {
     return !!this.filterAgent || !!this.filterCollege || !!this.filters.searchQuery || !!this.receiveSearchQuery || !!this.verifySearchQuery || !!this.returnSearchQuery;
   }
-  
+
   onGlobalFilterChange(): void {
     this.pagination.currentPage = 1;
     this.filterReceiveList();
@@ -311,7 +335,7 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   approvalTrendsChart: ChartData = { labels: [], datasets: [] };
   statusDistributionChart: ChartData = { labels: [], datasets: [] };
-  
+
   get recentActivities() {
     const sourceList = this.filteredStudents?.length > 0 ? this.filteredStudents : this.students;
     return sourceList.slice(0, 4).map(s => ({
@@ -477,6 +501,45 @@ export class DocPersonDashbaord implements OnInit {
     });
   }
 
+  // ============================================
+  // FOLLOW UP NOTIFICATION MODAL
+  // ============================================
+  openFollowUpModal(student: Student): void {
+    this.selectedFollowUpStudent = student;
+  }
+
+  closeFollowUpModal(): void {
+    this.selectedFollowUpStudent = null;
+    this.isSubmittingFollowUp = false;
+  }
+
+  confirmFollowUp(): void {
+    if (!this.selectedFollowUpStudent || !this.docPerson) return;
+    this.isSubmittingFollowUp = true;
+
+    const student = this.selectedFollowUpStudent;
+    const notificationPayload = {
+      heading: `Urgent: Physical Documents Pending for ${student.fullName}`,
+      content: `Dear Agent, we have not yet received the physical documents for student ${student.fullName} (App ID: ${student.applicationId || student.id}). Please send them immediately as this is required to proceed with verification.`,
+      type: 'DOCUMENT_FOLLOW_UP',
+      senderUsername: this.docPerson.username,
+      targetUsername: student.agent?.userId || student.agent?.username || student.agent?.email || 'AGENT'
+    };
+
+    this.http.post(this.API_BASE_URL + '/notifications', notificationPayload).subscribe({
+      next: (res) => {
+        this.isSubmittingFollowUp = false;
+        this.closeFollowUpModal();
+        this.showToast('Follow up notification sent to Agent successfully.', 'success');
+      },
+      error: (err) => {
+        console.error('Failed to send follow up:', err);
+        this.isSubmittingFollowUp = false;
+        this.showToast('Failed to send follow up notification.', 'error');
+      }
+    });
+  }
+
   processStudents(): void {
     // 1. Receive List: action 'CONFIRM_DOCS'
     this.receiveList = this.students.filter(s =>
@@ -578,7 +641,7 @@ export class DocPersonDashbaord implements OnInit {
 
   // 2. Specific Tab Search Helpers
   filterReceiveList(): void {
-    this.filteredReceiveList = this.filterList(this.receiveList, this.receiveSearchQuery);
+    this.filterIncomingDocs();
   }
 
   filterVerifyList(): void {
@@ -625,6 +688,7 @@ export class DocPersonDashbaord implements OnInit {
     this.filterAgent = '';
     this.filterCollege = '';
     this.receiveSearchQuery = '';
+    this.incomingStatusFilter = 'ALL';
     this.verifySearchQuery = '';
     this.returnSearchQuery = '';
     this.onGlobalFilterChange();
@@ -668,6 +732,162 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // ACTION WORKFLOWS
   // ============================================
+
+  // --- INCOMING DOCUMENTS METHODS ---
+  getIncomingMetrics() {
+    let newRequests = 0;
+    let inTransit = 0;
+    let received = 0;
+    let waiting = 0;
+    let followUp = 0;
+
+    this.receiveList.forEach(s => {
+      if (!s.originalDocsSent) {
+        followUp++;
+      } else {
+        newRequests++;
+        if (s.docDeliveryMethod === 'COURIER') {
+          inTransit++;
+        }
+      }
+
+      const dmStatus = this.getDMReceivedStatus(s);
+      if (dmStatus === 'Pending Verification' || dmStatus === 'Waiting for Documents') {
+        waiting++;
+      } else if (dmStatus === 'Documents Received' || dmStatus === 'Partially Received') {
+        received++;
+      }
+    });
+
+    return { total: this.receiveList.length, newRequests, inTransit, received, waiting, followUp };
+  }
+
+  getDMReceivedStatus(student: Student): string {
+    if (student.receivedPassport && student.received10thMarksheet && student.received12thMarksheet && student.receivedNeetScorecard) {
+      return 'All Received';
+    }
+    if (student.receivedPassport || student.received10thMarksheet || student.received12thMarksheet || student.receivedNeetScorecard || student.receivedAadharCard || student.receivedMedicalReport || student.receivedOtherDocuments) {
+      return 'Partially Received';
+    }
+    if (student.originalDocsSent) {
+      return 'Pending Verification';
+    }
+    return 'Waiting for Documents';
+  }
+
+  filterIncomingDocs(): void {
+    let filtered = this.receiveList;
+
+    // Status filter
+    if (this.incomingStatusFilter !== 'ALL') {
+      filtered = filtered.filter(s => {
+        const dmStatus = this.getDMReceivedStatus(s);
+        if (this.incomingStatusFilter === 'PENDING') return dmStatus === 'Pending Verification';
+        if (this.incomingStatusFilter === 'WAITING') return dmStatus === 'Waiting for Documents';
+        if (this.incomingStatusFilter === 'IN_TRANSIT') return s.docDeliveryMethod === 'COURIER' && s.originalDocsSent;
+        return true;
+      });
+    }
+
+    // Search query filter
+    if (this.receiveSearchQuery) {
+      const q = this.receiveSearchQuery.toLowerCase();
+      filtered = filtered.filter(s =>
+        (s.fullName && s.fullName.toLowerCase().includes(q)) ||
+        (s.applicationId && s.applicationId.toLowerCase().includes(q)) ||
+        (s.id && s.id.toString().includes(q)) ||
+        (s.agent && s.agent.fullName && s.agent.fullName.toLowerCase().includes(q))
+      );
+    }
+
+    this.filteredReceiveList = filtered;
+  }
+
+  openIncomingVerification(student: Student): void {
+    this.selectedIncomingStudent = student;
+    this.incomingVerificationForm = {
+      physicalStatus: (student.receivedPassport && student.received10thMarksheet && student.received12thMarksheet && student.receivedNeetScorecard) ? 'ALL' :
+        (student.receivedPassport || student.received10thMarksheet || student.received12thMarksheet || student.receivedNeetScorecard) ? 'PARTIAL' : 'NOT_RECEIVED',
+      receivedPassport: student.receivedPassport || false,
+      passportRemarks: '',
+      received10thMarksheet: student.received10thMarksheet || false,
+      marksheet10Remarks: '',
+      received12thMarksheet: student.received12thMarksheet || false,
+      marksheet12Remarks: '',
+      receivedNeetScorecard: student.receivedNeetScorecard || false,
+      neetRemarks: '',
+      receivedAadharCard: student.receivedAadharCard || false,
+      aadharRemarks: '',
+      receivedMedicalReport: student.receivedMedicalReport || false,
+      medicalRemarks: '',
+      receivedOtherDocuments: student.receivedOtherDocuments || false,
+      receivedOtherDocumentsRemarks: student.receivedOtherDocumentsRemarks || '',
+      internalRemarks: '',
+      setStatus: student.originalDocsSent ? 'PENDING' : 'WAITING'
+    };
+  }
+
+  onPhysicalStatusChange(): void {
+    if (this.incomingVerificationForm.physicalStatus === 'ALL') {
+      this.incomingVerificationForm.receivedPassport = true;
+      this.incomingVerificationForm.received10thMarksheet = true;
+      this.incomingVerificationForm.received12thMarksheet = true;
+      this.incomingVerificationForm.receivedNeetScorecard = true;
+      this.incomingVerificationForm.receivedAadharCard = true;
+      this.incomingVerificationForm.receivedMedicalReport = true;
+      this.incomingVerificationForm.receivedOtherDocuments = true;
+    } else if (this.incomingVerificationForm.physicalStatus === 'NOT_RECEIVED') {
+      this.incomingVerificationForm.receivedPassport = false;
+      this.incomingVerificationForm.received10thMarksheet = false;
+      this.incomingVerificationForm.received12thMarksheet = false;
+      this.incomingVerificationForm.receivedNeetScorecard = false;
+      this.incomingVerificationForm.receivedAadharCard = false;
+      this.incomingVerificationForm.receivedMedicalReport = false;
+      this.incomingVerificationForm.receivedOtherDocuments = false;
+    }
+  }
+
+  closeIncomingVerification(): void {
+    this.selectedIncomingStudent = null;
+  }
+
+  saveIncomingVerification(): void {
+    if (!this.selectedIncomingStudent) return;
+
+    this.isSubmittingVerification = true;
+    const payload = {
+      receivedDate: new Date().toISOString().split('T')[0],
+      docPersonUsername: this.docPerson?.username || 'doc_person_user',
+      received12thMarksheet: this.incomingVerificationForm.received12thMarksheet,
+      received10thMarksheet: this.incomingVerificationForm.received10thMarksheet,
+      receivedNeetScorecard: this.incomingVerificationForm.receivedNeetScorecard,
+      receivedPassport: this.incomingVerificationForm.receivedPassport,
+      receivedAadharCard: this.incomingVerificationForm.receivedAadharCard,
+      receivedMedicalReport: this.incomingVerificationForm.receivedMedicalReport,
+      receivedOtherDocuments: this.incomingVerificationForm.receivedOtherDocuments,
+      receivedOtherDocumentsRemarks: this.incomingVerificationForm.receivedOtherDocumentsRemarks,
+      physicalStatus: this.incomingVerificationForm.physicalStatus
+    };
+
+    // We use the existing receive-docs endpoint.
+    this.http.post(`${this.API_ENDPOINT}/receive-docs/${this.selectedIncomingStudent.id}`, payload)
+      .subscribe({
+        next: () => {
+          this.isSubmittingVerification = false;
+          this.successType = 'approval';
+          this.successMessage = `Receive details saved for ${this.selectedIncomingStudent?.fullName}.`;
+          this.showSuccessModal = true;
+          this.closeIncomingVerification();
+          this.fetchDashboardData();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.isSubmittingVerification = false;
+          this.handleError(err);
+          this.cdr.detectChanges();
+        }
+      });
+  }
 
   // --- RECEIVE ACTION ---
   openReceiveModal(student: Student): void {

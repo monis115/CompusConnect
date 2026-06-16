@@ -62,10 +62,31 @@ export interface Student {
     courierTrackingId?: string;
     selfPersonContact?: string;
     docTentativeReachDate?: string;
+    originalDocsSent?: boolean;
+    agentSentPassport?: boolean;
+    agentSent10thMarksheet?: boolean;
+    agentSent12thMarksheet?: boolean;
+    agentSentAadharCard?: boolean;
+    agentSentMedicalReport?: boolean;
+    agentSentOtherDocuments?: boolean;
+    agentOtherDocumentsRemarks?: string;
+
+    receivedPassport?: boolean;
+    received10thMarksheet?: boolean;
+    received12thMarksheet?: boolean;
+    receivedNeetScorecard?: boolean;
+    receivedAadharCard?: boolean;
+    receivedMedicalReport?: boolean;
+    receivedOtherDocuments?: boolean;
+    receivedOtherDocumentsRemarks?: string;
+
+    isTelexDocsVerified?: boolean;
 
     // Timestamps
     createdAt?: string;
     applicationDate?: string;
+    telexIssueDate?: string;
+    updatedAt?: string;
 
     // Related Entities
     telexMan?: { fullName: string };

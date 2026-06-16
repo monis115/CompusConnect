@@ -97,10 +97,23 @@ export interface Student {
     docTentativeReachDate?: string; // LocalDate
     docReceivedDate?: string; // LocalDate
 
+    // Agent Dispatch Tracking
+    agentSentPassport?: boolean;
+    agentSent10thMarksheet?: boolean;
+    agentSent12thMarksheet?: boolean;
+    agentSentAadharCard?: boolean;
+    agentSentMedicalReport?: boolean;
+    agentSentOtherDocuments?: boolean;
+    agentOtherDocumentsRemarks?: string;
+
     received12thMarksheet?: boolean;
     received10thMarksheet?: boolean;
     receivedNeetScorecard?: boolean;
     receivedPassport?: boolean;
+    receivedAadharCard?: boolean;
+    receivedMedicalReport?: boolean;
+    receivedOtherDocuments?: boolean;
+    receivedOtherDocumentsRemarks?: string;
 
     docReturnedDate?: string;
     docReturnMethod?: DocDeliveryMethod;

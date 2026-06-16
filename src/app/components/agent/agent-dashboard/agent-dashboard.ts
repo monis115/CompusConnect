@@ -10,6 +10,7 @@ import { TelexApplicationService } from '../../../services/telex-application.ser
 import { TelexApplicationDTO } from '../../../models/telex-application.model';
 import { environment } from '../../../../environments/environment';
 import { FileService } from '../../../services/file.service';
+import { forkJoin, Observable } from 'rxjs';
 
 // --- Updated Enum based on your provided list ---
 export enum StudentStatus {
@@ -1374,7 +1375,6 @@ export class AgentDashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadAgentData();
-    this.fetchNews();
     this.initTravelForm();
     this.loadDocRequests();
   }
@@ -1415,6 +1415,9 @@ export class AgentDashboard implements OnInit {
 
         // Fetch new dashboard data
         this.fetchDashboardData(username);
+        
+        // Fetch news and notifications now that agentData is loaded
+        this.fetchNews();
 
         // Fetch messages to get unread count
         this.fetchUnreadMessages(data.id);
@@ -1514,15 +1517,27 @@ export class AgentDashboard implements OnInit {
     });
   }
 
-  // --- Fetch News ---
+  // --- Fetch News & Notifications ---
   fetchNews(): void {
-    this.http.get<NewsItem[]>(environment.apiUrl + '/api/news').subscribe({
-      next: (news) => {
+    const userJson = localStorage.getItem('user');
+    const username = userJson ? JSON.parse(userJson).username : (this.agentData?.userId || this.agentData?.email);
+    
+    // Create an observable for news
+    const news$ = this.http.get<NewsItem[]>(environment.apiUrl + '/api/news');
+    
+    // Create an observable for notifications
+    const notifications$ = username ? this.http.get<any[]>(environment.apiUrl + `/api/notifications/user/${username}`) : new Observable<any[]>(sub => { sub.next([]); sub.complete(); });
+    
+    forkJoin({
+      news: news$,
+      notifications: notifications$
+    }).subscribe({
+      next: ({ news, notifications }) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Normalize to start of day
 
         // Filter news by active status and date range
-        this.newsItems = news.filter(item => {
+        let validNews = news.filter(item => {
           if (!item.active) return false;
 
           const activeFrom = new Date(item.activeFrom);
@@ -1530,8 +1545,33 @@ export class AgentDashboard implements OnInit {
           activeFrom.setHours(0, 0, 0, 0);
           tillDate.setHours(23, 59, 59, 999); // End of day
 
-          return today >= activeFrom && today <= tillDate;
+          const isDateValid = today >= activeFrom && today <= tillDate;
+          
+          // Filter out news not meant for this specific agent
+          const isUserTargeted = !item.forUser || 
+                                 item.forUser === 'ALL' || 
+                                 item.forUser === 'AGENT' || 
+                                 (this.agentData && (item.forUser === this.agentData.userId || item.forUser === this.agentData.email));
+                                 
+          return isDateValid && isUserTargeted;
         });
+
+        // Map notifications to NewsItem format
+        const mappedNotifications: NewsItem[] = notifications.map(n => ({
+          id: n.id,
+          activeFrom: n.createdAt,
+          tillDate: new Date(Date.now() + 365*24*60*60*1000).toISOString(),
+          heading: n.heading,
+          content: n.content,
+          tag: 'document', // map Notification type to News tag
+          username: n.senderUsername,
+          forUser: n.targetUsername,
+          createdAt: n.createdAt,
+          updatedAt: n.createdAt,
+          active: true
+        }));
+
+        this.newsItems = [...validNews, ...mappedNotifications];
 
         // Sort by createdAt (most recent first)
         this.newsItems.sort((a, b) =>
@@ -1540,7 +1580,7 @@ export class AgentDashboard implements OnInit {
 
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Failed to fetch news', err)
+      error: (err) => console.error('Failed to fetch news and notifications', err)
     });
   }
 
@@ -2009,6 +2049,15 @@ export class AgentDashboard implements OnInit {
       selfPersonName: [''],
       selfPersonPhone: [''],
       docTentativeReachDate: [null],
+
+      // Document Dispatch Checklist
+      agentSentPassport: [false],
+      agentSent10thMarksheet: [false],
+      agentSent12thMarksheet: [false],
+      agentSentAadharCard: [false],
+      agentSentMedicalReport: [false],
+      agentSentOtherDocuments: [false],
+      agentOtherDocumentsRemarks: [''],
 
       // Step 2: Payment Status
       hasPaid: [null, Validators.required],
