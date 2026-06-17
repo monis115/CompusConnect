@@ -16,6 +16,8 @@ export interface Student {
     adhaarCardNo: string;
     adhaarPath?: string;
     passportPath?: string;
+    ticketPdfPath?: string;
+    travelTicketPdfPath?: string;
 
     // Academic - 12th
     class12thPassingYear: string;

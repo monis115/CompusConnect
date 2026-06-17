@@ -57,6 +57,9 @@ export interface Student {
     hasRaiseReturnRequest?: boolean;
 
     // Document Delivery Tracking
+    docReceivedDate?: string | Date;
+    docReturnedDate?: string | Date;
+    passportReturnReceivedDate?: string | Date;
     docDeliveryMethod?: 'COURIER' | 'SELF_PERSON' | string;
     courierPartner?: string;
     courierTrackingId?: string;
@@ -85,6 +88,7 @@ export interface Student {
     // Timestamps
     createdAt?: string;
     applicationDate?: string;
+    telexRequestDate?: string;
     telexIssueDate?: string;
     updatedAt?: string;
 

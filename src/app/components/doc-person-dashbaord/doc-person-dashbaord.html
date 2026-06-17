@@ -37,8 +37,19 @@
       </a>
 
       <!-- Document Inventory -->
-      <a (click)="setActiveTab('inventory')" [class.active]="activeTab === 'inventory'">
-        <i class="far fa-folder"></i> Document Inventory
+      <a (click)="setActiveTab('inventory')" [class.active]="activeTab === 'inventory'" class="nav-item-badge">
+        <span><i class="fas fa-boxes"></i> Document Inventory</span>
+        @if (inventoryList.length > 0) {
+        <span class="badge">{{ inventoryList.length }}</span>
+        }
+      </a>
+      
+      <!-- Document Transfers -->
+      <a (click)="setActiveTab('transfers')" [class.active]="activeTab === 'transfers'" class="nav-item-badge">
+        <span><i class="fas fa-exchange-alt"></i> Document Transfers</span>
+        @if (transferList.length > 0) {
+        <span class="badge">{{ transferList.length }}</span>
+        }
       </a>
 
       <!-- Active Custody (Replaces Verify Docs) -->
@@ -49,19 +60,16 @@
         }
       </a>
 
-      <!-- Document Transfers -->
-      <a (click)="setActiveTab('transfers')" [class.active]="activeTab === 'transfers'">
-        <i class="fas fa-exchange-alt"></i> Document Transfers
-      </a>
 
-      <!-- Passport Requests (Passport Collect) -->
-      <a (click)="setActiveTab('passport-requests')" [class.active]="activeTab === 'passport-requests'">
-        <i class="fas fa-passport"></i> Passport Requests
-      </a>
 
-      <!-- Travel Information -->
-      <a (click)="setActiveTab('travel-info')" [class.active]="activeTab === 'travel-info'">
-        <i class="fas fa-plane"></i> Travel Information
+
+
+      <!-- Collect Passports -->
+      <a (click)="setActiveTab('passport-collect')" [class.active]="activeTab === 'passport-collect'" class="nav-item-badge">
+        <span><i class="fas fa-passport"></i> Collect Passports</span>
+        @if (passportCollectList.length > 0) {
+        <span class="badge">{{ passportCollectList.length }}</span>
+        }
       </a>
 
       <!-- Return Requests -->
@@ -197,7 +205,7 @@
       </div>
       }
 
-      @if (!isLoading && activeTab !== 'funds' && activeTab !== 'profile') {
+      @if (!isLoading && activeTab !== 'funds' && activeTab !== 'profile' && activeTab !== 'inventory' && activeTab !== 'transfers' && activeTab !== 'passport-requests' && activeTab !== 'passport-collect' && activeTab !== 'return') {
       <!-- Smart Filter Bar -->
       <div class="filter-bar"
         style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
@@ -525,11 +533,11 @@
             </div>
           </div>
 
-          <table class="docs-table">
+          <table class="docs-table" style="font-size: 0.85rem;">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Student Name</th>
+                <th style="width: 40px; padding-right: 4px;">#</th>
+                <th style="padding-left: 4px;">Student Name</th>
                 <th>Application ID</th>
                 <th>Agent</th>
                 <th>Docs Status (Agent)</th>
@@ -538,7 +546,7 @@
                 <th>Expected Delivery</th>
                 <th>Received Status (DM)</th>
                 <th>Last Update</th>
-                <th>Action</th>
+                <th style="width: 90px; text-align: left;">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -547,10 +555,10 @@
                 <td colspan="11" class="text-center py-4">No incoming document requests found.</td>
               </tr>
               }
-              @for (student of filteredReceiveList; track student.id; let i = $index) {
+              @for (student of paginatedReceiveList; track student.id; let i = $index) {
               <tr>
-                <td>{{ i + 1 }}</td>
-                <td>
+                <td style="padding-right: 4px;">{{ (receiveCurrentPage - 1) * receiveItemsPerPage + i + 1 }}</td>
+                <td style="padding-left: 4px;">
                   <div class="student-name-cell">
                     <i class="far fa-user"></i>
                     <span>{{ student.fullName }}</span>
@@ -625,14 +633,14 @@
                     <i class="fas fa-check-double"></i>
                   </button>
                   } @else {
-                  <div style="display: flex; gap: 8px;">
+                  <div style="display: flex; gap: 4px; justify-content: flex-start; margin-right: 10px;">
                     <button class="btn-primary btn-sm" title="Receive Package"
-                      style="display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 1rem; background: #3b82f6; border: none; box-shadow: 0 4px 10px rgba(59,130,246,0.3);"
+                      style="display: inline-flex; align-items: center; justify-content: center; height: 28px; width: 28px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 0.9rem; background: #3b82f6; border: none; box-shadow: 0 4px 10px rgba(59,130,246,0.3);"
                       (click)="openIncomingVerification(student)">
                       <i class="fas fa-box-open"></i>
                     </button>
                     <button class="btn-primary btn-sm" title="Follow Up"
-                      style="display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 1rem; background: #f59e0b; border: none; box-shadow: 0 4px 10px rgba(245,158,11,0.3);"
+                      style="display: inline-flex; align-items: center; justify-content: center; height: 28px; width: 28px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 0.9rem; background: #f59e0b; border: none; box-shadow: 0 4px 10px rgba(245,158,11,0.3);"
                       (click)="openFollowUpModal(student)">
                       <i class="fas fa-bell"></i>
                     </button>
@@ -643,8 +651,22 @@
               }
             </tbody>
           </table>
-          <div class="table-footer">
-            <span>Showing 1 to {{ filteredReceiveList.length }} of {{ getIncomingMetrics().total }} entries</span>
+          <div class="table-footer"
+            style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 0.85rem;">
+            <span>Showing {{ (receiveCurrentPage - 1) * receiveItemsPerPage + 1 }} to {{ receiveEndIndex }} of {{
+              filteredReceiveList.length }} entries</span>
+            <div class="pagination-controls" style="display: flex; gap: 5px;">
+              <button class="btn-secondary btn-sm" [disabled]="receiveCurrentPage === 1"
+                (click)="changeReceivePage(receiveCurrentPage - 1)"
+                style="padding: 4px 8px; border-radius: 4px;">Previous</button>
+              <span
+                style="display: flex; align-items: center; padding: 0 10px; background: #f1f5f9; border-radius: 4px;">Page
+                {{ receiveCurrentPage }} of {{ receiveTotalPages }}</span>
+              <button class="btn-secondary btn-sm"
+                [disabled]="receiveCurrentPage === receiveTotalPages || receiveTotalPages === 0"
+                (click)="changeReceivePage(receiveCurrentPage + 1)"
+                style="padding: 4px 8px; border-radius: 4px;">Next</button>
+            </div>
           </div>
         </div>
         } @else {
@@ -955,6 +977,702 @@
       </div>
       }
 
+      <!-- INVENTORY VIEW -->
+      @if (activeTab === 'inventory' && !isLoading && !errorState.hasError) {
+      <div class="inventory-view animate-fade-in" style="display: flex; flex-direction: column; gap: 20px;">
+
+        <!-- Stats Cards -->
+        <div class="stats-grid"
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+
+          <div class="stat-card"
+            style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px;">
+            <div class="icon-box"
+              style="background: #eff6ff; color: #3b82f6; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+              <i class="far fa-folder-open"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: #64748b; font-weight: 500;">Total Documents</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ inventoryStats.total }}</div>
+              <div style="font-size: 0.75rem; color: #94a3b8;">In System</div>
+            </div>
+          </div>
+
+          <div class="stat-card"
+            style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px;">
+            <div class="icon-box"
+              style="background: #ecfdf5; color: #10b981; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+              <i class="fas fa-passport"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: #64748b; font-weight: 500;">Passports in Custody</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ inventoryStats.inCustody }}</div>
+              <div style="font-size: 0.75rem; color: #94a3b8;">With Document Manager</div>
+            </div>
+          </div>
+
+          <div class="stat-card"
+            style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px;">
+            <div class="icon-box"
+              style="background: #e0f2fe; color: #0ea5e9; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+              <i class="fas fa-undo-alt"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: #64748b; font-weight: 500;">With Visa Manager</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ inventoryStats.withVisaManager }}
+              </div>
+              <div style="font-size: 0.75rem; color: #94a3b8;">In Visa Processing</div>
+            </div>
+          </div>
+
+          <div class="stat-card"
+            style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px;">
+            <div class="icon-box"
+              style="background: #f3e8ff; color: #a855f7; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: #64748b; font-weight: 500;">Documents Returned</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ inventoryStats.returned }}</div>
+              <div style="font-size: 0.75rem; color: #94a3b8;">To Agents</div>
+            </div>
+          </div>
+
+          <div class="stat-card"
+            style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px;">
+            <div class="icon-box"
+              style="background: #fef2f2; color: #ef4444; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: #64748b; font-weight: 500;">Missing/Rejected</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">{{ inventoryStats.missing }}</div>
+              <div style="font-size: 0.75rem; color: #94a3b8;">Under Investigation</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="docs-table-container"
+          style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e2e8f0;">
+          <!-- Unified Filters & Actions Bar -->
+          <div style="padding: 15px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; border-radius: 12px 12px 0 0; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: space-between;">
+            
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <div class="search-input-wrapper" style="position: relative;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                <input type="text" placeholder="Search by student, application ID..." [(ngModel)]="inventorySearchQuery" (ngModelChange)="filterInventoryList()" style="padding: 8px 12px 8px 35px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; font-size: 0.85rem; min-width: 240px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);">
+              </div>
+
+              <select [(ngModel)]="inventoryAgentFilter" (ngModelChange)="filterInventoryList()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; background: white; color: #475569; font-size: 0.85rem; outline: none; min-width: 140px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                <option value="ALL">All Agents</option>
+                <option value="DIRECT">Direct (No Agent)</option>
+                @for (agent of inventoryUniqueAgents; track agent.fullName) {
+                  <option [value]="agent.fullName">{{ agent.fullName }}</option>
+                }
+              </select>
+              
+              <select [(ngModel)]="inventoryHolderFilter" (ngModelChange)="filterInventoryList()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; background: white; color: #475569; font-size: 0.85rem; outline: none; min-width: 140px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                <option value="ALL">All Current Holders</option>
+                <option value="Agent">Agent</option>
+                <option value="Courier">Courier</option>
+                <option value="Document Manager">Document Manager</option>
+                <option value="Visa Manager">Visa Manager</option>
+              </select>
+
+              <select [(ngModel)]="inventoryStatusFilter" (ngModelChange)="filterInventoryList()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; background: white; color: #475569; font-size: 0.85rem; outline: none; min-width: 160px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                <option value="ALL">All Current Statuses</option>
+                <option value="In Transit to Doc Manager">In Transit to Doc Manager</option>
+                <option value="On Going Verification">On Going Verification</option>
+                <option value="Visa Processing">Visa Processing</option>
+                <option value="Visa Processing Completed">Visa Processing Completed</option>
+                <option value="In Custody (Ready to Return)">In Custody (Ready to Return)</option>
+                <option value="In Transit to Agent">In Transit to Agent</option>
+                <option value="Received by Agent">Received by Agent</option>
+                <option value="Rejected / Under Investigation">Rejected / Under Investigation</option>
+              </select>
+
+              @if (inventoryAgentFilter !== 'ALL' || inventoryHolderFilter !== 'ALL' || inventoryStatusFilter !== 'ALL' || inventorySearchQuery) {
+                <button (click)="inventorySearchQuery = ''; inventoryAgentFilter = 'ALL'; inventoryHolderFilter = 'ALL'; inventoryStatusFilter = 'ALL'; filterInventoryList()" style="padding: 8px 14px; border: 1px solid #fee2e2; border-radius: 6px; font-size: 0.8rem; font-weight: 600; background: #fef2f2; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                  <i class="fas fa-times"></i> Clear
+                </button>
+              }
+            </div>
+
+            <button (click)="exportInventoryToExcel()" style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(16,185,129,0.2); transition: all 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+              <i class="fas fa-file-excel"></i> Export
+            </button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="docs-table" style="width: 100%; border-collapse: collapse; min-width: 1000px;">
+              <thead style="background: #f8fafc; border-bottom: 2px solid #f1f5f9;">
+                <tr>
+                  <th
+                    style="padding: 12px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
+                    #</th>
+                  <th
+                    style="padding: 12px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
+                    Student Name</th>
+                  <th
+                    style="padding: 12px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
+                    Application ID</th>
+                  <th
+                    style="padding: 12px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
+                    Passport No.</th>
+                  <th
+                    style="padding: 12px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
+                    Agent</th>
+                  <th
+                    style="padding: 12px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
+                    Current Holder</th>
+                  <th
+                    style="padding: 12px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
+                    Status</th>
+                  <th
+                    style="padding: 12px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
+                    Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (student of paginatedInventoryList; track student.id; let i = $index) {
+                <tr class="table-row-hover" style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
+                  <td style="padding: 16px 20px; color: #64748b; font-size: 0.9rem;">{{ (inventoryCurrentPage - 1) *
+                    inventoryItemsPerPage + i + 1 }}</td>
+                  <td style="padding: 16px 20px;">
+                    <div class="user-cell-pro" style="display: flex; align-items: center; gap: 10px;">
+                      <div class="avatar-pro"
+                        style="width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: #475569;">
+                        {{ getInitials(student.fullName) }}
+                      </div>
+                      <span class="name-pro" style="font-weight: 500; color: #1e293b; font-size: 0.9rem;">{{
+                        student.fullName }}</span>
+                    </div>
+                  </td>
+                  <td style="padding: 16px 20px;"><span class="id-badge-pro"
+                      style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 0.85rem; color: #475569;">{{
+                      student.applicationId || 'N/A' }}</span></td>
+                  <td style="padding: 16px 20px; color: #334155; font-size: 0.9rem;">{{ student.passportNo || 'N/A' }}
+                  </td>
+                  <td style="padding: 16px 20px; color: #475569; font-size: 0.85rem;">{{ student.agent?.fullName ||
+                    'Direct' }}</td>
+
+                  <td style="padding: 16px 20px;">
+                    <span
+                      style="display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-weight: 500; font-size: 0.75rem; background: white; border: 1px solid"
+                      [style.borderColor]="getDocInventoryState(student).holderStyle.border"
+                      [style.color]="getDocInventoryState(student).holderStyle.color">
+                      <i [class]="getDocInventoryState(student).holderIcon" style="margin-right: 6px;"
+                        [style.color]="getDocInventoryState(student).holderStyle.color"></i>
+                      {{ getDocInventoryState(student).holder }}
+                    </span>
+                  </td>
+                  <td style="padding: 16px 20px;">
+                    <span
+                      style="display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-weight: 500; font-size: 0.75rem; border: 1px solid"
+                      [style.background]="getDocInventoryState(student).statusStyle.bg"
+                      [style.borderColor]="getDocInventoryState(student).statusStyle.border"
+                      [style.color]="getDocInventoryState(student).statusStyle.color">
+                      <i [class]="getDocInventoryState(student).statusIcon" style="margin-right: 6px;"></i>
+                      {{ getDocInventoryState(student).status }}
+                    </span>
+                  </td>
+                  <td style="padding: 16px 20px; text-align: center;">
+                    <button class="btn-pro" (click)="openInventorySidebar(student)" title="View Document Timeline"
+                      style="width: 34px; height: 34px; border-radius: 8px; background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;"
+                      onmouseenter="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1'; this.style.color='#3b82f6'; this.style.transform='scale(1.05)';"
+                      onmouseleave="this.style.background='#f1f5f9'; this.style.borderColor='#e2e8f0'; this.style.color='#64748b'; this.style.transform='scale(1)';">
+                      <i class="fas fa-history"></i>
+                    </button>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer"
+            style="padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; font-size: 0.85rem; color: #64748b;">
+            <span>Showing {{ (inventoryCurrentPage - 1) * inventoryItemsPerPage + 1 }} to {{ inventoryEndIndex }} of {{
+              filteredInventoryList.length }} entries</span>
+            <div class="pagination-controls" style="display: flex; gap: 5px;">
+              <button class="btn-secondary btn-sm" [disabled]="inventoryCurrentPage === 1"
+                (click)="changeInventoryPage(inventoryCurrentPage - 1)"
+                style="padding: 4px 8px; border-radius: 4px; border: 1px solid #cbd5e1; background: white; cursor: pointer;">Previous</button>
+              <span
+                style="display: flex; align-items: center; padding: 0 10px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">Page
+                {{ inventoryCurrentPage }} of {{ inventoryTotalPages }}</span>
+              <button class="btn-secondary btn-sm"
+                [disabled]="inventoryCurrentPage === inventoryTotalPages || inventoryTotalPages === 0"
+                (click)="changeInventoryPage(inventoryCurrentPage + 1)"
+                style="padding: 4px 8px; border-radius: 4px; border: 1px solid #cbd5e1; background: white; cursor: pointer;">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+      <!-- TRANSFER SIDEBAR MODAL -->
+      @if (isTransferSidebarOpen && selectedTransferStudent) {
+      <div class="modal-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: flex-end;">
+        <div class="side-modal animate-slide-in"
+          style="width: 450px; background: #f8fafc; height: 100vh; box-shadow: -5px 0 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+
+          <div class="modal-header"
+            style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: white;">
+            <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b; font-weight: 600;">Transfer Details</h3>
+            <button class="close-btn" (click)="closeTransferSidebar()"
+              style="background: none; border: none; font-size: 1.2rem; color: #64748b; cursor: pointer; padding: 5px; transition: color 0.2s;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px;">
+            <!-- User Header -->
+            <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+              <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 600; color: #475569;">
+                  {{ getInitials(selectedTransferStudent.student.fullName) }}
+                </div>
+                <div>
+                  <h3 style="margin: 0; font-size: 1.2rem; color: #1e293b;">{{ selectedTransferStudent.student.fullName }}</h3>
+                  <div style="color: #64748b; font-size: 0.9rem; margin-top: 4px; font-weight: 500;">{{ selectedTransferStudent.student.applicationId || 'APP-N/A' }}</div>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 100px 1fr; gap: 12px; font-size: 0.9rem;">
+                <div style="color: #64748b;">Passport No.</div>
+                <div style="color: #1e293b; font-weight: 500;">{{ selectedTransferStudent.student.passportNo || 'N/A' }}</div>
+                
+                <div style="color: #64748b;">University</div>
+                <div style="color: #1e293b; font-weight: 500;">{{ selectedTransferStudent.student.college?.collegeName || 'N/A' }}</div>
+                
+                <div style="color: #64748b;">Agent</div>
+                <div style="color: #1e293b; font-weight: 500;">{{ selectedTransferStudent.student.agent?.fullName || 'Direct' }}</div>
+                
+                <div style="color: #64748b;">Purpose</div>
+                <div style="color: #1e293b; font-weight: 500;">{{ selectedTransferStudent.purpose }}</div>
+              </div>
+            </div>
+
+            <!-- Transfer Summary Card -->
+            <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+              <h4 style="margin: 0 0 15px 0; color: #1e293b; font-size: 1.05rem;">Current Transfer Summary</h4>
+              
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 12px; font-size: 0.9rem; align-items: center;">
+                <div style="color: #64748b;">Current Holder</div>
+                <div>
+                  <span style="display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-weight: 500; font-size: 0.8rem; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;">
+                    {{ selectedTransferStudent.to }}
+                  </span>
+                </div>
+                
+                <div style="color: #64748b; margin-top: 5px;">Transferred On</div>
+                <div style="color: #1e293b; font-weight: 500; margin-top: 5px;">{{ selectedTransferStudent.transferDate | date:'dd MMM yyyy, hh:mm a' }}</div>
+                
+                <div style="color: #64748b;">Purpose</div>
+                <div style="color: #1e293b; font-weight: 500;">{{ selectedTransferStudent.purpose }}</div>
+                
+                <div style="color: #64748b;">Expected Return</div>
+                <div style="color: #1e293b; font-weight: 500;">{{ selectedTransferStudent.expectedReturn ? (selectedTransferStudent.expectedReturn | date:'dd MMM yyyy') : 'N/A' }}</div>
+              </div>
+
+              <div style="margin-top: 20px; padding: 12px 15px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; display: flex; align-items: center; gap: 10px; color: #b45309; font-size: 0.9rem; font-weight: 500;">
+                <i class="fas fa-exclamation-circle" style="color: #f59e0b;"></i>
+                Passport with {{ selectedTransferStudent.to }}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- INVENTORY SIDEBAR MODAL -->
+      @if (isInventorySidebarOpen && selectedInventoryStudent) {
+      <div class="modal-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: flex-end;">
+        <div class="side-modal animate-slide-in"
+          style="width: 450px; background: white; height: 100vh; box-shadow: -5px 0 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+
+          <div class="modal-header"
+            style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b; font-weight: 600;"><i class="fas fa-history"
+                style="color: #64748b; margin-right: 8px;"></i>Document Movement</h3>
+            <button class="close-btn" (click)="closeInventorySidebar()"
+              style="background: none; border: none; font-size: 1.2rem; color: #64748b; cursor: pointer; padding: 5px; transition: color 0.2s;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1;">
+
+            <div class="student-info-card"
+              style="background: linear-gradient(145deg, #ffffff, #f8fafc); padding: 20px; border-radius: 12px; margin-bottom: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div
+                    style="width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 600; color: #475569; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    {{ getInitials(selectedInventoryStudent.fullName) }}
+                  </div>
+                  <div>
+                    <div style="font-weight: 700; color: #0f172a; font-size: 1.15rem; letter-spacing: -0.01em;">{{
+                      selectedInventoryStudent.fullName }}</div>
+                    <div
+                      style="font-size: 0.8rem; color: #64748b; margin-top: 2px; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 6px;">
+                      <i class="fas fa-id-card" style="color: #cbd5e1;"></i> {{ selectedInventoryStudent.applicationId
+                      }}
+                      <span style="color: #cbd5e1;">|</span>
+                      <i class="fas fa-passport" style="color: #cbd5e1;"></i> {{ selectedInventoryStudent.passportNo ||
+                      'N/A' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style="display: flex; align-items: center; justify-content: space-between; background: white; border-radius: 8px; padding: 12px 16px; border: 1px solid #f1f5f9; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <span
+                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.8px;">Current
+                    Holder</span>
+                  <span
+                    style="display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; background: white; border: 1px solid"
+                    [style.borderColor]="getDocInventoryState(selectedInventoryStudent).holderStyle.border"
+                    [style.color]="getDocInventoryState(selectedInventoryStudent).holderStyle.color">
+                    <i [class]="getDocInventoryState(selectedInventoryStudent).holderIcon" style="margin-right: 6px;"
+                      [style.color]="getDocInventoryState(selectedInventoryStudent).holderStyle.color"></i>
+                    {{ getDocInventoryState(selectedInventoryStudent).holder }}
+                  </span>
+                </div>
+
+                <div style="width: 1px; height: 30px; background: #e2e8f0;"></div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
+                  <span
+                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.8px;">Current
+                    Status</span>
+                  <span
+                    style="display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; border: 1px solid; box-shadow: 0 1px 2px rgba(0,0,0,0.02);"
+                    [style.background]="getDocInventoryState(selectedInventoryStudent).statusStyle.bg"
+                    [style.borderColor]="getDocInventoryState(selectedInventoryStudent).statusStyle.border"
+                    [style.color]="getDocInventoryState(selectedInventoryStudent).statusStyle.color">
+                    <i [class]="getDocInventoryState(selectedInventoryStudent).statusIcon"
+                      style="margin-right: 6px;"></i>
+                    {{ getDocInventoryState(selectedInventoryStudent).status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <h4 style="font-size: 0.95rem; color: #334155; margin-bottom: 20px; font-weight: 600;">Timeline</h4>
+
+            <div class="timeline" style="position: relative; padding-left: 40px; margin-top: 10px;">
+              <!-- Continuous Line -->
+              <div
+                style="position: absolute; left: 15px; top: 16px; bottom: 16px; width: 2px; background: #e2e8f0; border-radius: 2px; z-index: 0;">
+              </div>
+
+              @for (step of getDocumentFlowSteps(selectedInventoryStudent); track step.id; let first = $first; let last
+              = $last) {
+              <div class="timeline-item" style="position: relative; margin-bottom: 30px;"
+                [style.opacity]="step.status === 'pending' ? '0.5' : '1'">
+
+                <!-- Icon Circle -->
+                <div
+                  style="position: absolute; left: -40px; top: 0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 1; border: 2px solid; transition: all 0.3s;"
+                  [style.borderColor]="step.status === 'completed' ? '#10b981' : (step.status === 'current' ? '#3b82f6' : '#cbd5e1')"
+                  [style.background]="step.status === 'completed' ? '#10b981' : (step.status === 'current' ? '#3b82f6' : 'white')">
+                  <i [class]="step.icon"
+                    [style.color]="step.status === 'completed' || step.status === 'current' ? 'white' : '#94a3b8'"
+                    style="font-size: 13px;"></i>
+                </div>
+
+                <!-- Content Area -->
+                <div class="timeline-content" style="padding-left: 8px; position: relative; top: -2px;">
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                    <div style="font-weight: 600; font-size: 1rem;"
+                      [style.color]="step.status === 'pending' ? '#94a3b8' : '#1e293b'">
+                      {{ step.title }}
+                    </div>
+                    @if (step.date) {
+                    <div
+                      style="font-size: 0.75rem; color: #64748b; font-weight: 500; display: flex; align-items: center; gap: 4px; background: #f8fafc; padding: 4px 8px; border-radius: 6px; border: 1px solid #f1f5f9;">
+                      <i class="far fa-clock"></i> {{ formatDate(step.date) }}
+                    </div>
+                    }
+                  </div>
+
+                  <div style="font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #64748b;">Holder: <span style="font-weight: 600; color: #475569;">{{ step.holder
+                        }}</span></span>
+
+                    @if (step.status === 'completed') {
+                    <span style="width: 4px; height: 4px; border-radius: 50%; background: #cbd5e1;"></span>
+                    <span
+                      style="color: #10b981; font-weight: 600; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
+                      <i class="fas fa-check-circle"></i> Done
+                    </span>
+                    } @else if (step.status === 'current') {
+                    <span style="width: 4px; height: 4px; border-radius: 50%; background: #cbd5e1;"></span>
+                    <span
+                      style="color: #3b82f6; font-weight: 600; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
+                      <i class="fas fa-spinner fa-spin"></i> Active
+                    </span>
+                    }
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- TRANSFERS VIEW -->
+      @if (activeTab === 'transfers' && !isLoading && !errorState.hasError) {
+      <div class="transfers-view animate-fade-in" style="display: flex; flex-direction: column; gap: 20px;">
+        
+
+        <!-- Transfers Stats Cards -->
+        <div class="stats-grid-pro" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+          <!-- Card 1: Transfers to Visa Manager -->
+          <div class="stat-card-pro" style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i class="fas fa-file-export" style="font-size: 1.5rem; color: #10b981;"></i>
+              </div>
+              <div>
+                <h4 style="margin: 0; font-size: 0.85rem; color: #64748b; font-weight: 600;">Transfers to<br>Visa Manager</h4>
+                <div style="font-size: 2rem; font-weight: 700; color: #1e293b; margin-top: 5px;">{{ transferStats.toVisaManager }}</div>
+              </div>
+            </div>
+            <a style="font-size: 0.8rem; color: #3b82f6; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-top: 10px;">View all <i class="fas fa-arrow-right"></i></a>
+          </div>
+
+          <!-- Card 2: Returns from Visa Manager -->
+          <div class="stat-card-pro" style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i class="fas fa-file-import" style="font-size: 1.5rem; color: #f59e0b;"></i>
+              </div>
+              <div>
+                <h4 style="margin: 0; font-size: 0.85rem; color: #64748b; font-weight: 600;">Returns from<br>Visa Manager</h4>
+                <div style="font-size: 2rem; font-weight: 700; color: #1e293b; margin-top: 5px;">{{ transferStats.fromVisaManager }}</div>
+              </div>
+            </div>
+            <a style="font-size: 0.8rem; color: #3b82f6; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-top: 10px;">View all <i class="fas fa-arrow-right"></i></a>
+          </div>
+
+          <!-- Card 3: Returned to Agent -->
+          <div class="stat-card-pro" style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(139, 92, 246, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i class="fas fa-box-open" style="font-size: 1.5rem; color: #8b5cf6;"></i>
+              </div>
+              <div>
+                <h4 style="margin: 0; font-size: 0.85rem; color: #64748b; font-weight: 600;">Documents Returned<br>to Agent</h4>
+                <div style="font-size: 2rem; font-weight: 700; color: #1e293b; margin-top: 5px;">{{ transferStats.returnedToAgent }}</div>
+              </div>
+            </div>
+            <a style="font-size: 0.8rem; color: #3b82f6; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-top: 10px;">View all <i class="fas fa-arrow-right"></i></a>
+          </div>
+
+          <!-- Card 4: Pending Transfers -->
+          <div class="stat-card-pro" style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(249, 115, 22, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i class="fas fa-hourglass-half" style="font-size: 1.5rem; color: #f97316;"></i>
+              </div>
+              <div>
+                <h4 style="margin: 0; font-size: 0.85rem; color: #64748b; font-weight: 600;">Pending Transfer<br>Requests</h4>
+                <div style="font-size: 2rem; font-weight: 700; color: #1e293b; margin-top: 5px;">{{ transferStats.pendingRequests }}</div>
+              </div>
+            </div>
+            <a style="font-size: 0.8rem; color: #3b82f6; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-top: 10px;">View all <i class="fas fa-arrow-right"></i></a>
+          </div>
+
+          <!-- Card 5: Overdue Transfers -->
+          <div class="stat-card-pro" style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: #ef4444;"></i>
+              </div>
+              <div>
+                <h4 style="margin: 0; font-size: 0.85rem; color: #64748b; font-weight: 600;">Overdue<br>Transfers</h4>
+                <div style="font-size: 2rem; font-weight: 700; color: #1e293b; margin-top: 5px;">{{ transferStats.overdueTransfers }}</div>
+              </div>
+            </div>
+            <a style="font-size: 0.8rem; color: #3b82f6; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-top: 10px;">View all <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Transfers Filter Bar -->
+        <div style="display: flex; gap: 10px; padding: 15px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; flex-wrap: wrap; align-items: center;">
+          <div style="position: relative; width: 220px;">
+            <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+            <input type="text" placeholder="Search name, passport..." [(ngModel)]="transferSearchQuery" (ngModelChange)="filterTransferList()" style="width: 100%; padding: 10px 10px 10px 35px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-size: 0.9rem; box-sizing: border-box;">
+          </div>
+          <select [(ngModel)]="transferUniversityFilter" (ngModelChange)="filterTransferList()" style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-size: 0.9rem; min-width: 150px; background: white;">
+            <option value="ALL">Select University</option>
+            @for (uni of uniqueColleges; track uni) {
+              <option [value]="uni">{{ uni }}</option>
+            }
+          </select>
+          <select [(ngModel)]="transferAgentFilter" (ngModelChange)="filterTransferList()" style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-size: 0.9rem; min-width: 150px; background: white;">
+            <option value="ALL">Select Agent</option>
+            <option value="DIRECT">Direct (No Agent)</option>
+            @for (agent of inventoryUniqueAgents; track agent.fullName) {
+              <option [value]="agent.fullName">{{ agent.fullName }}</option>
+            }
+          </select>
+          <select [(ngModel)]="transferTypeFilter" (ngModelChange)="filterTransferList()" style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-size: 0.9rem; min-width: 160px; background: white;">
+            <option value="ALL">Select Transfer Type</option>
+            <option value="Original Documents">Original Documents</option>
+            <option value="Visa Stamping">Visa Stamping</option>
+            <option value="Passport Returned">Passport Returned</option>
+            <option value="Final Return">Final Return</option>
+            <option value="Rejected Docs Return">Rejected Docs Return</option>
+          </select>
+          <select [(ngModel)]="transferStatusFilter" (ngModelChange)="filterTransferList()" style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-size: 0.9rem; min-width: 140px; background: white;">
+            <option value="ALL">Select Status</option>
+            <option value="Completed">Completed</option>
+            <option value="In Transit">In Transit</option>
+            <option value="Awaiting Receipt">Awaiting Receipt</option>
+            <option value="Pending">Pending</option>
+          </select>
+
+          <div style="flex: 1;"></div>
+          
+          <button (click)="exportTransfersToExcel()" style="padding: 10px 16px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: background 0.2s; white-space: nowrap;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+            <i class="fas fa-file-excel"></i> Export Excel
+          </button>
+        </div>
+
+        <!-- Transfers Table -->
+        <div style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+          <div style="padding: 15px 20px; border-bottom: 1px solid #e2e8f0;">
+            <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Transfer Records</h3>
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 1000px;">
+              <thead style="background: #f8fafc; border-bottom: 2px solid #f1f5f9;">
+                <tr>
+                  <th style="padding: 10px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600;">#</th>
+                  <th style="padding: 10px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600;">Student Name</th>
+                  <th style="padding: 10px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600;">Passport No.</th>
+                  <th style="padding: 10px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600;">From</th>
+                  <th style="padding: 10px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600;">To</th>
+                  <th style="padding: 10px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600;">Purpose</th>
+                  <th style="padding: 10px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600;">Transfer Date</th>
+                  <th style="padding: 10px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600;">Status</th>
+                  <th style="padding: 10px 14px; text-align: center; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (trf of paginatedTransferList; track trf.student.id; let i = $index) {
+                <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" class="table-row-hover" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'">
+                  <td style="padding: 10px 14px; color: #64748b; font-size: 0.9rem;">{{ (transferCurrentPage - 1) * transferItemsPerPage + i + 1 }}</td>
+                  <td style="padding: 10px 14px; white-space: nowrap;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <div style="width: 28px; height: 28px; border-radius: 4px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; color: #475569;">
+                        {{ getInitials(trf.student.fullName) }}
+                      </div>
+                      <span style="font-weight: 500; color: #1e293b; font-size: 0.9rem;">{{ trf.student.fullName }}</span>
+                    </div>
+                  </td>
+                  <td style="padding: 10px 14px; color: #334155; font-size: 0.9rem; white-space: nowrap;">{{ trf.student.passportNo || 'N/A' }}</td>
+                  <td style="padding: 10px 14px; white-space: nowrap;">
+                    @if (trf.from === 'Agent') {
+                      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; background: #f3e8ff; border: 1px solid #d8b4fe; color: #9333ea;">
+                        <i class="fas fa-user-tie"></i> {{ trf.from }}
+                      </span>
+                    } @else if (trf.from === 'Document Manager') {
+                      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; background: #ccfbf1; border: 1px solid #99f6e4; color: #0f766e;">
+                        <i class="fas fa-id-badge"></i> {{ trf.from }}
+                      </span>
+                    } @else if (trf.from === 'Visa Manager') {
+                      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8;">
+                        <i class="fas fa-passport"></i> {{ trf.from }}
+                      </span>
+                    } @else {
+                      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569;">
+                        <i class="far fa-user"></i> {{ trf.from }}
+                      </span>
+                    }
+                  </td>
+                  <td style="padding: 10px 14px; white-space: nowrap;">
+                    @if (trf.to === 'Agent') {
+                      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; background: #f3e8ff; border: 1px solid #d8b4fe; color: #9333ea;">
+                        <i class="fas fa-user-tie"></i> {{ trf.to }}
+                      </span>
+                    } @else if (trf.to === 'Document Manager') {
+                      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; background: #ccfbf1; border: 1px solid #99f6e4; color: #0f766e;">
+                        <i class="fas fa-id-badge"></i> {{ trf.to }}
+                      </span>
+                    } @else if (trf.to === 'Visa Manager') {
+                      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8;">
+                        <i class="fas fa-passport"></i> {{ trf.to }}
+                      </span>
+                    } @else {
+                      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569;">
+                        <i class="far fa-user"></i> {{ trf.to }}
+                      </span>
+                    }
+                  </td>
+                  <td style="padding: 10px 14px; color: #475569; font-size: 0.85rem; white-space: nowrap;">{{ trf.purpose }}</td>
+                  <td style="padding: 10px 14px; white-space: nowrap;">
+                    <div style="display: flex; flex-direction: column; color: #475569; font-size: 0.85rem;">
+                      <span>{{ trf.transferDate | date:'dd MMM yyyy' }}</span>
+                      <span style="font-size: 0.75rem; color: #94a3b8;">{{ trf.transferDate | date:'hh:mm a' }}</span>
+                    </div>
+                  </td>
+                  <td style="padding: 10px 14px; white-space: nowrap;">
+                    @if (trf.status === 'Completed') {
+                      <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 4px; font-weight: 500; font-size: 0.75rem; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);"><i class="fas fa-check-circle"></i> Completed</span>
+                    } @else if (trf.status === 'In Transit') {
+                      <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 4px; font-weight: 500; font-size: 0.75rem; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2);"><i class="fas fa-truck"></i> In Transit</span>
+                    } @else if (trf.status === 'Awaiting Receipt') {
+                      <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 4px; font-weight: 500; font-size: 0.75rem; background: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.2);"><i class="fas fa-hourglass-half"></i> Awaiting Receipt</span>
+                    } @else {
+                      <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 4px; font-weight: 500; font-size: 0.75rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);"><i class="fas fa-info-circle"></i> {{ trf.status }}</span>
+                    }
+                  </td>
+                  <td style="padding: 10px 14px; text-align: center; white-space: nowrap;">
+                    <div style="display: flex; gap: 8px; justify-content: center;">
+                      <button (click)="openTransferSidebar(trf)" style="padding: 4px 10px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; color: #3b82f6; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='#eff6ff'; this.style.borderColor='#bfdbfe'" onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0'">
+                        <i class="far fa-eye"></i> View
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                } @empty {
+                  <tr><td colspan="9" style="padding: 30px; text-align: center; color: #64748b;">No transfer records found.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <div style="padding: 15px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <div style="color: #64748b; font-size: 0.85rem;">
+              Showing {{ (transferCurrentPage - 1) * transferItemsPerPage + 1 }} to {{ transferEndIndex }} of {{ filteredTransferList.length }} entries
+            </div>
+            <div style="display: flex; gap: 5px;">
+              <button (click)="changeTransferPage(transferCurrentPage - 1)" [disabled]="transferCurrentPage === 1" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid #e2e8f0; background: white; color: #64748b; cursor: pointer; transition: all 0.2s;" [style.opacity]="transferCurrentPage === 1 ? '0.5' : '1'" [style.cursor]="transferCurrentPage === 1 ? 'not-allowed' : 'pointer'"><i class="fas fa-chevron-left"></i></button>
+              
+              <button style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; background: #3b82f6; color: white; font-weight: 600; cursor: pointer;">{{ transferCurrentPage }}</button>
+              
+              <button (click)="changeTransferPage(transferCurrentPage + 1)" [disabled]="transferCurrentPage === transferTotalPages" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid #e2e8f0; background: white; color: #64748b; cursor: pointer; transition: all 0.2s;" [style.opacity]="transferCurrentPage === transferTotalPages ? '0.5' : '1'" [style.cursor]="transferCurrentPage === transferTotalPages ? 'not-allowed' : 'pointer'"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
       <!-- VERIFY VIEW -->
       @if (activeTab === 'verify' && !isLoading && !errorState.hasError) {
       <div class="incoming-docs-view animate-fade-in">
@@ -962,6 +1680,12 @@
           <div class="table-header-toolbar">
             <h3>Verify Documents</h3>
             <div class="toolbar-actions">
+              <select class="status-filter" [(ngModel)]="verifyStatusFilter" (ngModelChange)="filterVerifyList()">
+                <option value="ALL">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="VERIFIED">Verified</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
               <div class="search-input-wrapper">
                 <i class="fas fa-search"></i>
                 <input type="text" placeholder="Search by student, application ID..." [(ngModel)]="verifySearchQuery"
@@ -978,8 +1702,8 @@
                 <th>Application ID</th>
                 <th>Agent</th>
                 <th>Docs Received Status</th>
-                <th>Courier Status</th>
-                <th>Tracking No.</th>
+                <th>Verification Status</th>
+                <th>Remarks</th>
                 <th>Received Date</th>
                 <th>Last Update</th>
                 <th>Action</th>
@@ -991,9 +1715,9 @@
                 <td colspan="10" class="text-center py-4">No documents pending verification.</td>
               </tr>
               }
-              @for (student of filteredVerifyList; track student.id; let i = $index) {
+              @for (student of paginatedVerifyList; track student.id; let i = $index) {
               <tr>
-                <td>{{ i + 1 }}</td>
+                <td>{{ (verifyCurrentPage - 1) * verifyItemsPerPage + i + 1 }}</td>
                 <td>
                   <div class="student-name-cell">
                     <i class="far fa-user"></i>
@@ -1007,34 +1731,50 @@
                 <td>
                   <div class="status-badge-container">
                     @if (getDMReceivedStatus(student) === 'All Received') {
-                      <span class="badge-success-light" style="display: inline-flex; align-items: center; border: 1px solid rgba(16, 185, 129, 0.2);">
-                        <i class="fas fa-check-circle" style="margin-right: 6px; color: #10b981;"></i>All Received
-                      </span>
+                    <span class="badge-success-light"
+                      style="display: inline-flex; align-items: center; border: 1px solid rgba(16, 185, 129, 0.2);">
+                      <i class="fas fa-check-circle" style="margin-right: 6px; color: #10b981;"></i>All Received
+                    </span>
                     } @else if (getDMReceivedStatus(student) === 'Partially Received') {
-                      <span class="badge-warning-light" style="display: inline-flex; align-items: center; border: 1px solid rgba(245, 158, 11, 0.2);">
-                        <i class="fas fa-exclamation-circle" style="margin-right: 6px; color: #f59e0b;"></i>Partially Received
-                      </span>
+                    <span class="badge-warning-light"
+                      style="display: inline-flex; align-items: center; border: 1px solid rgba(245, 158, 11, 0.2);">
+                      <i class="fas fa-exclamation-circle" style="margin-right: 6px; color: #f59e0b;"></i>Partially
+                      Received
+                    </span>
                     } @else {
-                      <span class="badge-gray-light">{{ getDMReceivedStatus(student) }}</span>
+                    <span class="badge-gray-light">{{ getDMReceivedStatus(student) }}</span>
                     }
                   </div>
                 </td>
 
-                <!-- Courier Status -->
+                <!-- Verification Status -->
                 <td>
-                  @if (student.originalDocsSent && student.docDeliveryMethod === 'COURIER') {
-                  <span class="badge-blue-light"><i class="fas fa-shipping-fast" style="margin-right: 4px;"></i>In
-                    Transit</span>
-                  } @else if (student.originalDocsSent && student.docDeliveryMethod === 'SELF_PERSON') {
-                  <span class="badge-blue-light"><i class="fas fa-hand-holding" style="margin-right: 4px;"></i>Hand
-                    Delivery</span>
+                  @if (student.action === 'VERIFY_DOCS') {
+                  <span class="badge-warning-light"
+                    style="display: inline-flex; align-items: center; border: 1px solid rgba(245, 158, 11, 0.2);">
+                    <i class="fas fa-hourglass-half" style="margin-right: 6px; color: #f59e0b;"></i>Pending
+                  </span>
+                  } @else if (student.isTelexDocApproved === true) {
+                  <span class="badge-success-light"
+                    style="display: inline-flex; align-items: center; border: 1px solid rgba(16, 185, 129, 0.2);">
+                    <i class="fas fa-check-circle" style="margin-right: 6px; color: #10b981;"></i>Verified
+                  </span>
                   } @else {
-                  <span class="badge-gray-light"><i class="fas fa-minus" style="margin-right: 4px;"></i>N/A</span>
+                  <span class="badge-red-light"
+                    style="display: inline-flex; align-items: center; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 4px 10px; border-radius: 6px; font-weight: 500; font-size: 0.8rem;">
+                    <i class="fas fa-times-circle" style="margin-right: 6px; color: #ef4444;"></i>Rejected
+                  </span>
                   }
                 </td>
 
-                <!-- Tracking No -->
-                <td>{{ student.courierTrackingId || '-' }}</td>
+                <!-- Remarks -->
+                <td>
+                  <div
+                    style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #64748b; font-size: 0.85rem;"
+                    [title]="student.docPersonComment || 'No remarks'">
+                    {{ student.docPersonComment || '-' }}
+                  </div>
+                </td>
 
                 <!-- Received Date -->
                 <td>{{ formatDate(student.docReceivedDate) || '-' }}</td>
@@ -1048,16 +1788,114 @@
 
                 <!-- Action -->
                 <td>
+                  @if (student.action !== 'VERIFY_DOCS') {
+                  <button class="btn-primary btn-sm" title="Action already performed"
+                    style="display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 1rem; background: #94a3b8; border: none; cursor: not-allowed; opacity: 0.7;"
+                    disabled>
+                    <i class="fas fa-check-double"></i>
+                  </button>
+                  } @else {
                   <button class="btn-primary btn-sm" title="Verify Documents"
                     style="display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 1rem; background: #10b981; border: none; box-shadow: 0 4px 10px rgba(16,185,129,0.3);"
                     (click)="openVerifyModal(student)">
                     <i class="fas fa-check-double"></i>
                   </button>
+                  }
                 </td>
               </tr>
               }
             </tbody>
           </table>
+          <div class="table-footer"
+            style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 0.85rem;">
+            <span>Showing {{ (verifyCurrentPage - 1) * verifyItemsPerPage + 1 }} to {{ verifyEndIndex }} of {{
+              filteredVerifyList.length }} entries</span>
+            <div class="pagination-controls" style="display: flex; gap: 5px;">
+              <button class="btn-secondary btn-sm" [disabled]="verifyCurrentPage === 1"
+                (click)="changeVerifyPage(verifyCurrentPage - 1)"
+                style="padding: 4px 8px; border-radius: 4px;">Previous</button>
+              <span
+                style="display: flex; align-items: center; padding: 0 10px; background: #f1f5f9; border-radius: 4px;">Page
+                {{ verifyCurrentPage }} of {{ verifyTotalPages }}</span>
+              <button class="btn-secondary btn-sm"
+                [disabled]="verifyCurrentPage === verifyTotalPages || verifyTotalPages === 0"
+                (click)="changeVerifyPage(verifyCurrentPage + 1)"
+                style="padding: 4px 8px; border-radius: 4px;">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- PASSPORT COLLECT VIEW -->
+      @if (activeTab === 'passport-collect' && !isLoading && !errorState.hasError) {
+      <div class="approval-view animate-fade-in">
+
+        <div style="background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;">
+          @if (filteredPassportCollectList.length === 0) {
+          <div class="empty-state" style="margin: 0; padding: 60px 20px; border: none; background: transparent;">
+            <i class="fas fa-check-double empty-icon"></i>
+            <h3>All Collected!</h3>
+            <p>No passports pending collection from Visa Manager.</p>
+          </div>
+          } @else {
+          <div style="overflow-x: auto;">
+            <table class="docs-table" style="font-size: 0.85rem; width: 100%; border-collapse: collapse; min-width: 800px;">
+              <thead>
+                <tr>
+                  <th style="width: 40px; padding-right: 4px;">#</th>
+                  <th style="padding-left: 4px;">Student Name</th>
+                  <th>Application ID</th>
+                  <th>Agent</th>
+                  <th>University</th>
+                  <th>Status</th>
+                  <th style="width: 90px; text-align: left;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (student of paginatedPassportCollectList; track student.id; let i = $index) {
+                <tr>
+                  <td style="padding-right: 4px;">{{ (passportCollectCurrentPage - 1) * passportCollectItemsPerPage + i + 1 }}</td>
+                  <td style="padding-left: 4px;">
+                    <div class="student-name-cell">
+                      <i class="far fa-user"></i>
+                      <span>{{ student.fullName }}</span>
+                    </div>
+                  </td>
+                  <td>{{ student.applicationId || student.id }}</td>
+                  <td>{{ student.agent?.fullName || 'Direct' }}</td>
+                  <td style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned' }}</td>
+                  <td>
+                    <span class="badge-warning-light" style="display: inline-flex; align-items: center;"><i class="fas fa-hourglass-half" style="margin-right: 6px;"></i>Ready to Collect</span>
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 4px; justify-content: flex-start;">
+                      <!-- Collect Button -->
+                      <button class="btn-primary btn-sm" title="Collect Passport" style="display: inline-flex; align-items: center; justify-content: center; height: 28px; width: 28px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 0.9rem; background: #8b5cf6; border: none; box-shadow: 0 2px 4px rgba(139,92,246,0.3);" (click)="openCollectConfirmModal(student)">
+                        <i class="fas fa-hand-holding"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+            <!-- Pagination Controls -->
+            @if (passportCollectTotalPages > 1) {
+            <div class="pagination-controls" style="display: flex; gap: 5px; justify-content: flex-end; padding-top: 15px;">
+              <button class="page-btn" (click)="changePassportCollectPage(passportCollectCurrentPage - 1)" [disabled]="passportCollectCurrentPage === 1" style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; cursor: pointer; color: #64748b; transition: all 0.2s;">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <span class="page-info" style="display: flex; align-items: center; font-size: 0.9rem; color: #475569;">
+                Page {{ passportCollectCurrentPage }} of {{ passportCollectTotalPages }}
+              </span>
+              <button class="page-btn" (click)="changePassportCollectPage(passportCollectCurrentPage + 1)" [disabled]="passportCollectCurrentPage === passportCollectTotalPages" style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; cursor: pointer; color: #64748b; transition: all 0.2s;">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+            }
+          </div>
+          }
         </div>
       </div>
       }
@@ -1065,97 +1903,94 @@
       <!-- RETURN VIEW -->
       @if (activeTab === 'return' && !isLoading && !errorState.hasError) {
       <div class="approval-view animate-fade-in">
-        <div class="action-section-header">
-          <div class="action-title">
-            <h3><i class="fas fa-reply"></i> Return Documents</h3>
-            <span class="badge-pill">{{ returnList.length }} Students</span>
+
+        <div style="background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;">
+          @if (filteredReturnList.length === 0) {
+          <div class="empty-state" style="margin: 0; padding: 60px 20px; border: none; background: transparent;">
+            <i class="fas fa-shipping-fast empty-icon"></i>
+            <h3>All Returned!</h3>
+            <p>No documents pending return.</p>
           </div>
-          <div class="action-search">
-            <i class="fas fa-search"></i>
-            <input type="text" [(ngModel)]="returnSearchQuery" (ngModelChange)="filterReturnList()"
-              placeholder="Search by Application ID...">
-          </div>
-        </div>
-        @if (filteredReturnList.length === 0) {
-        <div class="empty-state">
-          <i class="fas fa-shipping-fast empty-icon"></i>
-          <h3>All Returned!</h3>
-          <p>No documents pending return.</p>
-        </div>
-        }
-        @for (student of filteredReturnList; track student) {
-        <div class="student-card-enhanced">
-          <div class="card-header">
-            <div class="student-info-detailed">
-              <div class="avatar-lg-initials">{{ getInitials(student.fullName) }}</div>
-              <div class="student-details">
-                <div class="name-row">
-                  <h3>{{ student.fullName }}</h3>
-                  <button class="btn-icon-small ripple-effect" (click)="openDetailsModal(student)"
-                    title="View Full Profile">
-                    <i class="fas fa-external-link-alt"></i>
-                  </button>
-                </div>
-                <div class="student-meta-inline">
-                  <span class="meta-badge highlight-badge"><i class="fas fa-id-badge"></i> {{
-                    student.applicationId || student.id }}</span>
-                  <span class="meta-badge"><i class="fas fa-user-tie"></i> {{ student.agent?.fullName || 'Direct'
-                    }}</span>
-                  <span class="meta-badge"
-                    style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                    [title]="student.college?.collegeName || 'Not Assigned'"><i class="fas fa-university"></i> {{
-                    student.college?.collegeName || 'Not Assigned' }}</span>
-                </div>
-              </div>
-            </div>
-            <!-- View Ticket Button -->
-            <button class="btn-ticket btn-sm" (click)="viewTicket(student)">
-              <i class="fas fa-ticket-alt"></i> Ticket
-            </button>
-            <!-- Dispatch Details Button -->
-            <button class="btn-dispatch-details" (click)="viewRequestDetails(student)">
-              <i class="fas fa-map-marker-alt"></i>
-              <span>Address & Travel Info</span>
-            </button>
-            <!-- Collect Button (Visible only when readyForDocReturn is true AND action is COLLECT_DOCS) -->
-            @if (student.readyForDocReturn === true && student.action === 'COLLECT_DOCS') {
-            <button class="btn-collect ripple-effect" (click)="confirmCollection(student)">
-              <i class="fas fa-hand-holding"></i>
-              <span>Collect Docs</span>
-            </button>
-            }
-            <!-- Return Button (Visible when agent has requested AND docs are collected) -->
-            @if (student.hasRaiseReturnRequest && (student.action === 'INITIATE_DOC_RETURN' || student.action ===
-            'NEED_TO_RETURN_VISA')) {
-            <div class="tooltip-wrapper">
-              <button class="btn-return ripple-effect" (click)="openReturnModal(student)">
-                <i class="fas fa-paper-plane"></i>
-                <span>Return Docs</span>
+          } @else {
+          <div style="overflow-x: auto;">
+            <table class="docs-table" style="font-size: 0.85rem; width: 100%; border-collapse: collapse; min-width: 800px;">
+              <thead>
+                <tr>
+                  <th style="width: 40px; padding-right: 4px;">#</th>
+                  <th style="padding-left: 4px;">Student Name</th>
+                  <th>Application ID</th>
+                  <th>Agent</th>
+                  <th>University</th>
+                  <th>Status</th>
+                  <th style="width: 120px; text-align: left;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (student of paginatedReturnList; track student.id; let i = $index) {
+                <tr>
+                  <td style="padding-right: 4px;">{{ (returnCurrentPage - 1) * returnItemsPerPage + i + 1 }}</td>
+                  <td style="padding-left: 4px;">
+                    <div class="student-name-cell">
+                      <i class="far fa-user"></i>
+                      <span>{{ student.fullName }}</span>
+                    </div>
+                  </td>
+                  <td>{{ student.applicationId || student.id }}</td>
+                  <td>{{ student.agent?.fullName || 'Direct' }}</td>
+                  <td style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not Assigned' }}</td>
+                  <td>
+                    @if (student.action === 'DOCS_RETURNED') {
+                      @if (student.passportReturnReceivedDate) {
+                        <span class="badge-success-light" style="display: inline-flex; align-items: center; background: #dcfce7; color: #166534;"><i class="fas fa-check-double" style="margin-right: 6px;"></i>Agent Received</span>
+                      } @else {
+                        <span class="badge-info-light" style="display: inline-flex; align-items: center; background: #e0f2fe; color: #0369a1;"><i class="fas fa-shipping-fast" style="margin-right: 6px;"></i>In Transit</span>
+                      }
+                    } @else if (student.action === 'NEED_TO_RETURN_VISA') {
+                      <span class="badge-warning-light" style="display: inline-flex; align-items: center;"><i class="fas fa-clock" style="margin-right: 6px;"></i>Pending Passport Collection</span>
+                    } @else {
+                      <span class="badge-success-light" style="display: inline-flex; align-items: center;"><i class="fas fa-check-circle" style="margin-right: 6px;"></i>Ready to Dispatch</span>
+                    }
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 4px; justify-content: flex-start;">
+
+                      <!-- Dispatch Details Button -->
+                      <button class="btn-primary btn-sm" title="Address & Travel Info" style="display: inline-flex; align-items: center; justify-content: center; height: 28px; width: 28px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 0.9rem; background: #3b82f6; border: none; box-shadow: 0 2px 4px rgba(59,130,246,0.3);" (click)="viewRequestDetails(student)">
+                        <i class="fas fa-map-marker-alt"></i>
+                      </button>
+                      <!-- Return Button -->
+                      <button class="btn-primary btn-sm" 
+                              [title]="student.action === 'DOCS_RETURNED' ? 'Already Dispatched' : (student.action === 'INITIATE_DOC_RETURN' ? 'Return Docs' : 'Pending Passport Collection')" 
+                              [disabled]="student.action === 'NEED_TO_RETURN_VISA' || student.action === 'DOCS_RETURNED'"
+                              [style.opacity]="(student.action === 'NEED_TO_RETURN_VISA' || student.action === 'DOCS_RETURNED') ? '0.5' : '1'"
+                              [style.cursor]="(student.action === 'NEED_TO_RETURN_VISA' || student.action === 'DOCS_RETURNED') ? 'not-allowed' : 'pointer'"
+                              style="display: inline-flex; align-items: center; justify-content: center; height: 28px; width: 28px; box-sizing: border-box; border-radius: 6px; padding: 0; font-size: 0.9rem; background: #10b981; border: none; box-shadow: 0 2px 4px rgba(16,185,129,0.3);" 
+                              (click)="student.action === 'INITIATE_DOC_RETURN' && openReturnModal(student)">
+                        <i class="fas fa-paper-plane"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+            <!-- Pagination Controls -->
+            @if (returnTotalPages > 1) {
+            <div class="pagination-controls" style="display: flex; gap: 5px; justify-content: flex-end; padding-top: 15px;">
+              <button class="page-btn" (click)="changeReturnPage(returnCurrentPage - 1)" [disabled]="returnCurrentPage === 1" style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; cursor: pointer; color: #64748b; transition: all 0.2s;">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <span class="page-info" style="display: flex; align-items: center; font-size: 0.9rem; color: #475569;">
+                Page {{ returnCurrentPage }} of {{ returnTotalPages }}
+              </span>
+              <button class="page-btn" (click)="changeReturnPage(returnCurrentPage + 1)" [disabled]="returnCurrentPage === returnTotalPages" style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; cursor: pointer; color: #64748b; transition: all 0.2s;">
+                <i class="fas fa-chevron-right"></i>
               </button>
             </div>
             }
           </div>
-          <!-- Status Badge Below -->
-          <div style="margin-top: 8px;">
-            @if (student.readyForDocReturn === true && student.action === 'COLLECT_DOCS') {
-            <span class="status-badge warning">
-              <i class="fas fa-exclamation-circle"></i> Ready to Collect
-            </span>
-            }
-            @if (student.hasRaiseReturnRequest && (student.action === 'INITIATE_DOC_RETURN' || student.action ===
-            'NEED_TO_RETURN_VISA')) {
-            <span class="status-badge success">
-              <i class="fas fa-check-circle"></i> Ready to Dispatch
-            </span>
-            }
-            @if (student.action === 'NEED_TO_RETURN_VISA') {
-            <span class="status-badge pending">
-              <i class="fas fa-clock"></i> Waiting for Visa Manager
-            </span>
-            }
-          </div>
+          }
         </div>
-        }
       </div>
       }
     </div>
@@ -1552,7 +2387,8 @@
   <div class="modal-backdrop" (click)="closeVerifyModal()">
     <div class="modal-content modal-large" (click)="$event.stopPropagation()">
       <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
-        <h3 style="font-size: 1.15rem; font-weight: 600; color: #1e293b;"><i class="fas fa-clipboard-check" style="color: #3b82f6; margin-right: 8px;"></i> Verify Documents</h3>
+        <h3 style="font-size: 1.15rem; font-weight: 600; color: #1e293b;"><i class="fas fa-clipboard-check"
+            style="color: #3b82f6; margin-right: 8px;"></i> Verify Documents</h3>
         <button class="close-btn" (click)="closeVerifyModal()">
           <i class="fas fa-times"></i>
         </button>
@@ -1583,7 +2419,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Tabbed Content -->
         <div class="modal-tabs">
           <button class="tab-btn" [class.active]="modalActiveTab === 'details'" (click)="modalActiveTab = 'details'">
@@ -2144,16 +2980,22 @@
     <!-- MODAL ACTIONS: REJECT & APPROVE -->
     <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding-top: 1rem;">
       <div class="footer-left">
-        <button class="btn-secondary" style="border-radius: 4px; font-size: 0.85rem; padding: 0.5rem 1rem; border: 1px solid #cbd5e1; background: #fff; color: #475569; display: flex; align-items: center; gap: 6px;" (click)="closeVerifyModal()">
+        <button class="btn-secondary"
+          style="border-radius: 4px; font-size: 0.85rem; padding: 0.5rem 1rem; border: 1px solid #cbd5e1; background: #fff; color: #475569; display: flex; align-items: center; gap: 6px;"
+          (click)="closeVerifyModal()">
           <i class="fas fa-times"></i> Cancel
         </button>
       </div>
       @if (selectedStudent.action === 'VERIFY_DOCS') {
       <div class="footer-right" style="display: flex; gap: 10px;">
-        <button class="btn-danger" style="border-radius: 4px; font-size: 0.85rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 6px;" (click)="submitVerification(false)" [disabled]="!approvalComment.trim()">
+        <button class="btn-danger"
+          style="border-radius: 4px; font-size: 0.85rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 6px;"
+          (click)="submitVerification(false)" [disabled]="!approvalComment.trim()">
           <i class="fas fa-times-circle"></i> Reject Docs
         </button>
-        <button class="btn-success" style="border-radius: 4px; font-size: 0.85rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 6px;" (click)="submitVerification(true)" [disabled]="!approvalComment.trim()">
+        <button class="btn-success"
+          style="border-radius: 4px; font-size: 0.85rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 6px;"
+          (click)="submitVerification(true)" [disabled]="!approvalComment.trim()">
           <i class="fas fa-check-circle"></i> Approve & Verified
         </button>
       </div>
@@ -2410,9 +3252,19 @@
 <div class="modal-backdrop" (click)="closeSuccessModal()">
   <div class="modal-content success-content" (click)="$event.stopPropagation()">
     <div class="success-icon" [class.icon-red]="successType === 'rejection'">
-      <i class="fas" [class.fa-check]="successType === 'approval'" [class.fa-times]="successType === 'rejection'"></i>
+      <i class="fas" [class.fa-check]="successType === 'approval' || successType === 'dispatch' || successType === 'receive'" [class.fa-times]="successType === 'rejection'"></i>
     </div>
-    <h3>{{ successType === 'approval' ? 'Approved!' : 'Rejected' }}</h3>
+    <h3>
+      @if (successType === 'approval') {
+      Approved!
+      } @else if (successType === 'receive') {
+      {{ receiveStatusMessage }}
+      } @else if (successType === 'dispatch') {
+      Submitted Successfully
+      } @else {
+      Rejected
+      }
+    </h3>
     <p>{{ successMessage }}</p>
     <button class="btn-primary" (click)="closeSuccessModal()">
       <i class="fas fa-arrow-right"></i> Continue
@@ -2427,6 +3279,7 @@
   <div class="modal-content"
     style="background: white; max-width: 450px; text-align: center; border-radius: 16px; padding: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2);"
     (click)="$event.stopPropagation()">
+    @if (!followUpSuccess) {
     <div class="warning-icon"
       style="width: 75px; height: 75px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.35);">
       <i class="fas fa-bell"></i>
@@ -2449,6 +3302,22 @@
         }
       </button>
     </div>
+    } @else {
+    <!-- Follow Up Success State -->
+    <div class="success-icon"
+      style="width: 75px; height: 75px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);">
+      <i class="fas fa-check"></i>
+    </div>
+    <h3 style="font-size: 1.5rem; color: #1e293b; margin-bottom: 0.75rem;">Notification Sent!</h3>
+    <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.5;">
+      The agent <strong>{{ selectedFollowUpStudent.agent?.fullName || 'Agent' }}</strong> has been notified
+      successfully.
+    </p>
+    <div class="modal-footer" style="display: flex; justify-content: center; border-top: none; padding: 0;">
+      <button class="btn-primary" style="background: #10b981; border: none; border-radius: 8px; padding: 0.6rem 2rem;"
+        (click)="closeFollowUpModal()">Okay</button>
+    </div>
+    }
   </div>
 </div>
 }
@@ -3045,4 +3914,83 @@
   </div>
 </div>
 }
+
+<!-- COLLECT CONFIRMATION SIDE PANEL -->
+@if (showCollectConfirmModal) {
+<div class="side-panel-overlay" (click)="closeCollectConfirmModal()"></div>
+}
+<div class="side-panel" [class.open]="showCollectConfirmModal" (click)="$event.stopPropagation()" style="width: 450px;">
+  @if (selectedCollectStudent) {
+  <div style="display: flex; flex-direction: column; height: 100%;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #f1f5f9;">
+      <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-hand-holding" style="color: #0f172a;"></i> Confirm Passport Collection
+      </h3>
+      <button class="btn-icon" (click)="closeCollectConfirmModal()" style="background: transparent; border: 1px solid #e2e8f0; border-radius: 6px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Body -->
+    <div style="flex: 1; overflow-y: auto; text-align: center; padding: 32px 24px; background: #f8fafc;">
+      <div style="width: 64px; height: 64px; background: #f59e0b; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+        <i class="fas fa-globe" style="font-size: 2rem; color: #ffffff;"></i>
+      </div>
+      
+      <h4 style="font-size: 1.35rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">
+        Collect Passport for {{ selectedCollectStudent.fullName }} ?
+      </h4>
+      <p style="color: #64748b; font-size: 1rem; line-height: 1.6; margin-bottom: 24px; padding: 0 10px;">
+        You are about to acknowledge that the Document Manager has physically received the stamped passport back from the Visa Manager for Application ID <strong style="color: #0f172a;">{{ selectedCollectStudent.applicationId || selectedCollectStudent.id }}</strong>.
+      </p>
+      
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; text-align: left; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;">
+          <span style="color: #64748b;">Passport No:</span>
+          <strong style="color: #1e293b; font-weight: 600;">{{ selectedCollectStudent.passportNo || 'N/A' }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;">
+          <span style="color: #64748b;">Visa Stamping:</span>
+          <span class="badge-success-light" style="padding: 4px 8px; font-size: 0.85rem; font-weight: 600;">Completed</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div style="padding: 20px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; gap: 16px; background: #ffffff;">
+      <button style="flex: 1; padding: 12px 24px; border: 1px solid #e2e8f0; background: #ffffff; color: #475569; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s;" (click)="closeCollectConfirmModal()" [disabled]="isSubmitting">
+        Cancel
+      </button>
+      <button style="flex: 2; padding: 12px 24px; border: none; background: #f59e0b; color: #ffffff; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;" (click)="confirmCollectPassport()" [disabled]="isSubmitting">
+        @if (isSubmitting) {
+        <i class="fas fa-spinner fa-spin"></i>
+        } @else {
+        <i class="fas fa-check"></i>
+        }
+        Yes, I Have Collected It
+      </button>
+    </div>
+  </div>
+  }
+</div>
+
+<!-- COLLECT SUCCESS SIDE PANEL -->
+@if (showCollectSuccessModal) {
+<div class="side-panel-overlay" (click)="closeCollectSuccessModal()"></div>
+}
+<div class="side-panel" [class.open]="showCollectSuccessModal" (click)="$event.stopPropagation()" style="width: 450px;">
+  <div style="display: flex; flex-direction: column; height: 100%; justify-content: center; background: #f8fafc; padding: 40px 32px; text-align: center;">
+    <div style="width: 90px; height: 90px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+      <i class="fas fa-check" style="font-size: 2.5rem; color: #10b981;"></i>
+    </div>
+    <h3 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 16px;">Passport Collected!</h3>
+    <p style="color: #64748b; font-size: 1.1rem; line-height: 1.6; margin-bottom: 40px;">
+      The passport has been successfully collected and logged back into the Document Manager's active custody.
+    </p>
+    <button style="width: 100%; padding: 14px; font-weight: 600; font-size: 1.05rem; border-radius: 8px; background: #4f46e5; color: #ffffff; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);" (click)="closeCollectSuccessModal()">
+      Done
+    </button>
+  </div>
+</div>
 </div>

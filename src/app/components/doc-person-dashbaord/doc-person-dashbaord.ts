@@ -42,12 +42,12 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // STATE MANAGEMENT
   // ============================================
-  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request' = 'dashboard';
+  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request' | 'passport-collect' = 'dashboard';
   isLoading: boolean = false;
   isLoggingOut: boolean = false;
   isDarkMode: boolean = false;
 
-  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request'): void {
+  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request' | 'passport-collect'): void {
     this.activeTab = tab;
     this.pagination.currentPage = 1; // Reset pagination
     this.applyFilters(); // Re-apply filters based on the new tab
@@ -123,7 +123,8 @@ export class DocPersonDashbaord implements OnInit {
   // Modal States
   showSuccessModal: boolean = false;
   successMessage: string = '';
-  successType: 'approval' | 'rejection' = 'approval';
+  receiveStatusMessage: string = '';
+  successType: 'approval' | 'rejection' | 'receive' | 'dispatch' = 'approval';
 
   // ============================================
   // DATA
@@ -138,8 +139,172 @@ export class DocPersonDashbaord implements OnInit {
 
   // Filtered lists for search within tabs
   filteredReceiveList: Student[] = [];
+
+  // Pagination for Incoming Requests
+  receiveCurrentPage: number = 1;
+  receiveItemsPerPage: number = 10;
+
+  get paginatedReceiveList(): Student[] {
+    const startIndex = (this.receiveCurrentPage - 1) * this.receiveItemsPerPage;
+    return this.filteredReceiveList.slice(startIndex, startIndex + this.receiveItemsPerPage);
+  }
+
+  get receiveEndIndex(): number {
+    return Math.min(this.receiveCurrentPage * this.receiveItemsPerPage, this.filteredReceiveList.length);
+  }
+
+  get receiveTotalPages(): number {
+    return Math.ceil(this.filteredReceiveList.length / this.receiveItemsPerPage);
+  }
+
+  changeReceivePage(page: number): void {
+    if (page >= 1 && page <= this.receiveTotalPages) {
+      this.receiveCurrentPage = page;
+    }
+  }
+
+  // Pagination for Active Custody (Verify)
+  verifyCurrentPage: number = 1;
+  verifyItemsPerPage: number = 10;
+  verifyStatusFilter: string = 'ALL';
+
+  get paginatedVerifyList(): Student[] {
+    const startIndex = (this.verifyCurrentPage - 1) * this.verifyItemsPerPage;
+    return this.filteredVerifyList.slice(startIndex, startIndex + this.verifyItemsPerPage);
+  }
+
+  get verifyTotalPages(): number {
+    return Math.ceil(this.filteredVerifyList.length / this.verifyItemsPerPage);
+  }
+
+  get verifyEndIndex(): number {
+    return Math.min(this.verifyCurrentPage * this.verifyItemsPerPage, this.filteredVerifyList.length);
+  }
+
+  changeVerifyPage(page: number): void {
+    if (page >= 1 && page <= this.verifyTotalPages) {
+      this.verifyCurrentPage = page;
+    }
+  }
+
+  // Inventory Tab State
+  inventoryList: Student[] = [];
+  filteredInventoryList: Student[] = [];
+  inventorySearchQuery: string = '';
+  inventoryAgentFilter: string = 'ALL';
+  inventoryHolderFilter: string = 'ALL';
+  inventoryStatusFilter: string = 'ALL';
+  inventoryUniqueAgents: any[] = [];
+  inventoryCurrentPage: number = 1;
+  inventoryItemsPerPage: number = 10;
+  inventoryTotalPages: number = 1;
+
+  inventoryStats: any = {
+    withDocManager: 0,
+    withVisaManager: 0,
+    returned: 0,
+    missing: 0,
+    total: 0,
+    inCustody: 0
+  };
+
+  selectedInventoryStudent: any = null;
+  isInventorySidebarOpen: boolean = false;
+
+  get paginatedInventoryList(): Student[] {
+    const startIndex = (this.inventoryCurrentPage - 1) * this.inventoryItemsPerPage;
+    return this.filteredInventoryList.slice(startIndex, startIndex + this.inventoryItemsPerPage);
+  }
+
+  get inventoryEndIndex(): number {
+    return Math.min(this.inventoryCurrentPage * this.inventoryItemsPerPage, this.filteredInventoryList.length);
+  }
+
+  changeInventoryPage(page: number): void {
+    if (page >= 1 && page <= this.inventoryTotalPages) {
+      this.inventoryCurrentPage = page;
+    }
+  }
+
+  // Transfers Tab State
+  transferList: any[] = [];
+  filteredTransferList: any[] = [];
+  transferSearchQuery: string = '';
+  transferUniversityFilter: string = 'ALL';
+  transferAgentFilter: string = 'ALL';
+  transferTypeFilter: string = 'ALL';
+  transferStatusFilter: string = 'ALL';
+  
+  transferCurrentPage: number = 1;
+  transferItemsPerPage: number = 10;
+  transferTotalPages: number = 1;
+  
+  transferStats = {
+    toVisaManager: 0,
+    fromVisaManager: 0,
+    returnedToAgent: 0,
+    pendingRequests: 0,
+    overdueTransfers: 0
+  };
+  
+  selectedTransferStudent: any = null;
+  isTransferSidebarOpen: boolean = false;
+
+  get paginatedTransferList(): any[] {
+    const startIndex = (this.transferCurrentPage - 1) * this.transferItemsPerPage;
+    return this.filteredTransferList.slice(startIndex, startIndex + this.transferItemsPerPage);
+  }
+
+  get transferEndIndex(): number {
+    return Math.min(this.transferCurrentPage * this.transferItemsPerPage, this.filteredTransferList.length);
+  }
+
+  changeTransferPage(page: number): void {
+    if (page >= 1 && page <= this.transferTotalPages) {
+      this.transferCurrentPage = page;
+    }
+  }
+
   filteredVerifyList: Student[] = [];
   filteredReturnList: Student[] = [];
+  
+  // Pagination for Return Requests
+  returnCurrentPage: number = 1;
+  returnItemsPerPage: number = 5;
+
+  get paginatedReturnList(): Student[] {
+    const startIndex = (this.returnCurrentPage - 1) * this.returnItemsPerPage;
+    return this.filteredReturnList.slice(startIndex, startIndex + this.returnItemsPerPage);
+  }
+
+  get returnTotalPages(): number {
+    return Math.ceil(this.filteredReturnList.length / this.returnItemsPerPage);
+  }
+
+  changeReturnPage(page: number): void {
+    if (page >= 1 && page <= this.returnTotalPages) {
+      this.returnCurrentPage = page;
+    }
+  }
+
+  // Pagination for Passport Collect
+  passportCollectCurrentPage: number = 1;
+  passportCollectItemsPerPage: number = 5;
+
+  get paginatedPassportCollectList(): Student[] {
+    const startIndex = (this.passportCollectCurrentPage - 1) * this.passportCollectItemsPerPage;
+    return this.filteredPassportCollectList.slice(startIndex, startIndex + this.passportCollectItemsPerPage);
+  }
+
+  get passportCollectTotalPages(): number {
+    return Math.ceil(this.filteredPassportCollectList.length / this.passportCollectItemsPerPage);
+  }
+
+  changePassportCollectPage(page: number): void {
+    if (page >= 1 && page <= this.passportCollectTotalPages) {
+      this.passportCollectCurrentPage = page;
+    }
+  }
 
   pipelineList: Student[] = [];
   stampedList: Student[] = [];
@@ -151,6 +316,7 @@ export class DocPersonDashbaord implements OnInit {
   selectedIncomingStudent: Student | null = null;
   selectedFollowUpStudent: Student | null = null;
   isSubmittingFollowUp: boolean = false;
+  followUpSuccess: boolean = false;
   incomingVerificationForm: any = {
     physicalStatus: 'NOT_RECEIVED',
     receivedPassport: false,
@@ -174,6 +340,15 @@ export class DocPersonDashbaord implements OnInit {
   verifySearchQuery: string = '';
   returnSearchQuery: string = '';
 
+  // Passport Collect variables
+  passportCollectList: Student[] = [];
+  filteredPassportCollectList: Student[] = [];
+  passportCollectSearchQuery: string = '';
+
+  showCollectConfirmModal: boolean = false;
+  showCollectSuccessModal: boolean = false;
+  selectedCollectStudent: Student | null = null;
+
   // ============================================
   // DASHBOARD STATISTICS
   // ============================================
@@ -189,6 +364,7 @@ export class DocPersonDashbaord implements OnInit {
   get receiveCount(): number { return this.receiveList.length; }
   get verifyCount(): number { return this.verifyList.length; }
   get returnCount(): number { return this.returnList.length; }
+  get passportCollectCount(): number { return this.passportCollectList.length; }
 
   // ============================================
   // PAGINATION
@@ -221,7 +397,7 @@ export class DocPersonDashbaord implements OnInit {
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.filterAgent || !!this.filterCollege || !!this.filters.searchQuery || !!this.receiveSearchQuery || !!this.verifySearchQuery || !!this.returnSearchQuery;
+    return !!this.filterAgent || !!this.filterCollege || !!this.filters.searchQuery || !!this.receiveSearchQuery || !!this.verifySearchQuery || !!this.returnSearchQuery || !!this.passportCollectSearchQuery;
   }
 
   onGlobalFilterChange(): void {
@@ -229,6 +405,7 @@ export class DocPersonDashbaord implements OnInit {
     this.filterReceiveList();
     this.filterVerifyList();
     this.filterReturnList();
+    this.filterPassportCollectList();
     this.applyFilters();
   }
 
@@ -511,6 +688,7 @@ export class DocPersonDashbaord implements OnInit {
   closeFollowUpModal(): void {
     this.selectedFollowUpStudent = null;
     this.isSubmittingFollowUp = false;
+    this.followUpSuccess = false;
   }
 
   confirmFollowUp(): void {
@@ -529,8 +707,7 @@ export class DocPersonDashbaord implements OnInit {
     this.http.post(this.API_BASE_URL + '/notifications', notificationPayload).subscribe({
       next: (res) => {
         this.isSubmittingFollowUp = false;
-        this.closeFollowUpModal();
-        this.showToast('Follow up notification sent to Agent successfully.', 'success');
+        this.followUpSuccess = true;
       },
       error: (err) => {
         console.error('Failed to send follow up:', err);
@@ -547,20 +724,40 @@ export class DocPersonDashbaord implements OnInit {
     );
     this.filteredReceiveList = [...this.receiveList];
 
-    // 2. Verify List: action 'VERIFY_DOCS'
+    // 2. Verify List: action 'VERIFY_DOCS' or already verified/rejected
     this.verifyList = this.students.filter(s =>
-      s.action === 'VERIFY_DOCS'
+      s.action === 'VERIFY_DOCS' ||
+      s.isTelexDocApproved === true ||
+      (s.isTelexDocApproved === false && s.docPersonComment != null && s.docPersonComment.trim() !== '')
     );
     this.filteredVerifyList = [...this.verifyList];
 
     // 3. Return List: readyForDocReturn === true OR specific action states
     this.returnList = this.students.filter(s =>
-      s.readyForDocReturn === true ||
-      s.action === 'COLLECT_DOCS' ||
-      s.action === 'INITIATE_DOC_RETURN' ||
-      s.action === 'NEED_TO_RETURN_VISA'
+      s.hasRaiseReturnRequest && (s.action === 'INITIATE_DOC_RETURN' || s.action === 'NEED_TO_RETURN_VISA' || s.action === 'DOCS_RETURNED')
     );
     this.filteredReturnList = [...this.returnList];
+
+    // Passport Collect List
+    this.passportCollectList = this.students.filter(s =>
+      s.readyForDocReturn === true && s.action === 'COLLECT_DOCS'
+    );
+    this.filteredPassportCollectList = [...this.passportCollectList];
+
+    // 4. Inventory List: All students handled by Doc Person
+    this.inventoryList = [...this.students];
+
+    // Extract unique agents
+    const agentMap = new Map();
+    this.inventoryList.forEach(s => {
+      if (s.agent && s.agent.fullName) {
+        agentMap.set(s.agent.fullName, s.agent);
+      }
+    });
+    this.inventoryUniqueAgents = Array.from(agentMap.values());
+
+    this.filteredInventoryList = [...this.inventoryList];
+    this.processInventoryStats();
 
     // 4. Stamped List
     this.stampedList = this.students.filter(s =>
@@ -575,12 +772,14 @@ export class DocPersonDashbaord implements OnInit {
       ...this.receiveList.map(s => s.id),
       ...this.verifyList.map(s => s.id),
       ...this.returnList.map(s => s.id),
+      ...this.passportCollectList.map(s => s.id),
       ...this.stampedList.map(s => s.id)
     ]);
 
     this.pipelineList = this.students.filter(s => !activeIds.has(s.id));
 
     // Initialize main table
+    this.processTransfers();
     this.applyFilters();
   }
 
@@ -592,6 +791,142 @@ export class DocPersonDashbaord implements OnInit {
       approved: this.stampedList.length,
       rejected: this.students.filter(s => s.isTelexDocApproved === false).length
     };
+  }
+
+  processTransfers(): void {
+    this.transferList = [];
+    this.transferStats = { toVisaManager: 0, fromVisaManager: 0, returnedToAgent: 0, pendingRequests: 0, overdueTransfers: 0 };
+
+    this.students.forEach(student => {
+      let from = '';
+      let to = '';
+      let purpose = '';
+      let transferDate: string | Date = student.updatedAt || student.createdAt || new Date();
+      let status = '';
+      let expectedReturn: string | Date = '';
+
+      if (!student.docReceivedDate) {
+        from = 'Agent'; to = 'Document Manager'; purpose = 'Original Documents';
+        status = 'In Transit'; transferDate = student.createdAt || new Date();
+        this.transferStats.pendingRequests++;
+      } else if (student.action === 'VERIFY_DOCS') {
+        from = 'Agent'; to = 'Document Manager'; purpose = 'Original Documents';
+        status = 'Completed'; transferDate = student.docReceivedDate;
+      } else if (student.isTelexDocApproved === true && student.action !== 'INITIATE_DOC_RETURN' && student.action !== 'DOCS_RETURNED' && student.action !== 'COLLECT_DOCS') {
+        from = 'Document Manager'; to = 'Visa Manager'; purpose = 'Visa Stamping';
+        status = 'Completed'; transferDate = student.updatedAt || new Date(); // Assuming handed over
+        this.transferStats.toVisaManager++;
+      } else if (student.action === 'COLLECT_DOCS') {
+        from = 'Visa Manager'; to = 'Document Manager'; purpose = 'Passport Returned';
+        status = 'Awaiting Receipt'; transferDate = student.updatedAt || new Date();
+        this.transferStats.pendingRequests++;
+      } else if (student.action === 'INITIATE_DOC_RETURN' || student.readyForDocReturn === true) {
+        from = 'Visa Manager'; to = 'Document Manager'; purpose = 'Passport Returned';
+        status = 'Completed'; transferDate = student.updatedAt || new Date();
+        this.transferStats.fromVisaManager++;
+      } else if (student.action === 'DOCS_RETURNED') {
+        from = 'Document Manager'; to = 'Agent'; purpose = 'Final Return';
+        transferDate = student.docReturnedDate || new Date();
+        if (student.passportReturnReceivedDate) {
+          status = 'Completed';
+        } else {
+          status = 'In Transit';
+        }
+        this.transferStats.returnedToAgent++;
+      } else if (student.isTelexDocApproved === false) {
+        from = 'Document Manager'; to = 'Agent'; purpose = 'Rejected Docs Return';
+        status = 'In Transit'; transferDate = student.updatedAt || new Date();
+      } else {
+        // Fallback for students in custody but no active transfer
+        return; 
+      }
+
+      this.transferList.push({ student, from, to, purpose, transferDate, status, expectedReturn });
+    });
+
+    this.filterTransferList();
+  }
+
+  filterTransferList(): void {
+    this.transferCurrentPage = 1;
+    let filtered = this.transferList;
+
+    if (this.transferSearchQuery) {
+      const q = this.transferSearchQuery.toLowerCase();
+      filtered = filtered.filter(t => 
+        (t.student.fullName && t.student.fullName.toLowerCase().includes(q)) ||
+        (t.student.passportNo && t.student.passportNo.toLowerCase().includes(q)) ||
+        (t.student.applicationId && t.student.applicationId.toLowerCase().includes(q))
+      );
+    }
+
+    if (this.transferUniversityFilter !== 'ALL') {
+      filtered = filtered.filter(t => t.student.college?.collegeName === this.transferUniversityFilter);
+    }
+
+    if (this.transferAgentFilter !== 'ALL') {
+      if (this.transferAgentFilter === 'DIRECT') {
+        filtered = filtered.filter(t => !t.student.agent);
+      } else {
+        filtered = filtered.filter(t => t.student.agent && t.student.agent.fullName === this.transferAgentFilter);
+      }
+    }
+
+    if (this.transferTypeFilter !== 'ALL') {
+      filtered = filtered.filter(t => t.purpose === this.transferTypeFilter);
+    }
+
+    if (this.transferStatusFilter !== 'ALL') {
+      filtered = filtered.filter(t => t.status === this.transferStatusFilter);
+    }
+
+    this.filteredTransferList = filtered;
+    this.transferTotalPages = Math.ceil(this.filteredTransferList.length / this.transferItemsPerPage) || 1;
+  }
+
+  openTransferSidebar(transfer: any): void {
+    this.selectedTransferStudent = transfer;
+    this.isTransferSidebarOpen = true;
+  }
+
+  closeTransferSidebar(): void {
+    this.isTransferSidebarOpen = false;
+    this.selectedTransferStudent = null;
+  }
+
+  exportTransfersToExcel(): void {
+    if (!this.filteredTransferList || this.filteredTransferList.length === 0) {
+      alert('No transfer data available to export.');
+      return;
+    }
+
+    const csvRows = [];
+    const headers = ['Student Name', 'Passport No', 'From', 'To', 'Purpose', 'Transfer Date', 'Status'];
+    csvRows.push(headers.join(','));
+
+    this.filteredTransferList.forEach(trf => {
+      const dateStr = trf.transferDate ? new Date(trf.transferDate).toLocaleDateString() : '';
+      const row = [
+        `"${trf.student.fullName || ''}"`,
+        `"${trf.student.passportNo || ''}"`,
+        `"${trf.from || ''}"`,
+        `"${trf.to || ''}"`,
+        `"${trf.purpose || ''}"`,
+        `"${dateStr}"`,
+        `"${trf.status || ''}"`
+      ];
+      csvRows.push(row.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Document_Transfers_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   // ============================================
@@ -645,11 +980,284 @@ export class DocPersonDashbaord implements OnInit {
   }
 
   filterVerifyList(): void {
-    this.filteredVerifyList = this.filterList(this.verifyList, this.verifySearchQuery);
+    this.verifyCurrentPage = 1;
+    let filtered = this.filterList(this.verifyList, this.verifySearchQuery);
+
+    if (this.verifyStatusFilter !== 'ALL') {
+      filtered = filtered.filter(s => {
+        if (this.verifyStatusFilter === 'PENDING') {
+          return s.action === 'VERIFY_DOCS';
+        } else if (this.verifyStatusFilter === 'VERIFIED') {
+          return s.isTelexDocApproved === true;
+        } else if (this.verifyStatusFilter === 'REJECTED') {
+          return s.action !== 'VERIFY_DOCS' && s.isTelexDocApproved !== true;
+        }
+        return true;
+      });
+    }
+
+    this.filteredVerifyList = filtered;
   }
 
   filterReturnList(): void {
     this.filteredReturnList = this.filterList(this.returnList, this.returnSearchQuery);
+  }
+
+  filterPassportCollectList(): void {
+    this.filteredPassportCollectList = this.filterList(this.passportCollectList, this.passportCollectSearchQuery);
+  }
+
+  filterInventoryList(): void {
+    this.inventoryCurrentPage = 1;
+    let filtered = this.filterList(this.inventoryList, this.inventorySearchQuery);
+
+    if (this.inventoryAgentFilter !== 'ALL') {
+      if (this.inventoryAgentFilter === 'DIRECT') {
+        filtered = filtered.filter(s => !s.agent);
+      } else {
+        filtered = filtered.filter(s => s.agent && s.agent.fullName === this.inventoryAgentFilter);
+      }
+    }
+
+    if (this.inventoryHolderFilter !== 'ALL' || this.inventoryStatusFilter !== 'ALL') {
+      filtered = filtered.filter(s => {
+        const state = this.getDocInventoryState(s);
+        let match = true;
+        if (this.inventoryHolderFilter !== 'ALL' && state.holder !== this.inventoryHolderFilter && !state.holder.includes(this.inventoryHolderFilter)) {
+          match = false;
+        }
+        if (this.inventoryStatusFilter !== 'ALL' && state.status !== this.inventoryStatusFilter) {
+          match = false;
+        }
+        return match;
+      });
+    }
+
+    this.filteredInventoryList = filtered;
+  }
+
+  exportInventoryToExcel(): void {
+    if (!this.filteredInventoryList || this.filteredInventoryList.length === 0) {
+      alert('No data available to export.');
+      return;
+    }
+
+    const csvRows = [];
+    const headers = ['Student Name', 'Application ID', 'Passport No', 'Agent', 'Current Holder', 'Status'];
+    csvRows.push(headers.join(','));
+
+    this.filteredInventoryList.forEach(student => {
+      const state = this.getDocInventoryState(student);
+      const agentName = student.agent ? (student.agent.fullName || student.agent.username) : 'Direct';
+      const row = [
+        `"${student.fullName || ''}"`,
+        `"${student.applicationId || ''}"`,
+        `"${student.passportNo || ''}"`,
+        `"${agentName || ''}"`,
+        `"${state.holder || ''}"`,
+        `"${state.status || ''}"`
+      ];
+      csvRows.push(row.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Document_Inventory_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  processInventoryStats(): void {
+    this.inventoryStats = { total: 0, inCustody: 0, withVisaManager: 0, returned: 0, missing: 0 };
+    this.inventoryStats.total = this.inventoryList.length;
+
+    this.inventoryList.forEach(s => {
+      const state = this.getDocInventoryState(s);
+      if (state.holder === 'Document Manager') this.inventoryStats.inCustody++;
+      if (state.holder === 'Visa Manager') this.inventoryStats.withVisaManager++;
+      if (state.holder === 'Agent' && state.status === 'Returned') this.inventoryStats.returned++;
+      if (state.status === 'Rejected / Under Investigation') this.inventoryStats.missing++;
+    });
+  }
+
+  getDocInventoryState(student: Student) {
+    const styles = {
+      yellow: { bg: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: 'rgba(245, 158, 11, 0.2)' },
+      green: { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: 'rgba(16, 185, 129, 0.2)' },
+      blue: { bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: 'rgba(59, 130, 246, 0.2)' },
+      purple: { bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', border: 'rgba(139, 92, 246, 0.2)' },
+      red: { bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'rgba(239, 68, 68, 0.2)' },
+      gray: { bg: 'rgba(100, 116, 139, 0.1)', color: '#64748b', border: 'rgba(100, 116, 139, 0.2)' },
+      teal: { bg: 'rgba(20, 184, 166, 0.1)', color: '#14b8a6', border: 'rgba(20, 184, 166, 0.2)' }
+    };
+
+    let holder = '';
+    let status = '';
+    let holderStyle = styles.gray;
+    let statusStyle = styles.gray;
+    let holderIcon = 'fas fa-user-circle';
+    let statusIcon = 'fas fa-info-circle';
+
+    if (!student.docReceivedDate) {
+      holder = 'Agent'; status = 'In Transit to Doc Manager';
+      holderStyle = styles.purple; statusStyle = styles.yellow;
+      holderIcon = 'fas fa-user-tie'; statusIcon = 'fas fa-truck';
+    } else if (student.action === 'VERIFY_DOCS') {
+      holder = 'Document Manager'; status = 'On Going Verification';
+      holderStyle = styles.teal; statusStyle = styles.yellow;
+      holderIcon = 'fas fa-id-badge'; statusIcon = 'fas fa-search';
+    } else if (student.isTelexDocApproved === true && student.action !== 'INITIATE_DOC_RETURN' && student.action !== 'DOCS_RETURNED' && student.action !== 'COLLECT_DOCS') {
+      holder = 'Visa Manager'; status = 'Visa Processing';
+      holderStyle = styles.blue; statusStyle = styles.blue;
+      holderIcon = 'fas fa-passport'; statusIcon = 'fas fa-spinner fa-spin';
+    } else if (student.action === 'COLLECT_DOCS') {
+      holder = 'Visa Manager'; status = 'Visa Processing Completed';
+      holderStyle = styles.blue; statusStyle = styles.green;
+      holderIcon = 'fas fa-passport'; statusIcon = 'fas fa-check-circle';
+    } else if (student.action === 'INITIATE_DOC_RETURN' || student.readyForDocReturn === true) {
+      holder = 'Document Manager'; status = 'In Custody (Ready to Return)';
+      holderStyle = styles.teal; statusStyle = styles.green;
+      holderIcon = 'fas fa-id-badge'; statusIcon = 'fas fa-box';
+    } else if (student.action === 'DOCS_RETURNED') {
+      holder = 'Agent';
+      holderStyle = styles.purple;
+      holderIcon = 'fas fa-user-tie';
+      if (student.passportReturnReceivedDate) {
+        status = 'Received by Agent'; statusStyle = styles.green; statusIcon = 'fas fa-check-double';
+      } else {
+        status = 'In Transit to Agent'; statusStyle = styles.yellow; statusIcon = 'fas fa-truck';
+      }
+    } else if (student.isTelexDocApproved === false && student.docPersonComment) {
+      holder = 'Agent / Doc Manager'; status = 'Rejected / Under Investigation';
+      holderStyle = styles.red; statusStyle = styles.red;
+      holderIcon = 'fas fa-exclamation-triangle'; statusIcon = 'fas fa-times-circle';
+    } else {
+      holder = 'Document Manager'; status = 'In Custody';
+      holderStyle = styles.teal; statusStyle = styles.green;
+      holderIcon = 'fas fa-id-badge'; statusIcon = 'fas fa-archive';
+    }
+
+    return { holder, status, holderStyle, statusStyle, holderIcon, statusIcon };
+  }
+
+  getDocumentFlowSteps(student: Student) {
+    const steps = [
+      {
+        id: 'agent_dispatch',
+        title: 'Dispatched by Agent',
+        holder: 'Agent',
+        icon: 'fas fa-paper-plane',
+        status: 'pending',
+        date: student.telexRequestDate || student.createdAt || null
+      },
+      {
+        id: 'doc_received',
+        title: 'Received by Doc Manager',
+        holder: 'Doc Manager',
+        icon: 'fas fa-inbox',
+        status: 'pending',
+        date: student.docReceivedDate || null
+      },
+      {
+        id: 'verification',
+        title: 'Document Verification',
+        holder: 'Doc Manager',
+        icon: 'fas fa-user-check',
+        status: 'pending',
+        date: null
+      },
+      {
+        id: 'visa_processing',
+        title: 'Visa Processing',
+        holder: 'Visa Manager',
+        icon: 'fas fa-passport',
+        status: 'pending',
+        date: null
+      },
+      {
+        id: 'visa_completed',
+        title: 'Returned to Doc Manager',
+        holder: 'Doc Manager',
+        icon: 'fas fa-clipboard-check',
+        status: 'pending',
+        date: null
+      },
+      {
+        id: 'returned_to_agent',
+        title: 'Dispatched to Agent',
+        holder: 'Doc Manager',
+        icon: 'fas fa-shipping-fast',
+        status: 'pending',
+        date: student.docReturnedDate || null
+      },
+      {
+        id: 'agent_received',
+        title: 'Received by Agent',
+        holder: 'Agent',
+        icon: 'fas fa-check-double',
+        status: 'pending',
+        date: student.passportReturnReceivedDate || null
+      }
+    ];
+
+    // Determine Logic
+    steps[0].status = 'completed'; // Always dispatched if it's in doc manager's view
+
+    if (student.docReceivedDate) {
+      steps[1].status = 'completed';
+
+      if (student.isTelexDocApproved === true) {
+        steps[2].status = 'completed';
+
+        if (student.action === 'COLLECT_DOCS' || student.action === 'INITIATE_DOC_RETURN' || student.readyForDocReturn === true || student.action === 'DOCS_RETURNED') {
+          steps[3].status = 'completed';
+
+          if (student.action === 'INITIATE_DOC_RETURN' || student.readyForDocReturn === true || student.action === 'DOCS_RETURNED') {
+            steps[4].status = 'completed';
+
+            if (student.action === 'DOCS_RETURNED') {
+              steps[5].status = 'completed';
+
+              if (student.passportReturnReceivedDate) {
+                steps[6].status = 'completed';
+              } else {
+                steps[6].status = 'current';
+              }
+            } else {
+              steps[5].status = 'current';
+            }
+          } else {
+            steps[4].status = 'current';
+          }
+        } else {
+          steps[3].status = 'current';
+        }
+      } else if (student.isTelexDocApproved === false && student.docPersonComment) {
+        steps[2].status = 'error'; // Rejected
+      } else {
+        steps[2].status = 'current';
+      }
+    } else {
+      steps[1].status = 'current';
+    }
+
+    return steps;
+  }
+
+  openInventorySidebar(student: Student): void {
+    this.selectedInventoryStudent = student;
+    this.isInventorySidebarOpen = true;
+  }
+
+  closeInventorySidebar(): void {
+    this.isInventorySidebarOpen = false;
+    setTimeout(() => {
+      this.selectedInventoryStudent = null;
+    }, 300); // wait for animation
   }
 
   private filterList(list: Student[], query: string): Student[] {
@@ -874,7 +1482,14 @@ export class DocPersonDashbaord implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmittingVerification = false;
-          this.successType = 'approval';
+          this.successType = 'receive';
+          if (this.incomingVerificationForm.physicalStatus === 'ALL') {
+            this.receiveStatusMessage = 'Marked as All Received';
+          } else if (this.incomingVerificationForm.physicalStatus === 'PARTIAL') {
+            this.receiveStatusMessage = 'Marked as Partially Received';
+          } else {
+            this.receiveStatusMessage = 'Marked as Not Received';
+          }
           this.successMessage = `Receive details saved for ${this.selectedIncomingStudent?.fullName}.`;
           this.showSuccessModal = true;
           this.closeIncomingVerification();
@@ -1017,8 +1632,8 @@ export class DocPersonDashbaord implements OnInit {
           this.isSubmitting = false;
 
           // Show Success Modal
-          this.successType = 'approval';
-          this.successMessage = `Documents for ${this.selectedStudent?.fullName} have been processed for return.`;
+          this.successType = 'dispatch';
+          this.successMessage = `Document dispatch for ${this.selectedStudent?.fullName} has been successfully updated.`;
           this.showSuccessModal = true;
 
           this.closeReturnModal();
@@ -1033,20 +1648,35 @@ export class DocPersonDashbaord implements OnInit {
       });
   }
 
-  // --- COLLECTION CONFIRMATION ---
-  confirmCollection(student: Student): void {
-    if (!student) return;
+  // --- PASSPORT COLLECTION FLOW ---
+  openCollectConfirmModal(student: Student): void {
+    this.selectedCollectStudent = student;
+    this.showCollectConfirmModal = true;
+  }
 
+  closeCollectConfirmModal(): void {
+    this.showCollectConfirmModal = false;
+    this.selectedCollectStudent = null;
+  }
+
+  closeCollectSuccessModal(): void {
+    this.showCollectSuccessModal = false;
+  }
+
+  confirmCollectPassport(): void {
+    if (!this.selectedCollectStudent) return;
+    this.isSubmitting = true;
+    
     const payload = {
       docPersonUsername: this.docPerson?.username || 'doc_person_user'
     };
 
-    this.isSubmitting = true;
-    this.docPersonService.confirmCollection(student.id, payload).subscribe({
+    this.docPersonService.confirmCollection(this.selectedCollectStudent.id, payload).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.showToast('success', `Documents for ${student.fullName} collected successfully.`);
-        this.fetchDashboardData(); // Refresh to update status
+        this.showCollectConfirmModal = false;
+        this.showCollectSuccessModal = true;
+        this.fetchDashboardData();
       },
       error: (err: any) => {
         this.isSubmitting = false;
@@ -1111,8 +1741,9 @@ export class DocPersonDashbaord implements OnInit {
     this.docPersonService.getRequestDetails(student.id).subscribe({
       next: (data: any) => {
         this.isLoading = false;
-        if (data && data.ticketPdfPath) {
-          this.downloadFile(data.ticketPdfPath); // Reuse download logic
+        if (data && (data.ticketPdfPath || data.travelTicketPdfPath)) {
+          const ticketPath = data.ticketPdfPath || data.travelTicketPdfPath;
+          this.downloadFile(ticketPath); // Reuse download logic
         } else {
           this.showToast('error', 'No ticket uploaded for this request.');
         }
