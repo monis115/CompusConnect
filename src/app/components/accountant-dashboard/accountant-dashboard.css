@@ -10426,3 +10426,47 @@ textarea {
 .palette-action-item:active {
     background: #f1f5f9;
 }
+.info-tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  cursor: help;
+}
+
+.info-tooltip-container .info-tooltip-text {
+  visibility: hidden;
+  width: 320px;
+  background-color: #1e293b;
+  color: #fff;
+  text-align: left;
+  border-radius: 8px;
+  padding: 12px;
+  position: absolute;
+  z-index: 1;
+  top: 150%;
+  left: 50%;
+  margin-left: -160px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.5;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.info-tooltip-container .info-tooltip-text::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent #1e293b transparent;
+}
+
+.info-tooltip-container:hover .info-tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
