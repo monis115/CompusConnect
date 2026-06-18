@@ -235,6 +235,36 @@ export interface AccountantCredit {
     updatedAt?: string;
 }
 
+// --- NEW Enterprise Hub Interfaces ---
+export interface ForecastPoint {
+    date: string;
+    amount: number;
+    riskLevel: number;
+}
+
+export interface HeatmapRegion {
+    id: string;
+    name: string;
+    revenue: number;
+    students: number;
+}
+
+export interface AuditLog {
+    id: string;
+    time: string;
+    event: string;
+    risk: string;
+    user: string;
+    details: string;
+}
+
+export interface EodResult {
+    success: boolean;
+    message: string;
+    lockToken: string;
+    checks: string[];
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -491,5 +521,25 @@ export class AccountantService {
 
     getAdvancedFilterOptions(): Observable<any> {
         return this.http.get<any>(`${this.API_URL}/accountant/transactions/advanced-filter-options`);
+    }
+
+    // ==========================================
+    // Enterprise Hub Endpoints
+    // ==========================================
+
+    getEnterpriseForecast(username: string): Observable<ForecastPoint[]> {
+        return this.http.get<ForecastPoint[]>(`${this.API_URL}/accountant/enterprise/forecast?username=${username}`);
+    }
+
+    getEnterpriseHeatmap(username: string): Observable<HeatmapRegion[]> {
+        return this.http.get<HeatmapRegion[]>(`${this.API_URL}/accountant/enterprise/heatmap?username=${username}`);
+    }
+
+    getEnterpriseAudit(username: string): Observable<AuditLog[]> {
+        return this.http.get<AuditLog[]>(`${this.API_URL}/accountant/enterprise/audit?username=${username}`);
+    }
+
+    lockEodVault(username: string): Observable<EodResult> {
+        return this.http.post<EodResult>(`${this.API_URL}/accountant/enterprise/eod-lock?username=${username}`, {});
     }
 }

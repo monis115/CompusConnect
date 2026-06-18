@@ -3134,63 +3134,73 @@
         }
         <!-- Interactive Table -->
         @if (filteredStudents.length > 0) {
-        <div class="table-wrapper">
-          <table class="styled-table">
-            <thead>
-              <tr>
-                <th (click)="sortBy('applicationId')" class="sortable">
-                  Application ID <i class="fas"
-                    [ngClass]="sortConfig.column === 'applicationId' ? (sortConfig.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'"></i>
-                </th>
-                <th (click)="sortBy('fullName')" class="sortable">
-                  Name <i class="fas"
-                    [ngClass]="sortConfig.column === 'fullName' ? (sortConfig.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'"></i>
-                </th>
-                <th (click)="sortBy('email')" class="sortable">
-                  Email <i class="fas"
-                    [ngClass]="sortConfig.column === 'email' ? (sortConfig.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'"></i>
-                </th>
-                <th>Agent & University</th>
-                <th>Application Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (student of getPaginatedStudents(); track student) {
-              <tr class="clickable-row" (click)="openVerifyModal(student)" title="Click to view details">
-                <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
-                <td>
-                  <div class="name-cell">
-                    <div class="avatar-xs">{{ getInitials(student.fullName) }}</div>
-                    {{ student.fullName }}
-                  </div>
-                </td>
-                <td>{{ student.email }}</td>
-                <td>
-                  <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <div
-                      style="font-size: 0.85rem; color: #334155; font-weight: 500; display: flex; align-items: center; gap: 6px;">
-                      <i class="fas fa-user-tie" style="color: #64748b;"></i>
-                      <span>{{ student.agent?.fullName || 'Direct' }}</span>
-                    </div>
-                    <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 6px;">
-                      <i class="fas fa-university"></i>
-                      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"
-                        [title]="student.college?.collegeName || 'Not Assigned'">{{ student.college?.collegeName || 'Not
-                        Assigned' }}</span>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <span class="app-status-text">
-                    {{ student.applicationStatus || 'N/A' }}
-                  </span>
-                </td>
-                <td><i class="fas fa-calendar"></i> {{ formatDate(student.createdAt) }}</td>
-              </tr>
-              }
-            </tbody>
-          </table>
+          <div class="compact-list-container" style="margin-top: 16px;">
+            <!-- List Headers -->
+            <div class="compact-list-header">
+              <span class="header-num">#</span>
+              <span class="header-avatar"></span>
+              <span class="header-name sortable" (click)="sortBy('fullName')">Student Name <i class="fas" [ngClass]="sortConfig.column === 'fullName' ? (sortConfig.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'"></i></span>
+              <span class="header-passport">Email</span>
+              <span class="header-role">Agent</span>
+              <span class="header-appid sortable" (click)="sortBy('applicationId')">App ID <i class="fas" [ngClass]="sortConfig.column === 'applicationId' ? (sortConfig.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'"></i></span>
+              <span class="header-uni">University</span>
+              <span class="header-date">Date</span>
+              <span class="header-status">Status</span>
+              <span class="header-action">Action</span>
+            </div>
+            
+            @for (student of getPaginatedStudents(); track student; let i = $index) {
+            <div class="compact-student-row" [class.row-even]="i % 2 === 0" (click)="openVerifyModal(student)" style="cursor: pointer;">
+              <!-- Row Number -->
+              <span class="compact-row-num">{{ (pagination.currentPage - 1) * pagination.itemsPerPage + i + 1 }}</span>
+
+              <!-- Avatar -->
+              <div class="compact-avatar"
+                [style.background]="getAvatarColor((pagination.currentPage - 1) * pagination.itemsPerPage + i)">
+                {{ getInitials(student.fullName) }}
+              </div>
+
+              <!-- Student Name -->
+              <span class="compact-name">{{ student.fullName }}</span>
+
+              <!-- Email (reusing passport slot) -->
+              <span class="compact-passport" style="text-transform: none; color: #475569; font-size: 0.8rem;">
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; max-width: 130px;" [title]="student.email">{{ student.email }}</span>
+              </span>
+
+              <!-- Agent Badge -->
+              <span class="compact-role-badge badge-agent">
+                <i class="fas fa-user-tie"></i> {{ student.agent?.fullName || 'Direct' }}
+              </span>
+
+              <!-- Application ID -->
+              <span class="compact-app-id">
+                <i class="fas fa-hashtag"></i> {{ student.applicationId || student.id }}
+              </span>
+
+              <!-- University Name -->
+              <span class="compact-university" [title]="student.college?.collegeName || 'Not Assigned'">
+                <i class="fas fa-university"></i> {{ student.college?.collegeName || 'Not Assigned' }}
+              </span>
+
+              <!-- Date -->
+              <div class="compact-date-cell">
+                <span class="compact-date">{{ formatDate(student.createdAt) }}</span>
+              </div>
+
+              <!-- Status Badge -->
+              <span class="compact-status-tag" [class.status-tag-transit]="isInTransitStatus(student.applicationStatus)"
+                [class.status-tag-completed]="isCompletedStatus(student.applicationStatus)"
+                [class.status-tag-rejected]="isRejectedStatus(student.applicationStatus)">
+                {{ formatCompactStatus(student.applicationStatus) || student.applicationStatus || 'N/A' }}
+              </span>
+
+              <!-- View Button -->
+              <button class="compact-view-btn" (click)="openVerifyModal(student); $event.stopPropagation()" title="View Details">
+                <i class="fas fa-eye"></i> View
+              </button>
+            </div>
+            }
           <!-- Pagination -->
           @if (pagination.totalPages > 1) {
           <div class="pagination">

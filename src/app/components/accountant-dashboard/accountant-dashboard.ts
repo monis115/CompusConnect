@@ -79,6 +79,325 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   accountantData: Accountant | null = null;
   username: string = '';
 
+  // Smart Calculator State
+  showCalculator = false;
+  calcDisplay = '0';
+  calcEquation = '';
+  calcMemory = 0;
+  calcNewNumber = true;
+  calcPendingOp: string | null = null;
+  calcPrevNum = 0;
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    // Command Palette (Cmd+K or Ctrl+K)
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      this.toggleCommandPalette();
+      return;
+    }
+    // Command Palette Navigation
+    if (this.showCommandPalette) {
+      if (event.key === 'Escape') this.showCommandPalette = false;
+      return;
+    }
+
+    // Calculator Keybinds
+    if (!this.showCalculator) return;
+    const key = event.key;
+    if (/[0-9\.]/.test(key)) this.calcAppend(key);
+    else if (['+', '-', '*', '/'].includes(key)) this.calcOp(key);
+    else if (key === 'Enter' || key === '=') { event.preventDefault(); this.calcEqual(); }
+    else if (key === 'Escape' || key === 'c' || key === 'C') this.calcClear();
+    else if (key === 'Backspace') this.calcBackspace();
+  }
+
+  // --- SMART FINANCIAL INSIGHTS ---
+  get insightMessage(): string {
+    const net = this.totalBalance + (this.stats?.totalAmountPending || 0) - ((this.stats?.totalVisaRequestedByVisaMan || 0) - (this.stats?.totalAccToVisaManPaidAmount || 0)) - this.getTotalBorrowedFunds();
+    const emiCount = this.upcomingCredits.length;
+    const reqCount = this.pendingFundRequestsCount;
+    let msg = `Your true net balance is ${net >= 0 ? 'positive' : 'negative'} (₹${Math.abs(net).toLocaleString('en-IN')}). `;
+    if (emiCount > 0) msg += `You have ${emiCount} EMI${emiCount > 1 ? 's' : ''} due in the next 30 days. `;
+    if (reqCount > 0) msg += `There ${reqCount > 1 ? 'are' : 'is'} ${reqCount} pending fund request${reqCount > 1 ? 's' : ''} to review.`;
+    if (emiCount === 0 && reqCount === 0) msg += `All accounts are settled and no immediate action is required today.`;
+    return msg;
+  }
+
+  // --- LIVE CURRENCY CONVERTER ---
+  showCurrencyConverter = false;
+  currencyBaseAmount = 1;
+  currencyTarget = 'USD';
+  exchangeRates: { [key: string]: number } = {
+    'USD': 83.45,
+    'GBP': 105.20,
+    'EUR': 90.15,
+    'AUD': 54.80,
+    'CAD': 61.35
+  };
+
+  get convertedCurrencyAmount(): number {
+    return this.currencyBaseAmount * (this.exchangeRates[this.currencyTarget] || 1);
+  }
+
+  toggleCurrencyConverter() {
+    this.showCurrencyConverter = !this.showCurrencyConverter;
+    if (this.showCurrencyConverter) this.showCalculator = false;
+  }
+
+  // --- QUICK RECEIPT GENERATOR ---
+  showReceiptModal = false;
+  selectedReceiptTransaction: any = null;
+
+  openReceipt(transaction: any) {
+    this.selectedReceiptTransaction = transaction;
+    this.showReceiptModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeReceipt() {
+    this.showReceiptModal = false;
+    this.selectedReceiptTransaction = null;
+  }
+
+  printReceipt() {
+    window.print();
+  }
+
+  // --- GLOBAL COMMAND PALETTE ---
+  showCommandPalette = false;
+  paletteSearchQuery = '';
+  paletteActions = [
+    { title: 'Add Credit / Funds', icon: 'fas fa-plus-circle', action: () => this.openAddFundsModal() },
+    { title: 'Internal Transfer', icon: 'fas fa-exchange-alt', action: () => this.openInternalTransferModal() },
+    { title: 'Fund Wallet', icon: 'fas fa-wallet', action: () => this.openFundWalletModal() },
+    { title: 'Record Expense', icon: 'fas fa-file-invoice-dollar', action: () => this.openExpenseModal(this.walletSubAccounts[0]?.id || 0) },
+    { title: 'Go to Transactions', icon: 'fas fa-list', action: () => this.switchView('transactions') },
+    { title: 'Go to Fund Requests', icon: 'fas fa-hand-holding-usd', action: () => this.switchView('funds') },
+    { title: 'Go to Reports', icon: 'fas fa-chart-line', action: () => this.switchView('reports') },
+    { title: 'Refresh Data', icon: 'fas fa-sync', action: () => this.refreshData() }
+  ];
+
+  get filteredPaletteActions() {
+    if (!this.paletteSearchQuery) return this.paletteActions;
+    const q = this.paletteSearchQuery.toLowerCase();
+    return this.paletteActions.filter(a => a.title.toLowerCase().includes(q));
+  }
+
+  toggleCommandPalette() {
+    this.showCommandPalette = !this.showCommandPalette;
+    if (this.showCommandPalette) {
+      this.paletteSearchQuery = '';
+      setTimeout(() => {
+        const input = document.getElementById('paletteSearchInput');
+        if (input) input.focus();
+      }, 50);
+    }
+  }
+
+  executePaletteAction(actionObj: any) {
+    this.showCommandPalette = false;
+    actionObj.action();
+  }
+
+  // ==========================================
+  // WORLD-CLASS ENTERPRISE HUB STATE
+  // ==========================================
+
+  // 1. AI Forecaster
+  showForecastModal = false;
+  isForecastLoading = false;
+  forecastDataPoints: number[] = [];
+  maxForecastValue: number = 700000;
+  openForecast() { 
+    this.showForecastModal = true; 
+    this.isForecastLoading = true;
+    this.accountantService.getEnterpriseForecast(this.username).subscribe({
+      next: (res) => {
+        this.forecastDataPoints = res.map(p => p.amount);
+        this.maxForecastValue = Math.max(...this.forecastDataPoints, 1);
+        this.isForecastLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => { console.error(err); this.isForecastLoading = false; }
+    });
+  }
+  closeForecast() { this.showForecastModal = false; }
+
+  // 2. Global Heatmap
+  showHeatmapModal = false;
+  isHeatmapLoading = false;
+  heatmapData: any[] = [];
+  openHeatmap() { 
+    this.showHeatmapModal = true; 
+    this.isHeatmapLoading = true;
+    this.accountantService.getEnterpriseHeatmap(this.username).subscribe({
+      next: (res) => {
+        this.heatmapData = res.map(r => ({
+           country: r.name, students: r.students, revenue: r.revenue, 
+           top: (Math.random() * 60 + 20) + '%', left: (Math.random() * 60 + 20) + '%'
+        }));
+        this.isHeatmapLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => { console.error(err); this.isHeatmapLoading = false; }
+    });
+  }
+  closeHeatmap() { this.showHeatmapModal = false; }
+
+  // 3. Smart Audit
+  showAuditModal = false;
+  isAuditLoading = false;
+  auditLogs: any[] = [];
+  openAudit() { 
+    this.showAuditModal = true; 
+    this.isAuditLoading = true;
+    this.accountantService.getEnterpriseAudit(this.username).subscribe({
+      next: (res) => {
+        this.auditLogs = res.map(a => ({
+          type: a.risk === 'Critical' ? 'danger' : (a.risk === 'High' ? 'warning' : 'info'),
+          msg: a.details,
+          time: a.time,
+          status: a.event
+        }));
+        this.isAuditLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => { console.error(err); this.isAuditLoading = false; }
+    });
+  }
+  closeAudit() { this.showAuditModal = false; }
+
+  // 4. EOD Vault
+  showEodModal = false;
+  eodRunning = false;
+  eodCompleted = false;
+  eodSteps = [
+    { title: 'Verifying Master Ledgers', done: false, active: false },
+    { title: 'Scanning for Pending Receipts', done: false, active: false },
+    { title: 'Reconciling Cash vs Bank', done: false, active: false },
+    { title: 'Generating Z-Report & Locking Day', done: false, active: false }
+  ];
+
+  openEodVault() { 
+    this.showEodModal = true;
+    this.eodRunning = false;
+    this.eodCompleted = false;
+    this.eodSteps.forEach(s => { s.done = false; s.active = false; });
+  }
+  eodResult: any = null;
+
+  closeEodVault() { 
+    this.showEodModal = false; 
+    this.eodCompleted = false;
+    this.eodResult = null;
+    this.eodSteps.forEach(s => { s.active = false; s.done = false; });
+  }
+
+  executeEodReconciliation() {
+    if (this.eodRunning || this.eodCompleted) return;
+    this.eodRunning = true;
+    let currentStep = 0;
+    
+    const runStep = () => {
+      if (currentStep > 0) {
+        this.eodSteps[currentStep - 1].active = false;
+        this.eodSteps[currentStep - 1].done = true;
+      }
+      if (currentStep < this.eodSteps.length) {
+        this.eodSteps[currentStep].active = true;
+        this.cdr.detectChanges();
+        currentStep++;
+        setTimeout(runStep, 1000); 
+      } else {
+        this.accountantService.lockEodVault(this.username).subscribe({
+          next: (res) => {
+            this.eodRunning = false;
+            this.eodCompleted = true;
+            this.eodResult = res;
+            this.cdr.detectChanges();
+          },
+          error: (err) => { console.error(err); this.eodRunning = false; }
+        });
+      }
+    };
+    
+    runStep();
+  }
+
+  toggleCalculator() {
+    this.showCalculator = !this.showCalculator;
+    if (this.showCalculator) {
+       this.calcDisplay = '0';
+       this.calcEquation = '';
+       this.calcPendingOp = null;
+       this.calcNewNumber = true;
+    }
+  }
+
+  calcAppend(char: string) {
+    if (this.calcNewNumber) {
+      this.calcDisplay = char === '.' ? '0.' : char;
+      this.calcNewNumber = false;
+    } else {
+      if (char === '.' && this.calcDisplay.includes('.')) return;
+      this.calcDisplay = this.calcDisplay === '0' && char !== '.' ? char : this.calcDisplay + char;
+    }
+  }
+
+  calcBackspace() {
+    if (this.calcNewNumber) return;
+    this.calcDisplay = this.calcDisplay.length > 1 ? this.calcDisplay.slice(0, -1) : '0';
+    if (this.calcDisplay === '0') this.calcNewNumber = true;
+  }
+
+  calcOp(op: string) {
+    const currentNum = parseFloat(this.calcDisplay);
+    if (this.calcPendingOp && !this.calcNewNumber) {
+      this.calcEqual();
+    } else {
+      this.calcPrevNum = currentNum;
+    }
+    this.calcPendingOp = op;
+    this.calcEquation = `${this.calcPrevNum} ${op}`;
+    this.calcNewNumber = true;
+  }
+
+  calcEqual() {
+    if (!this.calcPendingOp) return;
+    const currentNum = parseFloat(this.calcDisplay);
+    let res = 0;
+    switch (this.calcPendingOp) {
+      case '+': res = this.calcPrevNum + currentNum; break;
+      case '-': res = this.calcPrevNum - currentNum; break;
+      case '*': res = this.calcPrevNum * currentNum; break;
+      case '/': res = currentNum !== 0 ? this.calcPrevNum / currentNum : 0; break;
+    }
+    // Round to max 6 decimals
+    res = Math.round(res * 1000000) / 1000000;
+    this.calcDisplay = res.toString();
+    this.calcEquation = `${this.calcPrevNum} ${this.calcPendingOp} ${currentNum} =`;
+    this.calcPrevNum = res;
+    this.calcPendingOp = null;
+    this.calcNewNumber = true;
+  }
+
+  calcClear() {
+    this.calcDisplay = '0';
+    this.calcEquation = '';
+    this.calcPendingOp = null;
+    this.calcPrevNum = 0;
+    this.calcNewNumber = true;
+  }
+
+  calcMemoryAction(action: string) {
+    const num = parseFloat(this.calcDisplay);
+    if (action === 'MC') this.calcMemory = 0;
+    if (action === 'MR') { this.calcDisplay = this.calcMemory.toString(); this.calcNewNumber = true; }
+    if (action === 'M+') this.calcMemory += num;
+    if (action === 'M-') this.calcMemory -= num;
+  }
+
   // Dashboard Data
   stats: DashboardStats | null = null;
   collections: CollectionSummary[] = [];
