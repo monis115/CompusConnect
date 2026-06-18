@@ -201,36 +201,7 @@
       </div>
       }
 
-      @if (!isLoading && activeTab !== 'funds' && activeTab !== 'profile' && activeTab !== 'inventory' && activeTab !==
-      'transfers' && activeTab !== 'passport-requests' && activeTab !== 'passport-collect' && activeTab !== 'return' &&
-      activeTab !== 'receive' && activeTab !== 'verify' && activeTab !== 'courier-requests' && activeTab !==
-      'all-students') {
-      <!-- Smart Filter Bar -->
-      <div class="filter-bar"
-        style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-        <i class="fas fa-filter" style="color: #64748b; font-size: 14px;"></i>
-        <select [(ngModel)]="filterAgent" (change)="onGlobalFilterChange()"
-          style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
-          <option value="">All Agents</option>
-          @for (agent of uniqueAgents; track agent.fullName) {
-          <option [value]="agent.fullName">{{ agent.fullName }}</option>
-          }
-        </select>
-        <select [(ngModel)]="filterCollege" (change)="onGlobalFilterChange()"
-          style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #f8fafc; color: #334155; min-width: 160px; outline: none; transition: all 0.2s;">
-          <option value="">All Universities</option>
-          @for (col of uniqueColleges; track col) {
-          <option [value]="col">{{ col }}</option>
-          }
-        </select>
-        @if (hasActiveFilters) {
-        <button (click)="clearFilters()"
-          style="padding: 8px 14px; border: 1px solid #fee2e2; border-radius: 8px; font-size: 12px; font-weight: 600; background: #fef2f2; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
-          <i class="fas fa-times"></i> Clear Filters
-        </button>
-        }
-      </div>
-      }
+
 
       <!-- ALL STUDENTS - COMPACT LIST VIEW -->
       @if (activeTab === 'all-students') {
@@ -408,109 +379,359 @@
 
       <!-- DASHBOARD VIEW -->
       @if (activeTab === 'dashboard' && !isLoading && !errorState.hasError) {
-      <div class="coming-soon-container fade-in">
-        <div class="glass-card">
-          <div class="icon-wrapper">
-            <i class="fas fa-tools"></i>
+      <div class="dashboard-view-container fade-in">
+
+
+        <!-- 6 KPI CARDS -->
+        <div class="kpi-cards-grid">
+          <div class="kpi-card" (click)="setActiveTab('all-students')">
+            <div class="kpi-icon-wrapper bg-blue-light">
+              <i class="fas fa-users text-blue"></i>
+            </div>
+            <div class="kpi-info">
+              <p>Total Students</p>
+              <h3>{{ stats.totalStudents || filteredStudents.length }}</h3>
+            </div>
           </div>
-          <h1 class="gradient-text">Implementing Soon</h1>
-          <p class="subtitle">We're building a new and improved experience for the Document Dashboard. Check back later!
-          </p>
-          <div class="progress-bar">
-            <div class="progress-fill"></div>
+          <div class="kpi-card" (click)="setActiveTab('receive')">
+            <div class="kpi-icon-wrapper bg-orange-light">
+              <i class="fas fa-inbox text-orange"></i>
+            </div>
+            <div class="kpi-info">
+              <p>Pending Receipts</p>
+              <h3>{{ receiveList.length }}</h3>
+            </div>
+          </div>
+          <div class="kpi-card" (click)="setActiveTab('verify')">
+            <div class="kpi-icon-wrapper bg-green-light">
+              <i class="fas fa-user-shield text-green"></i>
+            </div>
+            <div class="kpi-info">
+              <p>Active Custody</p>
+              <h3>{{ verifyList.length }}</h3>
+            </div>
+          </div>
+          <div class="kpi-card" (click)="setActiveTab('pipeline')">
+            <div class="kpi-icon-wrapper bg-purple-light">
+              <i class="fas fa-stream text-purple"></i>
+            </div>
+            <div class="kpi-info">
+              <p>In Pipeline</p>
+              <h3>{{ pipelineList.length }}</h3>
+            </div>
+          </div>
+          <div class="kpi-card" (click)="setActiveTab('stamped')">
+            <div class="kpi-icon-wrapper bg-green-light">
+              <i class="fas fa-stamp text-green"></i>
+            </div>
+            <div class="kpi-info">
+              <p>Visa Stamped</p>
+              <h3>{{ stampedList.length }}</h3>
+            </div>
+          </div>
+          <div class="kpi-card" (click)="setActiveTab('return')">
+            <div class="kpi-icon-wrapper bg-yellow-light">
+              <i class="fas fa-undo text-yellow"></i>
+            </div>
+            <div class="kpi-info">
+              <p>Return / Collect</p>
+              <h3>{{ returnList.length + passportCollectList.length }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions-bar">
+          <button class="quick-action-btn qa-blue" (click)="setActiveTab('receive')">
+            <i class="fas fa-inbox"></i> Receive Documents
+          </button>
+          <button class="quick-action-btn qa-green" (click)="setActiveTab('verify')">
+            <i class="fas fa-search"></i> Verify Next
+          </button>
+          <button class="quick-action-btn qa-purple" (click)="setActiveTab('inventory')">
+            <i class="fas fa-archive"></i> Document Inventory
+          </button>
+          <button class="quick-action-btn qa-gray" (click)="exportInventoryToExcel()">
+            <i class="fas fa-file-export"></i> Export Report
+          </button>
+        </div>
+
+        <!-- MIDDLE SECTION (Split View) -->
+        <div class="mockup-split-middle">
+          <!-- LEFT: Pending Receipts -->
+          <div class="mockup-panel">
+            <div class="panel-header-mockup">
+              <div>
+                <h2>Pending Receipts</h2>
+                <div class="header-badges">
+                  <span class="mini-badge badge-orange">{{ getIncomingMetrics().newRequests }} New</span>
+                  <span class="mini-badge badge-blue">{{ getIncomingMetrics().inTransit }} In Transit</span>
+                  @if (getIncomingMetrics().followUp > 0) {
+                  <span class="mini-badge badge-red">{{ getIncomingMetrics().followUp }} Need Follow-up</span>
+                  }
+                </div>
+              </div>
+              <a class="view-all-link" (click)="setActiveTab('receive')">View all &rarr;</a>
+            </div>
+            <table class="mockup-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Application ID</th>
+                  <th>Agent</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of receiveList.slice(0, 5); track item.id) {
+                <tr (click)="openIncomingVerification(item)" style="cursor: pointer; transition: background 0.2s;" class="hover-bg-slate-50">
+                  <td>
+                    <div class="avatar-name">
+                      <div class="avatar-mini">{{ getInitials(item.fullName) }}</div>
+                      <span>{{ item.fullName }}</span>
+                    </div>
+                  </td>
+                  <td>{{ item.applicationId || 'APP-'+item.id }}</td>
+                  <td>{{ item.agent?.fullName || 'Direct' }}</td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      {{ formatDate(item.updatedAt || item.createdAt) }}
+                      @if (isOverdue(item.updatedAt || item.createdAt)) {
+                        <i class="fas fa-exclamation-triangle text-red" title="Overdue (Waiting > 5 days)"></i>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="status-pill" [class.orange-pill]="!item.originalDocsSent" [class.green-pill]="item.originalDocsSent">
+                      {{ item.originalDocsSent ? 'Docs Sent' : 'Waiting' }}
+                    </span>
+                  </td>
+                </tr>
+                }
+                @if (receiveList.length === 0) {
+                <tr>
+                  <td colspan="5" style="text-align: center; color: #94a3b8; padding: 40px 20px;">
+                    <i class="fas fa-box-open" style="font-size: 2.5rem; margin-bottom: 12px; color: #cbd5e1; display: block;"></i>
+                    No pending receipts. All clear! ✅
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- RIGHT: Recent Activities (Improved) -->
+          <div class="mockup-panel">
+            <div class="panel-header-mockup">
+              <h2>Recent Activities</h2>
+            </div>
+            <div class="activity-feed">
+              @for (activity of recentActivities; track activity.message) {
+              <div class="activity-item">
+                <div class="activity-icon-wrap" [class.ai-success]="activity.type === 'success'" [class.ai-warning]="activity.type === 'warning'" [class.ai-primary]="activity.type === 'primary'" [class.ai-danger]="activity.type === 'danger'" [class.ai-info]="activity.type === 'info'">
+                  <i [class]="activity.icon"></i>
+                </div>
+                <div class="activity-content">
+                  <p class="activity-msg">{{ activity.message }}</p>
+                  <span class="activity-time">{{ activity.time }}</span>
+                </div>
+              </div>
+              }
+              @if (recentActivities.length === 0) {
+              <div style="text-align: center; color: #94a3b8; padding: 30px 0;">
+                <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 8px; display: block;"></i>
+                No recent activities yet.
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- TRANSFER & RETURN STATS ROW -->
+        <div class="stats-row-4">
+          <div class="stat-mini-card" (click)="setActiveTab('transfers')" style="cursor: pointer;" title="View all transfers sent to Visa Manager">
+            <div class="smc-icon bg-blue-light"><i class="fas fa-arrow-right text-blue"></i></div>
+            <div class="smc-info">
+              <span class="smc-value">{{ transferStats.toVisaManager }}</span>
+              <span class="smc-label">Sent to Visa Mgr</span>
+            </div>
+          </div>
+          <div class="stat-mini-card" (click)="setActiveTab('transfers')" style="cursor: pointer;" title="View all transfers received from Visa Manager">
+            <div class="smc-icon bg-green-light"><i class="fas fa-arrow-left text-green"></i></div>
+            <div class="smc-info">
+              <span class="smc-value">{{ transferStats.fromVisaManager }}</span>
+              <span class="smc-label">Received from Visa Mgr</span>
+            </div>
+          </div>
+          <div class="stat-mini-card" (click)="setActiveTab('return')" style="cursor: pointer;" title="View returned documents">
+            <div class="smc-icon bg-purple-light"><i class="fas fa-shipping-fast text-purple"></i></div>
+            <div class="smc-info">
+              <span class="smc-value">{{ transferStats.returnedToAgent }}</span>
+              <span class="smc-label">Returned to Agent</span>
+            </div>
+          </div>
+          <div class="stat-mini-card" (click)="setActiveTab('transfers')" style="cursor: pointer;" title="View pending transfer requests">
+            <div class="smc-icon bg-orange-light"><i class="fas fa-clock text-orange"></i></div>
+            <div class="smc-info">
+              <span class="smc-value">{{ transferStats.pendingRequests }}</span>
+              <span class="smc-label">Pending Transfers</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOWER SECTION (Three Column Grid) -->
+        <div class="mockup-grid-bottom">
+
+          <!-- Pipeline Flow (5 Steps) -->
+          <div class="mockup-panel">
+            <div class="panel-header-mockup">
+              <h2>Pipeline Flow</h2>
+            </div>
+            <div class="pipeline-flow-vertical">
+              <div class="pf-step" title="Documents pending physical receipt">
+                <div class="pf-dot bg-orange-light"><i class="fas fa-inbox text-orange"></i></div>
+                <div class="pf-info">
+                  <span class="pf-label">Incoming</span>
+                  <span class="pf-count">{{ receiveList.length }}</span>
+                </div>
+              </div>
+              <div class="pf-connector"></div>
+              <div class="pf-step" title="Documents currently being verified">
+                <div class="pf-dot bg-blue-light"><i class="fas fa-search text-blue"></i></div>
+                <div class="pf-info">
+                  <span class="pf-label">Verifying</span>
+                  <span class="pf-count">{{ verifyList.length }}</span>
+                </div>
+              </div>
+              <div class="pf-connector"></div>
+              <div class="pf-step" title="Documents with Visa Manager for processing">
+                <div class="pf-dot bg-purple-light"><i class="fas fa-stream text-purple"></i></div>
+                <div class="pf-info">
+                  <span class="pf-label">In Pipeline</span>
+                  <span class="pf-count">{{ pipelineList.length }}</span>
+                </div>
+              </div>
+              <div class="pf-connector"></div>
+              <div class="pf-step" title="Documents with Visa stamped successfully">
+                <div class="pf-dot bg-green-light"><i class="fas fa-stamp text-green"></i></div>
+                <div class="pf-info">
+                  <span class="pf-label">Stamped</span>
+                  <span class="pf-count">{{ stampedList.length }}</span>
+                </div>
+              </div>
+              <div class="pf-connector"></div>
+              <div class="pf-step" title="Documents returned to agent/student">
+                <div class="pf-dot bg-yellow-light"><i class="fas fa-undo text-yellow"></i></div>
+                <div class="pf-info">
+                  <span class="pf-label">Returned</span>
+                  <span class="pf-count">{{ courierRequestsList.length }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Custody Breakdown -->
+          <div class="mockup-panel">
+            <div class="panel-header-mockup">
+              <h2>Document Custody</h2>
+              <a class="view-all-link" (click)="setActiveTab('inventory')">View all &rarr;</a>
+            </div>
+            <div class="custody-breakdown">
+              <div class="custody-row">
+                <div class="custody-label">
+                  <span class="custody-dot" style="background: #14b8a6;"></span>
+                  With Doc Manager
+                </div>
+                <span class="custody-value">{{ inventoryStats.inCustody }}</span>
+              </div>
+              <div class="custody-bar">
+                <div class="custody-fill" style="background: #14b8a6;" [style.width.%]="inventoryStats.total > 0 ? (inventoryStats.inCustody / inventoryStats.total) * 100 : 0"></div>
+              </div>
+              <div class="custody-row">
+                <div class="custody-label">
+                  <span class="custody-dot" style="background: #3b82f6;"></span>
+                  With Visa Manager
+                </div>
+                <span class="custody-value">{{ inventoryStats.withVisaManager }}</span>
+              </div>
+              <div class="custody-bar">
+                <div class="custody-fill" style="background: #3b82f6;" [style.width.%]="inventoryStats.total > 0 ? (inventoryStats.withVisaManager / inventoryStats.total) * 100 : 0"></div>
+              </div>
+              <div class="custody-row">
+                <div class="custody-label">
+                  <span class="custody-dot" style="background: #8b5cf6;"></span>
+                  Returned to Agent
+                </div>
+                <span class="custody-value">{{ inventoryStats.returned }}</span>
+              </div>
+              <div class="custody-bar">
+                <div class="custody-fill" style="background: #8b5cf6;" [style.width.%]="inventoryStats.total > 0 ? (inventoryStats.returned / inventoryStats.total) * 100 : 0"></div>
+              </div>
+              <div class="custody-total">
+                <span>Total Documents</span>
+                <strong>{{ inventoryStats.total }}</strong>
+              </div>
+              @if (returnSummaryStats.completionRate > 0) {
+              <div class="completion-ring-wrap">
+                <div class="completion-label">Return Completion</div>
+                <div class="completion-bar">
+                  <div class="completion-fill" [style.width.%]="returnSummaryStats.completionRate"></div>
+                </div>
+                <span class="completion-pct">{{ returnSummaryStats.completionRate }}%</span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Agent Performance (Dual Metric) -->
+          <div class="mockup-panel">
+            <div class="panel-header-mockup">
+              <h2>Agent Performance</h2>
+            </div>
+            <div class="analytics-list-section">
+              @for (agent of agentBreakdown; track agent.name) {
+              <div class="list-item">
+                <div class="list-info">
+                  <span class="list-name">{{ agent.name }}</span>
+                  <span class="list-count">{{ agent.total }} handled · {{ agent.successRate }}% stamped</span>
+                </div>
+                <div class="progress-bar-thin">
+                  <div class="progress-fill-thin" style="background: #22c55e;" [style.width.%]="agent.successRate"></div>
+                </div>
+              </div>
+              }
+              @if (agentBreakdown.length === 0) {
+                <p style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 20px;">No agent data available.</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTTOM: Top Universities -->
+        <div class="mockup-panel" style="margin-top: 0;">
+          <div class="panel-header-mockup">
+            <h2>Top Universities</h2>
+          </div>
+          <div class="university-grid">
+            @for (uni of topUniversities; track uni.name) {
+            <div class="uni-chip">
+              <div class="uni-chip-icon"><i class="fas fa-university"></i></div>
+              <div class="uni-chip-info">
+                <span class="uni-chip-name">{{ uni.name }}</span>
+                <span class="uni-chip-count">{{ uni.count }} students · {{ uni.percentage }}%</span>
+              </div>
+              <div class="uni-chip-bar">
+                <div class="uni-chip-fill" [style.width.%]="uni.percentage"></div>
+              </div>
+            </div>
+            }
+            @if (topUniversities.length === 0) {
+              <p style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 20px; grid-column: 1/-1;">No university data available.</p>
+            }
           </div>
         </div>
       </div>
-
-      <style>
-        .coming-soon-container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 60vh;
-          border-radius: 20px;
-          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-          font-family: 'Inter', system-ui, -apple-system, sans-serif;
-          padding: 20px;
-          margin: 20px;
-        }
-
-        .glass-card {
-          background: rgba(255, 255, 255, 0.6);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          border-radius: 24px;
-          padding: 60px 40px;
-          text-align: center;
-          box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
-          max-width: 480px;
-          width: 100%;
-        }
-
-        .icon-wrapper {
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-          width: 80px;
-          height: 80px;
-          border-radius: 20px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          margin: 0 auto 30px;
-          box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
-        }
-
-        .icon-wrapper i {
-          font-size: 32px;
-          color: white;
-        }
-
-        .gradient-text {
-          background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          font-size: 2.25rem;
-          font-weight: 800;
-          margin-bottom: 16px;
-          letter-spacing: -0.02em;
-        }
-
-        .subtitle {
-          color: #64748b;
-          font-size: 1.1rem;
-          line-height: 1.6;
-          margin-bottom: 40px;
-        }
-
-        .progress-bar {
-          background: rgba(203, 213, 225, 0.4);
-          height: 6px;
-          border-radius: 999px;
-          overflow: hidden;
-          position: relative;
-        }
-
-        .progress-fill {
-          position: absolute;
-          top: 0;
-          left: 0;
-          height: 100%;
-          width: 30%;
-          background: linear-gradient(90deg, #3b82f6, #60a5fa);
-          border-radius: 999px;
-          animation: loading 2s infinite alternate ease-in-out;
-        }
-
-        @keyframes loading {
-          0% {
-            width: 10%;
-          }
-
-          100% {
-            width: 80%;
-          }
-        }
-      </style>
       }
 
       <!-- INCOMING DOCUMENTS VIEW - NEW DESIGN -->

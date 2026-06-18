@@ -547,13 +547,70 @@ export class DocPersonDashbaord implements OnInit {
   statusDistributionChart: ChartData = { labels: [], datasets: [] };
 
   get recentActivities() {
-    const sourceList = this.filteredStudents?.length > 0 ? this.filteredStudents : this.students;
-    return sourceList.slice(0, 4).map(s => ({
-      message: `${s.fullName} - ${s.applicationStatus}`,
-      type: s.applicationStatus === 'VISA_STAMPED' ? 'success' : 'info',
-      time: 'Recently Updated'
-    }));
+    const sourceList = this.students && this.students.length > 0 ? [...this.students] : [];
+    return sourceList
+      .filter(s => s.updatedAt || s.createdAt)
+      .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime())
+      .slice(0, 6)
+      .map(s => {
+        let message = `${s.fullName}`;
+        let type = 'info';
+        let icon = 'fas fa-info-circle';
+        if (s.action === 'CONFIRM_DOCS') {
+          message += ' — Documents pending receipt';
+          type = 'warning'; icon = 'fas fa-inbox';
+        } else if (s.action === 'VERIFY_DOCS') {
+          message += ' — Awaiting verification';
+          type = 'primary'; icon = 'fas fa-search';
+        } else if (s.isTelexDocApproved === true && s.action !== 'DOCS_RETURNED') {
+          message += ' — Approved & sent to Visa Manager';
+          type = 'success'; icon = 'fas fa-check-circle';
+        } else if (s.action === 'DOCS_RETURNED') {
+          message += ' — Documents returned';
+          type = 'success'; icon = 'fas fa-shipping-fast';
+        } else if (s.isTelexDocApproved === false && s.docPersonComment) {
+          message += ' — Rejected';
+          type = 'danger'; icon = 'fas fa-times-circle';
+        } else if (s.applicationStatus === 'VISA_STAMPED') {
+          message += ' — Visa stamped';
+          type = 'success'; icon = 'fas fa-stamp';
+        } else {
+          message += ` — ${s.applicationStatus || 'Processing'}`;
+          icon = 'fas fa-circle';
+        }
+        const dateObj = new Date(s.updatedAt || s.createdAt || Date.now());
+        const now = new Date();
+        const diffMs = now.getTime() - dateObj.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        let time = '';
+        if (diffMins < 1) time = 'Just now';
+        else if (diffMins < 60) time = `${diffMins}m ago`;
+        else if (diffMins < 1440) time = `${Math.floor(diffMins / 60)}h ago`;
+        else time = `${Math.floor(diffMins / 1440)}d ago`;
+        return { message, type, time, icon };
+      });
   }
+
+  getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
+  getTodayDate(): string {
+    return new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  isOverdue(dateStr: string | Date | undefined | null, daysThreshold: number = 5): boolean {
+    if (!dateStr) return false;
+    const dateObj = new Date(dateStr);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - dateObj.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > daysThreshold;
+  }
+
 
   // ============================================
   // SORTING
