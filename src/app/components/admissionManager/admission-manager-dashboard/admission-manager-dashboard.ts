@@ -284,7 +284,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   availableVisaManagers: { username: string; studentCount: number }[] = [];
 
   // Views & Lists
-  activeView: 'dashboard' | 'actions-required' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' | 'sessions' | 'travel' | 'travelling' | 'requested-docs' = 'dashboard';
+  activeView: 'dashboard' | 'actions-required' | 'forward-uni' | 'approve-admission' | 'assign-telex' | 'assign-visa' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' | 'sessions' | 'travel' | 'travelling' | 'requested-docs' = 'dashboard';
   isSidebarCollapsed = false;
   actionRequiredStudents: Student[] = [];
   pendingUniversityStudents: Student[] = [];
@@ -295,6 +295,20 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   isForwardingRequest = false;
   isRejectingRequest = false;
   selectedRequestForReject: any = null;
+  selectedDocRequest: any = null;
+
+  get getForwardUniCount(): number {
+    return this.actionRequiredStudents.filter(s => s.action === 'FORWARD_TO_UNI').length;
+  }
+  get getApproveAdmissionCount(): number {
+    return this.actionRequiredStudents.filter(s => s.action === 'APPROVE_ADMISSION_LETTER').length;
+  }
+  get getAssignTelexCount(): number {
+    return this.actionRequiredStudents.filter(s => s.action === 'ASSIGN_TELEX_MAN').length;
+  }
+  get getAssignVisaCount(): number {
+    return this.actionRequiredStudents.filter(s => s.action === 'ASSIGN_TO_VISA_MAN').length;
+  }
 
   get getTravellingCount(): number {
     return this.allStudents.filter(s => s.travelDoj || s.travelAirlines || s.hasRaiseReturnRequest).length;
@@ -924,7 +938,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   switchView(view: typeof this.activeView): void {
     this.activeView = view;
-    if (view === 'actions-required' || view === 'pending-university' || view === 'processing' || view === 'completed' || view === 'travelling') {
+    if (view === 'actions-required' || view === 'forward-uni' || view === 'approve-admission' || view === 'assign-telex' || view === 'assign-visa' || view === 'pending-university' || view === 'processing' || view === 'completed' || view === 'travelling') {
       this.searchTerm = '';
       this.filterAgent = '';
       this.filterCollege = '';
@@ -1056,6 +1070,10 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     let sourceList: Student[] = [];
     switch (this.activeView) {
       case 'actions-required': sourceList = this.actionRequiredStudents; break;
+      case 'forward-uni': sourceList = this.actionRequiredStudents.filter(s => s.action === 'FORWARD_TO_UNI'); break;
+      case 'approve-admission': sourceList = this.actionRequiredStudents.filter(s => s.action === 'APPROVE_ADMISSION_LETTER'); break;
+      case 'assign-telex': sourceList = this.actionRequiredStudents.filter(s => s.action === 'ASSIGN_TELEX_MAN'); break;
+      case 'assign-visa': sourceList = this.actionRequiredStudents.filter(s => s.action === 'ASSIGN_TO_VISA_MAN'); break;
       case 'pending-university': sourceList = this.pendingUniversityStudents; break;
       case 'processing': sourceList = this.processingStudents; break;
       case 'completed': sourceList = this.allStudents; break;
@@ -1845,6 +1863,24 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     return this.docRequests.filter(r => r.status === 'PENDING').length;
   }
 
+  getUniqueStudentsDocRequestsCount(): number {
+    const uniqueIds = new Set(this.docRequests.filter(r => r.student?.id).map(r => r.student.id));
+    return uniqueIds.size;
+  }
+
+  getUniqueCollegesDocRequestsCount(): number {
+    const uniqueIds = new Set(this.docRequests.filter(r => r.college?.id).map(r => r.college.id));
+    return uniqueIds.size;
+  }
+
+  viewDocRequestDetails(request: any): void {
+    this.selectedDocRequest = request;
+  }
+
+  closeDocRequestDetails(): void {
+    this.selectedDocRequest = null;
+  }
+
   forwardDocRequest(request: any): void {
     this.isForwardingRequest = true;
     const authUser = sessionStorage.getItem('userId') || '';
@@ -1917,11 +1953,11 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   getDocRequestStatusBadgeClass(status: string): string {
     switch (status) {
-      case 'PENDING': return 'badge-warn';
-      case 'FORWARDED': return 'badge-info';
-      case 'COMPLETED': return 'badge-success';
-      case 'REJECTED': return 'badge-danger';
-      default: return 'badge-info';
+      case 'PENDING': return 'status-warning';
+      case 'FORWARDED': return 'status-info';
+      case 'COMPLETED': return 'status-success';
+      case 'REJECTED': return 'status-danger';
+      default: return 'status-info';
     }
   }
 }
