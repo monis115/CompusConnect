@@ -144,7 +144,7 @@ export class AgentDashboard implements OnInit {
   }
 
   // --- View State ---
-  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'assigned-tasks' | 'travel-details' | 'travel-management' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'apply-visa' | 'doc-return' | 'rejected' | 'travelling' | 'request-doc' | 'visa-payment' = 'dashboard';
+  currentView: 'dashboard' | 'students' | 'register' | 'edit-student' | 'profile' | 'student-detail' | 'assigned-tasks' | 'travel-details' | 'travel-management' | 'visa-stamped' | 'reports' | 'payments' | 'messages' | 'apply-telex' | 'apply-visa' | 'doc-return' | 'rejected' | 'travelling' | 'request-doc' | 'visa-payment' | 'tasks' = 'dashboard';
   isLoading = true;
   isRefreshing = false;
   isReloadingData = false; // For floating button

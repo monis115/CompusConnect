@@ -43,6 +43,16 @@ interface Conversation {
   isMuted?: boolean; // Muted notifications
   isArchived?: boolean; // Archived conversations
   online?: boolean; // Online status
+  studentStatus?: string; // Student admission status
+}
+
+interface StudentStatusHistory {
+  id: number;
+  studentApplicationStatus: string;
+  updatedBy: string;
+  updatedByName?: string;
+  updatedAt: string;
+  remarks?: string;
 }
 
 interface Student {
@@ -52,6 +62,10 @@ interface Student {
   email: string;
   agentName?: string;
   agentId?: number;
+  contactNo?: string;
+  address?: string;
+  applicationStatus?: string;
+  studentStatusHistory?: StudentStatusHistory[];
 }
 
 interface MessageTemplate {
@@ -101,6 +115,8 @@ export class MessageDashboardAdmissionManager implements OnInit, OnDestroy {
   showEmojiPicker = false;
   showMessageActions = false;
   selectedMessageId: number | null = null;
+  selectedStudentDetails: any = null;
+  showStudentDetails = false;
 
   newMessageContent = '';
   searchQuery = '';
@@ -202,7 +218,11 @@ export class MessageDashboardAdmissionManager implements OnInit, OnDestroy {
           applicationId: s.applicationId,
           email: s.email,
           agentName: s.agent?.name || s.agentName || 'Unknown Agent',
-          agentId: s.agent?.id || s.agentId || 0
+          agentId: s.agent?.id || s.agentId || 0,
+          contactNo: s.contactNo,
+          address: s.address,
+          applicationStatus: s.applicationStatus || s.status,
+          studentStatusHistory: s.studentStatusHistory
         });
       });
     }
@@ -218,7 +238,11 @@ export class MessageDashboardAdmissionManager implements OnInit, OnDestroy {
               applicationId: s.applicationId,
               email: s.email,
               agentName: s.agent?.name || s.agentName || 'Unknown Agent',
-              agentId: s.agent?.id || s.agentId || 0
+              agentId: s.agent?.id || s.agentId || 0,
+              contactNo: s.contactNo,
+              address: s.address,
+              applicationStatus: s.applicationStatus || s.status,
+              studentStatusHistory: s.studentStatusHistory
             });
           });
         }
@@ -269,7 +293,8 @@ export class MessageDashboardAdmissionManager implements OnInit, OnDestroy {
           isPinned: false,
           isMuted: false,
           isArchived: false,
-          online: Math.random() > 0.5 // Simulated online status
+          online: Math.random() > 0.5, // Simulated online status
+          studentStatus: this.allStudents.find(s => s.id === msg.studentId)?.applicationStatus || 'PENDING'
         });
       }
 
@@ -297,7 +322,9 @@ export class MessageDashboardAdmissionManager implements OnInit, OnDestroy {
 
   selectConversation(conversation: Conversation): void {
     this.selectedConversation = conversation;
+    this.showStudentDetails = false; // Reset to chat view
     this.loadMessages(conversation.studentId);
+    this.populateStudentDetails(conversation);
     this.loadDraftForConversation(conversation.studentId);
     this.isMobileSidebarOpen = false; // Close mobile sidebar
     this.cdr.detectChanges();
@@ -308,6 +335,42 @@ export class MessageDashboardAdmissionManager implements OnInit, OnDestroy {
         this.messageInput.nativeElement.focus();
       }
     }, 100);
+  }
+
+  populateStudentDetails(conversation: Conversation): void {
+    const student = this.allStudents.find(s => s.id === conversation.studentId);
+
+    let lastUpdateStr = 'View Student Pipeline for full history';
+    if (student?.studentStatusHistory && student.studentStatusHistory.length > 0) {
+      const history = [...student.studentStatusHistory].sort((a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+      const latest = history[0];
+      const dateStr = new Date(latest.updatedAt).toLocaleDateString();
+      lastUpdateStr = `Changed to ${latest.studentApplicationStatus.replace(/_/g, ' ')} on ${dateStr}`;
+      if (latest.updatedByName || latest.updatedBy) {
+        lastUpdateStr += ` by ${latest.updatedByName || latest.updatedBy}`;
+      }
+      if (latest.remarks) {
+        lastUpdateStr += ` - "${latest.remarks}"`;
+      }
+    }
+
+    this.selectedStudentDetails = {
+      name: conversation.studentName,
+      applicationId: student?.applicationId || conversation.studentApplicationId,
+      agentName: student?.agentName || conversation.agentName,
+      status: student?.applicationStatus || conversation.studentStatus,
+      email: student?.email || 'N/A',
+      contactNo: student?.contactNo || 'N/A',
+      address: student?.address || 'N/A',
+      registrationDate: new Date(), // If backend doesn't provide creation date, default to now or add it to StudentDTO
+      lastUpdate: lastUpdateStr
+    };
+  }
+
+  toggleStudentDetails(): void {
+    this.showStudentDetails = !this.showStudentDetails;
   }
 
   loadMessages(studentId: number): void {
@@ -598,7 +661,7 @@ export class MessageDashboardAdmissionManager implements OnInit, OnDestroy {
 
   // ========== UTILITIES ==========
   scrollToBottom(): void {
-    const chatArea = document.querySelector('.messages-list');
+    const chatArea = document.querySelector('.preview-messages');
     if (chatArea) {
       chatArea.scrollTop = chatArea.scrollHeight;
     }
@@ -622,6 +685,25 @@ export class MessageDashboardAdmissionManager implements OnInit, OnDestroy {
 
   truncate(text: string, length: number = 50): string {
     return text.length > length ? text.substring(0, length) + '...' : text;
+  }
+
+  // ========== AVATAR COLORS ==========
+  private avatarColors = [
+    'avatar-amber',    // A-C
+    'avatar-emerald',  // D-F
+    'avatar-blue',     // G-I
+    'avatar-violet',   // J-L
+    'avatar-rose',     // M-O
+    'avatar-cyan',     // P-R
+    'avatar-orange',   // S-U
+    'avatar-indigo',   // V-Z
+  ];
+
+  getAvatarColor(name: string): string {
+    if (!name) return this.avatarColors[0];
+    const code = name.toUpperCase().charCodeAt(0) - 65; // A=0, B=1, ...
+    const index = Math.max(0, Math.min(Math.floor(code / 3.25), this.avatarColors.length - 1));
+    return this.avatarColors[index];
   }
 
   // ========== SOUND EFFECTS ==========

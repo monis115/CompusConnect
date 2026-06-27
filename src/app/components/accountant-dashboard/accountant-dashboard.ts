@@ -1471,7 +1471,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
 
   // UI State
   selectedSettlementStudent: any = null;
-  activeView: 'dashboard' | 'pending' | 'payment-collection' | 'subaccounts' | 'beneficiaries' | 'transactions' | 'recovery' | 'credit-ledger' | 'reports' | 'settings' | 'profile' | 'approved' | 'rejected' | 'funds' | 'visa-accounts' | 'all-students' = 'dashboard';
+  activeView: 'dashboard' | 'pending' | 'payment-collection' | 'subaccounts' | 'beneficiaries' | 'transactions' | 'recovery' | 'credit-ledger' | 'reports' | 'settings' | 'profile' | 'approved' | 'rejected' | 'funds' | 'visa-accounts' | 'all-students' | 'tasks' = 'dashboard';
 
   // Payment Collection Sub-tab
   activePaymentCollectionTab: 'all' | 'needs-request' | 'pending' | 'partially-paid' | 'paid' | 'excess' = 'all';
@@ -2988,7 +2988,7 @@ export class AccountantDashboard implements OnInit, OnDestroy {
   }
 
   // --- Navigation & View Switching ---
-  switchView(view: 'dashboard' | 'pending' | 'payment-collection' | 'subaccounts' | 'beneficiaries' | 'transactions' | 'recovery' | 'credit-ledger' | 'reports' | 'settings' | 'profile' | 'approved' | 'rejected' | 'funds' | 'visa-accounts' | 'all-students'): void {
+  switchView(view: 'dashboard' | 'pending' | 'payment-collection' | 'subaccounts' | 'beneficiaries' | 'transactions' | 'recovery' | 'credit-ledger' | 'reports' | 'settings' | 'profile' | 'approved' | 'rejected' | 'funds' | 'visa-accounts' | 'all-students' | 'tasks'): void {
     this.activeView = view;
 
     // Clear modals when switching views

@@ -42,12 +42,12 @@ export class DocPersonDashbaord implements OnInit {
   // ============================================
   // STATE MANAGEMENT
   // ============================================
-  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request' | 'passport-collect' = 'dashboard';
+  activeTab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request' | 'passport-collect' | 'tasks' = 'dashboard';
   isLoading: boolean = false;
   isLoggingOut: boolean = false;
   isDarkMode: boolean = false;
 
-  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request' | 'passport-collect'): void {
+  setActiveTab(tab: 'dashboard' | 'receive' | 'verify' | 'return' | 'pipeline' | 'stamped' | 'reports' | 'profile' | 'funds' | 'all-students' | 'inventory' | 'transfers' | 'passport-requests' | 'travel-info' | 'courier-requests' | 'fund-request' | 'passport-collect' | 'tasks'): void {
     this.activeTab = tab;
     this.pagination.currentPage = 1; // Reset pagination
     this.applyFilters(); // Re-apply filters based on the new tab

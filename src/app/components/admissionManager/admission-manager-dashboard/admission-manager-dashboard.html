@@ -133,6 +133,17 @@
         <div class="nav-label" style="margin-top: 20px;">Management</div>
         }
 
+        <a class="nav-link" [class.active]="activeView === 'tasks'" (click)="switchView('tasks')">
+          <svg class="nav-icon" style="color: #F59E0B;" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          @if (!isSidebarCollapsed) {
+          <span>Tasks & Follow Ups</span>
+          }
+        </a>
+
         <a class="nav-link" [class.active]="activeView === 'reports'" (click)="switchView('reports')">
           <svg class="nav-icon" style="color: #0EA5E9;" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2">
@@ -187,19 +198,6 @@
           }
         </a>
 
-        <a class="nav-link" [class.active]="activeView === 'travelling'" (click)="switchView('travelling')">
-          <svg class="nav-icon" style="color: #06B6D4;" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <path d="M22 2L11 13" />
-            <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-          </svg>
-          @if (!isSidebarCollapsed) {
-          <span>Travelling Students</span>
-          <span class="nav-badge"
-            style="background: #3B82F6; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: auto;">{{
-            getTravellingCount }}</span>
-          }
-        </a>
 
         <a class="nav-link" [class.active]="activeView === 'travel'" (click)="switchView('travel')">
           <svg class="nav-icon" style="color: #D97706;" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -208,7 +206,7 @@
             <path d="M22 2l-7 20-4-9-9-4 20-7z" />
           </svg>
           @if (!isSidebarCollapsed) {
-          <span>Travel & Logistics</span>
+          <span>Travel Management</span>
           <span class="nav-badge"
             style="background: #D97706; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: auto;">{{
             getTravelLogisticsCount }}</span>
@@ -309,9 +307,6 @@
         @if (activeView === 'completed') {
         <h1>All Students</h1>
         }
-        @if (activeView === 'travelling') {
-        <h1>Travelling Students</h1>
-        }
         @if (activeView === 'reports') {
         <h1>Reports</h1>
         }
@@ -319,7 +314,7 @@
         <h1>Payments</h1>
         }
         @if (activeView === 'travel') {
-        <h1>Travel & Logistics</h1>
+        <h1>Travel Management</h1>
         }
         @if (activeView === 'profile') {
         <h1>My Profile</h1>
@@ -333,10 +328,12 @@
         @if (activeView === 'sessions') {
         <h1>Session & Intake Management</h1>
         }
+        @if (activeView !== 'tasks') {
         <p>Manage your student pipeline & workflow</p>
+        }
       </div>
 
-      @if (activeView !== 'dashboard') {
+      @if (activeView !== 'dashboard' && activeView !== 'tasks') {
       <div class="search-wrapper">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2">
@@ -741,54 +738,10 @@
       }
       @if (!isLoading && activeView !== 'dashboard' && activeView !== 'messages' && activeView !== 'profile' &&
       activeView !== 'reports' && activeView !== 'payment' && activeView !== 'news' && activeView !== 'sessions' &&
-      activeView !== 'travel' && activeView !== 'requested-docs') {
+      activeView !== 'travel' && activeView !== 'requested-docs' && activeView !== 'tasks') {
       <div class="list-view-container">
 
-        <!-- Smart Filter Bar -->
-        <div class="filter-bar"
-          style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; padding: 14px 18px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"
-            style="flex-shrink: 0;">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-          </svg>
-          <select [(ngModel)]="filterAgent" (change)="filterStudents()"
-            style="padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: white; color: #334155; min-width: 160px; outline: none;">
-            <option value="">All Agents</option>
-            @for (agent of uniqueAgents; track agent.fullName) {
-            <option [value]="agent.fullName">{{ agent.fullName }} (@{{ agent.username }})</option>
-            }
-          </select>
-          <select [(ngModel)]="filterCollege" (change)="filterStudents()"
-            style="padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: white; color: #334155; min-width: 160px; outline: none;">
-            <option value="">All Colleges</option>
-            @for (col of uniqueColleges; track col) {
-            <option [value]="col">{{ col }}</option>
-            }
-          </select>
-          <select [(ngModel)]="filterStatus" (change)="filterStudents()"
-            style="padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: white; color: #334155; min-width: 160px; outline: none;">
-            <option value="">All Statuses</option>
-            @for (status of uniqueStatuses; track status) {
-            <option [value]="status">{{ getStatusLabel(status) }}</option>
-            }
-          </select>
-          <input type="date" [(ngModel)]="filterStartDate" (change)="filterStudents()" placeholder="From Date"
-            style="padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: white; color: #334155; min-width: 140px; outline: none;">
-          <input type="date" [(ngModel)]="filterEndDate" (change)="filterStudents()" placeholder="To Date"
-            style="padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: white; color: #334155; min-width: 140px; outline: none;">
-          @if (hasActiveFilters) {
-          <button (click)="clearAllFilters()"
-            style="padding: 7px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; font-weight: 600; background: white; color: #ef4444; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            Clear
-          </button>
-          }
-          <span style="margin-left: auto; font-size: 12px; color: #94a3b8; font-weight: 500;">{{ filteredList.length }}
-            results</span>
-        </div>
+        <!-- Filter Bar Removed as requested -->
         @if (filteredList.length === 0) {
         <div class="empty-state">
           <div class="empty-icon">
@@ -963,12 +916,13 @@
       <!-- Requested Docs View -->
       @if (!isLoading && activeView === 'requested-docs') {
       <div class="content-body" [@fadeIn]>
-        
+
         <!-- Metrics / Stat Cards -->
         <div class="stat-cards-grid">
           <div class="stat-card">
             <div class="stat-icon warning">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
@@ -980,7 +934,8 @@
           </div>
           <div class="stat-card">
             <div class="stat-icon info">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -994,7 +949,8 @@
           </div>
           <div class="stat-card">
             <div class="stat-icon accent">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
@@ -1023,17 +979,20 @@
                 </thead>
                 <tbody>
                   @for(req of docRequests; track req.id) {
-                  <tr class="clickable-row" (click)="viewDocRequestDetails(req)" [style.background-color]="selectedDocRequest?.id === req.id ? '#F8FAFC' : ''">
+                  <tr class="clickable-row" (click)="viewDocRequestDetails(req)"
+                    [style.background-color]="selectedDocRequest?.id === req.id ? '#F8FAFC' : ''">
                     <td>
                       <div class="student-profile">
-                        <div class="table-avatar" [style.background-color]="getAvatarColor(req.student?.fullName || 'N/A')">
+                        <div class="table-avatar"
+                          [style.background-color]="getAvatarColor(req.student?.fullName || 'N/A')">
                           {{(req.student?.fullName || 'N').charAt(0)}}
                         </div>
                         <span class="name" style="font-weight: 600;">{{ req.student?.fullName || 'N/A' }}</span>
                       </div>
                     </td>
                     <td>
-                      <span class="doc-title" style="font-weight: 600; font-size: 14px;">{{ getDocTypeLabel(req.docType, req.customDocName) }}</span>
+                      <span class="doc-title" style="font-weight: 600; font-size: 14px;">{{ getDocTypeLabel(req.docType,
+                        req.customDocName) }}</span>
                     </td>
                     <td>
                       <span class="name" style="font-weight: 500;">{{ req.requestedByName }}</span>
@@ -1044,21 +1003,39 @@
                       </span>
                     </td>
                     <td>
-                      <div [class]="'status-pill ' + getDocRequestStatusBadgeClass(req.status)" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                      <div [class]="'status-pill ' + getDocRequestStatusBadgeClass(req.status)"
+                        style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;">
                         @if(req.status === 'PENDING') {
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
                         } @else if(req.status === 'FORWARDED') {
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <path d="M5 12h14"></path>
+                          <path d="m12 5 7 7-7 7"></path>
+                        </svg>
                         } @else if(req.status === 'COMPLETED') {
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
                         } @else if(req.status === 'REJECTED') {
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                         }
                         {{ req.status }}
                       </div>
                     </td>
                     <td class="text-right">
-                      <button class="btn-sm" style="background: var(--primary-main); color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; padding: 6px 14px;" (click)="$event.stopPropagation(); viewDocRequestDetails(req)">
+                      <button class="btn-sm"
+                        style="background: var(--primary-main); color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; padding: 6px 14px;"
+                        (click)="$event.stopPropagation(); viewDocRequestDetails(req)">
                         Review
                       </button>
                     </td>
@@ -1068,7 +1045,8 @@
               </table>
               @if(docRequests.length === 0) {
               <div class="premium-empty-state">
-                <svg class="empty-illustration" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <svg class="empty-illustration" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.5">
                   <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <h3 class="empty-title">All Caught Up!</h3>
@@ -1084,23 +1062,27 @@
             <div class="side-panel-header">
               <h3>Request Details</h3>
               <button class="btn-close" (click)="closeDocRequestDetails()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </button>
             </div>
-            
+
             <div class="side-panel-body">
               <div class="detail-block">
                 <span class="detail-label">Student & College</span>
                 <div class="student-profile" style="margin-top: 4px;">
-                  <div class="table-avatar" [style.background-color]="getAvatarColor(selectedDocRequest.student?.fullName || 'N/A')">
+                  <div class="table-avatar"
+                    [style.background-color]="getAvatarColor(selectedDocRequest.student?.fullName || 'N/A')">
                     {{(selectedDocRequest.student?.fullName || 'N').charAt(0)}}
                   </div>
                   <div class="student-meta">
-                    <span class="name" style="font-size: 15px; font-weight: 700;">{{ selectedDocRequest.student?.fullName || 'N/A' }}</span>
-                    <span class="sub-text" style="color: var(--text-secondary); font-size: 13px;">{{ selectedDocRequest.college?.collegeName || 'N/A' }}</span>
+                    <span class="name" style="font-size: 15px; font-weight: 700;">{{
+                      selectedDocRequest.student?.fullName || 'N/A' }}</span>
+                    <span class="sub-text" style="color: var(--text-secondary); font-size: 13px;">{{
+                      selectedDocRequest.college?.collegeName || 'N/A' }}</span>
                   </div>
                 </div>
               </div>
@@ -1109,13 +1091,15 @@
                 <span class="detail-label">Requested Document</span>
                 <div class="doc-info-group" style="margin-top: 4px;">
                   <div class="doc-icon-wrapper" style="width: 40px; height: 40px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                       <polyline points="14 2 14 8 20 8"></polyline>
                     </svg>
                   </div>
                   <div class="doc-details">
-                    <span class="doc-title" style="font-size: 14px;">{{ getDocTypeLabel(selectedDocRequest.docType, selectedDocRequest.customDocName) }}</span>
+                    <span class="doc-title" style="font-size: 14px;">{{ getDocTypeLabel(selectedDocRequest.docType,
+                      selectedDocRequest.customDocName) }}</span>
                     @if(selectedDocRequest.remarks) {
                     <span class="doc-subtitle" style="margin-top: 2px;">"{{ selectedDocRequest.remarks }}"</span>
                     }
@@ -1127,34 +1111,42 @@
                 <span class="detail-label">Requested By</span>
                 <div class="requester-info" style="margin-top: 4px;">
                   <div class="requester-avatar">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                   </div>
                   <div class="student-meta">
-                    <span class="name" style="font-size: 14px; font-weight: 600;">{{ selectedDocRequest.requestedByName }}</span>
-                    <span class="sub-text" style="font-size: 12px; color: var(--text-secondary);">{{ selectedDocRequest.requestedBy }}</span>
+                    <span class="name" style="font-size: 14px; font-weight: 600;">{{ selectedDocRequest.requestedByName
+                      }}</span>
+                    <span class="sub-text" style="font-size: 12px; color: var(--text-secondary);">{{
+                      selectedDocRequest.requestedBy }}</span>
                   </div>
                 </div>
               </div>
 
               <div class="detail-block">
                 <span class="detail-label">Request Date</span>
-                <span class="detail-value" style="font-weight: 500;">{{ selectedDocRequest.createdAt | date:'medium' }}</span>
+                <span class="detail-value" style="font-weight: 500;">{{ selectedDocRequest.createdAt | date:'medium'
+                  }}</span>
               </div>
             </div>
 
             <div class="side-panel-footer">
               @if(selectedDocRequest.status === 'PENDING') {
-              <button class="btn-primary" (click)="forwardDocRequest(selectedDocRequest)" [disabled]="isForwardingRequest" style="border-radius: 4px;">
+              <button class="btn-primary" (click)="forwardDocRequest(selectedDocRequest)"
+                [disabled]="isForwardingRequest" style="border-radius: 4px;">
                 Forward to Uni
               </button>
-              <button class="btn-outline" style="color: #ef4444; border-color: #fecaca; background: white; border-radius: 4px;" (click)="openRejectDocRequestModal(selectedDocRequest)">
+              <button class="btn-outline"
+                style="color: #ef4444; border-color: #fecaca; background: white; border-radius: 4px;"
+                (click)="openRejectDocRequestModal(selectedDocRequest)">
                 Reject
               </button>
               } @else if(selectedDocRequest.status === 'COMPLETED' && selectedDocRequest.uploadedDocPath) {
-              <button class="btn-primary" (click)="viewDocument(selectedDocRequest.uploadedDocPath)" style="border-radius: 4px;">
+              <button class="btn-primary" (click)="viewDocument(selectedDocRequest.uploadedDocPath)"
+                style="border-radius: 4px;">
                 View Document
               </button>
               }
@@ -1165,7 +1157,7 @@
             <div class="side-panel-header" style="justify-content: center; background: transparent;">
               <h3 style="color: #94A3B8; font-size: 14px; font-weight: 600;">Select a Request to Preview</h3>
             </div>
-            
+
             <div class="side-panel-body" style="opacity: 0.7;">
               <div class="detail-block">
                 <div class="skeleton-box" style="width: 120px; height: 12px; margin-bottom: 8px;"></div>
@@ -1214,6 +1206,24 @@
         </div>
       </div>
       }
+
+
+      <!-- Tasks & Follow Ups View -->
+      <div [hidden]="isLoading || activeView !== 'tasks'">
+        <div style="display: flex; justify-content: flex-end; padding: 24px 24px 0;">
+          <button (click)="showSettingsModal = true"
+            style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 13px; color: #475569; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+            Task Engine Settings
+          </button>
+        </div>
+        <app-tasks-board [isAdmissionManager]="true"></app-tasks-board>
+      </div>
+
 
       <!-- Reject Doc Request Modal -->
       @if (selectedRequestForReject) {
@@ -2030,175 +2040,484 @@
       </div>
       }
 
-      <!-- Travel View -->
+      <!-- Enterprise Travel Management View -->
       @if (!isLoading && activeView === 'travel') {
-      <div class="travel-management-container" [@fadeIn] style="padding: 24px; max-width: 1200px; margin: 0 auto;">
-        <div class="travel-header" style="margin-bottom: 24px;">
-          <h2 style="font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.02em;">
-            Travel & Logistics Tracker</h2>
-          <p style="color: #64748b; font-size: 14px;">Monitor student travel details and document return requests.</p>
+      <div class="travel-management-container" [@fadeIn]
+        style="padding: 32px; max-width: 1400px; margin: 0 auto; font-family: 'Inter', sans-serif;">
+
+        <!-- Premium Header -->
+        <div
+          style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; border-bottom: 2px solid #f1f5f9; padding-bottom: 16px;">
+          <div>
+            <h1 style="font-size: 28px; font-weight: 800; color: #0f172a; margin: 0 0 8px; letter-spacing: -0.03em;">
+              Travel & Admission Pipeline</h1>
+            <p style="color: #64748b; font-size: 15px; margin: 0;">Manage incoming students, track their travel details,
+              and finalize their admission plans.</p>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-outline" (click)="refreshData()"
+              style="padding: 10px 16px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+          </div>
         </div>
 
-        <div
-          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 30px;">
-          <!-- Travel Details Info Card -->
-          <div
-            style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <!-- Travel Dashboard Widgets (Heatmap & Timeline) -->
+        <div style="margin-bottom: 40px;">
+          <!-- Timeline Cards -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+            <!-- Today -->
+            <div
+              style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: white; min-height: 140px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
               <div
-                style="width: 40px; height: 40px; border-radius: 4px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                <span>Today ({{todayTravelers.length}})</span>
+                <i class="fas fa-sun" style="color: #f59e0b;"></i>
+              </div>
+              @if (todayTravelers.length === 0) {
+              <div style="text-align: center; color: #94a3b8; font-size: 13px; margin-top: 24px;">No travel today</div>
+              } @else {
+              <div style="max-height: 120px; overflow-y: auto; padding-right: 4px;">
+                @for (s of todayTravelers; track s.id) {
+                <div
+                  style="font-size: 13px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;">
+                  <div style="font-weight: 600; color: #1e293b;">{{s.fullName}}</div>
+                  <div
+                    style="display: flex; justify-content: space-between; color: #64748b; font-size: 11px; margin-top: 2px;">
+                    <span>{{s.travelAirlines || 'TBD'}}</span>
+                    <span style="color: #8b5cf6;">Today</span>
+                  </div>
+                </div>
+                }
+              </div>
+              }
+            </div>
+            <!-- Tomorrow -->
+            <div
+              style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: white; min-height: 140px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+              <div
+                style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                <span>Tomorrow ({{tomorrowTravelers.length}})</span>
+                <i class="far fa-calendar-alt" style="color: #3b82f6;"></i>
+              </div>
+              @if (tomorrowTravelers.length === 0) {
+              <div style="text-align: center; color: #94a3b8; font-size: 13px; margin-top: 24px;">No travel tomorrow
+              </div>
+              } @else {
+              <div style="max-height: 120px; overflow-y: auto; padding-right: 4px;">
+                @for (s of tomorrowTravelers; track s.id) {
+                <div
+                  style="font-size: 13px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;">
+                  <div style="font-weight: 600; color: #1e293b;">{{s.fullName}}</div>
+                  <div
+                    style="display: flex; justify-content: space-between; color: #64748b; font-size: 11px; margin-top: 2px;">
+                    <span>{{s.travelAirlines || 'TBD'}}</span>
+                    <span style="color: #3b82f6;">Tomorrow</span>
+                  </div>
+                </div>
+                }
+              </div>
+              }
+            </div>
+            <!-- Next 7 Days -->
+            <div
+              style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: white; min-height: 140px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+              <div
+                style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                <span>Next 7 Days ({{next7DaysTravelers.length}})</span>
+                <i class="far fa-calendar-check" style="color: #10b981;"></i>
+              </div>
+              @if (next7DaysTravelers.length === 0) {
+              <div style="text-align: center; color: #94a3b8; font-size: 13px; margin-top: 24px;">No upcoming travel
+              </div>
+              } @else {
+              <div style="max-height: 120px; overflow-y: auto; padding-right: 4px;">
+                @for (s of next7DaysTravelers; track s.id) {
+                <div
+                  style="font-size: 13px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;">
+                  <div style="font-weight: 600; color: #1e293b;">{{s.fullName}}</div>
+                  <div
+                    style="display: flex; justify-content: space-between; color: #64748b; font-size: 11px; margin-top: 2px;">
+                    <span>{{s.travelAirlines || 'TBD'}}</span>
+                    <span style="color: #10b981; font-weight: 600;">{{ s.travelDoj ||
+                      s.documentReturnRequest?.travelDate | date:'MMM dd' }}</span>
+                  </div>
+                </div>
+                }
+              </div>
+              }
+            </div>
+            <!-- Past 7 Days -->
+            <div
+              style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: white; min-height: 140px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+              <div
+                style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                <span>Past 7 Days ({{past7DaysTravelers.length}})</span>
+                <i class="fas fa-history" style="color: #8b5cf6;"></i>
+              </div>
+              @if (past7DaysTravelers.length === 0) {
+              <div style="text-align: center; color: #94a3b8; font-size: 13px; margin-top: 24px;">No recent travel</div>
+              } @else {
+              <div style="max-height: 120px; overflow-y: auto; padding-right: 4px;">
+                @for (s of past7DaysTravelers; track s.id) {
+                <div
+                  style="font-size: 13px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px;">
+                  <div style="font-weight: 600; color: #1e293b;">{{s.fullName}}</div>
+                  <div
+                    style="display: flex; justify-content: space-between; color: #64748b; font-size: 11px; margin-top: 2px;">
+                    <span>{{s.travelAirlines || 'TBD'}}</span>
+                    <span style="color: #8b5cf6; font-weight: 600;">{{ s.travelDoj ||
+                      s.documentReturnRequest?.travelDate | date:'MMM dd' }}</span>
+                  </div>
+                </div>
+                }
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Heatmap Ribbon -->
+          <div style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Travel Heatmap
+              (Click to Filter)</span>
+            <span style="font-size: 14px; font-weight: 600; color: #1e293b;">
+              <i class="fas fa-chevron-left" style="color: #94a3b8; margin-right: 12px; cursor: pointer;"></i>
+              {{heatmapMonthName}}
+              <i class="fas fa-chevron-right" style="color: #94a3b8; margin-left: 12px; cursor: pointer;"></i>
+            </span>
+          </div>
+          <div
+            style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; border-bottom: 3px solid #e2e8f0; scrollbar-width: thin;">
+            @for (day of heatmapDays; track day.date) {
+            <div (click)="toggleHeatmapDate(day.fullDate)"
+              style="min-width: 48px; height: 56px; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; user-select: none;"
+              [style.background]="selectedHeatmapDate === day.fullDate ? '#10b981' : (day.count > 0 ? '#d1fae5' : 'white')"
+              [style.borderColor]="selectedHeatmapDate === day.fullDate ? '#059669' : (day.count > 0 ? '#a7f3d0' : '#e2e8f0')"
+              [style.color]="selectedHeatmapDate === day.fullDate ? 'white' : '#1e293b'"
+              [style.transform]="selectedHeatmapDate === day.fullDate ? 'scale(1.05)' : 'scale(1)'"
+              [style.boxShadow]="selectedHeatmapDate === day.fullDate ? '0 4px 12px rgba(16, 185, 129, 0.3)' : 'none'"
+              onmouseover="this.style.filter='brightness(0.95)'" onmouseout="this.style.filter='none'">
+              <span style="font-size: 15px; font-weight: 700;">{{day.date}}</span>
+              @if (day.count > 0) {
+              <div
+                style="width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; margin-top: 2px;"
+                [style.background]="selectedHeatmapDate === day.fullDate ? 'white' : '#10b981'"
+                [style.color]="selectedHeatmapDate === day.fullDate ? '#10b981' : 'white'">
+                {{day.count}}
+              </div>
+              } @else {
+              <span style="font-size: 14px; color: #cbd5e1; margin-top: 2px;">-</span>
+              }
+            </div>
+            }
+          </div>
+          @if (selectedHeatmapDate) {
+          <div style="margin-top: 12px; text-align: right;">
+            <button (click)="selectedHeatmapDate = null" class="btn btn-sm btn-outline-danger"
+              style="font-size: 12px; border-radius: 4px;">
+              <i class="fas fa-times"></i> Clear Filter ({{selectedHeatmapDate | date:'mediumDate'}})
+            </button>
+          </div>
+          }
+        </div>
+
+        <!-- Animated Summary Cards -->
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px;">
+
+          <!-- Card 1: Self Visa -->
+          <div
+            style="background: linear-gradient(145deg, #ffffff, #f8fafc); border-radius: 16px; border: 1px solid #e2e8f0; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;"
+            onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.08)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)';">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+              <div
+                style="width: 48px; height: 48px; border-radius: 12px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; display: flex; align-items: center; justify-content: center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M22 2L11 13" />
                   <path d="M22 2l-7 20-4-9-9-4 20-7z" />
                 </svg>
               </div>
-              <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #0f172a;">Self Visa Travel Records</h3>
+              <span
+                style="background: #eff6ff; color: #1d4ed8; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Active</span>
             </div>
-            <p style="font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.5;">Students who applied for
-              visa themselves and submitted travel details.</p>
+            <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #1e293b;">Self Visa Arrivals</h3>
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 24px;">Students arriving via their own visa
+              arrangements.</p>
             <div style="display: flex; align-items: baseline; gap: 8px;">
-              <span style="font-size: 32px; font-weight: 700; color: #0f172a;">{{ filteredTravelStudents.length
-                }}</span>
-              <span style="font-size: 14px; font-weight: 500; color: #64748b;">Records</span>
+              <span style="font-size: 36px; font-weight: 800; color: #0f172a; line-height: 1;">{{
+                filteredTravelStudents.length }}</span>
+              <span style="font-size: 15px; font-weight: 500; color: #94a3b8;">Students</span>
             </div>
           </div>
 
-          <!-- Document Return Info Card -->
+          <!-- Card 2: Rare Education Visa -->
           <div
-            style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            style="background: linear-gradient(145deg, #ffffff, #f8fafc); border-radius: 16px; border: 1px solid #e2e8f0; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;"
+            onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.08)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)';">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
               <div
-                style="width: 40px; height: 40px; border-radius: 4px; background: #fff7ed; color: #f97316; display: flex; align-items: center; justify-content: center;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                style="width: 48px; height: 48px; border-radius: 12px; background: rgba(249, 115, 22, 0.1); color: #f97316; display: flex; align-items: center; justify-content: center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                   <path d="M12 18v-6M9 15h6" />
                 </svg>
               </div>
-              <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #0f172a;">Rare Education Visa Records</h3>
+              <span
+                style="background: #fff7ed; color: #c2410c; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Pending</span>
             </div>
-            <p style="font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.5;">Students who applied via
-              Rare Education and requested document returns.</p>
+            <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #1e293b;">Agent / Rare Edu Visa</h3>
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 24px;">Students processed via Rare Education
+              pipeline.</p>
             <div style="display: flex; align-items: baseline; gap: 8px;">
-              <span style="font-size: 32px; font-weight: 700; color: #0f172a;">{{ filteredDocReturnStudents.length
-                }}</span>
-              <span style="font-size: 14px; font-weight: 500; color: #64748b;">Requests</span>
+              <span style="font-size: 36px; font-weight: 800; color: #0f172a; line-height: 1;">{{
+                filteredDocReturnStudents.length }}</span>
+              <span style="font-size: 15px; font-weight: 500; color: #94a3b8;">Students</span>
             </div>
           </div>
         </div>
 
-
-        <!-- Travel Filters -->
-        <div class="filters-container"
-          style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; padding: 16px 24px; margin-bottom: 24px; display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
-          <div class="filter-group" style="flex: 1; min-width: 200px;">
-            <label
-              style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">College</label>
-            <select [(ngModel)]="travelFilterCollege" class="form-control-modern"
-              style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 14px;">
-              <option value="">All Colleges</option>
-              @for (college of uniqueColleges; track college) {
-              <option [value]="college">{{ college }}</option>
-              }
-            </select>
-          </div>
-          <div class="filter-group" style="flex: 1; min-width: 200px;">
-            <label
-              style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Agent</label>
-            <select [(ngModel)]="travelFilterAgent" class="form-control-modern"
-              style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 14px;">
-              <option value="">All Agents</option>
-              @for (agent of uniqueAgents; track agent.username) {
-              <option [value]="agent.fullName">{{ agent.fullName }}</option>
-              }
-            </select>
-          </div>
-          <div class="filter-group" style="flex: 1; min-width: 150px;">
-            <label style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Start
-              Date</label>
-            <input type="date" [(ngModel)]="travelFilterStartDate" class="form-control-modern"
-              style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 14px;">
-          </div>
-          <div class="filter-group" style="flex: 1; min-width: 150px;">
-            <label style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">End
-              Date</label>
-            <input type="date" [(ngModel)]="travelFilterEndDate" class="form-control-modern"
-              style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 14px;">
-          </div>
-          <div class="filter-actions" style="display: flex; gap: 8px;">
-            <button class="btn btn-outline" (click)="clearTravelFilters()"
-              style="height: 40px; padding: 0 16px; border-radius: 8px; font-size: 14px; font-weight: 500;">Clear</button>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 24px;">
-          <div style="display: flex; border-bottom: 1px solid #e2e8f0;">
-            <button (click)="travelTab = 'travel'"
-              style="padding: 12px 24px; font-size: 14px; font-weight: 600; border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s;"
-              [style.color]="travelTab === 'travel' ? '#3b82f6' : '#64748b'"
-              [style.border-bottom-color]="travelTab === 'travel' ? '#3b82f6' : 'transparent'">Self Visa Travel
-              Details</button>
-            <button (click)="travelTab = 'docs'"
-              style="padding: 12px 24px; font-size: 14px; font-weight: 600; border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s;"
-              [style.color]="travelTab === 'docs' ? '#f97316' : '#64748b'"
-              [style.border-bottom-color]="travelTab === 'docs' ? '#f97316' : 'transparent'">Rare Education Visa
-              Travel</button>
-          </div>
-        </div>
-
-        @if (travelTab === 'travel') {
+        <!-- Modern Filter Bar -->
         <div
-          style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 32px; display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+          <div style="flex: 2; min-width: 250px;">
+            <label
+              style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">College</label>
+            <select [(ngModel)]="travelFilterCollege"
+              style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 14px; outline: none; background: #f8fafc; cursor: pointer; transition: border-color 0.2s;">
+              <option value="">All Colleges</option>
+              @for (college of uniqueColleges; track college) { <option [value]="college">{{ college }}</option> }
+            </select>
+          </div>
+          <div style="flex: 2; min-width: 250px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">Agent
+              / Provider</label>
+            <select [(ngModel)]="travelFilterAgent"
+              style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 14px; outline: none; background: #f8fafc; cursor: pointer; transition: border-color 0.2s;">
+              <option value="">All Agents</option>
+              @for (agent of uniqueAgents; track agent.username) { <option [value]="agent.fullName">{{ agent.fullName }}
+              </option> }
+            </select>
+          </div>
+          <div style="flex: 1; min-width: 160px;">
+            <label
+              style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">Arrival
+              Start</label>
+            <input type="date" [(ngModel)]="travelFilterStartDate"
+              style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 14px; outline: none; background: #f8fafc; transition: border-color 0.2s;">
+          </div>
+          <div style="flex: 1; min-width: 160px;">
+            <label
+              style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">Arrival
+              End</label>
+            <input type="date" [(ngModel)]="travelFilterEndDate"
+              style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 14px; outline: none; background: #f8fafc; transition: border-color 0.2s;">
+          </div>
+          <div style="display: flex; gap: 12px; align-items: flex-end;">
+            <button class="btn btn-outline" (click)="clearTravelFilters()"
+              style="height: 44px; padding: 0 24px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s;">Clear</button>
+          </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div style="margin-bottom: 24px; display: flex; border-bottom: 1px solid #e2e8f0; gap: 32px;">
+          <button (click)="travelTab = 'travel'"
+            style="padding: 16px 8px; font-size: 15px; font-weight: 700; border: none; background: transparent; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; position: relative;"
+            [style.color]="travelTab === 'travel' ? '#1e293b' : '#94a3b8'"
+            [style.border-bottom-color]="travelTab === 'travel' ? '#3b82f6' : 'transparent'">
+            Self Visa Arrivals
+          </button>
+          <button (click)="travelTab = 'docs'"
+            style="padding: 16px 8px; font-size: 15px; font-weight: 700; border: none; background: transparent; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; position: relative;"
+            [style.color]="travelTab === 'docs' ? '#1e293b' : '#94a3b8'"
+            [style.border-bottom-color]="travelTab === 'docs' ? '#f97316' : 'transparent'">
+            Rare Education Visa Arrivals
+          </button>
+        </div>
+
+        <!-- Flight Group Manifests -->
+        @if (flightGroups.length > 0) {
+        <div style="margin-bottom: 24px;">
+          <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-layer-group" style="color: #3b82f6;"></i> Arrival Groups & Manifests
+          </h3>
+          <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin;">
+            @for (group of flightGroups; track group.flightNumber + group.date) {
+            <div style="min-width: 280px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.borderColor='#bfdbfe'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.1)'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)'">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span style="font-size: 18px; font-weight: 800; color: #0f172a;">{{ group.flightNumber }}</span>
+                    @if (group.flightNumber !== 'Unknown Flight') {
+                    <a [href]="'https://flightaware.com/live/flight/' + group.flightNumber" target="_blank" style="font-size: 12px; font-weight: 600; color: #3b82f6; text-decoration: none; padding: 2px 6px; background: #eff6ff; border-radius: 4px; display: flex; align-items: center; gap: 4px; transition: background 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
+                      <i class="fas fa-external-link-alt"></i> Track
+                    </a>
+                    }
+                  </div>
+                  <div style="font-size: 13px; font-weight: 600; color: #64748b; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-map-marker-alt"></i> Arriving at {{ group.destination }}
+                  </div>
+                </div>
+                <div style="background: #eff6ff; color: #2563eb; font-weight: 700; font-size: 14px; padding: 4px 10px; border-radius: 20px;">
+                  {{ group.students.length }} Pax
+                </div>
+              </div>
+              <div style="font-size: 13px; color: #475569; margin-bottom: 16px; font-weight: 500;">
+                <i class="far fa-calendar-alt" style="margin-right: 4px;"></i> {{ group.date ? (group.date | date:'mediumDate') : 'TBD' }}
+              </div>
+              
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button (click)="selectGroup(group.students)" style="width: 100%; padding: 8px; border: 1px dashed #3b82f6; background: #f8fafc; color: #3b82f6; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+                  <i class="fas fa-check-square"></i> Select Group
+                </button>
+                <div style="display: flex; gap: 8px;">
+                  <button (click)="openAssignDriverModal(group.students)" style="flex: 1; padding: 8px; border: none; background: #f1f5f9; color: #475569; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                    <i class="fas fa-bus"></i> Assign Driver
+                  </button>
+                  <button (click)="copyGroupContacts(group.students)" style="flex: 1; padding: 8px; border: none; background: #ecfdf5; color: #059669; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;" onmouseover="this.style.background='#d1fae5'" onmouseout="this.style.background='#ecfdf5'" title="Copy contacts for WhatsApp">
+                    <i class="fab fa-whatsapp"></i> Contacts
+                  </button>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Data Grid -->
+        <div
+          style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+
+          @if (travelTab === 'travel') {
           @if (travelStudents.length > 0) {
-          <div style="overflow-x: auto; max-height: 500px; overflow-y: auto;">
+          <div style="overflow-x: auto;">
+            <!-- Bulk Action Toolbar -->
+            @if (selectedTravelStudents.size > 0) {
+            <div
+              style="background: #eff6ff; padding: 12px 24px; border-bottom: 1px solid #bfdbfe; display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 14px; font-weight: 700; color: #1e3a8a;">
+                {{ selectedTravelStudents.size }} Students Selected
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button (click)="bulkUpdateAdmissionPlan('MARK_ARRIVED')" class="btn btn-primary btn-sm"
+                  style="font-size: 13px; font-weight: 600; padding: 6px 12px;" [disabled]="isBulkUpdating">
+                  <i class="fas fa-plane-arrival"></i> Mark Arrived
+                </button>
+                <button (click)="bulkUpdateAdmissionPlan('ASSIGN_HOSTEL')" class="btn btn-sm"
+                  style="background: #8b5cf6; color: white; border: none; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 4px;"
+                  [disabled]="isBulkUpdating">
+                  <i class="fas fa-bed"></i> Assign Hostel
+                </button>
+                <button (click)="bulkUpdateAdmissionPlan('PENDING_DOCUMENTATION')" class="btn btn-warning btn-sm"
+                  style="color: white; font-size: 13px; font-weight: 600; padding: 6px 12px;"
+                  [disabled]="isBulkUpdating">
+                  <i class="fas fa-file-alt"></i> Docs Pending
+                </button>
+              </div>
+            </div>
+            }
+
             <table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;">
-              <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+              <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
                 <tr>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Student</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Passport No</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">College</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Agent</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">DOJ</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Airlines</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Route</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569; text-align: right;">
-                    Ticket</th>
+                  <th style="padding: 12px 16px; width: 40px;"><input type="checkbox"
+                      (change)="toggleAllTravelStudents($event, filteredTravelStudents)" style="cursor: pointer;"></th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    App ID</th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    Student</th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    Agent</th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    Date & Flight</th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    Route</th>
+                  <th
+                    style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; text-align: right;">
+                    Actions</th>
                 </tr>
               </thead>
               <tbody>
                 @for (student of filteredTravelStudents; track student.id) {
-                <tr style="border-bottom: 1px solid #f1f5f9;">
-                  <td style="padding: 16px 20px;">
-                    <div style="font-weight: 600; font-size: 14px; color: #0f172a;">{{ student.fullName }}</div>
-                    <div style="font-size: 12px; color: #64748b; margin-top: 2px;">{{ student.applicationId }}</div>
+                <tr style="border-bottom: 1px solid #f1f5f9; transition: background-color 0.2s;"
+                  [style.backgroundColor]="selectedTravelStudents.has(student.id) ? '#eff6ff' : 'transparent'"
+                  onmouseover="if(this.style.backgroundColor !== 'rgb(239, 246, 255)' && this.style.backgroundColor !== '#eff6ff') this.style.backgroundColor='#f8fafc'"
+                  onmouseout="if(this.style.backgroundColor !== 'rgb(239, 246, 255)' && this.style.backgroundColor !== '#eff6ff') this.style.backgroundColor='transparent'">
+                  <td style="padding: 12px 16px;">
+                    <input type="checkbox" [checked]="selectedTravelStudents.has(student.id)"
+                      (change)="toggleTravelStudentSelection(student.id)" style="cursor: pointer;">
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">{{ student.passportNo }}</div>
+                  <td style="padding: 12px 8px;">
+                    <span
+                      style="font-weight: 700; color: #2563eb; background: #eff6ff; padding: 4px 8px; border-radius: 4px; font-size: 12px; border: 1px solid #bfdbfe;">{{
+                      student.applicationId }}</span>
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">{{ student.college?.collegeName }}</div>
+                  <td style="padding: 12px 8px;">
+                    <div style="font-weight: 700; font-size: 14px; color: #0f172a;">{{ student.fullName }}</div>
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">{{ student.agent?.fullName }}</div>
+                  <td style="padding: 12px 8px;">
+                    <div style="font-size: 13px; color: #475569; font-weight: 500;">{{ student.agent?.fullName ||
+                      'Direct' }}</div>
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-weight: 500; font-size: 14px; color: #0f172a;">{{ student.travelDoj |
-                      date:'mediumDate' }}</div>
+                  <td style="padding: 12px 8px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                      <span style="font-weight: 600; font-size: 13px; color: #0f172a;">{{ student.travelDoj | date:'MMM
+                        dd, yyyy' }}</span>
+                      <div style="display: flex; gap: 6px;">
+                        <span
+                          style="font-size: 11px; background: #e2e8f0; color: #334155; padding: 2px 6px; border-radius: 4px; font-weight: 600;">{{
+                          student.travelAirlines || 'Air' }}</span>
+                        @if (student.travelFlightNumber) {
+                        <span
+                          style="font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: 600;">{{
+                          student.travelFlightNumber }}</span>
+                        }
+                      </div>
+                    </div>
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">{{ student.travelAirlines }}</div>
+                  <td style="padding: 12px 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="font-size: 13px; font-weight: 600; color: #475569;">{{ student.travelSource ||
+                        'Origin' }}</span>
+                      <i class="fas fa-long-arrow-alt-right" style="color: #cbd5e1; font-size: 12px;"></i>
+                      <span style="font-size: 13px; font-weight: 600; color: #475569;">{{ student.travelDestination ||
+                        'Dest' }}</span>
+                    </div>
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">{{ student.travelSource }} → {{
-                      student.travelDestination }}</div>
-                  </td>
-                  <td style="padding: 16px 20px; text-align: right;">
-                    @if (student.travelTicketPdfPath) {
-                    <button class="btn btn-outline btn-sm" (click)="viewDocument(student.travelTicketPdfPath)"
-                      style="padding: 6px 12px; font-size: 12px; border-radius: 4px;">View PDF</button>
-                    } @else {
-                    <span style="font-size: 12px; color: #94a3b8;">Not provided</span>
-                    }
+                  <td style="padding: 12px 16px; text-align: right;">
+                    <div style="display: flex; justify-content: flex-end; gap: 6px;">
+                      <button (click)="openTravelDetails(student)" class="btn btn-outline btn-sm"
+                        style="font-size: 12px; padding: 4px 8px; border-radius: 4px;" title="View Details">
+                        <i class="fas fa-eye"></i> Details
+                      </button>
+
+                      @if (student.admissionPlanStatus) {
+                      <button (click)="openAdmissionPlan(student)"
+                        style="padding: 4px 8px; border: none; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white;"
+                        [style.background]="student.admissionPlanStatus === 'MARK_ARRIVED' ? '#3b82f6' : student.admissionPlanStatus === 'ASSIGN_HOSTEL' ? '#8b5cf6' : student.admissionPlanStatus === 'PENDING_DOCUMENTATION' ? '#f59e0b' : '#10b981'"
+                        title="{{ student.admissionPlanStatus }}">
+                        @if (student.admissionPlanStatus === 'MARK_ARRIVED') { <i class="fas fa-plane-arrival"></i> }
+                        @else if (student.admissionPlanStatus === 'ASSIGN_HOSTEL') { <i class="fas fa-bed"></i> }
+                        @else if (student.admissionPlanStatus === 'PENDING_DOCUMENTATION') { <i
+                          class="fas fa-file-alt"></i> }
+                        @else if (student.admissionPlanStatus === 'ADMISSION_COMPLETE') { <i class="fas fa-check"></i> }
+                        @else { <i class="fas fa-cog"></i> }
+                      </button>
+                      } @else {
+                      <button class="btn btn-primary btn-sm" (click)="openAdmissionPlan(student)"
+                        style="padding: 4px 8px; font-size: 12px; border-radius: 4px; font-weight: 600;">
+                        Set Plan
+                      </button>
+                      }
+                    </div>
                   </td>
                 </tr>
                 }
@@ -2206,73 +2525,154 @@
             </table>
           </div>
           } @else {
-          <div style="padding: 40px; text-align: center; color: #64748b;">
-            No travel details found.
+          <div
+            style="padding: 60px 40px; text-align: center; color: #64748b; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+            <div
+              style="width: 64px; height: 64px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+              <i class="fas fa-plane-slash" style="font-size: 24px;"></i>
+            </div>
+            <div>
+              <h4 style="margin: 0 0 8px; font-size: 18px; font-weight: 600; color: #1e293b;">No Travel Records Found
+              </h4>
+              <p style="margin: 0; font-size: 14px; max-width: 400px;">There are currently no students with self-visa
+                travel arrangements matching your filters.</p>
+            </div>
           </div>
           }
-        </div>
-        }
+          }
 
-
-        @if (travelTab === 'docs') {
-        <div
-          style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          @if (travelTab === 'docs') {
           @if (docReturnStudents.length > 0) {
-          <div style="overflow-x: auto; max-height: 500px; overflow-y: auto;">
+          <div style="overflow-x: auto;">
+            <!-- Bulk Action Toolbar -->
+            @if (selectedTravelStudents.size > 0) {
+            <div
+              style="background: #eff6ff; padding: 12px 24px; border-bottom: 1px solid #bfdbfe; display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 14px; font-weight: 700; color: #1e3a8a;">
+                {{ selectedTravelStudents.size }} Students Selected
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button (click)="bulkUpdateAdmissionPlan('MARK_ARRIVED')" class="btn btn-primary btn-sm"
+                  style="font-size: 13px; font-weight: 600; padding: 6px 12px;" [disabled]="isBulkUpdating">
+                  <i class="fas fa-plane-arrival"></i> Mark Arrived
+                </button>
+                <button (click)="bulkUpdateAdmissionPlan('ASSIGN_HOSTEL')" class="btn btn-sm"
+                  style="background: #8b5cf6; color: white; border: none; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 4px;"
+                  [disabled]="isBulkUpdating">
+                  <i class="fas fa-bed"></i> Assign Hostel
+                </button>
+                <button (click)="bulkUpdateAdmissionPlan('PENDING_DOCUMENTATION')" class="btn btn-warning btn-sm"
+                  style="color: white; font-size: 13px; font-weight: 600; padding: 6px 12px;"
+                  [disabled]="isBulkUpdating">
+                  <i class="fas fa-file-alt"></i> Docs Pending
+                </button>
+              </div>
+            </div>
+            }
+
             <table style="width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap;">
-              <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+              <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
                 <tr>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Student</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Passport No</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">College</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Agent</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Travel Date</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">PNR</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569;">Route</th>
-                  <th style="padding: 14px 20px; font-size: 12px; font-weight: 600; color: #475569; text-align: right;">
-                    Ticket</th>
+                  <th style="padding: 12px 16px; width: 40px;"><input type="checkbox"
+                      (change)="toggleAllTravelStudents($event, filteredDocReturnStudents)" style="cursor: pointer;">
+                  </th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    App ID</th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    Student</th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    Agent</th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    Date & Flight</th>
+                  <th
+                    style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">
+                    Route</th>
+                  <th
+                    style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; text-align: right;">
+                    Actions</th>
                 </tr>
               </thead>
               <tbody>
                 @for (student of filteredDocReturnStudents; track student.id) {
-                <tr style="border-bottom: 1px solid #f1f5f9;">
-                  <td style="padding: 16px 20px;">
-                    <div style="font-weight: 600; font-size: 14px; color: #0f172a;">{{ student.fullName }}</div>
-                    <div style="font-size: 12px; color: #64748b; margin-top: 2px;">{{ student.applicationId }}</div>
+                <tr style="border-bottom: 1px solid #f1f5f9; transition: background-color 0.2s;"
+                  [style.backgroundColor]="selectedTravelStudents.has(student.id) ? '#eff6ff' : 'transparent'"
+                  onmouseover="if(this.style.backgroundColor !== 'rgb(239, 246, 255)' && this.style.backgroundColor !== '#eff6ff') this.style.backgroundColor='#f8fafc'"
+                  onmouseout="if(this.style.backgroundColor !== 'rgb(239, 246, 255)' && this.style.backgroundColor !== '#eff6ff') this.style.backgroundColor='transparent'">
+                  <td style="padding: 12px 16px;">
+                    <input type="checkbox" [checked]="selectedTravelStudents.has(student.id)"
+                      (change)="toggleTravelStudentSelection(student.id)" style="cursor: pointer;">
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">{{ student.passportNo }}</div>
+                  <td style="padding: 12px 8px;">
+                    <span
+                      style="font-weight: 700; color: #ea580c; background: #fff7ed; padding: 4px 8px; border-radius: 4px; font-size: 12px; border: 1px solid #ffedd5;">{{
+                      student.applicationId }}</span>
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">{{ student.college?.collegeName }}</div>
+                  <td style="padding: 12px 8px;">
+                    <div style="font-weight: 700; font-size: 14px; color: #0f172a;">{{ student.fullName }}</div>
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">{{ student.agent?.fullName }}</div>
+                  <td style="padding: 12px 8px;">
+                    <div style="font-size: 13px; color: #475569; font-weight: 500;">{{ student.agent?.fullName ||
+                      'Direct' }}</div>
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-weight: 500; font-size: 14px; color: #0f172a;">
-                      {{ student.documentReturnRequest?.travelDate ? (student.documentReturnRequest?.travelDate |
-                      date:'mediumDate') : 'N/A' }}
+                  <td style="padding: 12px 8px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                      <span style="font-weight: 600; font-size: 13px; color: #0f172a;">
+                        {{ student.documentReturnRequest?.travelDate ? (student.documentReturnRequest?.travelDate |
+                        date:'MMM dd, yyyy') : 'TBD' }}
+                      </span>
+                      <div style="display: flex; gap: 6px;">
+                        @if (student.travelFlightNumber) {
+                        <span
+                          style="font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: 600;">{{
+                          student.travelFlightNumber }}</span>
+                        }
+                        @if (student.documentReturnRequest?.pnrNumber || student.travelPnrNumber) {
+                        <span
+                          style="font-size: 11px; background: #f3f4f6; color: #475569; padding: 2px 6px; border-radius: 4px; font-weight: 600;">{{
+                          student.documentReturnRequest?.pnrNumber || student.travelPnrNumber }}</span>
+                        }
+                      </div>
                     </div>
                   </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">{{ student.documentReturnRequest?.pnrNumber || 'N/A'
-                      }}</div>
-                  </td>
-                  <td style="padding: 16px 20px;">
-                    <div style="font-size: 14px; color: #334155;">
-                      {{ student.documentReturnRequest?.fromAirport || 'Origin' }} → {{
-                      student.documentReturnRequest?.toAirport || 'Dest' }}
+                  <td style="padding: 12px 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="font-size: 13px; font-weight: 600; color: #475569;">{{
+                        student.documentReturnRequest?.fromAirport || 'Origin' }}</span>
+                      <i class="fas fa-long-arrow-alt-right" style="color: #cbd5e1; font-size: 12px;"></i>
+                      <span style="font-size: 13px; font-weight: 600; color: #475569;">{{
+                        student.documentReturnRequest?.toAirport || 'Dest' }}</span>
                     </div>
                   </td>
-                  <td style="padding: 16px 20px; text-align: right;">
-                    @if (student.documentReturnRequest?.ticketPdfPath) {
-                    <button class="btn btn-outline btn-sm"
-                      (click)="viewDocument(student.documentReturnRequest?.ticketPdfPath)"
-                      style="padding: 6px 12px; font-size: 12px; border-radius: 4px;">View PDF</button>
-                    } @else {
-                    <span style="font-size: 12px; color: #94a3b8;">Not provided</span>
-                    }
+                  <td style="padding: 12px 16px; text-align: right;">
+                    <div style="display: flex; justify-content: flex-end; gap: 6px;">
+                      <button (click)="openTravelDetails(student)" class="btn btn-outline btn-sm"
+                        style="font-size: 12px; padding: 4px 8px; border-radius: 4px;" title="View Details">
+                        <i class="fas fa-eye"></i> Details
+                      </button>
+
+                      @if (student.admissionPlanStatus) {
+                      <button (click)="openAdmissionPlan(student)"
+                        style="padding: 4px 8px; border: none; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white;"
+                        [style.background]="student.admissionPlanStatus === 'MARK_ARRIVED' ? '#3b82f6' : student.admissionPlanStatus === 'ASSIGN_HOSTEL' ? '#8b5cf6' : student.admissionPlanStatus === 'PENDING_DOCUMENTATION' ? '#f59e0b' : '#10b981'"
+                        title="{{ student.admissionPlanStatus }}">
+                        @if (student.admissionPlanStatus === 'MARK_ARRIVED') { <i class="fas fa-plane-arrival"></i> }
+                        @else if (student.admissionPlanStatus === 'ASSIGN_HOSTEL') { <i class="fas fa-bed"></i> }
+                        @else if (student.admissionPlanStatus === 'PENDING_DOCUMENTATION') { <i
+                          class="fas fa-file-alt"></i> }
+                        @else if (student.admissionPlanStatus === 'ADMISSION_COMPLETE') { <i class="fas fa-check"></i> }
+                        @else { <i class="fas fa-cog"></i> }
+                      </button>
+                      } @else {
+                      <button class="btn btn-primary btn-sm" (click)="openAdmissionPlan(student)"
+                        style="padding: 4px 8px; font-size: 12px; border-radius: 4px; font-weight: 600;">
+                        Set Plan
+                      </button>
+                      }
+                    </div>
                   </td>
                 </tr>
                 }
@@ -2280,12 +2680,22 @@
             </table>
           </div>
           } @else {
-          <div style="padding: 40px; text-align: center; color: #64748b;">
-            No document return requests found.
+          <div
+            style="padding: 60px 40px; text-align: center; color: #64748b; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+            <div
+              style="width: 64px; height: 64px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+              <i class="fas fa-plane-slash" style="font-size: 24px;"></i>
+            </div>
+            <div>
+              <h4 style="margin: 0 0 8px; font-size: 18px; font-weight: 600; color: #1e293b;">No Travel Records Found
+              </h4>
+              <p style="margin: 0; font-size: 14px; max-width: 400px;">There are currently no students from the Rare
+                Education pipeline with travel arrangements matching your filters.</p>
+            </div>
           </div>
           }
+          }
         </div>
-        }
       </div>
       }
 
@@ -3401,6 +3811,395 @@
           </svg>
           Download Excel
         </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Task Engine Settings Modal -->
+  @if (showSettingsModal) {
+  <div class="modal-overlay"
+    style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+    <div class="modal-content"
+      style="background: white; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+      <div
+        style="padding: 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+        <h2
+          style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+          Task Engine Settings
+        </h2>
+        <button (click)="showSettingsModal = false"
+          style="background: none; border: none; padding: 4px; color: #94a3b8; cursor: pointer; border-radius: 4px; transition: 0.2s;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+        <div>
+          <label
+            style="display: block; font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 8px;">Background
+            Sync Interval (Minutes)</label>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <input type="number" [(ngModel)]="currentSyncInterval" min="1" max="1440"
+              style="flex: 1; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 15px; outline: none; transition: border-color 0.2s;"
+              placeholder="e.g. 15">
+          </div>
+          <p style="margin: 8px 0 0; font-size: 13px; color: #64748b; line-height: 1.5;">
+            The Enterprise Task Engine runs in the background. Choose how often it should scan for new tasks. Lower
+            values use more server resources but update tasks faster.
+          </p>
+        </div>
+      </div>
+
+      <div
+        style="padding: 16px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 12px; background: #f8fafc; border-radius: 0 0 12px 12px;">
+        <button (click)="showSettingsModal = false"
+          style="padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-weight: 600; color: #64748b; cursor: pointer;">
+          Cancel
+        </button>
+        <button (click)="updateSyncInterval()" [disabled]="isUpdatingSettings"
+          style="padding: 10px 24px; border: none; border-radius: 6px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+          @if (isUpdatingSettings) {
+          <span class="spinner"
+            style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></span>
+          Saving...
+          } @else {
+          Save Changes
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Professional Toast Overlay -->
+  <div
+    style="position: fixed; bottom: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; pointer-events: none;">
+    @for (toast of toastQueue; track toast.id) {
+    <div
+      [style.borderLeftColor]="toast.type === 'success' ? '#10b981' : toast.type === 'error' ? '#ef4444' : toast.type === 'warning' ? '#f59e0b' : '#3b82f6'"
+      style="background: white; border-left-width: 4px; border-left-style: solid; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 10px -1px rgba(0,0,0,0.1); padding: 16px 20px; border-radius: 6px; display: flex; align-items: center; gap: 12px; min-width: 320px; pointer-events: auto; transition: all 0.3s ease;">
+      <span style="font-weight: 600; font-size: 14px; color: #1e293b;">{{ toast.message }}</span>
+    </div>
+    }
+  </div>
+
+  <!-- Admission Plan Modal -->
+  @if (showAdmissionPlanModal) {
+  <div class="modal-overlay"
+    style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+    <div class="modal-content"
+      style="background: white; border-radius: 12px; width: 100%; max-width: 600px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+      <div
+        style="padding: 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+        <h2
+          style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-clipboard-check" style="color: #3b82f6;"></i>
+          Set Admission Plan
+        </h2>
+        <button (click)="closeAdmissionPlan()"
+          style="background: none; border: none; padding: 4px; color: #94a3b8; cursor: pointer; border-radius: 4px; transition: 0.2s;">
+          <i class="fas fa-times" style="font-size: 20px;"></i>
+        </button>
+      </div>
+
+      <div style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+        @if (selectedAdmissionStudent) {
+        <div
+          style="background: #f8fafc; border-radius: 8px; padding: 16px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+          <h4
+            style="margin: 0 0 12px; font-size: 14px; color: #475569; text-transform: uppercase; letter-spacing: 0.05em;">
+            Student Details</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Name</div>
+              <div style="font-weight: 600; color: #0f172a; font-size: 15px;">{{ selectedAdmissionStudent.fullName }}
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Application ID</div>
+              <div style="font-weight: 600; color: #0f172a; font-size: 15px;">{{ selectedAdmissionStudent.applicationId
+                }}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Arrival Date</div>
+              <div style="font-weight: 600; color: #0f172a; font-size: 15px;">
+                {{ (selectedAdmissionStudent.travelDoj || selectedAdmissionStudent.documentReturnRequest?.travelDate) |
+                date:'mediumDate' || 'TBD' }}
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Provider/Agent</div>
+              <div style="font-weight: 600; color: #0f172a; font-size: 15px;">{{
+                selectedAdmissionStudent.agent?.fullName || 'N/A' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">Update
+            Admission Status</label>
+          <select [(ngModel)]="admissionPlanStatus" [disabled]="isSavingAdmissionPlan" class="form-control-modern"
+            style="width: 100%; height: 44px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 14px;">
+            <option value="MARK_ARRIVED">Mark as Arrived</option>
+            <option value="ASSIGN_HOSTEL">Assign Hostel / Accommodation</option>
+            <option value="PENDING_DOCUMENTATION">Pending Physical Documentation</option>
+            <option value="ADMISSION_COMPLETE">Complete Admission Workflow</option>
+          </select>
+        </div>
+
+        <div>
+          <label
+            style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">Admission
+            Notes / Instructions</label>
+          <textarea [(ngModel)]="admissionNotes" [disabled]="isSavingAdmissionPlan" class="form-control-modern" rows="3"
+            placeholder="Add specific notes for the admission team or agent..."
+            style="width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 12px 16px; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        }
+      </div>
+
+      <div
+        style="padding: 16px 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 12px; background: #f8fafc; border-radius: 0 0 12px 12px;">
+        <button (click)="closeAdmissionPlan()" [disabled]="isSavingAdmissionPlan"
+          style="padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-weight: 600; color: #64748b; cursor: pointer;">
+          Cancel
+        </button>
+        <button (click)="saveAdmissionPlan()" [disabled]="isSavingAdmissionPlan"
+          style="padding: 10px 24px; border: none; border-radius: 6px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.2); display: flex; align-items: center; gap: 8px;">
+          @if (isSavingAdmissionPlan) {
+          <span class="spinner"
+            style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></span>
+          Saving...
+          } @else {
+          Save Admission Plan
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Travel Details Side Modal -->
+  @if (showTravelDetailsModal && selectedTravelDetailStudent) {
+  <div class="modal-backdrop" (click)="closeTravelDetails()" style="display: flex; justify-content: flex-end; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.2); z-index: 1000; animation: fadeIn 0.2s ease-out;">
+    <div class="modal-content" (click)="$event.stopPropagation()" style="background: white; width: 100%; max-width: 450px; height: 100vh; box-shadow: -10px 0 25px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+      
+      <!-- Header -->
+      <div style="padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">
+            {{ selectedTravelDetailStudent.fullName.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <h2 style="margin: 0 0 4px; font-size: 18px; font-weight: 700; color: #0f172a;">{{ selectedTravelDetailStudent.fullName }}</h2>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 13px; color: #64748b; font-weight: 500;"><i class="far fa-id-badge"></i> {{ selectedTravelDetailStudent.applicationId }}</span>
+            </div>
+          </div>
+        </div>
+        <button (click)="closeTravelDetails()" style="background: #e2e8f0; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='white'" onmouseout="this.style.background='#e2e8f0'; this.style.color='#64748b'">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div style="flex: 1; overflow-y: auto; padding: 24px;">
+        
+        <!-- Placement Section -->
+        <div style="margin-bottom: 24px;">
+          <h3 style="margin: 0 0 16px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700;">Placement Details</h3>
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Assigned College</div>
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b;">
+                  <i class="fas fa-university" style="color: #cbd5e1; margin-right: 8px;"></i> {{ selectedTravelDetailStudent.college?.collegeName || 'Not Assigned' }}
+                </div>
+              </div>
+              <div style="border-top: 1px solid #f1f5f9; padding-top: 16px;">
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Recruitment Partner / Agent</div>
+                <div style="font-size: 15px; font-weight: 600; color: #1e293b;">
+                  <i class="fas fa-user-tie" style="color: #cbd5e1; margin-right: 8px;"></i> {{ selectedTravelDetailStudent.agent?.fullName || 'Direct Application' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Travel Section -->
+        <div style="margin-bottom: 24px;">
+          <h3 style="margin: 0 0 16px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700;">Full Travel Itinerary</h3>
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; position: relative;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <div>
+                <div style="font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">{{ selectedTravelDetailStudent.travelSource || selectedTravelDetailStudent.documentReturnRequest?.fromAirport || 'Origin' }}</div>
+                <div style="font-size: 13px; color: #64748b;">Departure</div>
+              </div>
+              <div style="flex: 1; margin: 0 16px; display: flex; flex-direction: column; align-items: center;">
+                <i class="fas fa-plane" style="color: #3b82f6; font-size: 20px;"></i>
+                <div style="width: 100%; height: 2px; border-bottom: 2px dashed #cbd5e1; margin-top: -10px;"></div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">{{ selectedTravelDetailStudent.travelDestination || selectedTravelDetailStudent.documentReturnRequest?.toAirport || 'Dest' }}</div>
+                <div style="font-size: 13px; color: #64748b;">Arrival</div>
+              </div>
+            </div>
+
+            <div style="background: #f8fafc; border-radius: 8px; padding: 12px; display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;">
+              <div style="flex: 1; min-width: 100px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 4px; font-weight: 600;">Date</div>
+                <div style="font-size: 14px; font-weight: 600; color: #1e293b;">
+                  {{ (selectedTravelDetailStudent.travelDoj || selectedTravelDetailStudent.documentReturnRequest?.travelDate) ? ((selectedTravelDetailStudent.travelDoj || selectedTravelDetailStudent.documentReturnRequest?.travelDate) | date:'MMM dd, yyyy') : 'TBD' }}
+                </div>
+              </div>
+              <div style="flex: 1; min-width: 100px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 4px; font-weight: 600;">Flight / Airline</div>
+                <div style="font-size: 14px; font-weight: 600; color: #1e293b;">
+                  {{ selectedTravelDetailStudent.travelFlightNumber || 'N/A' }} <span style="color: #94a3b8; font-size: 12px; font-weight: 400;">({{ selectedTravelDetailStudent.travelAirlines || 'Air' }})</span>
+                </div>
+              </div>
+              <div style="flex: 1; min-width: 100px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 4px; font-weight: 600;">PNR Number</div>
+                <div style="font-size: 14px; font-weight: 600; color: #1e293b;">
+                  {{ selectedTravelDetailStudent.travelPnrNumber || selectedTravelDetailStudent.documentReturnRequest?.pnrNumber || 'N/A' }}
+                </div>
+              </div>
+            </div>
+
+            @if (selectedTravelDetailStudent.travelTicketPdfPath || selectedTravelDetailStudent.documentReturnRequest?.ticketPdfPath) {
+              <button class="btn btn-outline" (click)="viewDocument(selectedTravelDetailStudent.travelTicketPdfPath || selectedTravelDetailStudent.documentReturnRequest?.ticketPdfPath)" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; border-radius: 8px; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                <i class="far fa-file-pdf" style="color: #ef4444; font-size: 18px;"></i> Open E-Ticket PDF Document
+              </button>
+            } @else {
+              <div style="width: 100%; padding: 12px; font-size: 14px; border-radius: 8px; background: #f1f5f9; color: #94a3b8; text-align: center; font-style: italic;">
+                E-Ticket Not Uploaded Yet
+              </div>
+            }
+          </div>
+        </div>
+        <!-- Driver / Pickup Section -->
+        @if (selectedTravelDetailStudent.pickupDriverName) {
+        <div style="margin-bottom: 24px;">
+          <h3 style="margin: 0 0 16px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700;">Driver & Pickup Information</h3>
+          <div style="background: white; border: 1px solid #10b981; border-radius: 12px; padding: 16px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #10b981;"></div>
+            
+            <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px;">
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: #d1fae5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="fas fa-id-card"></i>
+              </div>
+              <div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 2px;">Assigned Driver</div>
+                <div style="font-size: 15px; font-weight: 700; color: #0f172a;">{{ selectedTravelDetailStudent.pickupDriverName }}</div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <div style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Contact</div>
+                <div style="font-size: 14px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                  <i class="fas fa-phone-alt" style="color: #94a3b8; font-size: 12px;"></i> {{ selectedTravelDetailStudent.pickupDriverContact }}
+                </div>
+              </div>
+              <div>
+                <div style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Vehicle</div>
+                <div style="font-size: 14px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                  <i class="fas fa-bus" style="color: #94a3b8; font-size: 12px;"></i> {{ selectedTravelDetailStudent.pickupVehicleInfo || 'N/A' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+        
+        <!-- Quick Actions -->
+        <div>
+          <h3 style="margin: 0 0 16px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700;">Manage Student</h3>
+          <div style="display: flex; gap: 12px; flex-direction: column;">
+            <button class="btn btn-primary" (click)="closeTravelDetails(); openAdmissionPlan(selectedTravelDetailStudent)" style="width: 100%; padding: 12px; justify-content: center;">
+              <i class="fas fa-map-signs"></i> Update Admission Plan
+            </button>
+            @if (selectedTravelDetailStudent.contactNo) {
+            <a [href]="'https://wa.me/' + selectedTravelDetailStudent.contactNo.replace('+', '')" target="_blank" style="width: 100%; padding: 12px; border-radius: 8px; background: #25D366; color: white; text-align: center; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;" onmouseover="this.style.background='#128C7E'" onmouseout="this.style.background='#25D366'">
+              <i class="fab fa-whatsapp" style="font-size: 18px;"></i> Message on WhatsApp
+            </a>
+            }
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+  }
+
+  <!-- Assign Driver Modal (Side Panel) -->
+  @if (showAssignDriverModal) {
+  <div class="modal-backdrop" (click)="closeAssignDriverModal()" style="display: flex; justify-content: flex-end; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.2); z-index: 1000; animation: fadeIn 0.2s ease-out;">
+    <div class="modal-content" (click)="$event.stopPropagation()" style="background: white; width: 100%; max-width: 450px; height: 100vh; box-shadow: -10px 0 25px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+      
+      <!-- Header -->
+      <div style="padding: 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+        <div>
+          <h2 style="margin: 0 0 4px; font-size: 18px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-bus" style="color: #3b82f6;"></i> Assign Driver
+          </h2>
+          <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 500;">Allocate transport for {{ assignDriverStudentIds.length }} student(s)</p>
+        </div>
+        <button (click)="closeAssignDriverModal()" style="background: #e2e8f0; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='white'" onmouseout="this.style.background='#e2e8f0'; this.style.color='#64748b'">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div style="flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column;">
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <div class="form-group">
+            <label style="display: block; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700; margin-bottom: 8px;">Driver Name <span style="color: #ef4444;">*</span></label>
+            <input type="text" [(ngModel)]="assignDriverForm.pickupDriverName" placeholder="e.g. John Smith" style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; color: #1e293b; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+          </div>
+
+          <div class="form-group">
+            <label style="display: block; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700; margin-bottom: 8px;">Driver Contact No. <span style="color: #ef4444;">*</span></label>
+            <input type="text" [(ngModel)]="assignDriverForm.pickupDriverContact" placeholder="e.g. +91 9876543210" style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; color: #1e293b; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+          </div>
+
+          <div class="form-group">
+            <label style="display: block; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700; margin-bottom: 8px;">Vehicle Plate / Description</label>
+            <input type="text" [(ngModel)]="assignDriverForm.pickupVehicleInfo" placeholder="e.g. White Toyota Hiace - DL 1A 2345" style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; color: #1e293b; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: auto; padding-top: 24px;">
+          <button (click)="closeAssignDriverModal()" style="padding: 10px 20px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; color: #475569; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+            Cancel
+          </button>
+          <button (click)="saveDriverAssignment()" [disabled]="isSubmittingDriver" style="padding: 10px 20px; border-radius: 8px; border: none; background: #3b82f6; color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+            @if (isSubmittingDriver) { <i class="fas fa-spinner fa-spin"></i> }
+            Confirm Allocation
+          </button>
+        </div>
       </div>
     </div>
   </div>

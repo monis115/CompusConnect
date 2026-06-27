@@ -62,6 +62,14 @@ export interface Student {
     accountant?: any;
 
     // Telex Details
+    travelPnrNumber?: string;
+  travelFlightNumber?: string;
+
+  // Admission Plan Fields
+  admissionPlanStatus?: string;
+  admissionNotes?: string;
+
+  // Optional associated entities
     telexNumber?: string;
     telexIssueDate?: string; // LocalDate
     telexDocumentsPath?: string;

@@ -166,6 +166,10 @@
         <i class="fas fa-th-large"></i>
         <span>Dashboard</span>
       </div>
+      <div class="nav-item" [class.active]="activeTab === 'tasks'" (click)="activeTab = 'tasks'">
+        <i class="fas fa-tasks"></i>
+        <span>Follow Ups & Tasks</span>
+      </div>
 
       <div class="nav-item" [class.active]="activeTab === 'upload-docs'" (click)="activeTab = 'upload-docs'">
         <i class="fas fa-upload"></i>
@@ -250,6 +254,9 @@
         <h1>
           @if (activeTab === 'dashboard') {
           <i class="fas fa-th-large"></i>
+          }
+          @if (activeTab === 'tasks') {
+          <i class="fas fa-tasks"></i>
           }
           @if (activeTab === 'upload-docs') {
           <i class="fas fa-upload"></i>
@@ -347,6 +354,11 @@
         }
       </div>
       }
+
+      <!-- TASKS VIEW -->
+      <div class="fade-in" [hidden]="activeTab !== 'tasks' || loading">
+        <app-tasks-board [role]="'TELEX_MANAGER'"></app-tasks-board>
+      </div>
 
       <!-- DASHBOARD VIEW -->
       @if (activeTab === 'dashboard' && !loading) {

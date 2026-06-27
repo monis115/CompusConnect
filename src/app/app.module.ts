@@ -1,3 +1,4 @@
+import { TasksBoardComponent } from './components/shared/tasks-board/tasks-board';
 import { NgModule, NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -288,6 +289,7 @@ import { TrackApplicationComponent } from './components/track-application/track-
     TrackApplicationComponent
   ],
   imports: [
+    TasksBoardComponent,
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,

@@ -1,3 +1,4 @@
+import { TasksBoardComponent } from '../../shared/tasks-board/tasks-board';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -25,6 +26,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
     MessageDashboardAdmissionManager
   ],
   imports: [
+    TasksBoardComponent,
     CommonModule,
     HttpClientModule,
     FormsModule,

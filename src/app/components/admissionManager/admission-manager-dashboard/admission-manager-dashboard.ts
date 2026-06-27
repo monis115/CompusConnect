@@ -19,6 +19,8 @@ interface User {
   userId?: string;
 }
 
+import { forkJoin } from 'rxjs';
+
 interface StatusHistory {
   id: number;
   studentApplicationStatus: string;
@@ -142,6 +144,14 @@ interface Student {
   travelSource: string | null;
   travelDestination: string | null;
   travelTicketPdfPath: string | null;
+  travelPnrNumber: string | null;
+  travelFlightNumber: string | null;
+  admissionPlanStatus: string | null;
+  admissionNotes: string | null;
+  // Driver Details
+  pickupDriverName?: string | null;
+  pickupDriverContact?: string | null;
+  pickupVehicleInfo?: string | null;
   // Payment Details
   hasPaid: boolean | null;
   paidAmount: number | null;
@@ -261,6 +271,10 @@ interface DashboardStats {
   ],
 })
 export class AdmissionManagerDashboard implements OnInit, OnDestroy {
+  // --- Professional Toast System ---
+  toastQueue: { message: string, type: 'success' | 'error' | 'info' | 'warning', id: number }[] = [];
+  toastIdCounter: number = 0;
+
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
 
   private destroy$ = new Subject<void>();
@@ -284,7 +298,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   availableVisaManagers: { username: string; studentCount: number }[] = [];
 
   // Views & Lists
-  activeView: 'dashboard' | 'actions-required' | 'forward-uni' | 'approve-admission' | 'assign-telex' | 'assign-visa' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' | 'sessions' | 'travel' | 'travelling' | 'requested-docs' = 'dashboard';
+  activeView: 'dashboard' | 'actions-required' | 'forward-uni' | 'approve-admission' | 'assign-telex' | 'assign-visa' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' | 'sessions' | 'travel' | 'travelling' | 'requested-docs' | 'tasks' = 'dashboard';
   isSidebarCollapsed = false;
   actionRequiredStudents: Student[] = [];
   pendingUniversityStudents: Student[] = [];
@@ -292,6 +306,22 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   allStudents: Student[] = [];
   filteredList: Student[] = [];
   docRequests: any[] = [];
+
+  // --- Tasks Module State ---
+  tasksDashboardData: any = {
+    allTasks: [], myTasks: [], followUps: [], escalations: [], overdueTasks: []
+  };
+  tasksFilter: string = 'all'; // 'all', 'my', 'followups', 'overdue', 'escalations'
+  isTaskModalOpen: boolean = false;
+  newTask: any = {
+    title: '', description: '', department: 'VISA', assignedToRole: '', type: 'TASK', dueDate: ''
+  };
+
+  // --- Settings ---
+  currentSyncInterval: number = 15;
+  isUpdatingSettings: boolean = false;
+  showSettingsModal: boolean = false;
+
   isForwardingRequest = false;
   isRejectingRequest = false;
   selectedRequestForReject: any = null;
@@ -328,8 +358,72 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   travelFilterStartDate = '';
   travelFilterEndDate = '';
 
+  // --- Travel Tracking & Heatmap ---
+  todayTravelers: Student[] = [];
+  tomorrowTravelers: Student[] = [];
+  next7DaysTravelers: Student[] = [];
+  past7DaysTravelers: Student[] = [];
+  
+  heatmapDays: { date: number, fullDate: string, count: number }[] = [];
+  heatmapMonthName: string = '';
+  selectedHeatmapDate: string | null = null;
+  
+  toggleHeatmapDate(date: string) {
+    if (this.selectedHeatmapDate === date) {
+      this.selectedHeatmapDate = null; // deselect
+    } else {
+      this.selectedHeatmapDate = date;
+    }
+  }
+
+  // --- Bulk Actions ---
+  selectedTravelStudents = new Set<number>();
+  isBulkUpdating = false;
+
+  toggleTravelStudentSelection(studentId: number) {
+    if (this.selectedTravelStudents.has(studentId)) {
+      this.selectedTravelStudents.delete(studentId);
+    } else {
+      this.selectedTravelStudents.add(studentId);
+    }
+  }
+
+  toggleAllTravelStudents(event: any, students: Student[]) {
+    if (event.target.checked) {
+      students.forEach(s => this.selectedTravelStudents.add(s.id));
+    } else {
+      this.selectedTravelStudents.clear();
+    }
+  }
+
+  bulkUpdateAdmissionPlan(status: string) {
+    if (this.selectedTravelStudents.size === 0) return;
+    
+    this.isBulkUpdating = true;
+    this.cdr.markForCheck();
+
+    const requests = Array.from(this.selectedTravelStudents).map(studentId => {
+      const payload = { admissionPlanStatus: status, admissionNotes: '' };
+      return this.http.put<Student>(`${environment.apiUrl}/api/managers/student/${studentId}/admission-plan`, payload);
+    });
+
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        this.isBulkUpdating = false;
+        this.selectedTravelStudents.clear();
+        this.showToast(`Successfully updated ${results.length} students to ${status}.`, 'success');
+        this.refreshData(); // Refresh to get the latest updated objects
+      },
+      error: (err) => {
+        this.isBulkUpdating = false;
+        this.showToast('Failed to bulk update some students.', 'error');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
   get filteredTravelStudents(): Student[] {
-    return this.travelStudents.filter(s => {
+    let filtered = this.travelStudents.filter(s => {
       if (this.travelFilterAgent && s.agent?.fullName !== this.travelFilterAgent) return false;
       if (this.travelFilterCollege && s.college?.collegeName !== this.travelFilterCollege) return false;
       if (this.travelFilterStartDate && s.travelDoj) {
@@ -338,12 +432,24 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       if (this.travelFilterEndDate && s.travelDoj) {
         if (new Date(s.travelDoj) > new Date(this.travelFilterEndDate)) return false;
       }
+      
+      // Heatmap Filter
+      if (this.selectedHeatmapDate && s.travelDoj !== this.selectedHeatmapDate) return false;
+
       return true;
+    });
+
+    // Grouping/Sorting by Date then Flight Number for Pickup Coordination
+    return filtered.sort((a, b) => {
+      const dA = new Date(a.travelDoj || 0).getTime();
+      const dB = new Date(b.travelDoj || 0).getTime();
+      if (dA !== dB) return dA - dB;
+      return (a.travelFlightNumber || '').localeCompare(b.travelFlightNumber || '');
     });
   }
 
   get filteredDocReturnStudents(): Student[] {
-    return this.docReturnStudents.filter(s => {
+    let filtered = this.docReturnStudents.filter(s => {
       if (this.travelFilterAgent && s.agent?.fullName !== this.travelFilterAgent) return false;
       if (this.travelFilterCollege && s.college?.collegeName !== this.travelFilterCollege) return false;
       if (this.travelFilterStartDate && s.documentReturnRequest?.travelDate) {
@@ -352,7 +458,145 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       if (this.travelFilterEndDate && s.documentReturnRequest?.travelDate) {
         if (new Date(s.documentReturnRequest.travelDate) > new Date(this.travelFilterEndDate)) return false;
       }
+
+      // Heatmap Filter
+      const tDate = s.documentReturnRequest?.travelDate;
+      if (this.selectedHeatmapDate && tDate !== this.selectedHeatmapDate) return false;
+
       return true;
+    });
+
+    // Grouping/Sorting by Date then Flight Number
+    return filtered.sort((a, b) => {
+      const dA = new Date(a.documentReturnRequest?.travelDate || 0).getTime();
+      const dB = new Date(b.documentReturnRequest?.travelDate || 0).getTime();
+      if (dA !== dB) return dA - dB;
+      return (a.travelFlightNumber || '').localeCompare(b.travelFlightNumber || '');
+    });
+  }
+
+  // --- Flight Grouping ---
+  get flightGroups(): any[] {
+    const students = this.travelTab === 'travel' ? this.filteredTravelStudents : this.filteredDocReturnStudents;
+    const groupsMap = new Map<string, { flightNumber: string, date: string, destination: string, students: Student[] }>();
+
+    students.forEach(s => {
+      const flightNumber = s.travelFlightNumber || 'Unknown Flight';
+      const date = this.travelTab === 'travel' ? s.travelDoj : s.documentReturnRequest?.travelDate;
+      const destination = this.travelTab === 'travel' ? s.travelDestination : s.documentReturnRequest?.toAirport;
+      
+      const key = `${flightNumber}_${date}_${destination}`;
+      if (!groupsMap.has(key)) {
+        groupsMap.set(key, { flightNumber, date: date || '', destination: destination || 'Unknown', students: [] });
+      }
+      groupsMap.get(key)!.students.push(s);
+    });
+
+    return Array.from(groupsMap.values()).sort((a, b) => {
+      const dA = new Date(a.date).getTime();
+      const dB = new Date(b.date).getTime();
+      return dA - dB;
+    });
+  }
+
+  selectGroup(groupStudents: Student[]) {
+    this.selectedTravelStudents.clear(); // Clear existing
+    groupStudents.forEach(s => this.selectedTravelStudents.add(s.id));
+    this.cdr.markForCheck();
+  }
+
+  // --- Travel Details Side Modal ---
+  showTravelDetailsModal: boolean = false;
+  selectedTravelDetailStudent: Student | null = null;
+
+  openTravelDetails(student: Student) {
+    this.selectedTravelDetailStudent = student;
+    this.showTravelDetailsModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeTravelDetails() {
+    this.showTravelDetailsModal = false;
+    this.selectedTravelDetailStudent = null;
+    this.cdr.markForCheck();
+  }
+
+  // --- WhatsApp & Flight Tracking ---
+  copyGroupContacts(students: Student[]) {
+    const contacts = students
+      .map(s => s.contactNo)
+      .filter(c => c && c.trim().length > 0)
+      .join(', ');
+    
+    if (!contacts) {
+      this.showToast('No contact numbers found for this group.', 'error');
+      return;
+    }
+
+    navigator.clipboard.writeText(contacts).then(() => {
+      this.showToast('Successfully copied all contact numbers!', 'success');
+    }).catch(err => {
+      this.showToast('Failed to copy contacts.', 'error');
+    });
+  }
+
+  // --- Assign Driver Modal ---
+  showAssignDriverModal: boolean = false;
+  isSubmittingDriver: boolean = false;
+  assignDriverForm = {
+    pickupDriverName: '',
+    pickupDriverContact: '',
+    pickupVehicleInfo: ''
+  };
+  assignDriverStudentIds: number[] = [];
+
+  openAssignDriverModal(students: Student[]) {
+    this.assignDriverStudentIds = students.map(s => s.id);
+    // Pre-fill if the first student has driver details
+    if (students.length > 0) {
+      this.assignDriverForm.pickupDriverName = students[0].pickupDriverName || '';
+      this.assignDriverForm.pickupDriverContact = students[0].pickupDriverContact || '';
+      this.assignDriverForm.pickupVehicleInfo = students[0].pickupVehicleInfo || '';
+    }
+    this.showAssignDriverModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeAssignDriverModal() {
+    this.showAssignDriverModal = false;
+    this.assignDriverStudentIds = [];
+    this.assignDriverForm = { pickupDriverName: '', pickupDriverContact: '', pickupVehicleInfo: '' };
+    this.cdr.markForCheck();
+  }
+
+  saveDriverAssignment() {
+    if (!this.assignDriverForm.pickupDriverName || !this.assignDriverForm.pickupDriverContact) {
+      this.showToast('Driver Name and Contact are required.', 'error');
+      return;
+    }
+
+    this.isSubmittingDriver = true;
+    this.cdr.markForCheck();
+
+    const payload = {
+      studentIds: this.assignDriverStudentIds,
+      pickupDriverName: this.assignDriverForm.pickupDriverName,
+      pickupDriverContact: this.assignDriverForm.pickupDriverContact,
+      pickupVehicleInfo: this.assignDriverForm.pickupVehicleInfo
+    };
+
+    this.http.put(`${environment.apiUrl}/api/managers/student/bulk-assign-driver`, payload).subscribe({
+      next: (res: any) => {
+        this.isSubmittingDriver = false;
+        this.closeAssignDriverModal();
+        this.showToast('Driver assigned successfully!', 'success');
+        this.refreshData(); // Refresh UI
+      },
+      error: (err) => {
+        this.isSubmittingDriver = false;
+        this.showToast('Failed to assign driver.', 'error');
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -920,6 +1164,9 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     this.travelStudents = this.allStudents.filter(s => (s.travelDoj || s.travelAirlines) && !s.hasRaiseReturnRequest);
     this.docReturnStudents = this.allStudents.filter(s => !!s.hasRaiseReturnRequest);
 
+    // Build Travel Heatmap & Timeline Data
+    this.buildTravelHeatmapAndTimeline();
+
     // Build unique filter options
     const agentMap = new Map<string, { fullName: string; username: string }>();
     const collegeSet = new Set<string>();
@@ -953,8 +1200,9 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
         this.isLoadingMessages = false;
         this.cdr.detectChanges();
       }, 800);
-    } else if (view === 'requested-docs') {
+    } else if (view === 'tasks') {
       this.loadDocRequests();
+      this.loadTasksDashboard();
     } else if (view === 'dashboard') {
       const username = sessionStorage.getItem('userId');
       if (username) this.loadDashboardStats(username);
@@ -1144,6 +1392,95 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     });
   }
 
+  buildTravelHeatmapAndTimeline() {
+    this.todayTravelers = [];
+    this.tomorrowTravelers = [];
+    this.next7DaysTravelers = [];
+    this.past7DaysTravelers = [];
+    this.heatmapDays = [];
+
+    const now = new Date();
+    // Reset to start of day for accurate comparison
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Gather all traveling students
+    const allTravelers = [...this.travelStudents, ...this.docReturnStudents];
+
+    // Build Heatmap for the CURRENT month
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    this.heatmapMonthName = today.toLocaleString('default', { month: 'long', year: 'numeric' });
+    
+    // Initialize heatmap array with 0 counts
+    for (let i = 1; i <= daysInMonth; i++) {
+      const monthStr = (today.getMonth() + 1).toString().padStart(2, '0');
+      const dayStr = i.toString().padStart(2, '0');
+      const dateString = `${today.getFullYear()}-${monthStr}-${dayStr}`;
+      this.heatmapDays.push({ date: i, fullDate: dateString, count: 0 });
+    }
+
+    // Process travelers
+    allTravelers.forEach(s => {
+      const dateStr = s.travelDoj || s.documentReturnRequest?.travelDate;
+      if (!dateStr) return;
+
+      const travelDate = new Date(dateStr);
+      // Ensure we compare midnight to midnight
+      const tDateMidnight = new Date(travelDate.getFullYear(), travelDate.getMonth(), travelDate.getDate());
+
+      // Heatmap increment (only if it's the current month and year)
+      if (tDateMidnight.getMonth() === today.getMonth() && tDateMidnight.getFullYear() === today.getFullYear()) {
+        const dayOfMonth = tDateMidnight.getDate();
+        if (dayOfMonth >= 1 && dayOfMonth <= daysInMonth) {
+          this.heatmapDays[dayOfMonth - 1].count++;
+        }
+      }
+
+      // Timeline categorization
+      const diffTime = tDateMidnight.getTime() - today.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+
+      if (diffDays === 0) {
+        this.todayTravelers.push(s);
+      } else if (diffDays === 1) {
+        this.tomorrowTravelers.push(s);
+      } else if (diffDays > 1 && diffDays <= 7) {
+        this.next7DaysTravelers.push(s);
+      } else if (diffDays < 0 && diffDays >= -7) {
+        this.past7DaysTravelers.push(s);
+      }
+    });
+
+    // Sort the timeline lists by date
+    const sortByDate = (a: Student, b: Student) => {
+      const dA = new Date(a.travelDoj || a.documentReturnRequest?.travelDate || 0).getTime();
+      const dB = new Date(b.travelDoj || b.documentReturnRequest?.travelDate || 0).getTime();
+      return dA - dB;
+    };
+
+    this.todayTravelers.sort(sortByDate);
+    this.tomorrowTravelers.sort(sortByDate);
+    this.next7DaysTravelers.sort(sortByDate);
+    this.past7DaysTravelers.sort((a, b) => {
+      // Past 7 days sorted descending (most recent first)
+      const dA = new Date(a.travelDoj || a.documentReturnRequest?.travelDate || 0).getTime();
+      const dB = new Date(b.travelDoj || b.documentReturnRequest?.travelDate || 0).getTime();
+      return dB - dA;
+    });
+  }
+
+  recentActivity: any[] = [];
+
+  loadRecentActivity(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/api/managers/recent-activity`).subscribe({
+      next: (data) => {
+        this.recentActivity = data;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load recent activity', err);
+      }
+    });
+  }
   clearReportFilters(): void {
     this.reportFilterAgent = '';
     this.reportFilterCollege = '';
@@ -1847,6 +2184,86 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     }
   }
 
+  // --- Tasks Module Methods ---
+
+  loadTasksDashboard(): void {
+    const role = 'ADMISSION_MANAGER';
+    const userId = sessionStorage.getItem('userId') || '';
+    this.http.get<any>(`${environment.apiUrl}/api/tasks/dashboard?role=${role}&username=${userId}`).subscribe({
+      next: (res) => {
+        this.tasksDashboardData = res;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to load tasks', err)
+    });
+  }
+
+  openCreateTaskModal(type: string = 'TASK'): void {
+    this.newTask = {
+      title: '',
+      description: '',
+      department: 'VISA',
+      assignedToRole: '',
+      type: type,
+      dueDate: ''
+    };
+    this.isTaskModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeTaskModal(): void {
+    this.isTaskModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  submitNewTask(): void {
+    this.newTask.createdBy = this.managerData?.fullName || 'Manager';
+    this.http.post(`${environment.apiUrl}/api/tasks`, this.newTask).subscribe({
+      next: () => {
+        this.closeTaskModal();
+        this.loadTasksDashboard();
+        this.successModalMessage = 'Task created successfully!';
+        this.showSuccessModal = true;
+      },
+      error: (err) => alert('Failed to create task: ' + (err.error || err.message))
+    });
+  }
+
+  markTaskComplete(taskId: number): void {
+    this.http.put(`${environment.apiUrl}/api/tasks/${taskId}/status?status=COMPLETED`, {}).subscribe({
+      next: () => {
+        this.loadTasksDashboard();
+      },
+      error: (err) => alert('Failed to mark complete: ' + (err.error || err.message))
+    });
+  }
+
+  getTasksForCurrentFilter(): any[] {
+    if (!this.tasksDashboardData) return [];
+    switch (this.tasksFilter) {
+      case 'my': return this.tasksDashboardData.myTasks || [];
+      case 'followups': return this.tasksDashboardData.followUps || [];
+      case 'escalations': return this.tasksDashboardData.escalations || [];
+      case 'overdue': return this.tasksDashboardData.overdueTasks || [];
+      default: return this.tasksDashboardData.allTasks || [];
+    }
+  }
+
+  getGroupedFollowUps(): { name: string, tasks: any[] }[] {
+    const followUps = this.tasksDashboardData?.followUps || [];
+    if (!followUps.length) return [];
+
+    const uniTasks = followUps.filter((t: any) => ['ADMISSION', 'TELEX', 'UNIVERSITY'].includes(t.department));
+    const agentTasks = followUps.filter((t: any) => ['VISA', 'ACCOUNTANT', 'AGENT'].includes(t.department));
+    const studentTasks = followUps.filter((t: any) => ['DOCUMENT', 'STUDENT'].includes(t.department));
+
+    return [
+      { name: 'University Follow Ups', tasks: uniTasks },
+      { name: 'Agent & Finance Follow Ups', tasks: agentTasks },
+      { name: 'Student Follow Ups', tasks: studentTasks }
+    ].filter(g => g.tasks.length > 0);
+  }
+
   // --- Doc Request Methods ---
 
   loadDocRequests(): void {
@@ -1959,5 +2376,104 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       case 'REJECTED': return 'status-danger';
       default: return 'status-info';
     }
+  }
+  // =========================================================================
+  // Settings & Task Engine Configuration
+  // =========================================================================
+
+  loadSettings(): void {
+    this.http.get<any>(`${environment.apiUrl}/api/tasks/settings/sync-interval`).subscribe({
+      next: (res) => {
+        this.currentSyncInterval = res.minutes || 15;
+        this.cdr.markForCheck();
+      },
+      error: (err) => console.error('Failed to load settings', err)
+    });
+  }
+
+  updateSyncInterval(): void {
+    if (this.currentSyncInterval < 1) {
+      this.showToast('Interval must be at least 1 minute', 'error');
+      return;
+    }
+    this.isUpdatingSettings = true;
+    this.http.put<any>(`${environment.apiUrl}/api/tasks/settings/sync-interval`, { minutes: this.currentSyncInterval }).subscribe({
+      next: (res) => {
+        this.isUpdatingSettings = false;
+        this.showSettingsModal = false;
+        this.showToast(res.message, 'success');
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.isUpdatingSettings = false;
+        this.showToast('Failed to update interval', 'error');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info'): void {
+    const id = this.toastIdCounter++;
+    this.toastQueue.push({ message, type, id });
+    this.cdr.markForCheck();
+
+    setTimeout(() => {
+      this.toastQueue = this.toastQueue.filter(t => t.id !== id);
+      this.cdr.markForCheck();
+    }, 3500);
+  }
+
+  // --- Admission Plan (Travel UI) ---
+  showAdmissionPlanModal: boolean = false;
+  selectedAdmissionStudent: Student | null = null;
+  admissionPlanStatus: string = '';
+  admissionNotes: string = '';
+  isSavingAdmissionPlan: boolean = false;
+
+  openAdmissionPlan(student: Student) {
+    this.selectedAdmissionStudent = student;
+    this.admissionPlanStatus = student.admissionPlanStatus || 'MARK_ARRIVED';
+    this.admissionNotes = student.admissionNotes || '';
+    this.showAdmissionPlanModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeAdmissionPlan() {
+    this.showAdmissionPlanModal = false;
+    this.selectedAdmissionStudent = null;
+    this.admissionPlanStatus = '';
+    this.admissionNotes = '';
+    this.cdr.markForCheck();
+  }
+
+  saveAdmissionPlan() {
+    if (!this.selectedAdmissionStudent) return;
+    this.isSavingAdmissionPlan = true;
+    this.cdr.markForCheck();
+
+    const payload = {
+      admissionPlanStatus: this.admissionPlanStatus,
+      admissionNotes: this.admissionNotes
+    };
+
+    this.http.put<Student>(`${environment.apiUrl}/api/managers/student/${this.selectedAdmissionStudent.id}/admission-plan`, payload).subscribe({
+      next: (res) => {
+        this.isSavingAdmissionPlan = false;
+        this.showToast(`Admission Plan saved for ${res.fullName}`, 'success');
+
+        // Update the local student object
+        if (this.selectedAdmissionStudent) {
+          this.selectedAdmissionStudent.admissionPlanStatus = res.admissionPlanStatus;
+          this.selectedAdmissionStudent.admissionNotes = res.admissionNotes;
+        }
+
+        this.closeAdmissionPlan();
+      },
+      error: (err) => {
+        this.isSavingAdmissionPlan = false;
+        this.showToast('Failed to save Admission Plan.', 'error');
+        this.cdr.markForCheck();
+      }
+    });
   }
 }

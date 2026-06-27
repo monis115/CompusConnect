@@ -87,7 +87,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   private destroy$ = new Subject<void>();
 
-  activeSection: 'dashboard' | 'visaRequests' | 'collectPassport' | 'applyForVisa' | 'submitToEmbassy' | 'markVisaStamp' | 'returnedToDocPerson' | 'visaStamped' | 'students' | 'accounts' | 'funds' | 'releasedFunds' = 'dashboard';
+  activeSection: 'dashboard' | 'visaRequests' | 'collectPassport' | 'applyForVisa' | 'submitToEmbassy' | 'markVisaStamp' | 'returnedToDocPerson' | 'visaStamped' | 'students' | 'accounts' | 'funds' | 'releasedFunds' | 'tasks' = 'dashboard';
   currentUsername: string = 'VM_001';
   students: Student[] = [];
   visaManProfile: VisaManProfile | null = null;
@@ -687,7 +687,7 @@ export class VisaManDashboard implements OnInit, OnDestroy {
   // ============================================
   // NAVIGATION
   // ============================================
-  setActiveSection(section: 'dashboard' | 'visaRequests' | 'collectPassport' | 'applyForVisa' | 'submitToEmbassy' | 'markVisaStamp' | 'returnedToDocPerson' | 'visaStamped' | 'students' | 'accounts' | 'funds' | 'releasedFunds'): void {
+  setActiveSection(section: 'dashboard' | 'visaRequests' | 'collectPassport' | 'applyForVisa' | 'submitToEmbassy' | 'markVisaStamp' | 'returnedToDocPerson' | 'visaStamped' | 'students' | 'accounts' | 'funds' | 'releasedFunds' | 'tasks'): void {
     this.activeSection = section;
     this.sidebarOpen = false;
     if (section === 'funds') {

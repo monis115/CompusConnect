@@ -27,6 +27,9 @@
       <a (click)="setActiveTab('dashboard')" [class.active]="activeTab === 'dashboard'">
         <i class="fas fa-th-large"></i> Dashboard
       </a>
+      <a (click)="setActiveTab('tasks')" [class.active]="activeTab === 'tasks'">
+        <i class="fas fa-tasks"></i> Follow Ups & Tasks
+      </a>
 
       <!-- Incoming Documents (replaces Receive Docs) -->
       <a (click)="setActiveTab('receive')" [class.active]="activeTab === 'receive'" class="nav-item-badge">
@@ -376,6 +379,11 @@
         }
       </section>
       }
+
+      <!-- TASKS VIEW -->
+      <div class="dashboard-view-container fade-in" style="padding: 24px;" [hidden]="activeTab !== 'tasks' || isLoading || errorState.hasError">
+        <app-tasks-board [role]="'DOCUMENT_MANAGER'"></app-tasks-board>
+      </div>
 
       <!-- DASHBOARD VIEW -->
       @if (activeTab === 'dashboard' && !isLoading && !errorState.hasError) {
