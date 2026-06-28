@@ -7,7 +7,9 @@
 @if (isLoading) {
 <div style="display: flex; align-items: center; justify-content: center; padding: 80px 20px;">
   <div style="text-align: center;">
-    <div style="width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px;"></div>
+    <div
+      style="width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px;">
+    </div>
     <p style="color: #64748b; font-size: 14px; font-weight: 500;">Loading your work...</p>
   </div>
 </div>
@@ -20,36 +22,68 @@
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
     <div>
       <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.3px;">My Work</h2>
-      <p style="color: #94a3b8; margin: 4px 0 0; font-size: 13px; font-weight: 500;">Everything you need to do, in one place.</p>
+      <p style="color: #94a3b8; margin: 4px 0 0; font-size: 13px; font-weight: 500;">Everything you need to do, in one
+        place.</p>
     </div>
     <div style="display: flex; gap: 8px; align-items: center;">
       @if (isAdmissionManager) {
-      <button (click)="loadInsights()" [style.background]="activeView === 'insights' ? '#0f172a' : 'white'" [style.color]="activeView === 'insights' ? 'white' : '#475569'"
+      <button (click)="loadInsights()" [style.background]="activeView === 'insights' ? '#0f172a' : 'white'"
+        [style.color]="activeView === 'insights' ? 'white' : '#475569'"
         style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 20V10" />
+          <path d="M12 20V4" />
+          <path d="M6 20v-6" />
+        </svg>
         Overview
       </button>
-      <button (click)="loadAssistant()" [style.background]="activeView === 'assistant' ? '#0f172a' : 'white'" [style.color]="activeView === 'assistant' ? 'white' : '#475569'"
+      <button (click)="loadAssistant()" [style.background]="activeView === 'assistant' ? '#0f172a' : 'white'"
+        [style.color]="activeView === 'assistant' ? 'white' : '#475569'"
         style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3z"/><path d="M10 14l2 2 4-4"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path
+            d="M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3z" />
+          <path d="M10 14l2 2 4-4" />
+        </svg>
         Smart Assistant
       </button>
-      <button (click)="switchToConfig()" [style.background]="activeView === 'config' ? '#0f172a' : 'white'" [style.color]="activeView === 'config' ? 'white' : '#475569'"
+      <button (click)="switchToConfig()" [style.background]="activeView === 'config' ? '#0f172a' : 'white'"
+        [style.color]="activeView === 'config' ? 'white' : '#475569'"
         style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
         Approval Policies
+      </button>
+      <button (click)="openTaskEngineSettings.emit()"
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-weight: 600; font-size: 13px; color: #475569; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"
+        onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+        Task Engine Settings
       </button>
       }
       @if (activeView !== 'tasks') {
-      <button (click)="switchToTasks()" style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; border-radius: 8px; padding: 9px 16px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <button (click)="switchToTasks()"
+        style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; border-radius: 8px; padding: 9px 16px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
         Back
       </button>
       }
       @if (activeView === 'tasks') {
       <button (click)="openCreateTaskModal()"
         style="background: #0f172a; color: white; border: none; border-radius: 8px; padding: 10px 18px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
         New Task
       </button>
       }
@@ -61,95 +95,164 @@
 
   <!-- Top Metrics Bar -->
   <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 140px; display: flex; flex-direction: column; justify-content: center;">
-      <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">My Tasks</span>
-      <span style="font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1.2;">{{ dashboardCounts.my || 0 }}</span>
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 140px; display: flex; flex-direction: column; justify-content: center;">
+      <span
+        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">My
+        Tasks</span>
+      <span style="font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1.2;">{{ dashboardCounts.my || 0
+        }}</span>
     </div>
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 140px; display: flex; flex-direction: column; justify-content: center;">
-      <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Waiting Review</span>
-      <span style="font-size: 24px; font-weight: 800; color: #d97706; line-height: 1.2;">{{ dashboardCounts.pendingApproval || 0 }}</span>
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 140px; display: flex; flex-direction: column; justify-content: center;">
+      <span
+        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Review</span>
+      <span style="font-size: 24px; font-weight: 800; color: #d97706; line-height: 1.2;">{{
+        dashboardCounts.pendingApproval || 0 }}</span>
     </div>
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 140px; display: flex; flex-direction: column; justify-content: center;">
-      <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Overdue</span>
-      <span style="font-size: 24px; font-weight: 800; color: #dc2626; line-height: 1.2;">{{ dashboardCounts.overdue || 0 }}</span>
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 140px; display: flex; flex-direction: column; justify-content: center;">
+      <span
+        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Overdue</span>
+      <span style="font-size: 24px; font-weight: 800; color: #dc2626; line-height: 1.2;">{{ dashboardCounts.overdue || 0
+        }}</span>
     </div>
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 140px; display: flex; flex-direction: column; justify-content: center;">
-      <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Total Visible</span>
-      <span style="font-size: 24px; font-weight: 800; color: #059669; line-height: 1.2;">{{ dashboardCounts.all || 0 }}</span>
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 140px; display: flex; flex-direction: column; justify-content: center;">
+      <span
+        style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Total
+        Visible</span>
+      <span style="font-size: 24px; font-weight: 800; color: #059669; line-height: 1.2;">{{ dashboardCounts.all || 0
+        }}</span>
     </div>
   </div>
 
   <!-- Filter & Search Toolbar -->
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 16px; flex-wrap: wrap;">
+  <div
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 16px; flex-wrap: wrap;">
     <!-- Smart Filter Chips -->
-    <div style="display: flex; gap: 8px; flex-wrap: wrap; flex: 1;">
-      <button (click)="setTasksFilter('all')" [style.background]="tasksFilter === 'all' ? '#0f172a' : '#f8fafc'" [style.color]="tasksFilter === 'all' ? 'white' : '#475569'" style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;">All Tasks</button>
-      <button (click)="setTasksFilter('my')" [style.background]="tasksFilter === 'my' ? '#0f172a' : '#f8fafc'" [style.color]="tasksFilter === 'my' ? 'white' : '#475569'" style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;">My Tasks</button>
-      <button (click)="setTasksFilter('pending-approval')" [style.background]="tasksFilter === 'pending-approval' ? '#0f172a' : '#f8fafc'" [style.color]="tasksFilter === 'pending-approval' ? 'white' : '#475569'" style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;">Waiting Review</button>
-      <button (click)="setTasksFilter('overdue')" [style.background]="tasksFilter === 'overdue' ? '#0f172a' : '#f8fafc'" [style.color]="tasksFilter === 'overdue' ? 'white' : '#475569'" style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;">Overdue</button>
+    <div
+      style="display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; flex: 1; padding-bottom: 4px; scrollbar-width: none;">
+      <button (click)="setTasksFilter('all')" [style.background]="tasksFilter === 'all' ? '#0f172a' : '#f8fafc'"
+        [style.color]="tasksFilter === 'all' ? 'white' : '#475569'"
+        style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;">All
+        Tasks</button>
+      <button (click)="setTasksFilter('my')" [style.background]="tasksFilter === 'my' ? '#0f172a' : '#f8fafc'"
+        [style.color]="tasksFilter === 'my' ? 'white' : '#475569'"
+        style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;">My
+        Tasks</button>
+      <button (click)="setTasksFilter('pending-approval')"
+        [style.background]="tasksFilter === 'pending-approval' ? '#0f172a' : '#f8fafc'"
+        [style.color]="tasksFilter === 'pending-approval' ? 'white' : '#475569'"
+        style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;">Review</button>
+      <button (click)="setTasksFilter('overdue')" [style.background]="tasksFilter === 'overdue' ? '#0f172a' : '#f8fafc'"
+        [style.color]="tasksFilter === 'overdue' ? 'white' : '#475569'"
+        style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;">Overdue</button>
     </div>
 
     <!-- Advanced Search & Density -->
     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
       <div style="position: relative;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="position: absolute; left: 10px; top: 9px;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" [(ngModel)]="globalSearchQuery" placeholder="Search anything..." style="padding: 8px 12px 8px 30px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; outline: none; width: 180px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"
+          style="position: absolute; left: 10px; top: 9px;">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input type="text" [(ngModel)]="globalSearchQuery" placeholder="Search anything..."
+          style="padding: 8px 12px 8px 30px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; outline: none; width: 180px;">
       </div>
-      
-      <select [(ngModel)]="departmentFilter" (change)="applyAdvancedFilters()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; outline: none; width: 140px; cursor: pointer; background: white; color: #475569;">
+
+      <select [(ngModel)]="departmentFilter" (change)="applyAdvancedFilters()"
+        style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; outline: none; width: 140px; cursor: pointer; background: white; color: #475569;">
         <option value="" disabled selected hidden>Department...</option>
         <option value="">All Departments</option>
-        @for (dept of taskCategories; track dept.dept) { 
-          @if (dept.dept) { <option [value]="dept.dept">{{ dept.label }}</option> } 
+        @for (dept of taskCategories; track dept.dept) {
+        @if (dept.dept) { <option [value]="dept.dept">{{ dept.label }}</option> }
         }
       </select>
-      
-      <select [(ngModel)]="assignedByFilter" (change)="applyAdvancedFilters()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; outline: none; width: 140px; cursor: pointer; background: white; color: #475569;">
+
+      <select [(ngModel)]="assignedByFilter" (change)="applyAdvancedFilters()"
+        style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; outline: none; width: 140px; cursor: pointer; background: white; color: #475569;">
         <option value="" disabled selected hidden>Assigned By...</option>
         @for (role of assignerRoles; track role.value) { <option [value]="role.value">{{ role.label }}</option> }
       </select>
-      
-      <select [(ngModel)]="assignedToFilter" (change)="applyAdvancedFilters()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; outline: none; width: 160px; cursor: pointer; background: white; color: #475569;">
+
+      <select [(ngModel)]="assignedToFilter" (change)="applyAdvancedFilters()"
+        style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; outline: none; width: 160px; cursor: pointer; background: white; color: #475569;">
         <option value="" disabled selected hidden>Assigned To...</option>
         @for (role of assignableRoles; track role.value) { <option [value]="role.value">{{ role.label }}</option> }
       </select>
-      
-      <button (click)="applyAdvancedFilters()" style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Apply Filters</button>
+
+      <button (click)="applyAdvancedFilters()"
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;"
+        onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Apply Filters</button>
       @if (assignedByFilter || assignedToFilter || departmentFilter) {
-        <button (click)="clearAdvancedFilters()" style="background: #fee2e2; border: 1px solid #fca5a5; border-radius: 6px; padding: 8px; color: #dc2626; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Clear Filters" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+      <button (click)="clearAdvancedFilters()"
+        style="background: #fee2e2; border: 1px solid #fca5a5; border-radius: 6px; padding: 8px; color: #dc2626; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+        title="Clear Filters" onmouseover="this.style.background='#fecaca'"
+        onmouseout="this.style.background='#fee2e2'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
       }
-      
+
       <!-- View Density -->
       <div style="position: relative;">
-        <button (click)="showDensityDropdown = !showDensityDropdown" style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+        <button (click)="showDensityDropdown = !showDensityDropdown"
+          style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="21" y1="10" x2="3" y2="10" />
+            <line x1="21" y1="6" x2="3" y2="6" />
+            <line x1="21" y1="14" x2="3" y2="14" />
+            <line x1="21" y1="18" x2="3" y2="18" />
+          </svg>
           Density
         </button>
         @if (showDensityDropdown) {
-        <div style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 150px; z-index: 100;">
-          <div (click)="densityMode = 'comfortable'; showDensityDropdown = false" style="padding: 10px 12px; font-size: 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Comfortable</div>
-          <div (click)="densityMode = 'compact'; showDensityDropdown = false" style="padding: 10px 12px; font-size: 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Compact</div>
-          <div (click)="densityMode = 'ultra-compact'; showDensityDropdown = false" style="padding: 10px 12px; font-size: 12px; cursor: pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Ultra Compact</div>
+        <div
+          style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 150px; z-index: 100;">
+          <div (click)="densityMode = 'comfortable'; showDensityDropdown = false"
+            style="padding: 10px 12px; font-size: 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9;"
+            onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Comfortable</div>
+          <div (click)="densityMode = 'compact'; showDensityDropdown = false"
+            style="padding: 10px 12px; font-size: 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9;"
+            onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Compact</div>
+          <div (click)="densityMode = 'ultra-compact'; showDensityDropdown = false"
+            style="padding: 10px 12px; font-size: 12px; cursor: pointer;" onmouseover="this.style.background='#f8fafc'"
+            onmouseout="this.style.background='white'">Ultra Compact</div>
         </div>
         }
       </div>
 
       <!-- Column Customize -->
       <div style="position: relative;">
-        <button (click)="showColumnDropdown = !showColumnDropdown" style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>
+        <button (click)="showColumnDropdown = !showColumnDropdown"
+          style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3v18" />
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <path d="M3 9h18" />
+            <path d="M3 15h18" />
+          </svg>
           Columns
         </button>
         @if (showColumnDropdown) {
-        <div style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 200px; padding: 8px; z-index: 100; display: flex; flex-direction: column; gap: 6px;">
-          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" [(ngModel)]="columnVisibility.priority"> Priority</label>
-          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" [(ngModel)]="columnVisibility.department"> Department</label>
-          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" [(ngModel)]="columnVisibility.assignedUser"> Assigned User</label>
-          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" [(ngModel)]="columnVisibility.assignedBy"> Assigned By</label>
-          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" [(ngModel)]="columnVisibility.timeline"> Timeline (Created &rarr; Due)</label>
-          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" [(ngModel)]="columnVisibility.approval"> Approval</label>
+        <div
+          style="position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 200px; padding: 8px; z-index: 100; display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input
+              type="checkbox" [(ngModel)]="columnVisibility.priority"> Priority</label>
+          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input
+              type="checkbox" [(ngModel)]="columnVisibility.department"> Department</label>
+          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input
+              type="checkbox" [(ngModel)]="columnVisibility.assignedUser"> Assigned User</label>
+          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input
+              type="checkbox" [(ngModel)]="columnVisibility.assignedBy"> Assigned By</label>
+          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input
+              type="checkbox" [(ngModel)]="columnVisibility.timeline"> Timeline (Created &rarr; Due)</label>
+          <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;"><input
+              type="checkbox" [(ngModel)]="columnVisibility.approval"> Approval</label>
         </div>
         }
       </div>
@@ -158,13 +261,16 @@
 
   <!-- Bulk Action Toolbar -->
   @if (selectedTaskIds.size > 0) {
-  <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; animation: fadeIn 0.2s;">
+  <div
+    style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; animation: fadeIn 0.2s;">
     <span style="font-size: 13px; font-weight: 600; color: #1e3a8a;">{{ selectedTaskIds.size }} tasks selected</span>
     <div style="display: flex; gap: 8px;">
-      <button (click)="openBulkReturnModal()" [disabled]="isBulkActionLoading" style="background: white; border: 1px solid #bfdbfe; color: #1e3a8a; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+      <button (click)="openBulkReturnModal()" [disabled]="isBulkActionLoading"
+        style="background: white; border: 1px solid #bfdbfe; color: #1e3a8a; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
         Return Selected
       </button>
-      <button (click)="bulkApprove()" [disabled]="isBulkActionLoading" style="background: #2563eb; border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+      <button (click)="bulkApprove()" [disabled]="isBulkActionLoading"
+        style="background: #2563eb; border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
         {{ isBulkActionLoading ? 'Processing...' : 'Approve All' }}
       </button>
     </div>
@@ -172,151 +278,265 @@
   }
 
   <!-- Enterprise Data Grid -->
-  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-height: calc(100vh - 240px); position: relative;">
+  <div
+    style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-height: calc(100vh - 240px); position: relative;">
     <table style="width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1200px; font-size: 13px;">
       <!-- Sticky Header -->
       <thead style="position: sticky; top: 0; background: #f8fafc; z-index: 10;">
         <tr>
           @if (columnVisibility.checkbox) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; width: 40px; border-right: 1px solid #e2e8f0; position: sticky; left: 0; background: #f8fafc; z-index: 11;">
-            <input type="checkbox" [checked]="getTasksForCurrentFilter().length > 0 && selectedTaskIds.size === getTasksForCurrentFilter().length" (change)="toggleAllSelection(getTasksForCurrentFilter())">
+          <th
+            style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; width: 40px; border-right: 1px solid #e2e8f0; position: sticky; left: 0; background: #f8fafc; z-index: 11;">
+            <input type="checkbox"
+              [checked]="getTasksForCurrentFilter().length > 0 && selectedTaskIds.size === getTasksForCurrentFilter().length"
+              (change)="toggleAllSelection(getTasksForCurrentFilter())">
           </th>
           }
           @if (columnVisibility.priority) {
-          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600; width: 40px;">Pri</th>
+          <th
+            style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600; width: 40px;">
+            Pri</th>
           }
           @if (columnVisibility.title) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600; min-width: 200px;">Task Name</th>
+          <th
+            style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600; min-width: 200px;">
+            Task Name</th>
           }
           @if (columnVisibility.student) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Student Name</th>
+          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Student
+            Name</th>
           }
           @if (columnVisibility.appId) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">App ID</th>
+          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">App ID
+          </th>
           }
           @if (columnVisibility.department) {
           <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Dept</th>
           }
           @if (columnVisibility.assignedUser) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Assigned User</th>
+          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Assigned
+            User</th>
           }
           @if (columnVisibility.assignedBy) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Assigned By</th>
+          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Assigned
+            By</th>
           }
           @if (columnVisibility.timeline) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Timeline</th>
+          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Timeline
+          </th>
           }
           @if (columnVisibility.status) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Status</th>
+          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Status
+          </th>
           }
           @if (columnVisibility.approval) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Approval</th>
+          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600;">Approval
+          </th>
           }
           @if (columnVisibility.actions) {
-          <th style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600; width: 60px;"></th>
+          <th
+            style="padding: 10px 16px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-weight: 600; width: 60px;">
+          </th>
           }
         </tr>
       </thead>
       <tbody>
         @for (task of getTasksForCurrentFilter(); track task.id) {
-        <tr (click)="openTaskDetails(task)" style="cursor: pointer; transition: background 0.1s; border-bottom: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-          
+        <tr (click)="openTaskDetails(task)"
+          style="cursor: pointer; transition: background 0.1s; border-bottom: 1px solid #f1f5f9;"
+          onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+
           @if (columnVisibility.checkbox) {
-          <td (click)="$event.stopPropagation()" style="border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; text-align: center; position: sticky; left: 0; background: inherit; z-index: 1;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+          <td (click)="$event.stopPropagation()"
+            style="border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; text-align: center; position: sticky; left: 0; background: inherit; z-index: 1;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
             <input type="checkbox" [checked]="selectedTaskIds.has(task.id)" (change)="toggleTaskSelection(task.id)">
           </td>
           }
-          
+
           @if (columnVisibility.priority) {
-          <td style="border-bottom: 1px solid #f1f5f9; text-align: center;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
-            @if (task.priority === 'HIGH') { <svg width="12" height="12" viewBox="0 0 24 24" fill="#dc2626" stroke="none" title="Urgent"><circle cx="12" cy="12" r="8"/></svg> }
-            @else if (task.priority === 'MEDIUM') { <svg width="12" height="12" viewBox="0 0 24 24" fill="#eab308" stroke="none" title="Normal"><circle cx="12" cy="12" r="8"/></svg> }
-            @else { <svg width="12" height="12" viewBox="0 0 24 24" fill="#22c55e" stroke="none" title="Low"><circle cx="12" cy="12" r="8"/></svg> }
+          <td style="border-bottom: 1px solid #f1f5f9; text-align: center;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+            @if (task.priority === 'HIGH') { <svg width="12" height="12" viewBox="0 0 24 24" fill="#dc2626"
+              stroke="none" title="Urgent">
+              <circle cx="12" cy="12" r="8" />
+            </svg> }
+            @else if (task.priority === 'MEDIUM') { <svg width="12" height="12" viewBox="0 0 24 24" fill="#eab308"
+              stroke="none" title="Normal">
+              <circle cx="12" cy="12" r="8" />
+            </svg> }
+            @else { <svg width="12" height="12" viewBox="0 0 24 24" fill="#22c55e" stroke="none" title="Low">
+              <circle cx="12" cy="12" r="8" />
+            </svg> }
           </td>
           }
 
           @if (columnVisibility.title) {
-          <td style="border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #0f172a;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+          <td style="border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #0f172a;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
             <div style="display: flex; align-items: center; gap: 6px;">
               {{ task.title }}
               @if (task.systemGenerated || (task.ruleCode && task.ruleCode !== 'MANUAL')) {
-              <span style="display: flex; align-items: center; justify-content: center; background: #eff6ff; color: #2563eb; padding: 2px; border-radius: 4px;" title="Automatic Task"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+              <span
+                style="display: flex; align-items: center; justify-content: center; background: #eff6ff; color: #2563eb; padding: 2px; border-radius: 4px;"
+                title="Automatic Task"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg></span>
               } @else {
-              <span style="display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; padding: 2px; border-radius: 4px;" title="Manual Task"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+              <span
+                style="display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; padding: 2px; border-radius: 4px;"
+                title="Manual Task"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg></span>
               }
             </div>
           </td>
           }
 
           @if (columnVisibility.student) {
-          <td style="border-bottom: 1px solid #f1f5f9; color: #3b82f6; font-weight: 500;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">{{ task.student?.fullName }}</td>
+          <td style="border-bottom: 1px solid #f1f5f9; color: #3b82f6; font-weight: 500;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+            {{ task.student?.fullName }}</td>
           }
 
           @if (columnVisibility.appId) {
-          <td style="border-bottom: 1px solid #f1f5f9; color: #64748b; font-family: monospace;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">{{ task.student?.applicationId }}</td>
+          <td style="border-bottom: 1px solid #f1f5f9; color: #64748b; font-family: monospace;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+            {{ task.student?.applicationId }}</td>
           }
 
           @if (columnVisibility.department) {
-          <td style="border-bottom: 1px solid #f1f5f9;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
-            <span style="font-size: 11px; font-weight: 600; color: #475569; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">{{ getDeptLabel(task.department) }}</span>
+          <td style="border-bottom: 1px solid #f1f5f9;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+            <span
+              style="font-size: 11px; font-weight: 600; color: #475569; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">{{
+              getDeptLabel(task.department) }}</span>
           </td>
           }
 
           @if (columnVisibility.assignedUser) {
-          <td style="border-bottom: 1px solid #f1f5f9; color: #0f172a;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">{{ task.assignedToUser || '-' }}</td>
+          <td style="border-bottom: 1px solid #f1f5f9; color: #0f172a;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+            {{ task.assignedToUser || '-' }}</td>
           }
 
           @if (columnVisibility.assignedBy) {
-          <td style="border-bottom: 1px solid #f1f5f9;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+          <td style="border-bottom: 1px solid #f1f5f9;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
             @if (task.createdBy === 'SYSTEM') {
-            <span style="font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; background: #f8fafc; color: #475569; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> System
+            <span
+              style="font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; background: #f8fafc; color: #475569; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg> System
             </span>
             } @else {
-            <span style="font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; color: #334155;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> {{ task.createdBy || '-' }}
+            <span
+              style="font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; color: #334155;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg> {{ task.createdBy || '-' }}
             </span>
             }
           </td>
           }
 
           @if (columnVisibility.timeline) {
-          <td style="border-bottom: 1px solid #f1f5f9; color: #64748b; white-space: nowrap;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+          <td style="border-bottom: 1px solid #f1f5f9; color: #64748b; white-space: nowrap;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
             <div style="display: flex; align-items: center; gap: 6px;">
               <span>{{ task.createdAt | date:'MMM d, HH:mm' }}</span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="flex-shrink: 0;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              <span [style.color]="getDaysOverdue(task) > 0 ? '#dc2626' : '#0f172a'" [style.font-weight]="getDaysOverdue(task) > 0 ? '600' : '500'">{{ task.dueDate ? (task.dueDate | date:'MMM d') : '-' }}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"
+                style="flex-shrink: 0;">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+              <span [style.color]="getDaysOverdue(task) > 0 ? '#dc2626' : '#0f172a'"
+                [style.font-weight]="getDaysOverdue(task) > 0 ? '600' : '500'">{{ task.dueDate ? (task.dueDate |
+                date:'MMM d') : '-' }}</span>
             </div>
           </td>
           }
 
           @if (columnVisibility.status) {
-          <td style="border-bottom: 1px solid #f1f5f9;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
-            <span style="font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 2px; display: inline-flex; align-items: center; gap: 4px;" [style.background]="getStatusBg(task.status)" [style.color]="getStatusColor(task.status)">
-              @if (task.status === 'CLOSED') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> }
-              @else if (task.status === 'IN_PROGRESS') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> }
-              @else if (task.status === 'AWAITING_APPROVAL') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> }
-              @else if (task.status === 'REWORK_REQUIRED') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg> }
-              @else { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg> }
+          <td style="border-bottom: 1px solid #f1f5f9;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+            <span
+              style="font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 2px; display: inline-flex; align-items: center; gap: 4px;"
+              [style.background]="getStatusBg(task.status)" [style.color]="getStatusColor(task.status)">
+              @if (task.status === 'CLOSED') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12" />
+              </svg> }
+              @else if (task.status === 'IN_PROGRESS') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg> }
+              @else if (task.status === 'AWAITING_APPROVAL') { <svg width="12" height="12" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg> }
+              @else if (task.status === 'REWORK_REQUIRED') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 14 4 9 9 4" />
+                <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+              </svg> }
+              @else { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+              </svg> }
               {{ getStatusLabel(task.status, task) }}
             </span>
           </td>
           }
 
           @if (columnVisibility.approval) {
-          <td style="border-bottom: 1px solid #f1f5f9; font-size: 12px; font-weight: 600;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
-            @if (!task.requiresApproval) { <span style="color: #94a3b8; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg> N/A</span> }
-            @else if (task.status === 'CLOSED') { <span style="color: #059669; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Approved</span> }
-            @else if (task.status === 'AWAITING_APPROVAL') { <span style="color: #d97706; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Waiting</span> }
-            @else if (task.status === 'REWORK_REQUIRED') { <span style="color: #dc2626; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg> Returned</span> }
+          <td style="border-bottom: 1px solid #f1f5f9; font-size: 12px; font-weight: 600;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+            @if (!task.requiresApproval) { <span
+              style="color: #94a3b8; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg> N/A</span> }
+            @else if (task.status === 'CLOSED') { <span
+              style="color: #059669; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12" />
+              </svg> Approved</span> }
+            @else if (task.status === 'AWAITING_APPROVAL') { <span
+              style="color: #d97706; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg> Waiting</span> }
+            @else if (task.status === 'REWORK_REQUIRED') { <span
+              style="color: #dc2626; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 14 4 9 9 4" />
+                <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+              </svg> Returned</span> }
             @else { <span style="color: #64748b;">-</span> }
           </td>
           }
 
           @if (columnVisibility.actions) {
-          <td style="border-bottom: 1px solid #f1f5f9; text-align: center;" [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
-            <button (click)="$event.stopPropagation(); openTaskDetails(task)" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 4px; border-radius: 4px;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='transparent'">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          <td style="border-bottom: 1px solid #f1f5f9; text-align: center;"
+            [style.padding]="densityMode === 'ultra-compact' ? '4px 8px' : densityMode === 'compact' ? '8px 12px' : '12px 16px'">
+            <button (click)="$event.stopPropagation(); openTaskDetails(task)"
+              style="background: none; border: none; cursor: pointer; color: #64748b; padding: 4px; border-radius: 4px;"
+              onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='transparent'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1" />
+                <circle cx="12" cy="5" r="1" />
+                <circle cx="12" cy="19" r="1" />
+              </svg>
             </button>
           </td>
           }
@@ -324,7 +544,7 @@
         }
       </tbody>
     </table>
-    
+
     @if (getTasksForCurrentFilter().length === 0) {
     <div style="padding: 40px; text-align: center; color: #94a3b8; font-size: 13px;">
       No tasks found matching the current filters.
@@ -332,20 +552,117 @@
     }
 
     @if (totalPages > 1) {
-    <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; background: white; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
-      <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0" style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s;" [style.opacity]="currentPage === 0 ? '0.5' : '1'" onmouseover="if(!this.disabled) this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Previous</button>
+    <div
+      style="padding: 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; background: white; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+      <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0"
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s;"
+        [style.opacity]="currentPage === 0 ? '0.5' : '1'"
+        onmouseover="if(!this.disabled) this.style.background='#f8fafc'"
+        onmouseout="this.style.background='white'">Previous</button>
       <div style="display: flex; gap: 4px;">
         @for (p of getPaginationArray(); track $index) {
         @if (p === '...1' || p === '...2') {
-        <div style="width: 32px; height: 32px; display: flex; align-items: flex-end; justify-content: center; font-size: 13px; font-weight: 600; color: #94a3b8; padding-bottom: 4px;">...</div>
+        <div
+          style="width: 32px; height: 32px; display: flex; align-items: flex-end; justify-content: center; font-size: 13px; font-weight: 600; color: #94a3b8; padding-bottom: 4px;">
+          ...</div>
         } @else {
-        <button (click)="goToPage($any(p))" [style.background]="p === currentPage ? '#0f172a' : 'white'" [style.color]="p === currentPage ? 'white' : '#475569'" style="border: 1px solid #e2e8f0; border-radius: 6px; width: 32px; height: 32px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="if(this.style.background !== 'rgb(15, 23, 42)' && this.style.background !== '#0f172a') this.style.background='#f8fafc'" onmouseout="if(this.style.background !== 'rgb(15, 23, 42)' && this.style.background !== '#0f172a') this.style.background='white'">{{ $any(p) + 1 }}</button>
+        <button (click)="goToPage($any(p))" [style.background]="p === currentPage ? '#0f172a' : 'white'"
+          [style.color]="p === currentPage ? 'white' : '#475569'"
+          style="border: 1px solid #e2e8f0; border-radius: 6px; width: 32px; height: 32px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+          onmouseover="if(this.style.background !== 'rgb(15, 23, 42)' && this.style.background !== '#0f172a') this.style.background='#f8fafc'"
+          onmouseout="if(this.style.background !== 'rgb(15, 23, 42)' && this.style.background !== '#0f172a') this.style.background='white'">{{
+          $any(p) + 1 }}</button>
         }
         }
       </div>
-      <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages - 1" style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s;" [style.opacity]="currentPage === totalPages - 1 ? '0.5' : '1'" onmouseover="if(!this.disabled) this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Next</button>
+      <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages - 1"
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s;"
+        [style.opacity]="currentPage === totalPages - 1 ? '0.5' : '1'"
+        onmouseover="if(!this.disabled) this.style.background='#f8fafc'"
+        onmouseout="this.style.background='white'">Next</button>
     </div>
     }
+  </div>
+
+  <!-- Informational Section for New Users -->
+  <div
+    style="margin-top: 24px; padding: 24px; background: linear-gradient(to right, #f8fafc, #f1f5f9); border: 1px solid #e2e8f0; border-radius: 12px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; align-items: flex-start; gap: 16px;">
+      <div
+        style="width: 44px; height: 44px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); flex-shrink: 0; border: 1px solid #e2e8f0;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4" />
+          <path d="M12 8h.01" />
+        </svg>
+      </div>
+      <div>
+        <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0; letter-spacing: -0.2px;">How
+          the Enterprise Task & followUps Works</h3>
+        <p style="font-size: 13px; color: #475569; margin: 0; line-height: 1.6; max-width: 800px;">This dashboard is
+          your central hub for managing the student pipeline. Tasks are generated automatically by the system's Rule Engine reacting to key events (e.g., when a student's application changes stages, a document is missing, or a visa is approved) or they can be created manually by your team. You can select multiple tasks to perform bulk actions, such as approving everything at once.
+        </p>
+      </div>
+    </div>
+
+    <div
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 8px;">
+      <!-- Smart Assistant -->
+      <div
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; transition: transform 0.2s, box-shadow 0.2s; cursor: default;"
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.05)'"
+        onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="background: #eff6ff; padding: 6px; border-radius: 6px; color: #2563eb;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path
+                d="M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3z" />
+              <path d="M10 14l2 2 4-4" />
+            </svg>
+          </div>
+          <span style="font-size: 14px; font-weight: 700; color: #0f172a;">Smart Assistant</span>
+        </div>
+        <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">Automates routine actions, generates
+          smart reminders, and follows up on overdue tasks. Turn it on to let AI manage your deadlines.</p>
+      </div>
+
+      <!-- Approval Policies -->
+      <div
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; transition: transform 0.2s, box-shadow 0.2s; cursor: default;"
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.05)'"
+        onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="background: #ecfdf5; padding: 6px; border-radius: 6px; color: #059669;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <span style="font-size: 14px; font-weight: 700; color: #0f172a;">Approval Policies</span>
+        </div>
+        <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">Configures strict rules defining which
+          tasks require a manager's sign-off before they can be marked as completely resolved.</p>
+      </div>
+
+      <!-- Task Engine Settings -->
+      <div
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; transition: transform 0.2s, box-shadow 0.2s; cursor: default;"
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.05)'"
+        onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="background: #fffbeb; padding: 6px; border-radius: 6px; color: #d97706;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </div>
+          <span style="font-size: 14px; font-weight: 700; color: #0f172a;">Task Engine Settings</span>
+        </div>
+        <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">Manage global routing algorithms, SLA
+          timers, default assignees, and escalation paths across all departments in the system.</p>
+      </div>
+    </div>
   </div>
 
   } <!-- end tasks view -->
@@ -353,125 +670,180 @@
   <!-- ═══════════════ INSIGHTS / OVERVIEW VIEW ═══════════════ -->
   @if (activeView === 'insights') {
   @if (isLoadingAnalytics) {
-    <div style="text-align: center; padding: 60px;">
-      <div style="width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #0f172a; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto;"></div>
+  <div style="text-align: center; padding: 60px;">
+    <div
+      style="width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #0f172a; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto;">
     </div>
+  </div>
   } @else {
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-      
-      <!-- Average Resolution Time -->
-      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-          <div style="width: 36px; height: 36px; background: #f0fdf4; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #16a34a;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <span style="font-size: 13px; font-weight: 600; color: #64748b;">Avg Resolution</span>
-        </div>
-        <div style="display: flex; align-items: baseline; gap: 6px;">
-          <span style="font-size: 28px; font-weight: 800; color: #0f172a;">{{ analytics.averageResolutionHours || 0 }}</span>
-          <span style="font-size: 14px; font-weight: 600; color: #94a3b8;">hrs</span>
-        </div>
-      </div>
+  <div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
 
-      <!-- SLA Compliance -->
-      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-          <div style="width: 36px; height: 36px; background: #eff6ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #2563eb;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          </div>
-          <span style="font-size: 13px; font-weight: 600; color: #64748b;">SLA Compliance</span>
+    <!-- Average Resolution Time -->
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div
+          style="width: 36px; height: 36px; background: #f0fdf4; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #16a34a;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
         </div>
-        <div style="display: flex; align-items: baseline; gap: 6px;">
-          <span style="font-size: 28px; font-weight: 800; color: #0f172a;">{{ analytics.slaCompliancePercent || 0 }}</span>
-          <span style="font-size: 14px; font-weight: 600; color: #94a3b8;">%</span>
-        </div>
+        <span style="font-size: 13px; font-weight: 600; color: #64748b;">Avg Resolution</span>
       </div>
-
-      <!-- Escalation Rate -->
-      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-          <div style="width: 36px; height: 36px; background: #fff7ed; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ea580c;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </div>
-          <span style="font-size: 13px; font-weight: 600; color: #64748b;">Escalation Rate</span>
-        </div>
-        <div style="display: flex; align-items: baseline; gap: 6px;">
-          <span style="font-size: 28px; font-weight: 800; color: #0f172a;">{{ analytics.escalationRatePercent || 0 }}</span>
-          <span style="font-size: 14px; font-weight: 600; color: #94a3b8;">%</span>
-        </div>
-      </div>
-
-      <!-- Rework Rate -->
-      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-          <div style="width: 36px; height: 36px; background: #fef2f2; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #dc2626;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-          </div>
-          <span style="font-size: 13px; font-weight: 600; color: #64748b;">Rework Rate</span>
-        </div>
-        <div style="display: flex; align-items: baseline; gap: 6px;">
-          <span style="font-size: 28px; font-weight: 800; color: #0f172a;">{{ analytics.reworkRatePercent || 0 }}</span>
-          <span style="font-size: 14px; font-weight: 600; color: #94a3b8;">%</span>
-        </div>
+      <div style="display: flex; align-items: baseline; gap: 6px;">
+        <span style="font-size: 28px; font-weight: 800; color: #0f172a;">{{ analytics.averageResolutionHours || 0
+          }}</span>
+        <span style="font-size: 14px; font-weight: 600; color: #94a3b8;">hrs</span>
       </div>
     </div>
 
-    <!-- AI Smart Insights -->
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); margin-bottom: 24px;">
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0;">AI Smart Insights</h3>
-      </div>
-      
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        @for (insight of smartInsights; track insight) {
-        <div style="background: #f8fafc; border-radius: 8px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" style="margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          <span style="font-size: 14px; font-weight: 500; color: #334155;">{{ insight }}</span>
+    <!-- SLA Compliance -->
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div
+          style="width: 36px; height: 36px; background: #eff6ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #2563eb;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
         </div>
-        }
+        <span style="font-size: 13px; font-weight: 600; color: #64748b;">SLA Compliance</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 6px;">
+        <span style="font-size: 28px; font-weight: 800; color: #0f172a;">{{ analytics.slaCompliancePercent || 0
+          }}</span>
+        <span style="font-size: 14px; font-weight: 600; color: #94a3b8;">%</span>
       </div>
     </div>
+
+    <!-- Escalation Rate -->
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div
+          style="width: 36px; height: 36px; background: #fff7ed; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ea580c;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        </div>
+        <span style="font-size: 13px; font-weight: 600; color: #64748b;">Escalation Rate</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 6px;">
+        <span style="font-size: 28px; font-weight: 800; color: #0f172a;">{{ analytics.escalationRatePercent || 0
+          }}</span>
+        <span style="font-size: 14px; font-weight: 600; color: #94a3b8;">%</span>
+      </div>
+    </div>
+
+    <!-- Rework Rate -->
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <div
+          style="width: 36px; height: 36px; background: #fef2f2; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #dc2626;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="9 14 4 9 9 4" />
+            <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+          </svg>
+        </div>
+        <span style="font-size: 13px; font-weight: 600; color: #64748b;">Rework Rate</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 6px;">
+        <span style="font-size: 28px; font-weight: 800; color: #0f172a;">{{ analytics.reworkRatePercent || 0 }}</span>
+        <span style="font-size: 14px; font-weight: 600; color: #94a3b8;">%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Smart Insights -->
+  <div
+    style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+      <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0;">AI Smart Insights</h3>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      @for (insight of smartInsights; track insight) {
+      <div
+        style="background: #f8fafc; border-radius: 8px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5"
+          style="margin-top: 2px;">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <span style="font-size: 14px; font-weight: 500; color: #334155;">{{ insight }}</span>
+      </div>
+      }
+    </div>
+  </div>
   }
   }
 
   <!-- ═══════════════ SMART ASSISTANT VIEW ═══════════════ -->
   @if (activeView === 'assistant') {
   @if (isLoadingAssistant) {
-  <div style="text-align: center; padding: 60px;"><div style="width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto;"></div></div>
+  <div style="text-align: center; padding: 60px;">
+    <div
+      style="width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #1e40af; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto;">
+    </div>
+  </div>
   } @else {
 
   <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-      <div style="width: 32px; height: 32px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3z"/><path d="M10 14l2 2 4-4"/></svg>
+      <div
+        style="width: 32px; height: 32px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+          <path
+            d="M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3z" />
+          <path d="M10 14l2 2 4-4" />
+        </svg>
       </div>
       <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">Smart Assistant</h3>
     </div>
-    <p style="font-size: 13px; color: #94a3b8; margin: 0 0 0 42px;">Choose how you want the system to help you. Turn these on or off anytime.</p>
+    <p style="font-size: 13px; color: #94a3b8; margin: 0 0 0 42px;">Choose how you want the system to help you. Turn
+      these on or off anytime.</p>
   </div>
 
   <div style="display: flex; flex-direction: column; gap: 10px;">
     @for (setting of assistantSettings; track setting.id) {
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; gap: 16px; transition: all 0.15s;"
-         [style.opacity]="setting.enabled ? '1' : '0.55'">
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; gap: 16px; transition: all 0.15s;"
+      [style.opacity]="setting.enabled ? '1' : '0.55'">
 
       <!-- Icon -->
-      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 10px; flex-shrink: 0;"
-           [style.background]="setting.enabled ? '#eff6ff' : '#f8fafc'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" [attr.stroke]="setting.enabled ? '#2563eb' : '#94a3b8'" stroke-width="1.5">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      <div
+        style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 10px; flex-shrink: 0;"
+        [style.background]="setting.enabled ? '#eff6ff' : '#f8fafc'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+          [attr.stroke]="setting.enabled ? '#2563eb' : '#94a3b8'" stroke-width="1.5">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
         </svg>
       </div>
 
       <!-- Text -->
       <div style="flex: 1;">
-        <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 3px;">{{ setting.friendlyTitle }}</div>
+        <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 3px;">{{ setting.friendlyTitle }}
+        </div>
         <div style="font-size: 12px; color: #64748b; line-height: 1.5;">{{ setting.friendlyDesc }}</div>
         @if (setting.dueDelayMinutes !== undefined || setting.creationDelayMinutes !== undefined) {
         <div style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          Wait {{ formatMinutes(setting.creationDelayMinutes) }} • Reminds after {{ formatMinutes(setting.dueDelayMinutes) }}
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+          Wait {{ formatMinutes(setting.creationDelayMinutes) }} • Reminds after {{
+          formatMinutes(setting.dueDelayMinutes) }}
         </div>
         }
       </div>
@@ -479,41 +851,54 @@
       <!-- Edit & Toggle Switch -->
       <div style="flex-shrink: 0; display: flex; align-items: center; gap: 16px;">
         @if (setting.isEditingTiming) {
-          <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span style="font-size: 11px; color: #64748b; width: 30px;">Wait:</span>
-              <input type="number" [(ngModel)]="setting.cVal" style="width: 50px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
-              <select [(ngModel)]="setting.cUnit" style="padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
-                <option value="minutes">Minutes</option>
-                <option value="hours">Hours</option>
-                <option value="days">Days</option>
-                <option value="months">Months</option>
-              </select>
-            </div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span style="font-size: 11px; color: #64748b; width: 30px;">Due:</span>
-              <input type="number" [(ngModel)]="setting.dVal" style="width: 50px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
-              <select [(ngModel)]="setting.dUnit" style="padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
-                <option value="minutes">Minutes</option>
-                <option value="hours">Hours</option>
-                <option value="days">Days</option>
-                <option value="months">Months</option>
-              </select>
-            </div>
-            <button (click)="saveTiming(setting)" style="background: #2563eb; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">Save</button>
+        <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 11px; color: #64748b; width: 30px;">Wait:</span>
+            <input type="number" [(ngModel)]="setting.cVal"
+              style="width: 50px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
+            <select [(ngModel)]="setting.cUnit"
+              style="padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
+              <option value="minutes">Minutes</option>
+              <option value="hours">Hours</option>
+              <option value="days">Days</option>
+              <option value="months">Months</option>
+            </select>
           </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 11px; color: #64748b; width: 30px;">Due:</span>
+            <input type="number" [(ngModel)]="setting.dVal"
+              style="width: 50px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
+            <select [(ngModel)]="setting.dUnit"
+              style="padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;">
+              <option value="minutes">Minutes</option>
+              <option value="hours">Hours</option>
+              <option value="days">Days</option>
+              <option value="months">Months</option>
+            </select>
+          </div>
+          <button (click)="saveTiming(setting)"
+            style="background: #2563eb; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: background 0.2s;"
+            onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">Save</button>
+        </div>
         } @else {
-          <button (click)="editTiming(setting)" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1'" onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0'">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Edit Timing
-          </button>
+        <button (click)="editTiming(setting)"
+          style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"
+          onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1'"
+          onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0'">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          Edit Timing
+        </button>
         }
 
         <button (click)="toggleAssistantSetting(setting.id)"
           [style.background]="setting.enabled ? '#059669' : '#cbd5e1'"
           style="width: 52px; height: 28px; border-radius: 14px; border: none; cursor: pointer; position: relative; transition: background 0.2s;">
           <div [style.transform]="setting.enabled ? 'translateX(24px)' : 'translateX(2px)'"
-            style="width: 24px; height: 24px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 0; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);"></div>
+            style="width: 24px; height: 24px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 0; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">
+          </div>
         </button>
       </div>
     </div>
@@ -522,8 +907,13 @@
 
   @if (assistantSettings.length === 0) {
   <div style="text-align: center; padding: 60px; color: #94a3b8;">
-    <div style="width: 56px; height: 56px; background: #f1f5f9; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path d="M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3z"/><path d="M10 14l2 2 4-4"/></svg>
+    <div
+      style="width: 56px; height: 56px; background: #f1f5f9; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
+        <path
+          d="M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3z" />
+        <path d="M10 14l2 2 4-4" />
+      </svg>
     </div>
     <p style="font-size: 14px; font-weight: 600;">No assistant preferences configured yet.</p>
     <p style="font-size: 13px;">Contact your administrator to set up automatic reminders.</p>
@@ -535,36 +925,47 @@
   @if (activeView === 'config') {
   <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-      <div style="width: 32px; height: 32px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div
+        style="width: 32px; height: 32px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
       </div>
       <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">Approval Policies</h3>
     </div>
-    <p style="font-size: 13px; color: #94a3b8; margin: 0 0 0 42px;">Decide which automated tasks require your explicit approval before they can be closed.</p>
+    <p style="font-size: 13px; color: #94a3b8; margin: 0 0 0 42px;">Decide which automated tasks require your explicit
+      approval before they can be closed.</p>
   </div>
 
   <div style="display: flex; flex-direction: column; gap: 10px;">
     @for (rule of taskRules; track rule.id) {
-    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; gap: 16px; transition: all 0.15s;">
-      
-      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 10px; flex-shrink: 0;" [style.background]="rule.requiresApproval ? '#fef2f2' : '#f8fafc'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" [attr.stroke]="rule.requiresApproval ? '#dc2626' : '#94a3b8'" stroke-width="1.5">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    <div
+      style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; gap: 16px; transition: all 0.15s;">
+
+      <div
+        style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 10px; flex-shrink: 0;"
+        [style.background]="rule.requiresApproval ? '#fef2f2' : '#f8fafc'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+          [attr.stroke]="rule.requiresApproval ? '#dc2626' : '#94a3b8'" stroke-width="1.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         </svg>
       </div>
 
       <div style="flex: 1;">
         <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 3px;">{{ rule.taskTitle }}</div>
-        <div style="font-size: 12px; color: #64748b;">Assigned to: <span style="font-weight: 600;">{{ rule.ownerRole.replace('_', ' ') }}</span> • Priority: <span style="font-weight: 600;">{{ rule.priority }}</span></div>
+        <div style="font-size: 12px; color: #64748b;">Assigned to: <span style="font-weight: 600;">{{
+            rule.ownerRole.replace('_', ' ') }}</span> • Priority: <span style="font-weight: 600;">{{ rule.priority
+            }}</span></div>
       </div>
 
       <div style="flex-shrink: 0; display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 12px; font-weight: 600;" [style.color]="rule.requiresApproval ? '#dc2626' : '#94a3b8'">Requires Approval</span>
-        <button (click)="toggleRuleApproval(rule)"
-          [style.background]="rule.requiresApproval ? '#dc2626' : '#cbd5e1'"
+        <span style="font-size: 12px; font-weight: 600;"
+          [style.color]="rule.requiresApproval ? '#dc2626' : '#94a3b8'">Requires Approval</span>
+        <button (click)="toggleRuleApproval(rule)" [style.background]="rule.requiresApproval ? '#dc2626' : '#cbd5e1'"
           style="width: 52px; height: 28px; border-radius: 14px; border: none; cursor: pointer; position: relative; transition: background 0.2s;">
           <div [style.transform]="rule.requiresApproval ? 'translateX(24px)' : 'translateX(2px)'"
-            style="width: 24px; height: 24px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 0; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);"></div>
+            style="width: 24px; height: 24px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 0; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">
+          </div>
         </button>
       </div>
     </div>
@@ -578,8 +979,10 @@
 
 <!-- ═══════════════ CREATE TASK (Stepped) ═══════════════ -->
 @if (isTaskModalOpen) {
-<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050; backdrop-filter: blur(4px); background-color: rgba(15, 23, 42, 0.45); display: flex; justify-content: flex-end; animation: fadeInOverlay 0.15s ease-out;">
-  <div style="width: 460px; max-width: 100vw; height: 100vh; background: #ffffff; display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12); animation: slideInPanel 0.2s ease-out;">
+<div
+  style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050; backdrop-filter: blur(4px); background-color: rgba(15, 23, 42, 0.45); display: flex; justify-content: flex-end; animation: fadeInOverlay 0.15s ease-out;">
+  <div
+    style="width: 460px; max-width: 100vw; height: 100vh; background: #ffffff; display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12); animation: slideInPanel 0.2s ease-out;">
 
     <!-- Header -->
     <div style="background: #0f172a; padding: 28px 24px; color: white; flex-shrink: 0;">
@@ -588,8 +991,12 @@
           <h2 style="font-size: 18px; font-weight: 700; margin: 0;">Create a Task</h2>
           <p style="margin: 4px 0 0; font-size: 12px; opacity: 0.6;">Assign and track work efficiently</p>
         </div>
-        <button (click)="closeTaskModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <button (click)="closeTaskModal()"
+          style="background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
     </div>
@@ -599,44 +1006,70 @@
 
       <!-- Single Page Form -->
       <div style="display: flex; flex-direction: column; gap: 20px;">
-        
+
         <!-- Student Selection -->
         <div>
-          <label style="display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">
+          <label
+            style="display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">
             Student (Optional)
             @if (!showStudentSearch && !newTask.student) {
-            <button (click)="showStudentSearch = true" style="background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Student
+            <button (click)="showStudentSearch = true"
+              style="background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg> Add Student
             </button>
             }
           </label>
           @if (newTask.student) {
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px; border: 2px solid #dbeafe; border-radius: 10px; background: #eff6ff;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; padding: 14px; border: 2px solid #dbeafe; border-radius: 10px; background: #eff6ff;">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="width: 36px; height: 36px; background: #3b82f6; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700;">{{ newTask.studentName.charAt(0) }}</div>
+              <div
+                style="width: 36px; height: 36px; background: #3b82f6; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700;">
+                {{ newTask.studentName.charAt(0) }}</div>
               <span style="font-size: 14px; font-weight: 600; color: #1e293b;">{{ newTask.studentName }}</span>
             </div>
-            <button (click)="removeSelectedStudent(); showStudentSearch = true" style="background: none; border: none; cursor: pointer; color: #94a3b8; padding: 4px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button (click)="removeSelectedStudent(); showStudentSearch = true"
+              style="background: none; border: none; cursor: pointer; color: #94a3b8; padding: 4px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
           } @else if (showStudentSearch) {
           <div style="position: relative;">
             <div style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;">
-              @if (isSearching) { <div style="width: 14px; height: 14px; border: 2px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.6s linear infinite;"></div> }
-              @else { <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> }
+              @if (isSearching) { <div
+                style="width: 14px; height: 14px; border: 2px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.6s linear infinite;">
+              </div> }
+              @else { <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg> }
             </div>
-            <input type="text" [(ngModel)]="searchQuery" (input)="onSearchInput()" placeholder="Type a name, email, or application ID..."
+            <input type="text" [(ngModel)]="searchQuery" (input)="onSearchInput()"
+              placeholder="Type a name, email, or application ID..."
               style="width: 100%; padding: 12px 14px 12px 40px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; background: white; transition: border-color 0.15s;"
               onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
           </div>
           @if (searchResults.length > 0) {
-          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-top: 8px; max-height: 200px; overflow-y: auto;">
+          <div
+            style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-top: 8px; max-height: 200px; overflow-y: auto;">
             @for (student of searchResults; track student.id) {
-            <div (click)="selectStudent(student); showStudentSearch = false" style="padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; transition: background 0.1s;"
-                 onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='white'">
-              <div style="width: 30px; height: 30px; background: #e0e7ff; color: #4f46e5; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;">{{ student.fullName?.charAt(0) }}</div>
-              <div><div style="font-size: 14px; font-weight: 600; color: #1e293b;">{{ student.fullName }}</div><div style="font-size: 12px; color: #64748b;">{{ student.applicationId }}</div></div>
+            <div (click)="selectStudent(student); showStudentSearch = false"
+              style="padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; transition: background 0.1s;"
+              onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='white'">
+              <div
+                style="width: 30px; height: 30px; background: #e0e7ff; color: #4f46e5; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;">
+                {{ student.fullName?.charAt(0) }}</div>
+              <div>
+                <div style="font-size: 14px; font-weight: 600; color: #1e293b;">{{ student.fullName }}</div>
+                <div style="font-size: 12px; color: #64748b;">{{ student.applicationId }}</div>
+              </div>
             </div>
             }
           </div>
@@ -646,8 +1079,11 @@
 
         <!-- Department Selection -->
         <div>
-          <label style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Department</label>
-          <select [(ngModel)]="newTask.department" (change)="onDepartmentChange()" style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
+          <label
+            style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Department</label>
+          <select [(ngModel)]="newTask.department" (change)="onDepartmentChange()"
+            style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s;"
+            onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
             <option value="" disabled selected>Select a department</option>
             @for (cat of taskCategories; track cat.value) {
             <option [value]="cat.value">{{ cat.label }}</option>
@@ -657,25 +1093,35 @@
 
         <!-- Assignee Selection -->
         <div>
-          <label style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Assign To</label>
-          <select [(ngModel)]="selectedAssignee" [disabled]="!newTask.department" style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
+          <label style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Assign
+            To</label>
+          <select [(ngModel)]="selectedAssignee" [disabled]="!newTask.department"
+            style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s;"
+            onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
             <option [ngValue]="null" disabled selected>Select an assignee</option>
             @for (user of departmentUsers; track user.id) {
-            <option [ngValue]="user">[{{ getRoleLabel(user.role) }}] {{ user.fullName ? user.fullName + ' (' + user.username + ')' : user.username }}</option>
+            <option [ngValue]="user">[{{ getRoleLabel(user.role) }}] {{ user.fullName ? user.fullName + ' (' +
+              user.username + ')' : user.username }}</option>
             }
           </select>
         </div>
 
         <!-- Due Date -->
         <div>
-          <label style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Due Date (Optional)</label>
-          <input type="date" [(ngModel)]="newTask.dueDate" style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
+          <label style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Due Date
+            (Optional)</label>
+          <input type="date" [(ngModel)]="newTask.dueDate"
+            style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s;"
+            onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
 
         <!-- Priority -->
         <div>
-          <label style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Priority</label>
-          <select [(ngModel)]="newTask.priority" style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
+          <label
+            style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Priority</label>
+          <select [(ngModel)]="newTask.priority"
+            style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s;"
+            onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
             <option value="HIGH">High</option>
@@ -685,7 +1131,8 @@
 
         <!-- Title -->
         <div>
-          <label style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Task Title</label>
+          <label style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Task
+            Title</label>
           <input type="text" [(ngModel)]="newTask.title" placeholder="e.g. Follow up on missing documents"
             style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s;"
             onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'">
@@ -693,16 +1140,21 @@
 
         <!-- Approval -->
         <div>
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #334155; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="newTask.requiresApproval" style="width: 16px; height: 16px; cursor: pointer;">
+          <label
+            style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #334155; cursor: pointer;">
+            <input type="checkbox" [(ngModel)]="newTask.requiresApproval"
+              style="width: 16px; height: 16px; cursor: pointer;">
             Approval Required
           </label>
-          <p style="margin: 4px 0 0 24px; font-size: 12px; color: #64748b;">If checked, the completed task will await your approval before closing.</p>
+          <p style="margin: 4px 0 0 24px; font-size: 12px; color: #64748b;">If checked, the completed task will await
+            your approval before closing.</p>
         </div>
 
         <!-- Description -->
         <div>
-          <label style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Description (Optional)</label>
+          <label
+            style="display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 8px;">Description
+            (Optional)</label>
           <textarea [(ngModel)]="newTask.description" rows="3" placeholder="Add any relevant context..."
             style="width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #1e293b; outline: none; background: white; transition: border-color 0.15s; resize: vertical;"
             onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
@@ -711,12 +1163,17 @@
     </div>
 
     <!-- Footer -->
-    <div style="padding: 20px 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; background: #f8fafc;">
-      <button (click)="closeTaskModal()" style="padding: 10px 18px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: #475569; font-size: 14px; font-weight: 600; cursor: pointer;">Cancel</button>
-      <button (click)="submitNewTask()" [disabled]="!newTask.department || !selectedAssignee || !newTask.title || isSubmitting"
+    <div
+      style="padding: 20px 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; background: #f8fafc;">
+      <button (click)="closeTaskModal()"
+        style="padding: 10px 18px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: #475569; font-size: 14px; font-weight: 600; cursor: pointer;">Cancel</button>
+      <button (click)="submitNewTask()"
+        [disabled]="!newTask.department || !selectedAssignee || !newTask.title || isSubmitting"
         [style.opacity]="(!newTask.department || !selectedAssignee || !newTask.title || isSubmitting) ? '0.5' : '1'"
         style="padding: 10px 18px; border: none; border-radius: 8px; background: #3b82f6; color: white; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-        @if (isSubmitting) { <div style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite;"></div> }
+        @if (isSubmitting) { <div
+          style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite;">
+        </div> }
         Create Task
       </button>
     </div>
@@ -727,56 +1184,111 @@
 
 <!-- ═══════════════ TASK DETAILS PANEL ═══════════════ -->
 @if (showSlideOverPanel && selectedTask) {
-<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050; backdrop-filter: blur(4px); background-color: rgba(15, 23, 42, 0.45); display: flex; justify-content: flex-end; animation: fadeInOverlay 0.15s ease-out;">
-  <div style="width: 520px; max-width: 100vw; height: 100vh; background: #f8fafc; display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12); animation: slideInPanel 0.2s ease-out;">
+<div
+  style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050; backdrop-filter: blur(4px); background-color: rgba(15, 23, 42, 0.45); display: flex; justify-content: flex-end; animation: fadeInOverlay 0.15s ease-out;">
+  <div
+    style="width: 520px; max-width: 100vw; height: 100vh; background: #f8fafc; display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12); animation: slideInPanel 0.2s ease-out;">
 
     <!-- Header -->
     <div style="background: white; border-bottom: 1px solid #e2e8f0; padding: 24px; flex-shrink: 0;">
       <div style="display: flex; align-items: flex-start; justify-content: space-between;">
         <div style="max-width: 85%;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
-            <span style="font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 2px; display: inline-flex; align-items: center; gap: 4px;" [style.background]="getStatusBg(selectedTask.status)" [style.color]="getStatusColor(selectedTask.status)">
-              @if (selectedTask.status === 'CLOSED') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> }
-              @else if (selectedTask.status === 'IN_PROGRESS') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> }
-              @else if (selectedTask.status === 'AWAITING_APPROVAL') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> }
-              @else if (selectedTask.status === 'REWORK_REQUIRED') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg> }
-              @else { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg> }
+            <span
+              style="font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 2px; display: inline-flex; align-items: center; gap: 4px;"
+              [style.background]="getStatusBg(selectedTask.status)" [style.color]="getStatusColor(selectedTask.status)">
+              @if (selectedTask.status === 'CLOSED') { <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12" />
+              </svg> }
+              @else if (selectedTask.status === 'IN_PROGRESS') { <svg width="12" height="12" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg> }
+              @else if (selectedTask.status === 'AWAITING_APPROVAL') { <svg width="12" height="12" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg> }
+              @else if (selectedTask.status === 'REWORK_REQUIRED') { <svg width="12" height="12" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 14 4 9 9 4" />
+                <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+              </svg> }
+              @else { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" />
+              </svg> }
               {{ getStatusLabel(selectedTask.status, selectedTask) }}
             </span>
             @if (selectedTask.priority === 'HIGH') {
-            <span style="font-size: 11px; font-weight: 700; color: #dc2626; display: flex; align-items: center; gap: 3px;">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="#dc2626" stroke="none"><circle cx="12" cy="12" r="6"/></svg> Urgent
+            <span
+              style="font-size: 11px; font-weight: 700; color: #dc2626; display: flex; align-items: center; gap: 3px;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#dc2626" stroke="none">
+                <circle cx="12" cy="12" r="6" />
+              </svg> Urgent
             </span>
             }
             @if (selectedTask.systemGenerated || selectedTask.ruleCode) {
-            <span style="display: flex; align-items: center; justify-content: center; background: #eff6ff; color: #2563eb; padding: 3px; border-radius: 4px;" title="Automatic Task"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+            <span
+              style="display: flex; align-items: center; justify-content: center; background: #eff6ff; color: #2563eb; padding: 3px; border-radius: 4px;"
+              title="Automatic Task"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg></span>
             } @else {
-            <span style="display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; padding: 3px; border-radius: 4px;" title="Manual Task"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            <span
+              style="display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; padding: 3px; border-radius: 4px;"
+              title="Manual Task"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg></span>
             }
           </div>
           <h2 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0 0 8px;">{{ selectedTask.title }}</h2>
-          <div style="font-size: 14px; color: #3b82f6; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div
+            style="font-size: 14px; color: #3b82f6; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
             {{ selectedTask.student?.fullName }} ({{ selectedTask.student?.applicationId }})
           </div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             @if (selectedTask.assignedToUser) {
-            <span style="font-size: 11px; font-weight: 600; color: #166534; background: #f0fdf4; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span
+              style="font-size: 11px; font-weight: 600; color: #166534; background: #f0fdf4; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
               {{ selectedTask.assignedToUser }}
             </span>
             }
             @if (selectedTask.watchers?.length > 0) {
-            <span style="font-size: 11px; font-weight: 600; color: #7c3aed; background: #faf5ff; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span
+              style="font-size: 11px; font-weight: 600; color: #7c3aed; background: #faf5ff; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
               Also watching: {{ selectedTask.watchers.join(', ') }}
             </span>
             }
-            <span style="font-size: 11px; font-weight: 600; color: #475569; background: #f1f5f9; padding: 4px 10px; border-radius: 6px;">{{ getDeptLabel(selectedTask.department) }}</span>
+            <span
+              style="font-size: 11px; font-weight: 600; color: #475569; background: #f1f5f9; padding: 4px 10px; border-radius: 6px;">{{
+              getDeptLabel(selectedTask.department) }}</span>
           </div>
         </div>
-        <button (click)="closeDetailsModal()" style="background: #f1f5f9; border: none; color: #64748b; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <button (click)="closeDetailsModal()"
+          style="background: #f1f5f9; border: none; color: #64748b; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
     </div>
@@ -786,77 +1298,117 @@
 
       <!-- Why this task exists -->
       @if (getTaskReason(selectedTask) || getTaskOriginLabel(selectedTask)) {
-      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
-        <h4 style="margin: 0 0 8px; font-size: 12px; font-weight: 700; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+        <h4
+          style="margin: 0 0 8px; font-size: 12px; font-weight: 700; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
           Why this task exists
         </h4>
-        @if (getTaskReason(selectedTask)) { <p style="margin: 0 0 6px; font-size: 14px; color: #334155; line-height: 1.5;">{{ getTaskReason(selectedTask) }}</p> }
+        @if (getTaskReason(selectedTask)) { <p
+          style="margin: 0 0 6px; font-size: 14px; color: #334155; line-height: 1.5;">{{ getTaskReason(selectedTask) }}
+        </p> }
         <p style="margin: 0; font-size: 12px; color: #94a3b8;">{{ getTaskOriginLabel(selectedTask) }}</p>
       </div>
       }
 
       <!-- Due date -->
       @if (getDueDateLabel(selectedTask)) {
-      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;"
-           [style.border-left]="getDaysOverdue(selectedTask) > 0 ? '3px solid #dc2626' : '3px solid #e2e8f0'">
-        <div style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
-             [style.background]="getDaysOverdue(selectedTask) > 0 ? '#fee2e2' : '#f1f5f9'">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="getDaysOverdue(selectedTask) > 0 ? '#dc2626' : '#475569'" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <div
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;"
+        [style.border-left]="getDaysOverdue(selectedTask) > 0 ? '3px solid #dc2626' : '3px solid #e2e8f0'">
+        <div
+          style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
+          [style.background]="getDaysOverdue(selectedTask) > 0 ? '#fee2e2' : '#f1f5f9'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+            [attr.stroke]="getDaysOverdue(selectedTask) > 0 ? '#dc2626' : '#475569'" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
         </div>
         <div>
-          <div style="font-size: 14px; font-weight: 600;" [style.color]="getDaysOverdue(selectedTask) > 0 ? '#dc2626' : '#334155'">{{ getDueDateLabel(selectedTask) }}</div>
+          <div style="font-size: 14px; font-weight: 600;"
+            [style.color]="getDaysOverdue(selectedTask) > 0 ? '#dc2626' : '#334155'">{{ getDueDateLabel(selectedTask) }}
+          </div>
           <div style="font-size: 12px; color: #94a3b8;">{{ selectedTask.dueDate | date:'fullDate' }}</div>
         </div>
       </div>
       }
 
       <!-- Activity Timeline -->
-      <button (click)="loadTaskHistory()" style="width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.1s;"
+      <button (click)="loadTaskHistory()"
+        style="width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.1s;"
         onmouseenter="this.style.background='#fafbfc'" onmouseleave="this.style.background='white'">
         <span style="font-size: 13px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
           Activity Timeline
         </span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" [style.transform]="showHistoryPanel ? 'rotate(180deg)' : 'rotate(0)'" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"
+          [style.transform]="showHistoryPanel ? 'rotate(180deg)' : 'rotate(0)'" style="transition: transform 0.2s;">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
       </button>
 
       @if (showHistoryPanel) {
-      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+      <div
+        style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
         @if (isLoadingHistory) {
-        <div style="text-align: center; padding: 20px;"><div style="width: 20px; height: 20px; border: 2px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto;"></div></div>
+        <div style="text-align: center; padding: 20px;">
+          <div
+            style="width: 20px; height: 20px; border: 2px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto;">
+          </div>
+        </div>
         } @else {
         @for (entry of taskHistory; track entry.id) {
         <div style="display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f8fafc;">
-          <div style="width: 28px; height: 28px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <div
+            style="width: 28px; height: 28px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
           </div>
           <div style="flex: 1;">
             <div style="font-size: 13px; font-weight: 600; color: #334155;">{{ getHistoryLabel(entry.action) }}</div>
             @if (entry.details) { <p style="margin: 2px 0 0; font-size: 12px; color: #64748b;">{{ entry.details }}</p> }
-            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ entry.performedBy }} · {{ entry.createdAt | date:'short' }}</div>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ entry.performedBy }} · {{ entry.createdAt
+              | date:'short' }}</div>
           </div>
         </div>
         }
-        @if (taskHistory.length === 0) { <p style="text-align: center; color: #94a3b8; font-size: 13px; padding: 16px;">No activity recorded yet.</p> }
+        @if (taskHistory.length === 0) { <p style="text-align: center; color: #94a3b8; font-size: 13px; padding: 16px;">
+          No activity recorded yet.</p> }
         }
       </div>
       }
 
       <!-- Communication -->
       <div style="margin-bottom: 16px;">
-        <h4 style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <h4
+          style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
           Communication
         </h4>
         <div style="display: flex; flex-direction: column; gap: 10px;">
           @for (fu of selectedTask.followUps; track fu.id) {
-          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px;" [style.border-left]="'3px solid ' + getCommTypeColor(fu.communicationType)">
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px;"
+            [style.border-left]="'3px solid ' + getCommTypeColor(fu.communicationType)">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
               <span style="font-size: 12px; font-weight: 600; color: #334155;">{{ fu.createdBy }}</span>
               <div style="display: flex; align-items: center; gap: 8px;">
                 @if (fu.communicationType) {
-                <span style="font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: #f1f5f9; color: #64748b;">{{ getCommTypeLabel(fu.communicationType) }}</span>
+                <span
+                  style="font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: #f1f5f9; color: #64748b;">{{
+                  getCommTypeLabel(fu.communicationType) }}</span>
                 }
                 <span style="font-size: 11px; color: #94a3b8;">{{ fu.createdAt | date:'short' }}</span>
               </div>
@@ -865,54 +1417,83 @@
           </div>
           }
           @if (!selectedTask.followUps || selectedTask.followUps.length === 0) {
-          <div style="text-align: center; padding: 30px; border: 1.5px dashed #e2e8f0; border-radius: 10px; color: #94a3b8; font-size: 13px;">No updates yet. Add one below.</div>
+          <div
+            style="text-align: center; padding: 30px; border: 1.5px dashed #e2e8f0; border-radius: 10px; color: #94a3b8; font-size: 13px;">
+            No updates yet. Add one below.</div>
           }
         </div>
       </div>
     </div>
 
     <!-- Action Bar -->
-    <div style="background: white; border-top: 1px solid #e2e8f0; padding: 16px 24px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
+    <div
+      style="background: white; border-top: 1px solid #e2e8f0; padding: 16px 24px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
       <div style="display: flex; gap: 8px; align-items: center;">
-        <select [(ngModel)]="selectedCommType" style="padding: 10px 8px; border: 1.5px solid #e2e8f0; border-radius: 20px; font-size: 12px; font-weight: 600; outline: none; background: #f8fafc; color: #475569; min-width: 110px; cursor: pointer;">
+        <select [(ngModel)]="selectedCommType"
+          style="padding: 10px 8px; border: 1.5px solid #e2e8f0; border-radius: 20px; font-size: 12px; font-weight: 600; outline: none; background: #f8fafc; color: #475569; min-width: 110px; cursor: pointer;">
           @for (ct of communicationTypes; track ct.value) { <option [value]="ct.value">{{ ct.label }}</option> }
         </select>
-        <input type="text" [(ngModel)]="newFollowUpMessage" placeholder="Add an update..." style="flex-grow: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 20px; font-size: 13px; outline: none; background: #f8fafc;">
-        <button (click)="addFollowUp()" [disabled]="!newFollowUpMessage.trim()" [style.opacity]="!newFollowUpMessage.trim() ? '0.4' : '1'"
+        <input type="text" [(ngModel)]="newFollowUpMessage" placeholder="Add an update..."
+          style="flex-grow: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 20px; font-size: 13px; outline: none; background: #f8fafc;">
+        <button (click)="addFollowUp()" [disabled]="!newFollowUpMessage.trim()"
+          [style.opacity]="!newFollowUpMessage.trim() ? '0.4' : '1'"
           style="background: #0f172a; color: white; border: none; border-radius: 20px; padding: 0 20px; height: 40px; font-weight: 600; font-size: 13px; cursor: pointer; transition: opacity 0.15s;">Send</button>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px;">
         <div>
           @if (!isAdmissionManager) {
-            @if (!selectedTask.escalatedTo) {
-            <button (click)="escalateTask()" style="background: none; border: none; font-size: 13px; font-weight: 600; color: #dc2626; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 5px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              Inform Manager
-            </button>
-            } @else {
-            <span style="font-size: 12px; font-weight: 600; color: #7c3aed; background: #faf5ff; padding: 5px 12px; border-radius: 8px;">Manager has been informed</span>
-            }
+          @if (!selectedTask.escalatedTo) {
+          <button (click)="escalateTask()"
+            style="background: none; border: none; font-size: 13px; font-weight: 600; color: #dc2626; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 5px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            Inform Manager
+          </button>
           } @else {
-            @if (!isAssignedUser(selectedTask)) {
-              <button (click)="informAssignedUser(selectedTask)" style="background: none; border: none; font-size: 13px; font-weight: 600; color: #2563eb; cursor: pointer; padding: 0;">Inform Assigned User</button>
-            }
+          <span
+            style="font-size: 12px; font-weight: 600; color: #7c3aed; background: #faf5ff; padding: 5px 12px; border-radius: 8px;">Manager
+            has been informed</span>
+          }
+          } @else {
+          @if (!isAssignedUser(selectedTask)) {
+          <button (click)="informAssignedUser(selectedTask)"
+            style="background: none; border: none; font-size: 13px; font-weight: 600; color: #2563eb; cursor: pointer; padding: 0;">Inform
+            Assigned User</button>
+          }
           }
         </div>
         <div style="display: flex; gap: 8px;">
-          @if (isAssignedUser(selectedTask) && (selectedTask.status === 'PENDING' || selectedTask.status === 'IN_PROGRESS' || selectedTask.status === 'REWORK_REQUIRED')) {
-          <button (click)="markAsDone(selectedTask.id)" style="background: #059669; color: white; border: none; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Mark as Done
+          @if (isAssignedUser(selectedTask) && (selectedTask.status === 'PENDING' || selectedTask.status ===
+          'IN_PROGRESS' || selectedTask.status === 'REWORK_REQUIRED')) {
+          <button (click)="markAsDone(selectedTask.id)"
+            style="background: #059669; color: white; border: none; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg> Mark as Done
           </button>
           } @else if (selectedTask.status === 'AWAITING_APPROVAL' && canApprove(selectedTask)) {
-          <button (click)="requestClarification(selectedTask.id)" style="background: white; border: 1px solid #e2e8f0; color: #2563eb; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer;">Clarify</button>
-          <button (click)="returnForRework(selectedTask.id)" style="background: white; border: 1px solid #e2e8f0; color: #dc2626; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer;">Return</button>
-          <button (click)="approveTask(selectedTask.id)" style="background: #0f172a; color: white; border: none; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Approve
+          <button (click)="requestClarification(selectedTask.id)"
+            style="background: white; border: 1px solid #e2e8f0; color: #2563eb; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer;">Clarify</button>
+          <button (click)="returnForRework(selectedTask.id)"
+            style="background: white; border: 1px solid #e2e8f0; color: #dc2626; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer;">Return</button>
+          <button (click)="approveTask(selectedTask.id)"
+            style="background: #0f172a; color: white; border: none; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg> Approve
           </button>
           } @else if (selectedTask.status === 'CLOSED' && isAdmissionManager) {
-          <button (click)="verifyTask()" style="background: #7c3aed; color: white; border: none; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Verify
+          <button (click)="verifyTask()"
+            style="background: #7c3aed; color: white; border: none; border-radius: 8px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg> Verify
           </button>
           }
         </div>
@@ -925,14 +1506,21 @@
 <!-- ═══════════════ BULK RETURN MODAL ═══════════════ -->
 @if (showBulkReturnModal) {
 <!-- SLIDE-OVER PANEL -->
-<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050; backdrop-filter: blur(4px); background-color: rgba(15, 23, 42, 0.45); display: flex; justify-content: flex-end; animation: fadeInOverlay 0.15s ease-out;">
-  <div style="width: 400px; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: scaleIn 0.2s ease-out;">
+<div
+  style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050; backdrop-filter: blur(4px); background-color: rgba(15, 23, 42, 0.45); display: flex; justify-content: flex-end; animation: fadeInOverlay 0.15s ease-out;">
+  <div
+    style="width: 400px; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: scaleIn 0.2s ease-out;">
     <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 8px;">Return Tasks for Rework</h3>
-    <p style="font-size: 13px; color: #64748b; margin: 0 0 16px;">You are returning {{ selectedTaskIds.size }} tasks. Please provide a reason for the rework.</p>
-    <textarea [(ngModel)]="bulkReturnReason" placeholder="e.g., Documents missing or incomplete..." rows="4" style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; margin-bottom: 16px; font-family: inherit; resize: none;"></textarea>
+    <p style="font-size: 13px; color: #64748b; margin: 0 0 16px;">You are returning {{ selectedTaskIds.size }} tasks.
+      Please provide a reason for the rework.</p>
+    <textarea [(ngModel)]="bulkReturnReason" placeholder="e.g., Documents missing or incomplete..." rows="4"
+      style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; margin-bottom: 16px; font-family: inherit; resize: none;"></textarea>
     <div style="display: flex; justify-content: flex-end; gap: 8px;">
-      <button (click)="showBulkReturnModal = false" style="background: white; border: 1px solid #e2e8f0; color: #475569; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">Cancel</button>
-      <button (click)="bulkReturn()" [disabled]="!bulkReturnReason.trim() || isBulkActionLoading" [style.opacity]="!bulkReturnReason.trim() ? '0.5' : '1'" style="background: #dc2626; border: none; color: white; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">
+      <button (click)="showBulkReturnModal = false"
+        style="background: white; border: 1px solid #e2e8f0; color: #475569; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">Cancel</button>
+      <button (click)="bulkReturn()" [disabled]="!bulkReturnReason.trim() || isBulkActionLoading"
+        [style.opacity]="!bulkReturnReason.trim() ? '0.5' : '1'"
+        style="background: #dc2626; border: none; color: white; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">
         {{ isBulkActionLoading ? 'Processing...' : 'Return Tasks' }}
       </button>
     </div>
@@ -944,12 +1532,18 @@
 @if (successModalMessage) {
 <div [style.border-left-color]="successType === 'success' ? '#059669' : '#dc2626'"
   style="position: fixed; bottom: 24px; right: 24px; background: white; border-left: 4px solid; padding: 14px 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 9999; display: flex; align-items: center; gap: 10px; animation: slideInToast 0.2s ease-out; max-width: 380px;">
-  <div style="width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
-       [style.background]="successType === 'success' ? '#ecfdf5' : '#fef2f2'">
+  <div
+    style="width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
+    [style.background]="successType === 'success' ? '#ecfdf5' : '#fef2f2'">
     @if (successType === 'success') {
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" [attr.stroke]="'#059669'" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" [attr.stroke]="'#059669'" stroke-width="3">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
     } @else {
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
     }
   </div>
   <span style="font-weight: 600; color: #0f172a; font-size: 13px;">{{ successModalMessage }}</span>
@@ -958,21 +1552,28 @@
 
 <!-- ═══════════════ PROMPT MODAL ═══════════════ -->
 @if (showPromptModal) {
-<div class="modal-overlay animate-fade-in" style="z-index: 10000; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;">
-  <div class="modal-content glass-card" style="background: white; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); max-width: 450px; width: 100%; padding: 24px; animation: slideUp 0.3s ease-out;">
+<div class="modal-overlay animate-fade-in"
+  style="z-index: 10000; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;">
+  <div class="modal-content glass-card"
+    style="background: white; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); max-width: 450px; width: 100%; padding: 24px; animation: slideUp 0.3s ease-out;">
     <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">{{ promptModalTitle }}</h2>
     <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">{{ promptModalMessage }}</p>
-    
+
     <div style="margin-bottom: 24px;">
-      <textarea [(ngModel)]="promptModalValue" placeholder="Enter your response here..." rows="4" 
+      <textarea [(ngModel)]="promptModalValue" placeholder="Enter your response here..." rows="4"
         style="width: 100%; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; outline: none; resize: vertical; font-family: inherit;"
         onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
         onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"></textarea>
     </div>
-    
+
     <div style="display: flex; gap: 12px; justify-content: flex-end;">
-      <button (click)="closePrompt()" style="padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; background: white; color: #64748b; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Cancel</button>
-      <button (click)="submitPrompt()" [disabled]="!promptModalValue.trim()" [style.opacity]="!promptModalValue.trim() ? '0.5' : '1'" style="padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; background: #0f172a; color: white; border: none; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#0f172a'">Submit</button>
+      <button (click)="closePrompt()"
+        style="padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; background: white; color: #64748b; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;"
+        onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Cancel</button>
+      <button (click)="submitPrompt()" [disabled]="!promptModalValue.trim()"
+        [style.opacity]="!promptModalValue.trim() ? '0.5' : '1'"
+        style="padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; background: #0f172a; color: white; border: none; cursor: pointer; transition: all 0.2s;"
+        onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#0f172a'">Submit</button>
     </div>
   </div>
 </div>

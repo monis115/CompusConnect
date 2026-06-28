@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -25,6 +25,7 @@ export class TasksBoardComponent implements OnInit {
   @Input() role: string = '';
   @Input() isAdmissionManager: boolean = false;
   @Input() username: string = '';
+  @Output() openTaskEngineSettings = new EventEmitter<void>();
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 

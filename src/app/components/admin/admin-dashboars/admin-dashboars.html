@@ -54,7 +54,7 @@
     <nav class="sidebar-nav">
       @for (item of menuItems; track item) {
       <button class="nav-item" [class.active]="activeSection === item.id" (click)="navigateTo(item.id)">
-        
+        <i-lucide [name]="item.icon" [size]="20"></i-lucide>
         @if (!sidebarCollapsed) {
         <span>{{ item.label }}</span>
         }
@@ -65,7 +65,7 @@
 
 
     <button class="sidebar-toggle" (click)="toggleSidebar()">
-      
+      <i-lucide [name]="sidebarCollapsed ? 'chevron-right' : 'chevron-left'" [size]="20"></i-lucide>
     </button>
   </aside>
 
@@ -77,7 +77,7 @@
       <!-- Profile Button -->
       <div class="smart-profile-btn" [class.show-welcome]="showWelcomeMessage">
         <div class="avatar avatar-icon">
-          
+          <i-lucide name="user" [size]="24"></i-lucide>
         </div>
         <div class="user-info-text">
           @if (showWelcomeMessage) {
@@ -89,7 +89,7 @@
 
       <!-- Logout Button -->
       <button class="smart-logout-btn" (click)="confirmLogout()" [disabled]="isLoggingOut" title="Secure Logout">
-        
+        <i-lucide name="power" [size]="20"></i-lucide>
       </button>
     </div>
 

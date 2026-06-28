@@ -2007,7 +2007,7 @@ export class AgentDashboard implements OnInit {
     this.isRequestingVisaStamping[student.id] = true;
     this.agentService.requestVisaStamping(student.id, this.agentData!.userId).subscribe({
       next: (res) => {
-        alert('Visa Stamping Requested successfully!');
+        this.showSuccessToast('Visa Stamping Requested successfully!');
         student.action = 'ASSIGN_TO_VISA_MAN';
         student.actionOnUser = 'admission_manager';
         this.isRequestingVisaStamping[student.id] = false;
@@ -2016,7 +2016,7 @@ export class AgentDashboard implements OnInit {
       },
       error: (err) => {
         console.error('Error requesting visa stamping', err);
-        alert('Failed to request visa stamping. Please try again.');
+        this.showErrorToast('Failed to request visa stamping. Please try again.');
         this.isRequestingVisaStamping[student.id] = false;
         this.closeRequestVisaModal();
       }

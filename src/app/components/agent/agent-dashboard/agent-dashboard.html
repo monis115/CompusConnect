@@ -1381,7 +1381,7 @@
 
                 @if (showRequestVisaStampingButton(s)) {
                 <button class="task-action-btn blue" [disabled]="isRequestingVisaStamping[s.id]"
-                  (click)="requestVisaStamping(s)">
+                  (click)="openRequestVisaModal(s)">
                   @if (isRequestingVisaStamping[s.id]) {
                   <i class="fa fa-spinner fa-spin"></i> Requesting...
                   } @else {
@@ -3590,7 +3590,7 @@
                     style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25); white-space: nowrap; letter-spacing: 0.3px; transition: all 0.2s ease;"
                     onmouseover="this.style.boxShadow='0 4px 8px rgba(37, 99, 235, 0.35)'; this.style.transform='translateY(-1px)'"
                     onmouseout="this.style.boxShadow='0 2px 4px rgba(37, 99, 235, 0.25)'; this.style.transform='translateY(0)'"
-                    [disabled]="isRequestingVisaStamping[s.id]" (click)="requestVisaStamping(s)">
+                    [disabled]="isRequestingVisaStamping[s.id]" (click)="openRequestVisaModal(s)">
                     @if (isRequestingVisaStamping[s.id]) {
                     <i class="fa fa-spinner fa-spin"></i> Requesting...
                     } @else {
@@ -6367,31 +6367,35 @@
 
 <!-- Request Visa Stamping Confirmation Modal -->
 @if (isRequestVisaModalOpen) {
-<div class="logout-modal-overlay" (click)="closeRequestVisaModal()">
-  <div class="logout-modal-content" (click)="$event.stopPropagation()">
-    <div class="logout-modal-header">
-      <div class="logout-icon-container" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      </div>
-      <h2 class="logout-modal-title">Confirm Visa Request</h2>
-      <p class="logout-modal-subtitle">Are you sure you want to request Visa Stamping for {{
-        studentForVisaRequest?.fullName }}?</p>
+<div class="modal-overlay telex-modal" (click)="closeRequestVisaModal()" style="z-index: 9999;">
+  <div class="modal-content-modern" style="max-width: 450px; text-align: center; padding: 40px 32px;" (click)="$event.stopPropagation()">
+    <div style="width: 64px; height: 64px; border-radius: 50%; background: #EFF6FF; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+      </svg>
     </div>
-    <div class="logout-modal-footer">
-      <button class="btn-cancel-logout" (click)="closeRequestVisaModal()"
+    
+    <h2 style="font-size: 22px; font-weight: 700; color: #0F172A; margin: 0 0 12px 0;">Request Visa Stamping</h2>
+    <p style="font-size: 14px; color: #64748B; margin: 0 0 32px 0; line-height: 1.5;">
+      You are about to initiate the visa stamping process for <strong style="color: #0F172A;">{{ studentForVisaRequest?.fullName }}</strong>. The Admission Manager will be notified.
+    </p>
+
+    <div style="display: flex; gap: 12px; justify-content: center;">
+      <button (click)="closeRequestVisaModal()"
+        style="flex: 1; padding: 12px 0; border-radius: 8px; border: 1px solid #E2E8F0; background: white; color: #475569; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s;"
+        onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='white'"
         [disabled]="studentForVisaRequest ? isRequestingVisaStamping[studentForVisaRequest.id] : false">
         Cancel
       </button>
-      <button class="btn-confirm-logout" (click)="confirmRequestVisaStamping()"
-        [disabled]="studentForVisaRequest ? isRequestingVisaStamping[studentForVisaRequest.id] : false"
-        style="background: #2563eb;">
+      <button (click)="confirmRequestVisaStamping()"
+        style="flex: 1; padding: 12px 0; border-radius: 8px; border: none; background: #2563EB; color: white; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);"
+        onmouseover="this.style.background='#1D4ED8'; this.style.transform='translateY(-1px)'" 
+        onmouseout="this.style.background='#2563EB'; this.style.transform='translateY(0)'"
+        [disabled]="studentForVisaRequest ? isRequestingVisaStamping[studentForVisaRequest.id] : false">
         @if (studentForVisaRequest && isRequestingVisaStamping[studentForVisaRequest.id]) {
-        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        Processing...
+        <i class="fa fa-spinner fa-spin"></i> Processing...
         } @else {
-        Yes, Request Visa
+        Confirm Request
         }
       </button>
     </div>

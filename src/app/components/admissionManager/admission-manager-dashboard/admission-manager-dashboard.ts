@@ -93,6 +93,7 @@ interface Student {
   placeOfVisaIssuance: string | null;
   visaPhotoPath: string | null;
   visaPassportCopyPath: string | null;
+  visaNumber: string | null;
   // Visa Payment Fields
   visaManServiceCharge: number | null;
   visaPaymentRequestedAmount: number | null;
@@ -298,11 +299,59 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   availableVisaManagers: { username: string; studentCount: number }[] = [];
 
   // Views & Lists
+  pipelineCompletedCount = 0;
+  pipelineWaitingUniCount = 0;
+  pipelinePendingOnYouCount = 0;
+
+  telexPipelinePendingAssignCount = 0;
+  telexPipelineInProgressCount = 0;
+  telexPipelineCompletedCount = 0;
+
+  visaPipelinePendingAssignCount = 0;
+  visaPipelineInProgressCount = 0;
+  visaPipelineCompletedCount = 0;
+
   activeView: 'dashboard' | 'actions-required' | 'forward-uni' | 'approve-admission' | 'assign-telex' | 'assign-visa' | 'pending-university' | 'processing' | 'completed' | 'reports' | 'payment' | 'profile' | 'messages' | 'news' | 'sessions' | 'travel' | 'travelling' | 'requested-docs' | 'tasks' = 'dashboard';
   isSidebarCollapsed = false;
   actionRequiredStudents: Student[] = [];
   pendingUniversityStudents: Student[] = [];
   processingStudents: Student[] = [];
+  // Pagination
+  currentPage: number = 1;
+  pageSize: number = 15;
+
+  get paginatedList(): Student[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredList.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredList.length / this.pageSize) || 1;
+  }
+
+  get visiblePages(): number[] {
+    const total = this.totalPages;
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    if (this.currentPage <= 3) {
+      return [1, 2, 3, 4, 5];
+    }
+
+    if (this.currentPage >= total - 2) {
+      return [total - 4, total - 3, total - 2, total - 1, total];
+    }
+
+    return [this.currentPage - 2, this.currentPage - 1, this.currentPage, this.currentPage + 1, this.currentPage + 2];
+  }
+
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
   allStudents: Student[] = [];
   filteredList: Student[] = [];
   docRequests: any[] = [];
@@ -317,10 +366,275 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     title: '', description: '', department: 'VISA', assignedToRole: '', type: 'TASK', dueDate: ''
   };
 
-  // --- Settings ---
-  currentSyncInterval: number = 15;
-  isUpdatingSettings: boolean = false;
-  showSettingsModal: boolean = false;
+  // Task Engine settings
+  showSettingsModal = false;
+  currentSyncInterval = 15;
+  isUpdatingSettings = false;
+
+  // --- Enterprise Dashboard Metrics ---
+  entPaymentStats = {
+    pendingPayments: 0,
+    paidPayments: 0,
+    totalCollection: 0,
+    pendingCollection: 0,
+    completionPercentage: 0
+  };
+
+  entUniversityDistribution: { name: string; students: number; admissions: number; arrivals: number }[] = [];
+
+  entTaskStats = {
+    total: 0,
+    completed: 0,
+    pending: 0,
+    overdue: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    completionPercentage: 0
+  };
+
+  entQuickInsights = {
+    todayAdmissions: 0,
+    todayArrivals: 0,
+    pendingDocs: 0,
+    pendingTelex: 0,
+    awaitingApproval: 0
+  };
+
+  entTopPendingTasks: any[] = [];
+
+  dashboardStudents: Student[] = [];
+
+  // --- SaaS Dashboard UI Methods ---
+  selectedTimeframe: string = 'THIS_MONTH';
+
+  onTimeframeChange(event: any) {
+    this.selectedTimeframe = event.target.value;
+    // Note: To fully implement this, backend endpoints should accept `timeframe` filters.
+    // For now, we simulate a reload to show the UI interactivity.
+    this.loadInitialData(false);
+  }
+
+  entKpiTrends: Record<string, { value: string, direction: 'up' | 'down' | 'neutral' }> = {
+    'Total Students': { value: '0.0', direction: 'neutral' },
+    'Admission Letters': { value: '0.0', direction: 'neutral' },
+    'Telex Issued': { value: '0.0', direction: 'neutral' },
+    'Visa Stamped': { value: '0.0', direction: 'neutral' },
+    'Documents Pending': { value: '0.0', direction: 'neutral' },
+    'Travel Arranged': { value: '0.0', direction: 'neutral' },
+    'Students Arrived': { value: '0.0', direction: 'neutral' },
+    'Pending Payments': { value: '0.0', direction: 'neutral' },
+  };
+
+  calculateTrends(): void {
+    const now = new Date();
+    let currentStart = new Date(0);
+    let prevStart = new Date(0);
+    let prevEnd = new Date(0);
+
+    if (this.selectedTimeframe === 'ALL' || !this.selectedTimeframe) {
+      this.resetTrends();
+      return;
+    }
+
+    if (this.selectedTimeframe === 'TODAY') {
+      currentStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      prevStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      prevEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
+    } else if (this.selectedTimeframe === 'LAST_7_DAYS') {
+      currentStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+      prevStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14);
+      prevEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 23, 59, 59, 999);
+    } else if (this.selectedTimeframe === 'THIS_MONTH') {
+      currentStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      prevEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+    } else if (this.selectedTimeframe === 'YTD') {
+      currentStart = new Date(now.getFullYear(), 0, 1);
+      prevStart = new Date(now.getFullYear() - 1, 0, 1);
+      prevEnd = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate(), 23, 59, 59, 999); 
+    }
+
+    const prevStudents = this.allStudents.filter(s => {
+      if (!s.createdAt) return false;
+      const d = new Date(s.createdAt);
+      return d >= prevStart && d <= prevEnd;
+    });
+
+    const currentStudents = this.dashboardStudents;
+
+    const calcTrend = (currCount: number, prevCount: number) => {
+      if (prevCount === 0) return { value: currCount > 0 ? '100.0' : '0.0', direction: currCount > 0 ? 'up' as const : 'neutral' as const };
+      const diff = currCount - prevCount;
+      const perc = (diff / prevCount) * 100;
+      return {
+        value: Math.abs(perc).toFixed(1),
+        direction: perc > 0 ? 'up' as const : perc < 0 ? 'down' as const : 'neutral' as const
+      };
+    };
+
+    this.entKpiTrends['Total Students'] = calcTrend(currentStudents.length, prevStudents.length);
+
+    const getStageCount = (list: any[], statusList: string[]) => list.filter(s => statusList.some(st => s.applicationStatus?.includes(st))).length;
+    
+    const admStatuses = ['CONDITIONAL_OFFER_LETTER_GENERATED', 'PENDING_ADMISSION_LETTER', 'ADMISSION_LETTER_GENERATED', 'FORWARDED_TO_UNI'];
+    this.entKpiTrends['Admission Letters'] = calcTrend(getStageCount(currentStudents, admStatuses), getStageCount(prevStudents, admStatuses));
+
+    const telexStatuses = ['TELEX_PAYMENT_DOCS_SUBMITTED', 'TELEX_INITIATED', 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY', 'TELEX_APPLICATION_SUBMITTED_TO_MEA', 'TELEX_NUMBER_ISSUED'];
+    this.entKpiTrends['Telex Issued'] = calcTrend(getStageCount(currentStudents, telexStatuses), getStageCount(prevStudents, telexStatuses));
+
+    const visaStatuses = ['DOCS_VARIFICATION_COMPLETE', 'VISA_FEE_PENDING', 'VISA_FEE_RECEIVED', 'VISA_APPLIED', 'PASSPORT_SUBMITTED_TO_EMBASSY', 'VISA_STAMPED'];
+    this.entKpiTrends['Visa Stamped'] = calcTrend(getStageCount(currentStudents, visaStatuses), getStageCount(prevStudents, visaStatuses));
+
+    const getDocsPending = (list: any[]) => list.filter(s => !s.passportPath || !s.markseetPath).length;
+    this.entKpiTrends['Documents Pending'] = calcTrend(getDocsPending(currentStudents), getDocsPending(prevStudents));
+
+    const getUpcomingTravel = (list: any[]) => {
+      const t = new Date(); t.setHours(0,0,0,0);
+      return list.filter(s => s.travelDoj && new Date(s.travelDoj) >= t).length;
+    };
+    this.entKpiTrends['Travel Arranged'] = calcTrend(getUpcomingTravel(currentStudents), getUpcomingTravel(prevStudents));
+
+    const getArrived = (list: any[]) => list.filter(s => s.admissionPlanStatus === 'MARK_ARRIVED').length;
+    this.entKpiTrends['Students Arrived'] = calcTrend(getArrived(currentStudents), getArrived(prevStudents));
+
+    const getPendingPayment = (list: any[]) => list.filter(s => {
+      const vReq = s.visaPaymentRequestedAmount || 0;
+      const vRec = s.visaPaymentReceivedAmount || 0;
+      const tReq = s.telexPaymentAmount || 0;
+      const tRec = s.telexPaymentReceivedAmount || 0;
+      return (vReq + tReq) > (vRec + tRec);
+    }).length;
+    this.entKpiTrends['Pending Payments'] = calcTrend(getPendingPayment(currentStudents), getPendingPayment(prevStudents));
+  }
+
+  resetTrends(): void {
+    Object.keys(this.entKpiTrends).forEach(k => {
+      this.entKpiTrends[k] = { value: '0.0', direction: 'neutral' };
+    });
+  }
+
+  getOverdueDays(dueDate: string | Date | null): number {
+    if (!dueDate) return 0;
+    const due = new Date(dueDate);
+    const now = new Date();
+    due.setHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
+    const diffTime = now.getTime() - due.getTime();
+    if (diffTime <= 0) return 0;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  // --- SaaS Dashboard: Pipeline Stages ---
+  get pipelineStages(): { label: string; count: number; color: string; view: string }[] {
+    let regCount = 0;
+    let admCount = 0;
+    let telexCount = 0;
+    let visaCount = 0;
+    let arrivedCount = 0;
+
+    this.dashboardStudents.forEach(s => {
+      const dist = s.applicationStatus;
+      if (['REGISTERED', 'UNDER_REVIEW', 'APPROVED'].includes(dist)) regCount++;
+      if (['CONDITIONAL_OFFER_LETTER_GENERATED', 'PENDING_ADMISSION_LETTER', 'ADMISSION_LETTER_GENERATED', 'FORWARDED_TO_UNI'].includes(dist)) admCount++;
+      if (['TELEX_PAYMENT_DOCS_SUBMITTED', 'TELEX_INITIATED', 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY', 'TELEX_APPLICATION_SUBMITTED_TO_MEA', 'TELEX_NUMBER_ISSUED'].includes(dist)) telexCount++;
+      if (['DOCS_VARIFICATION_COMPLETE', 'VISA_FEE_PENDING', 'VISA_FEE_RECEIVED', 'VISA_APPLIED', 'PASSPORT_SUBMITTED_TO_EMBASSY', 'VISA_STAMPED'].includes(dist)) visaCount++;
+      if (s.admissionPlanStatus === 'MARK_ARRIVED') arrivedCount++;
+    });
+
+    return [
+      { label: 'Applications', count: regCount, color: '#031061', view: 'actions-required' },
+      { label: 'Admission Letters', count: admCount, color: '#115ee8', view: 'forward-uni' },
+      { label: 'Telex Issued', count: telexCount, color: '#7c3aed', view: 'assign-telex' },
+      { label: 'Visa Stamped', count: visaCount, color: '#0d9488', view: 'assign-visa' },
+      { label: 'Students Arrived', count: this.dashboardStudents.filter(s => s.admissionPlanStatus === 'MARK_ARRIVED').length, color: '#f97316', view: 'completed' }
+    ];
+  }
+
+  get pipelineMaxCount(): number {
+    return Math.max(...this.pipelineStages.map(s => s.count), 1);
+  }
+
+  getPipelineStageCount(label: string): number {
+    const stage = this.pipelineStages.find(s => s.label === label);
+    return stage ? stage.count : 0;
+  }
+
+  getPendingPaymentStudentsCount(): number {
+    return this.dashboardStudents.filter(s => {
+      const visaReq = s.visaPaymentRequestedAmount || 0;
+      const visaRec = s.visaPaymentReceivedAmount || 0;
+      const telexReq = s.telexPaymentAmount || 0;
+      const telexRec = s.telexPaymentReceivedAmount || 0;
+      return (visaReq + telexReq) > (visaRec + telexRec);
+    }).length;
+  }
+
+  // --- SaaS Dashboard: Upcoming Travel ---
+  get upcomingTravel(): Student[] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return this.dashboardStudents
+      .filter(s => s.travelDoj && new Date(s.travelDoj) >= today)
+      .sort((a, b) => new Date(a.travelDoj!).getTime() - new Date(b.travelDoj!).getTime())
+      .slice(0, 5);
+  }
+
+  // --- SaaS Dashboard: Document Completion ---
+  get documentCompletionStats(): { complete: number; incomplete: number; percentage: number; missingStudents: Student[] } {
+    const total = this.dashboardStudents.length;
+    if (total === 0) return { complete: 0, incomplete: 0, percentage: 0, missingStudents: [] };
+    const incomplete = this.dashboardStudents.filter(s => !s.passportPath || !s.markseetPath);
+    const complete = total - incomplete.length;
+    return {
+      complete,
+      incomplete: incomplete.length,
+      percentage: Math.round((complete / total) * 100),
+      missingStudents: incomplete.slice(0, 5)
+    };
+  }
+
+  // --- SaaS Dashboard: Follow-Up Tasks ---
+  entFollowUpTasks: any[] = [];
+
+  // --- SaaS Dashboard: Payment Dynamic Target ---
+  get dynamicPaymentTarget(): number {
+    let total = 0;
+    if (this.managerData?.students) {
+      this.managerData.students.forEach(s => {
+        total += (s.visaPaymentRequestedAmount || 0) + (s.telexPaymentAmount || 0);
+      });
+    }
+    return total || 1; // avoid division by zero
+  }
+
+
+  entTaskPriorityChartData: ChartData<'doughnut'> = {
+    labels: ['Completed', 'Pending', 'Overdue'],
+    datasets: [{
+      data: [0, 0, 0],
+      backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+      borderWidth: 0
+    }]
+  };
+
+  entTaskPriorityChartOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '75%',
+    plugins: {
+      legend: { display: false }
+    }
+  };
+
+  entPaymentChartData: ChartData<'doughnut'> = {
+    labels: ['Collected', 'Pending'],
+    datasets: [{
+      data: [0, 0],
+      backgroundColor: ['#10b981', '#f1f5f9'],
+      borderWidth: 0
+    }]
+  };
 
   isForwardingRequest = false;
   isRejectingRequest = false;
@@ -353,6 +667,11 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   travelStudents: Student[] = [];
   docReturnStudents: Student[] = [];
 
+  switchTravelTab(tab: 'travel' | 'docs') {
+    this.travelTab = tab;
+    this.buildTravelHeatmapAndTimeline();
+  }
+
   travelFilterAgent = '';
   travelFilterCollege = '';
   travelFilterStartDate = '';
@@ -363,11 +682,11 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
   tomorrowTravelers: Student[] = [];
   next7DaysTravelers: Student[] = [];
   past7DaysTravelers: Student[] = [];
-  
+
   heatmapDays: { date: number, fullDate: string, count: number }[] = [];
   heatmapMonthName: string = '';
   selectedHeatmapDate: string | null = null;
-  
+
   toggleHeatmapDate(date: string) {
     if (this.selectedHeatmapDate === date) {
       this.selectedHeatmapDate = null; // deselect
@@ -398,7 +717,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
   bulkUpdateAdmissionPlan(status: string) {
     if (this.selectedTravelStudents.size === 0) return;
-    
+
     this.isBulkUpdating = true;
     this.cdr.markForCheck();
 
@@ -432,7 +751,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       if (this.travelFilterEndDate && s.travelDoj) {
         if (new Date(s.travelDoj) > new Date(this.travelFilterEndDate)) return false;
       }
-      
+
       // Heatmap Filter
       if (this.selectedHeatmapDate && s.travelDoj !== this.selectedHeatmapDate) return false;
 
@@ -484,7 +803,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       const flightNumber = s.travelFlightNumber || 'Unknown Flight';
       const date = this.travelTab === 'travel' ? s.travelDoj : s.documentReturnRequest?.travelDate;
       const destination = this.travelTab === 'travel' ? s.travelDestination : s.documentReturnRequest?.toAirport;
-      
+
       const key = `${flightNumber}_${date}_${destination}`;
       if (!groupsMap.has(key)) {
         groupsMap.set(key, { flightNumber, date: date || '', destination: destination || 'Unknown', students: [] });
@@ -527,7 +846,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
       .map(s => s.contactNo)
       .filter(c => c && c.trim().length > 0)
       .join(', ');
-    
+
     if (!contacts) {
       this.showToast('No contact numbers found for this group.', 'error');
       return;
@@ -813,6 +1132,44 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     }]
   };
 
+  public applicationsTrendChartType: ChartType = 'line';
+  public applicationsTrendChartData: ChartData<'line'> = {
+    labels: ['1 May', '7 May', '14 May', '21 May', '28 May'],
+    datasets: [
+      {
+        label: 'Applications',
+        data: [15, 30, 45, 60, 80],
+        borderColor: '#3b82f6',
+        backgroundColor: '#3b82f6',
+        tension: 0.4,
+        fill: false,
+        pointRadius: 4,
+        borderWidth: 2
+      },
+      {
+        label: 'Admissions',
+        data: [5, 12, 20, 35, 50],
+        borderColor: '#10b981',
+        backgroundColor: '#10b981',
+        tension: 0.4,
+        fill: false,
+        pointRadius: 4,
+        borderWidth: 2
+      }
+    ]
+  };
+  public applicationsTrendChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: { family: 'Inter', size: 11 } } }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#64748b' } },
+      y: { border: { display: false }, grid: { color: '#f1f5f9' }, min: 0, max: 100, ticks: { font: { family: 'Inter', size: 10 }, color: '#64748b' } }
+    }
+  };
+
   constructor(
     private admissionService: AdmissionManagerService,
     private router: Router,
@@ -860,6 +1217,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     // Parallel loading logic
     if (this.activeView === 'dashboard') {
       this.loadDashboardStats(username);
+      this.loadTasksDashboard();
     }
 
     // Safety timeout - reset loading states after 15 seconds max
@@ -886,6 +1244,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
         next: (data) => {
           this.managerData = data;
           this.categorizeStudents();
+          this.processEnterpriseDashboardMetrics();
           // Only filter if not in dashboard view, otherwise dashboard stats handle the view
           if (this.activeView !== 'dashboard') {
             this.filterStudents();
@@ -1128,6 +1487,160 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     });
   }
 
+  processEnterpriseDashboardMetrics(): void {
+    if (!this.managerData?.students) return;
+
+    let pendingPayments = 0;
+    let paidPayments = 0;
+
+    let pendingDocs = 0;
+    let pendingTelex = 0;
+    let todayAdmissions = 0;
+    let todayArrivals = 0;
+    let awaitingApproval = 0;
+
+    const uniMap = new Map<string, { students: number, admissions: number, arrivals: number }>();
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    this.dashboardStudents.forEach(s => {
+      // Payments Logic
+      const visaReq = s.visaPaymentRequestedAmount || 0;
+      const visaRec = s.visaPaymentReceivedAmount || 0;
+      const telexReq = s.telexPaymentAmount || 0;
+      const telexRec = s.telexPaymentReceivedAmount || 0;
+
+      const totalReqForStudent = visaReq + telexReq;
+      const totalRecForStudent = visaRec + telexRec;
+
+      paidPayments += totalRecForStudent;
+      pendingPayments += Math.max(0, totalReqForStudent - totalRecForStudent);
+
+      // University Analytics
+      if (s.college && s.college.collegeName) {
+        const uniName = s.college.collegeName;
+        if (!uniMap.has(uniName)) {
+          uniMap.set(uniName, { students: 0, admissions: 0, arrivals: 0 });
+        }
+        const uniStats = uniMap.get(uniName)!;
+        uniStats.students++;
+        if (s.applicationStatus === 'ADMISSION_LETTER_GENERATED' || s.applicationStatus === 'PENDING_ADMISSION_LETTER' || s.applicationStatus === 'CONDITIONAL_OFFER_LETTER_GENERATED' || s.applicationStatus === 'FORWARDED_TO_UNI') {
+          uniStats.admissions++;
+        }
+        if (s.admissionPlanStatus === 'MARK_ARRIVED') {
+          uniStats.arrivals++;
+        }
+      }
+
+      // Insights Logic
+      if (!s.passportPath || !s.markseetPath) pendingDocs++;
+      if (s.applicationStatus === 'TELEX_PAYMENT_DOCS_SUBMITTED' || s.applicationStatus === 'TELEX_INITIATED') pendingTelex++;
+      if (s.applicationStatus === 'PENDING_ADMISSION_LETTER') awaitingApproval++;
+
+      // Basic date check for today's activities (simplified using createdAt or updated status)
+      if (s.createdAt && s.createdAt.startsWith(todayStr)) todayAdmissions++;
+      if (s.admissionPlanStatus === 'MARK_ARRIVED') todayArrivals++;
+    });
+
+    this.entPaymentStats = {
+      pendingPayments: pendingPayments,
+      paidPayments: paidPayments,
+      totalCollection: paidPayments,
+      pendingCollection: pendingPayments,
+      completionPercentage: (paidPayments + pendingPayments) > 0 ? Math.round((paidPayments / (paidPayments + pendingPayments)) * 100) : 0
+    };
+
+    this.entPaymentChartData.datasets[0].data = [this.entPaymentStats.paidPayments, this.entPaymentStats.pendingPayments];
+
+    this.entUniversityDistribution = Array.from(uniMap.entries()).map(([name, stats]) => ({
+      name,
+      ...stats
+    })).sort((a, b) => b.students - a.students);
+
+    this.entQuickInsights = {
+      todayAdmissions,
+      todayArrivals,
+      pendingDocs,
+      pendingTelex,
+      awaitingApproval
+    };
+
+    this.updateApplicationsTrendChart();
+
+    if (this.chart) {
+      this.chart.update();
+    }
+  }
+
+  updateApplicationsTrendChart(): void {
+    if (!this.dashboardStudents || this.dashboardStudents.length === 0) {
+      this.applicationsTrendChartData.labels = [];
+      this.applicationsTrendChartData.datasets[0].data = [];
+      this.applicationsTrendChartData.datasets[1].data = [];
+      return;
+    }
+
+    const students = [...this.dashboardStudents].filter(s => s.createdAt).sort((a, b) => new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime());
+    if (students.length === 0) return;
+
+    const startDate = new Date(students[0].createdAt!);
+    const endDate = new Date(students[students.length - 1].createdAt!);
+    
+    let buckets = 5;
+    const timeSpan = endDate.getTime() - startDate.getTime();
+    let bucketSize = timeSpan > 0 ? timeSpan / (buckets - 1) : 86400000;
+
+    const labels: string[] = [];
+    const appsData: number[] = new Array(buckets).fill(0);
+    const admitsData: number[] = new Array(buckets).fill(0);
+
+    for (let i = 0; i < buckets; i++) {
+      const bucketDate = new Date(startDate.getTime() + i * bucketSize);
+      labels.push(bucketDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+    }
+
+    if (timeSpan === 0) {
+      buckets = 1;
+      labels.length = 1;
+      appsData.length = 1;
+      admitsData.length = 1;
+      bucketSize = 1;
+    }
+
+    const admissionStatuses = [
+      'CONDITIONAL_OFFER_LETTER_GENERATED', 'PENDING_ADMISSION_LETTER', 'ADMISSION_LETTER_GENERATED', 'FORWARDED_TO_UNI'
+    ];
+
+    students.forEach(s => {
+       const t = new Date(s.createdAt!).getTime();
+       let bucketIndex = timeSpan > 0 ? Math.round((t - startDate.getTime()) / bucketSize) : 0;
+       if (bucketIndex >= buckets) bucketIndex = buckets - 1;
+       if (bucketIndex < 0) bucketIndex = 0;
+       
+       appsData[bucketIndex]++;
+       
+       if (admissionStatuses.includes(s.applicationStatus) || 
+           s.applicationStatus.includes('TELEX') || 
+           s.applicationStatus.includes('VISA') || 
+           s.applicationStatus === 'DOCS_VARIFICATION_COMPLETE' || 
+           s.admissionPlanStatus === 'MARK_ARRIVED') {
+         admitsData[bucketIndex]++;
+       }
+    });
+
+    for (let i = 1; i < buckets; i++) {
+       appsData[i] += appsData[i-1];
+       admitsData[i] += admitsData[i-1];
+    }
+
+    this.applicationsTrendChartData = {
+      labels: labels,
+      datasets: [
+        { ...this.applicationsTrendChartData.datasets[0], data: appsData },
+        { ...this.applicationsTrendChartData.datasets[1], data: admitsData }
+      ]
+    };
+  }
+
   categorizeStudents(): void {
     if (!this.managerData || !this.managerData.colleges) {
       return;
@@ -1151,7 +1664,32 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     }
 
     this.allStudents = Array.from(studentMap.values());
+
+    // Apply timeframe filter for dashboard widgets only
+    let dashboardStuds = [...this.allStudents];
+    if (this.selectedTimeframe && this.selectedTimeframe !== 'ALL') {
+      const now = new Date();
+      let startDate = new Date(0);
+      if (this.selectedTimeframe === 'TODAY') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      } else if (this.selectedTimeframe === 'LAST_7_DAYS') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+      } else if (this.selectedTimeframe === 'THIS_MONTH') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      } else if (this.selectedTimeframe === 'YTD') {
+        startDate = new Date(now.getFullYear(), 0, 1);
+      }
+      dashboardStuds = dashboardStuds.filter(s => {
+        if (!s.createdAt) return false;
+        return new Date(s.createdAt) >= startDate;
+      });
+    }
+
+    this.dashboardStudents = dashboardStuds;
+    this.calculateTrends();
+
     console.log('Total aggregated students:', this.allStudents.length);
+    console.log('Dashboard students (filtered):', this.dashboardStudents.length);
 
     this.actionRequiredStudents = this.allStudents.filter(s => s.actionOnUser === 'admission_manager');
     this.pendingUniversityStudents = this.allStudents.filter(s => s.actionOnUser === 'UniversityCoordinator');
@@ -1203,6 +1741,8 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     } else if (view === 'tasks') {
       this.loadDocRequests();
       this.loadTasksDashboard();
+    } else if (view === 'requested-docs') {
+      this.loadDocRequests();
     } else if (view === 'dashboard') {
       const username = sessionStorage.getItem('userId');
       if (username) this.loadDashboardStats(username);
@@ -1314,14 +1854,98 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  isAdmissionLetterCompleted(status: string | null | undefined): boolean {
+    if (!status) return false;
+    const postAdmissionStatuses = [
+      'ADMISSION_LETTER_GENERATED', 'TELEX_PAYMENT_DOCS_SUBMITTED', 'TELEX_INITIATED',
+      'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY', 'TELEX_APPLICATION_SUBMITTED_TO_MEA',
+      'TELEX_NUMBER_ISSUED', 'DOCS_VARIFICATION_COMPLETE', 'VISA_FEE_PENDING',
+      'VISA_FEE_RECEIVED', 'VISA_APPLIED', 'PASSPORT_SUBMITTED_TO_EMBASSY',
+      'VISA_STAMPED', 'TRAVELLING', 'COMPLETED'
+    ];
+    return postAdmissionStatuses.includes(status);
+  }
+
+  isTelexCompleted(status: string | null | undefined): boolean {
+    if (!status) return false;
+    const postTelexStatuses = [
+      'TELEX_NUMBER_ISSUED', 'VISA_FEE_PENDING',
+      'VISA_FEE_RECEIVED', 'VISA_APPLIED', 'PASSPORT_SUBMITTED_TO_EMBASSY',
+      'VISA_STAMPED', 'TRAVELLING', 'COMPLETED'
+    ];
+    return postTelexStatuses.includes(status);
+  }
+
+  isVisaCompleted(status: string | null | undefined): boolean {
+    if (!status) return false;
+    const postVisaStatuses = [
+      'VISA_STAMPED', 'TRAVELLING', 'COMPLETED'
+    ];
+    return postVisaStatuses.includes(status);
+  }
+
   filterStudents(): void {
     let sourceList: Student[] = [];
     switch (this.activeView) {
       case 'actions-required': sourceList = this.actionRequiredStudents; break;
-      case 'forward-uni': sourceList = this.actionRequiredStudents.filter(s => s.action === 'FORWARD_TO_UNI'); break;
+      case 'forward-uni':
+        sourceList = this.allStudents.filter(s =>
+          s.action === 'FORWARD_TO_UNI' ||
+          s.action === 'UPLOAD_ADMISSION_LETTER' ||
+          s.action === 'APPROVE_ADMISSION_LETTER' ||
+          this.isAdmissionLetterCompleted(s.applicationStatus)
+        ).sort((a, b) => {
+          const aIsPending = a.action === 'FORWARD_TO_UNI' || a.action === 'APPROVE_ADMISSION_LETTER' || a.action === 'UPLOAD_ADMISSION_LETTER';
+          const bIsPending = b.action === 'FORWARD_TO_UNI' || b.action === 'APPROVE_ADMISSION_LETTER' || b.action === 'UPLOAD_ADMISSION_LETTER';
+          if (aIsPending && !bIsPending) return -1;
+          if (!aIsPending && bIsPending) return 1;
+          return 0;
+        });
+        this.pipelineCompletedCount = sourceList.filter(s => this.isAdmissionLetterCompleted(s.applicationStatus)).length;
+        this.pipelineWaitingUniCount = sourceList.filter(s => s.action === 'UPLOAD_ADMISSION_LETTER').length;
+        this.pipelinePendingOnYouCount = sourceList.filter(s => s.action === 'FORWARD_TO_UNI' || s.action === 'APPROVE_ADMISSION_LETTER').length;
+        break;
       case 'approve-admission': sourceList = this.actionRequiredStudents.filter(s => s.action === 'APPROVE_ADMISSION_LETTER'); break;
-      case 'assign-telex': sourceList = this.actionRequiredStudents.filter(s => s.action === 'ASSIGN_TELEX_MAN'); break;
-      case 'assign-visa': sourceList = this.actionRequiredStudents.filter(s => s.action === 'ASSIGN_TO_VISA_MAN'); break;
+      case 'assign-telex':
+        sourceList = this.allStudents.filter(s =>
+          s.action === 'ASSIGN_TELEX_MAN' ||
+          s.applicationStatus === 'TELEX_INITIATED' ||
+          s.applicationStatus === 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY' ||
+          s.applicationStatus === 'TELEX_APPLICATION_SUBMITTED_TO_MEA' ||
+          this.isTelexCompleted(s.applicationStatus) ||
+          (s.telexNumber && s.telexNumber.trim() !== '')
+        ).sort((a, b) => {
+          if (a.action === 'ASSIGN_TELEX_MAN' && b.action !== 'ASSIGN_TELEX_MAN') return -1;
+          if (a.action !== 'ASSIGN_TELEX_MAN' && b.action === 'ASSIGN_TELEX_MAN') return 1;
+          return 0;
+        });
+        this.telexPipelinePendingAssignCount = sourceList.filter(s => s.action === 'ASSIGN_TELEX_MAN').length;
+        this.telexPipelineInProgressCount = sourceList.filter(s => s.applicationStatus === 'TELEX_INITIATED' || s.applicationStatus === 'TELEX_APPLICATION_SUBMITTED_TO_UNIVERSITY' || s.applicationStatus === 'TELEX_APPLICATION_SUBMITTED_TO_MEA').length;
+        this.telexPipelineCompletedCount = sourceList.filter(s => this.isTelexCompleted(s.applicationStatus) || (s.telexNumber && s.telexNumber.trim() !== '')).length;
+        break;
+      case 'assign-visa':
+        sourceList = this.allStudents.filter(s =>
+          s.action === 'ASSIGN_TO_VISA_MAN' ||
+          s.applicationStatus === 'VISA_FEE_PENDING' ||
+          s.applicationStatus === 'VISA_FEE_RECEIVED' ||
+          s.applicationStatus === 'VISA_APPLIED' ||
+          s.applicationStatus === 'PASSPORT_SUBMITTED_TO_EMBASSY' ||
+          this.isVisaCompleted(s.applicationStatus) ||
+          (s.visaNumber && s.visaNumber.trim() !== '')
+        ).sort((a, b) => {
+          if (a.action === 'ASSIGN_TO_VISA_MAN' && b.action !== 'ASSIGN_TO_VISA_MAN') return -1;
+          if (a.action !== 'ASSIGN_TO_VISA_MAN' && b.action === 'ASSIGN_TO_VISA_MAN') return 1;
+          return 0;
+        });
+        this.visaPipelinePendingAssignCount = sourceList.filter(s => s.action === 'ASSIGN_TO_VISA_MAN').length;
+        this.visaPipelineInProgressCount = sourceList.filter(s =>
+          s.applicationStatus === 'VISA_FEE_PENDING' ||
+          s.applicationStatus === 'VISA_FEE_RECEIVED' ||
+          s.applicationStatus === 'VISA_APPLIED' ||
+          s.applicationStatus === 'PASSPORT_SUBMITTED_TO_EMBASSY'
+        ).length;
+        this.visaPipelineCompletedCount = sourceList.filter(s => this.isVisaCompleted(s.applicationStatus) || (s.visaNumber && s.visaNumber.trim() !== '')).length;
+        break;
       case 'pending-university': sourceList = this.pendingUniversityStudents; break;
       case 'processing': sourceList = this.processingStudents; break;
       case 'completed': sourceList = this.allStudents; break;
@@ -1351,6 +1975,7 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
 
       return true;
     });
+    this.currentPage = 1;
   }
 
   clearAllFilters(): void {
@@ -1403,13 +2028,13 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     // Reset to start of day for accurate comparison
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    // Gather all traveling students
-    const allTravelers = [...this.travelStudents, ...this.docReturnStudents];
+    // Gather traveling students for the currently active tab
+    const allTravelers = this.travelTab === 'travel' ? this.travelStudents : this.docReturnStudents;
 
     // Build Heatmap for the CURRENT month
     const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
     this.heatmapMonthName = today.toLocaleString('default', { month: 'long', year: 'numeric' });
-    
+
     // Initialize heatmap array with 0 counts
     for (let i = 1; i <= daysInMonth; i++) {
       const monthStr = (today.getMonth() + 1).toString().padStart(2, '0');
@@ -2192,10 +2817,73 @@ export class AdmissionManagerDashboard implements OnInit, OnDestroy {
     this.http.get<any>(`${environment.apiUrl}/api/tasks/dashboard?role=${role}&username=${userId}`).subscribe({
       next: (res) => {
         this.tasksDashboardData = res;
+        this.processEnterpriseTaskStats(res);
         this.cdr.detectChanges();
       },
       error: (err) => console.error('Failed to load tasks', err)
     });
+
+    // Fetch precisely "My Tasks" for the Pending Tasks list, matching the Tasks Board
+    this.http.get<any>(`${environment.apiUrl}/api/tasks/dashboard/paginated?username=${userId}&filter=my&page=0&size=5`).subscribe({
+      next: (res) => {
+        this.entTopPendingTasks = res.content || [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to load my tasks for dashboard', err)
+    });
+
+    // Fetch overdue tasks for the Overdue widget
+    this.http.get<any>(`${environment.apiUrl}/api/tasks/dashboard/paginated?username=${userId}&filter=overdue&page=0&size=5`).subscribe({
+      next: (res) => {
+        this.entFollowUpTasks = res.content || [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to load overdue tasks', err)
+    });
+  }
+
+  processEnterpriseTaskStats(data: any): void {
+    if (!data) return;
+
+    const allTasks = data.allTasks || [];
+    let high = 0;
+    let medium = 0;
+    let low = 0;
+    let completed = 0;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    allTasks.forEach((t: any) => {
+      if (t.status === 'COMPLETED' || t.status === 'CANCELLED') {
+        completed++;
+      } else {
+        if (!t.dueDate) {
+          low++;
+        } else {
+          const due = new Date(t.dueDate);
+          due.setHours(0, 0, 0, 0);
+          if (due < today) high++; // Overdue
+          else if (due.getTime() === today.getTime()) medium++; // Due today
+          else low++;
+        }
+      }
+    });
+
+    const total = allTasks.length;
+    const pending = total - completed;
+    const overdue = data.overdueTasks ? data.overdueTasks.length : 0;
+
+    this.entTaskStats = {
+      total, completed, pending, overdue, high, medium, low,
+      completionPercentage: total > 0 ? Math.round((completed / total) * 100) : 0
+    };
+
+    this.entTaskPriorityChartData.datasets[0].data = [high, medium, low];
+
+    if (this.chart) {
+      this.chart.update();
+    }
   }
 
   openCreateTaskModal(type: string = 'TASK'): void {
