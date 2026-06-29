@@ -1398,30 +1398,43 @@
             <div class="students-layout" style="display: block;">
                 
                 <!-- Role Filters -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'ALL'" (click)="telexRoleFilter.set('ALL')">
-                        <div class="tf-icon" style="background: #f1f5f9; color: #475569;"><i class="fas fa-users"></i></div>
-                        <div class="tf-title">All Requests</div>
+                <div class="telex-filter-grid">
+                    <div class="tlx-card" [class.active]="telexRoleFilter() === 'ALL'" (click)="telexRoleFilter.set('ALL')">
+                        <div class="tlx-card-icon" style="background: #334155;"><i class="fas fa-layer-group"></i></div>
+                        <div class="tlx-card-info">
+                            <div class="tlx-card-label">All Requests</div>
+                            <div class="tlx-card-count">{{ telexStudents().length }}</div>
+                        </div>
                     </div>
-                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'AGENT'" (click)="telexRoleFilter.set('AGENT')">
-                        <div class="tf-icon" style="background: #f1f5f9; color: #1e293b;"><i class="fas fa-user-tie"></i></div>
-                        <div class="tf-title">Pending Agent</div>
+                    <div class="tlx-card" [class.active]="telexRoleFilter() === 'AGENT'" (click)="telexRoleFilter.set('AGENT')">
+                        <div class="tlx-card-icon" style="background: #1e293b;"><i class="fas fa-user-tie"></i></div>
+                        <div class="tlx-card-info">
+                            <div class="tlx-card-label">Pending Agent</div>
+                        </div>
                     </div>
-                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'DOC_PERSON'" (click)="telexRoleFilter.set('DOC_PERSON')">
-                        <div class="tf-icon" style="background: #fef3c7; color: #92400e;"><i class="fas fa-user-shield"></i></div>
-                        <div class="tf-title">Pending Doc Person</div>
+                    <div class="tlx-card" [class.active]="telexRoleFilter() === 'DOC_PERSON'" (click)="telexRoleFilter.set('DOC_PERSON')">
+                        <div class="tlx-card-icon" style="background: #b45309;"><i class="fas fa-user-shield"></i></div>
+                        <div class="tlx-card-info">
+                            <div class="tlx-card-label">Pending Doc Person</div>
+                        </div>
                     </div>
-                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'ADMISSION_MANAGER'" (click)="telexRoleFilter.set('ADMISSION_MANAGER')">
-                        <div class="tf-icon" style="background: #ede9fe; color: #5b21b6;"><i class="fas fa-user-tie"></i></div>
-                        <div class="tf-title">Pending Admission</div>
+                    <div class="tlx-card" [class.active]="telexRoleFilter() === 'ADMISSION_MANAGER'" (click)="telexRoleFilter.set('ADMISSION_MANAGER')">
+                        <div class="tlx-card-icon" style="background: #6d28d9;"><i class="fas fa-user-cog"></i></div>
+                        <div class="tlx-card-info">
+                            <div class="tlx-card-label">Pending Admission</div>
+                        </div>
                     </div>
-                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'TELEX_MANAGER'" (click)="telexRoleFilter.set('TELEX_MANAGER')">
-                        <div class="tf-icon" style="background: #e0e7ff; color: #1e3a8a;"><i class="fas fa-user-tag"></i></div>
-                        <div class="tf-title">Pending Telex Mgr</div>
+                    <div class="tlx-card" [class.active]="telexRoleFilter() === 'TELEX_MANAGER'" (click)="telexRoleFilter.set('TELEX_MANAGER')">
+                        <div class="tlx-card-icon" style="background: #1e40af;"><i class="fas fa-user-tag"></i></div>
+                        <div class="tlx-card-info">
+                            <div class="tlx-card-label">Pending Telex Mgr</div>
+                        </div>
                     </div>
-                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'COMPLETED'" (click)="telexRoleFilter.set('COMPLETED')">
-                        <div class="tf-icon" style="background: #d1fae5; color: #059669;"><i class="fas fa-check-circle"></i></div>
-                        <div class="tf-title">Completed</div>
+                    <div class="tlx-card" [class.active]="telexRoleFilter() === 'COMPLETED'" (click)="telexRoleFilter.set('COMPLETED')">
+                        <div class="tlx-card-icon" style="background: #047857;"><i class="fas fa-check-circle"></i></div>
+                        <div class="tlx-card-info">
+                            <div class="tlx-card-label">Completed</div>
+                        </div>
                     </div>
                 </div>
 
@@ -1450,28 +1463,27 @@
                                     <td>
                                         @if(getTelexCurrentOwner(student); as owner) {
                                             @if(owner.role === 'Completed') {
-                                                <span style="font-size: 13px; color: #94a3b8; font-weight: 500;"><i class="fas fa-check" style="margin-right: 4px;"></i> Not Applicable</span>
-                                            } @else {
-                                                <span class="status-badge {{ owner.badge }}" title="{{ owner.name }}">
-                                                    <i class="{{ owner.icon }}" style="margin-right:4px;"></i> {{ owner.role }} <span style="opacity: 0.85; margin-left: 4px; font-weight: 500;">({{ owner.name }})</span>
-                                                </span>
+                                                <div class="tlx-tag tlx-tag-completed"><i class="fas fa-check-circle"></i> Done</div>
+                                            } @else if(owner.role === 'Agent') {
+                                                <div class="tlx-tag tlx-tag-agent"><i class="fas fa-user-tie"></i> {{ owner.role }}<span class="tlx-tag-sub">{{ owner.name }}</span></div>
+                                            } @else if(owner.role === 'Doc Person') {
+                                                <div class="tlx-tag tlx-tag-doc"><i class="fas fa-user-shield"></i> {{ owner.role }}<span class="tlx-tag-sub">{{ owner.name }}</span></div>
+                                            } @else if(owner.role === 'Admission Manager') {
+                                                <div class="tlx-tag tlx-tag-admission"><i class="fas fa-user-cog"></i> Adm. Manager<span class="tlx-tag-sub">{{ owner.name }}</span></div>
+                                            } @else if(owner.role === 'Telex Manager') {
+                                                <div class="tlx-tag tlx-tag-telex"><i class="fas fa-user-tag"></i> {{ owner.role }}<span class="tlx-tag-sub">{{ owner.name }}</span></div>
                                             }
                                         }
                                     </td>
                                     <td>
                                         @if(getTelexCurrentOwner(student); as owner) {
                                             @if(owner.role === 'Completed') {
-                                                <span style="font-family: monospace; font-size: 13px; font-weight: 700; color: #064e3b; background: #d1fae5; padding: 6px 10px; border-radius: 6px; border: 1px solid #10b981; white-space: nowrap;">
-                                                    <i class="fas fa-hashtag" style="color: #059669; margin-right: 4px;"></i>{{ owner.nextAction }}
-                                                </span>
+                                                <div class="tlx-action tlx-action-done">
+                                                    <i class="fas fa-hashtag"></i> {{ owner.nextAction }}
+                                                </div>
                                             } @else {
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <div style="width: 28px; height: 28px; border-radius: 6px; background: {{ owner.actionColor }}10; color: {{ owner.actionColor }}; display: flex; align-items: center; justify-content: center;">
-                                                        <i class="{{ owner.actionIcon }}" style="font-size: 12px;"></i>
-                                                    </div>
-                                                    <span style="font-size: 14px; color: #0f172a; font-weight: 700;">
-                                                        {{ owner.nextAction }}
-                                                    </span>
+                                                <div class="tlx-action" [style.background]="owner.actionColor + '12'" [style.color]="owner.actionColor" [style.border-left-color]="owner.actionColor">
+                                                    <i class="{{ owner.actionIcon }}"></i> {{ owner.nextAction }}
                                                 </div>
                                             }
                                         }

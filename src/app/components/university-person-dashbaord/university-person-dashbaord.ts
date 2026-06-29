@@ -494,20 +494,38 @@ export class UniversityPersonDashboard implements OnInit {
   telexRoleFilter = signal('ALL');
 
   telexStudents = computed(() => {
-    const statuses = ['ADMISSION_LETTER_GENERATED', 'APPROVED', 'APPLIED_FOR_TELEX', 'FORWARDED_TO_UNI', 'TELEX_INITIATED', 'TELEX_DOCS_UPLOADED', 'TELEX_APPROVED', 'TELEX_NUMBER_ISSUED'];
-    let students = this.allStudents().filter(s => 
-      (
-        (s.applicationStatus && statuses.includes(s.applicationStatus)) || 
-        s.telexPaymentAmount ||
-        s.telexDocumentsPath ||
-        s.isTelexDocsVerified ||
-        s.telexNumber
-      )
+    // Use raw universityData students — NOT allStudents() which has "All Students" tab filters applied
+    const allRaw = this.universityData()?.students || [];
+    
+    // DEBUG: Log all unique statuses and key fields
+    if (allRaw.length > 0) {
+      const statuses = [...new Set(allRaw.map((s: any) => s.applicationStatus))];
+      console.log('DEBUG TELEX: Total raw students:', allRaw.length);
+      console.log('DEBUG TELEX: Unique statuses:', statuses);
+      console.log('DEBUG TELEX: With telexPaymentAmount:', allRaw.filter((s: any) => s.telexPaymentAmount).length);
+      console.log('DEBUG TELEX: With telexNumber:', allRaw.filter((s: any) => s.telexNumber).length);
+      console.log('DEBUG TELEX: With telexTuitionFee:', allRaw.filter((s: any) => s.telexTuitionFee).length);
+      console.log('DEBUG TELEX: With isTelexDocsVerified:', allRaw.filter((s: any) => s.isTelexDocsVerified).length);
+      console.log('DEBUG TELEX: With TELEX_INITIATED:', allRaw.filter((s: any) => s.applicationStatus === 'TELEX_INITIATED').length);
+      console.log('DEBUG TELEX: With ADMISSION_LETTER_GENERATED:', allRaw.filter((s: any) => s.applicationStatus === 'ADMISSION_LETTER_GENERATED').length);
+      console.log('DEBUG TELEX: getTelexStatus not Not Started:', allRaw.filter((s: any) => this.getTelexStatus(s) !== 'Not Started').length);
+    }
+
+    let students = allRaw.filter((s: any) => 
+      // Match the same logic used in report: getTelexStatus !== 'Not Started'
+      this.getTelexStatus(s) !== 'Not Started' ||
+      s.telexPaymentAmount ||
+      s.telexTuitionFee ||
+      s.isTelexDocsVerified ||
+      s.isTelexDocApproved ||
+      // Also include students eligible (admission letter generated)
+      s.applicationStatus === 'ADMISSION_LETTER_GENERATED' ||
+      s.applicationStatus === 'APPROVED'
     );
 
     const roleFilter = this.telexRoleFilter();
     if (roleFilter !== 'ALL') {
-      students = students.filter(s => {
+      students = students.filter((s: any) => {
         const owner = this.getTelexCurrentOwner(s);
         if (roleFilter === 'COMPLETED') return s.telexNumber;
         if (roleFilter === 'AGENT') return owner.role === 'Agent' && !s.telexNumber;
@@ -546,18 +564,20 @@ export class UniversityPersonDashboard implements OnInit {
       };
     }
     
-    if (student.isTelexDocsVerified) {
+    // STEP 3: Status is TELEX_INITIATED (Doc verified, no telexMan yet) = Admission Manager
+    if (student.applicationStatus === 'TELEX_INITIATED' || student.isTelexDocsVerified) {
       return { 
           name: student.admissionManager?.fullName || 'Admission Manager', 
           role: 'Admission Manager', 
           badge: 'badge-primary', 
-          icon: 'fas fa-user-tie',
-          nextAction: 'Assign to Telex Manager',
+          icon: 'fas fa-user-cog',
+          nextAction: 'Assign Telex Manager',
           actionIcon: 'fas fa-user-plus',
-          actionColor: '#5b21b6'
+          actionColor: '#6d28d9'
       };
     }
     
+    // STEP 2: Agent paid / applied = Doc Person verifies
     if (student.applicationStatus === 'APPLIED_FOR_TELEX' || student.telexPaymentAmount) {
       return { 
           name: student.docPerson?.fullName || 'Doc Person', 
@@ -566,7 +586,7 @@ export class UniversityPersonDashboard implements OnInit {
           icon: 'fas fa-user-shield',
           nextAction: 'Verify Telex Documents',
           actionIcon: 'fas fa-check-double',
-          actionColor: '#92400e'
+          actionColor: '#b45309'
       };
     }
     
@@ -592,37 +612,45 @@ export class UniversityPersonDashboard implements OnInit {
   });
 
   getTelexStepStatus(student: Student, step: number): 'completed' | 'in-progress' | 'pending' {
-    switch (step) {
-      case 1: // Agent Initiated
-        if (student.telexPaymentAmount || student.telexNumber || student.isTelexDocsVerified || student.telexMan || student.telexDocumentsPath) return 'completed';
-        if (student.applicationStatus === 'APPLIED_FOR_TELEX') return 'in-progress';
-        return 'pending';
-      case 2: // Doc Person Verification
-        if (student.isTelexDocsVerified) return 'completed';
-        if (this.getTelexStepStatus(student, 1) === 'completed') return 'in-progress';
-        return 'pending';
-      case 3: // Assigned to Telex Manager
-        if (student.telexMan) return 'completed';
-        if (this.getTelexStepStatus(student, 2) === 'completed') return 'in-progress';
-        return 'pending';
-      case 4: // Talabnoma Uploaded
-        if (student.telexDocumentsPath) return 'completed';
-        if (this.getTelexStepStatus(student, 3) === 'completed') return 'in-progress';
-        return 'pending';
-      case 5: // University / MFA Submission
-        if (student.telexRequestDate) return 'completed';
-        if (this.getTelexStepStatus(student, 4) === 'completed') return 'in-progress';
-        return 'pending';
-      case 6: // MFA Processing
-        if (student.telexNumber) return 'completed';
-        if (this.getTelexStepStatus(student, 5) === 'completed') return 'in-progress';
-        return 'pending';
-      case 7: // Telex Issued
-        if (student.telexNumber) return 'completed';
-        return 'pending';
-      default:
-        return 'pending';
+    // Derive the current step from the student's actual state
+    // This gives us a number 1-7 representing how far along they are
+    let currentStep = 0;
+
+    const status = student.applicationStatus || '';
+
+    // Step 7: Telex Number issued
+    if (student.telexNumber) {
+      currentStep = 7;
     }
+    // Step 5-6: Telex request submitted to MFA, waiting for number
+    else if (student.telexRequestDate) {
+      currentStep = 6;
+    }
+    // Step 4: Talabnoma uploaded by telex manager
+    else if (student.telexDocumentsPath) {
+      currentStep = 5;
+    }
+    // Step 3: Telex Manager assigned — working on it
+    else if (student.telexMan) {
+      currentStep = 4;
+    }
+    // Step 2-3: Docs verified / Status is TELEX_INITIATED — Admission Manager needs to assign
+    else if (student.isTelexDocsVerified || status === 'TELEX_INITIATED') {
+      currentStep = 3;
+    }
+    // Step 1-2: Agent applied for telex — Doc Person needs to verify
+    else if (status === 'APPLIED_FOR_TELEX' || student.telexPaymentAmount) {
+      currentStep = 2;
+    }
+    // Step 1: Admission letter generated — Agent needs to initiate
+    else if (status === 'ADMISSION_LETTER_GENERATED' || status === 'APPROVED') {
+      currentStep = 1;
+    }
+
+    // Now determine the status for the requested step
+    if (step < currentStep) return 'completed';
+    if (step === currentStep) return 'in-progress';
+    return 'pending';
   }
 
   constructor(

@@ -381,9 +381,11 @@
       }
 
       <!-- TASKS VIEW -->
-      <div class="dashboard-view-container fade-in" style="padding: 24px;" [hidden]="activeTab !== 'tasks' || isLoading || errorState.hasError">
+      @if (activeTab === 'tasks' && !isLoading && !errorState.hasError) {
+      <div class="dashboard-view-container fade-in" style="padding: 24px;">
         <app-tasks-board [role]="'DOCUMENT_MANAGER'"></app-tasks-board>
       </div>
+      }
 
       <!-- DASHBOARD VIEW -->
       @if (activeTab === 'dashboard' && !isLoading && !errorState.hasError) {

@@ -4057,39 +4057,154 @@ tbody tr:hover {
 }
 
 /* Telex Filters */
-.telex-filter-card {
+
+
+
+
+/* ========== Telex Modern Aesthetic ========== */
+
+/* Filter Card Grid */
+.telex-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tlx-card {
     background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 16px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 14px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
 }
-.telex-filter-card:hover {
-    border-color: #cbd5e1;
-    transform: translateY(-1px);
+
+.tlx-card:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
 }
-.telex-filter-card.active {
+
+.tlx-card.active {
+    background: #f0f4ff;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    box-shadow: inset 3px 0 0 #3b82f6;
 }
-.telex-filter-card .tf-icon {
-    width: 36px;
-    height: 36px;
+
+.tlx-card-icon {
+    width: 32px;
+    height: 32px;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 13px;
+    color: #fff;
     flex-shrink: 0;
 }
-.telex-filter-card .tf-title {
-    font-size: 14px;
+
+.tlx-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.tlx-card-label {
+    font-size: 12px;
     font-weight: 600;
-    color: #0f172a;
-    line-height: 1.2;
+    color: #334155;
+    line-height: 1.3;
+}
+
+.tlx-card-count {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Pending With Tags (Light BG, Square) */
+.tlx-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    border-left: 3px solid transparent;
+}
+
+.tlx-tag i {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.tlx-tag-sub {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.7;
+    margin-left: 2px;
+}
+
+.tlx-tag-agent {
+    background: #f1f5f9;
+    color: #334155;
+    border-left-color: #475569;
+}
+
+.tlx-tag-doc {
+    background: #fef9ee;
+    color: #78350f;
+    border-left-color: #d97706;
+}
+
+.tlx-tag-admission {
+    background: #f5f3ff;
+    color: #5b21b6;
+    border-left-color: #7c3aed;
+}
+
+.tlx-tag-telex {
+    background: #eff6ff;
+    color: #1e40af;
+    border-left-color: #3b82f6;
+}
+
+.tlx-tag-completed {
+    background: #ecfdf5;
+    color: #047857;
+    border-left-color: #10b981;
+}
+
+/* Next Action Tags (Light BG, Square, Left Border Accent) */
+.tlx-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    border-left: 3px solid;
+}
+
+.tlx-action i {
+    font-size: 10px;
+    opacity: 0.75;
+}
+
+.tlx-action-done {
+    background: #ecfdf5 !important;
+    color: #047857 !important;
+    border-left-color: #10b981 !important;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
 }
