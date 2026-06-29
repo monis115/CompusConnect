@@ -43,7 +43,8 @@
       </button>
       <button class="nav-item" [class.active]="currentView === 'tasks'" (click)="navigateTo('tasks')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
         </svg>
         <span>Follow Ups & Tasks</span>
       </button>
@@ -690,104 +691,7 @@
         </div>
       </div>
 
-      <!-- Document Requests Section -->
-      <div class="ent-actions-section" style="margin-top: 24px;">
-        <!-- Active Requests -->
-        <div class="ent-card" style="padding: 0; display: flex; flex-direction: column;">
-          <div class="ent-card-header" style="padding: 20px 20px 10px 20px; border-bottom: 1px solid #f1f5f9;">
-            <div class="ent-card-title">Active Document Requests</div>
-            <div style="display: flex; gap: 8px;">
-              <button class="ent-action-btn"
-                style="padding: 4px 12px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white;"
-                (click)="navigateTo('request-doc')">View All</button>
-              <button class="ent-action-btn btn-telex"
-                style="padding: 4px 12px; font-size: 12px; border-radius: 6px; color: white; background: #3b82f6;"
-                (click)="goToCreateDocRequest()">+ Create Request</button>
-            </div>
-          </div>
-          <div style="flex: 1; overflow-y: auto; padding: 0 20px;">
-            <div class="activity-timeline" style="padding: 16px 0;">
-              @for (req of pendingDocRequests.slice(0, 3); track req.id || $index) {
-              <div class="act-item">
-                <div class="act-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                </div>
-                <div class="act-info">
-                  <div class="act-title">{{ req.docType || 'Document' }} <strong>#{{ req.student?.applicationId ||
-                      req.student?.id }}</strong></div>
-                  <div class="act-sub">{{ req.student?.fullName }} - <span style="color: #f59e0b;">{{ req.status
-                      }}</span></div>
-                </div>
-                <div class="act-time">{{ req.createdAt | date:'shortDate' }}</div>
-              </div>
-              }
-              @if(pendingDocRequests.length === 0) {
-              <div style="text-align: center; padding: 24px; color: #64748b; font-size: 13px;">No active document
-                requests.</div>
-              }
-            </div>
-          </div>
-        </div>
 
-        <!-- Completed/Rejected Requests -->
-        <div class="ent-card" style="padding: 0; display: flex; flex-direction: column;">
-          <div class="ent-card-header" style="padding: 20px 20px 10px 20px; border-bottom: 1px solid #f1f5f9;">
-            <div class="ent-card-title">Completed & Rejected Requests</div>
-            <button class="ent-action-btn"
-              style="padding: 4px 12px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white;"
-              (click)="navigateTo('request-doc')">View All</button>
-          </div>
-          <div style="flex: 1; overflow-y: auto; padding: 0 20px;">
-            <div class="activity-timeline" style="padding: 16px 0;">
-              @for (req of completedDocRequests.slice(0, 3); track req.id || $index) {
-              <div class="act-item">
-                <div class="act-icon"
-                  [style.background]="req.status === 'COMPLETED' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'"
-                  [style.color]="req.status === 'COMPLETED' ? '#10b981' : '#ef4444'">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                </div>
-                <div class="act-info">
-                  <div class="act-title">{{ req.docType || 'Document' }} <strong>#{{ req.student?.applicationId ||
-                      req.student?.id }}</strong></div>
-                  <div class="act-sub">{{ req.student?.fullName }} - <span
-                      [style.color]="req.status === 'COMPLETED' ? '#10b981' : '#ef4444'">{{ req.status }}</span></div>
-                </div>
-                <div class="act-time" style="display: flex; align-items: center; gap: 8px;">
-                  <span>{{ req.updatedAt | date:'shortDate' }}</span>
-                  @if(req.status === 'COMPLETED' && req.uploadedDocPath) {
-                  <button class="eh-icon-btn"
-                    style="width: 28px; height: 28px; color: #3b82f6; border: 1px solid #cbd5e1;"
-                    (click)="downloadRequestedDoc(req.uploadedDocPath)" title="Download Document">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                  </button>
-                  }
-                </div>
-              </div>
-              }
-              @if(completedDocRequests.length === 0) {
-              <div style="text-align: center; padding: 24px; color: #64748b; font-size: 13px;">No completed or rejected
-                requests.</div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Recent Highlights Section -->
       <div class="ent-charts-row" style="margin-top: 24px;">
@@ -1240,6 +1144,44 @@
           </svg>
           Pay Visa Fee
         </button>
+      </div>
+
+      <!-- Additional Document Requests Section -->
+      <div
+        style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <h3 style="margin: 0 0 16px 0; color: #6b21a8; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Active Document Requests
+        </h3>
+        <div style="display: grid; gap: 12px;">
+          @for (req of additionalDocRequests; track req.id) {
+          <div
+            style="background: white; border-radius: 6px; padding: 16px; border: 1px solid #f3e8ff; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+            <div>
+              <div style="font-weight: 500; color: #1e293b; font-size: 15px; margin-bottom: 4px;">{{ req.documentName }}
+              </div>
+              <div style="font-size: 13px; color: #64748b; display: flex; gap: 12px;">
+                <span>Student: <strong style="color: #475569;">{{ req.student?.fullName }}</strong></span>
+                <span>Requested: {{ req.createdAt | date:'dd MMM yyyy' }}</span>
+                <span>By: {{ req.requestedByName }}</span>
+              </div>
+            </div>
+            <div>
+              <button (click)="openUploadAdditionalDocModal(req)"
+                style="background: #7e22ce; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; transition: background 0.2s;">
+                Upload Document
+              </button>
+            </div>
+          </div>
+          } @empty {
+          <div
+            style="text-align: center; padding: 24px; color: #6b21a8; font-size: 14px; background: rgba(255,255,255,0.5); border-radius: 6px; border: 1px dashed #e9d5ff;">
+            No active document requests.
+          </div>
+          }
+        </div>
       </div>
 
       <!-- Filters Bar -->
@@ -5004,9 +4946,12 @@
         </div>
 
         <div class="form-group" style="margin-top: 24px;">
-          <h4 style="margin-bottom: 12px; font-size: 1.05rem; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Document Dispatch Checklist</h4>
-          <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">Please confirm the documents you are sending in this package:</p>
-          
+          <h4
+            style="margin-bottom: 12px; font-size: 1.05rem; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+            Document Dispatch Checklist</h4>
+          <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">Please confirm the documents you are
+            sending in this package:</p>
+
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
             <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
               <input type="checkbox" formControlName="agentSentPassport">
@@ -5035,10 +4980,10 @@
           </div>
 
           @if (telexForm?.get('agentSentOtherDocuments')?.value) {
-            <div class="form-group">
-              <label>Specify Other Documents</label>
-              <input type="text" formControlName="agentOtherDocumentsRemarks" placeholder="E.g., Bank Statement, Photos">
-            </div>
+          <div class="form-group">
+            <label>Specify Other Documents</label>
+            <input type="text" formControlName="agentOtherDocumentsRemarks" placeholder="E.g., Bank Statement, Photos">
+          </div>
           }
         </div>
         }
@@ -6365,19 +6310,87 @@
 </div>
 }
 
+<!-- Upload Additional Document Modal -->
+@if (isUploadAdditionalDocModalOpen) {
+<div class="modal-overlay telex-modal" (click)="closeUploadAdditionalDocModal()" style="z-index: 9999;">
+  <div class="modal-content-modern" style="max-width: 500px; text-align: left; padding: 32px; border-radius: 0;"
+    (click)="$event.stopPropagation()">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h2 style="font-size: 20px; font-weight: 600; color: #1e293b; margin: 0;">Upload Document</h2>
+      <button (click)="closeUploadAdditionalDocModal()" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 4px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div style="margin-bottom: 24px; padding: 16px; background: #f8fafc; border-radius: 0; border: 1px solid #e2e8f0;">
+      <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Requested Document</div>
+      <div style="font-size: 15px; font-weight: 500; color: #0f172a;">{{ selectedAdditionalDocRequest?.documentName }}</div>
+      
+      <div style="font-size: 13px; color: #64748b; margin-top: 12px; margin-bottom: 4px;">For Student</div>
+      <div style="font-size: 14px; color: #334155;">{{ selectedAdditionalDocRequest?.student?.fullName }}</div>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 24px;">
+      <label style="display: block; font-size: 14px; font-weight: 500; color: #334155; margin-bottom: 8px;">Select File</label>
+      <input type="file" (change)="onAdditionalDocFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png"
+        style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 0; font-size: 14px;">
+      <div style="font-size: 12px; color: #64748b; margin-top: 6px;">Accepted formats: PDF, JPG, PNG (Max 50MB)</div>
+    </div>
+
+    @if (uploadErrorMessage) {
+      <div style="background: #fef2f2; color: #991b1b; padding: 12px 16px; border-radius: 0; font-size: 14px; font-weight: 500; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #ef4444;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        {{ uploadErrorMessage }}
+      </div>
+    }
+
+    @if (uploadSuccessMessage) {
+      <div style="background: #dcfce3; color: #166534; padding: 12px 16px; border-radius: 0; font-size: 14px; font-weight: 500; margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        {{ uploadSuccessMessage }}
+      </div>
+    }
+
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button (click)="closeUploadAdditionalDocModal()"
+        style="padding: 10px 16px; border-radius: 0; border: 1px solid #cbd5e1; background: white; color: #475569; font-weight: 500; cursor: pointer;">
+        Cancel
+      </button>
+      <button (click)="submitAdditionalDocUpload()"
+        [disabled]="!additionalDocFile || isUploadingAdditionalDoc || uploadSuccessMessage !== null"
+        style="padding: 10px 20px; border-radius: 0; border: none; background: #7e22ce; color: white; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s;"
+        [style.opacity]="(!additionalDocFile || isUploadingAdditionalDoc || uploadSuccessMessage !== null) ? '0.7' : '1'"
+        [style.cursor]="(!additionalDocFile || isUploadingAdditionalDoc || uploadSuccessMessage !== null) ? 'not-allowed' : 'pointer'">
+        @if (isUploadingAdditionalDoc) {
+          <div class="upload-spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>
+          Uploading...
+        } @else {
+          Upload Document
+        }
+      </button>
+    </div>
+  </div>
+</div>
+}
+
 <!-- Request Visa Stamping Confirmation Modal -->
 @if (isRequestVisaModalOpen) {
 <div class="modal-overlay telex-modal" (click)="closeRequestVisaModal()" style="z-index: 9999;">
-  <div class="modal-content-modern" style="max-width: 450px; text-align: center; padding: 40px 32px;" (click)="$event.stopPropagation()">
-    <div style="width: 64px; height: 64px; border-radius: 50%; background: #EFF6FF; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+  <div class="modal-content-modern" style="max-width: 450px; text-align: center; padding: 40px 32px;"
+    (click)="$event.stopPropagation()">
+    <div
+      style="width: 64px; height: 64px; border-radius: 50%; background: #EFF6FF; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2">
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
       </svg>
     </div>
-    
+
     <h2 style="font-size: 22px; font-weight: 700; color: #0F172A; margin: 0 0 12px 0;">Request Visa Stamping</h2>
     <p style="font-size: 14px; color: #64748B; margin: 0 0 32px 0; line-height: 1.5;">
-      You are about to initiate the visa stamping process for <strong style="color: #0F172A;">{{ studentForVisaRequest?.fullName }}</strong>. The Admission Manager will be notified.
+      You are about to initiate the visa stamping process for <strong style="color: #0F172A;">{{
+        studentForVisaRequest?.fullName }}</strong>. The Admission Manager will be notified.
     </p>
 
     <div style="display: flex; gap: 12px; justify-content: center;">
@@ -6389,7 +6402,7 @@
       </button>
       <button (click)="confirmRequestVisaStamping()"
         style="flex: 1; padding: 12px 0; border-radius: 8px; border: none; background: #2563EB; color: white; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);"
-        onmouseover="this.style.background='#1D4ED8'; this.style.transform='translateY(-1px)'" 
+        onmouseover="this.style.background='#1D4ED8'; this.style.transform='translateY(-1px)'"
         onmouseout="this.style.background='#2563EB'; this.style.transform='translateY(0)'"
         [disabled]="studentForVisaRequest ? isRequestingVisaStamping[studentForVisaRequest.id] : false">
         @if (studentForVisaRequest && isRequestingVisaStamping[studentForVisaRequest.id]) {

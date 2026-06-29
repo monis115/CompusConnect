@@ -103,6 +103,15 @@ export class AgentDashboard implements OnInit {
   travelTab: 'travel' | 'docs' = 'travel';
   visaModalMode: 'upload' | 'view' | 'none' = 'none';
 
+  // Additional Doc Requests
+  additionalDocRequests: any[] = [];
+  isUploadAdditionalDocModalOpen = false;
+  selectedAdditionalDocRequest: any = null;
+  additionalDocFile: File | null = null;
+  isUploadingAdditionalDoc = false;
+  uploadSuccessMessage: string | null = null;
+  uploadErrorMessage: string | null = null;
+
   // --- Travel Modal Mode ---
   travelModalMode: 'view' | 'edit' = 'view';
   travelFilterCollege: string = '';
@@ -1415,9 +1424,12 @@ export class AgentDashboard implements OnInit {
 
         // Fetch new dashboard data
         this.fetchDashboardData(username);
-        
+
         // Fetch news and notifications now that agentData is loaded
         this.fetchNews();
+
+        // Fetch students and document requests
+        this.fetchAgentStudents(data.id);
 
         // Fetch messages to get unread count
         this.fetchUnreadMessages(data.id);
@@ -1521,13 +1533,13 @@ export class AgentDashboard implements OnInit {
   fetchNews(): void {
     const userJson = localStorage.getItem('user');
     const username = userJson ? JSON.parse(userJson).username : (this.agentData?.userId || this.agentData?.email);
-    
+
     // Create an observable for news
     const news$ = this.http.get<NewsItem[]>(environment.apiUrl + '/api/news');
-    
+
     // Create an observable for notifications
     const notifications$ = username ? this.http.get<any[]>(environment.apiUrl + `/api/notifications/user/${username}`) : new Observable<any[]>(sub => { sub.next([]); sub.complete(); });
-    
+
     forkJoin({
       news: news$,
       notifications: notifications$
@@ -1546,13 +1558,13 @@ export class AgentDashboard implements OnInit {
           tillDate.setHours(23, 59, 59, 999); // End of day
 
           const isDateValid = today >= activeFrom && today <= tillDate;
-          
+
           // Filter out news not meant for this specific agent
-          const isUserTargeted = !item.forUser || 
-                                 item.forUser === 'ALL' || 
-                                 item.forUser === 'AGENT' || 
-                                 (this.agentData && (item.forUser === this.agentData.userId || item.forUser === this.agentData.email));
-                                 
+          const isUserTargeted = !item.forUser ||
+            item.forUser === 'ALL' ||
+            item.forUser === 'AGENT' ||
+            (this.agentData && (item.forUser === this.agentData.userId || item.forUser === this.agentData.email));
+
           return isDateValid && isUserTargeted;
         });
 
@@ -1560,7 +1572,7 @@ export class AgentDashboard implements OnInit {
         const mappedNotifications: NewsItem[] = notifications.map(n => ({
           id: n.id,
           activeFrom: n.createdAt,
-          tillDate: new Date(Date.now() + 365*24*60*60*1000).toISOString(),
+          tillDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
           heading: n.heading,
           content: n.content,
           tag: 'document', // map Notification type to News tag
@@ -1867,6 +1879,29 @@ export class AgentDashboard implements OnInit {
   unreadMessagesCount: number = 0;
   recentMessages: any[] = [];
 
+  fetchAgentStudents(agentId: number): void {
+    this.http.get<Student[]>(`${environment.apiUrl}/students/agent/${agentId}`)
+      .subscribe({
+        next: (students) => {
+          this.students = students;
+          this.fetchAdditionalDocRequests(); // Fetch doc requests
+        },
+        error: (err) => console.error('Error fetching students', err)
+      });
+  }
+
+  fetchAdditionalDocRequests() {
+    if (!this.agentData?.userId) return;
+    this.http.get<any[]>(`${environment.apiUrl}/api/additional-docs/agent/${this.agentData.userId}/pending`)
+      .subscribe({
+        next: (res) => {
+          this.additionalDocRequests = res;
+        },
+        error: (err) => console.error('Error fetching additional docs', err)
+      });
+  }
+
+  // (Method continued internally to fetch unread messages)
   fetchUnreadMessages(agentId: number): void {
     this.http.get<any[]>(`${environment.apiUrl}/api/messages/agent/${agentId}`)
       .subscribe({
@@ -2290,6 +2325,70 @@ export class AgentDashboard implements OnInit {
     this.isRequestDocsModalOpen = false;
     this.selectedDocsStudent = null;
     this.cdr.detectChanges();
+  }
+
+  // --- Additional Document Upload Modal ---
+  openUploadAdditionalDocModal(req: any): void {
+    this.selectedAdditionalDocRequest = req;
+    this.additionalDocFile = null;
+    this.isUploadAdditionalDocModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeUploadAdditionalDocModal(): void {
+    this.isUploadAdditionalDocModalOpen = false;
+    this.selectedAdditionalDocRequest = null;
+    this.additionalDocFile = null;
+    this.uploadErrorMessage = null;
+    this.uploadSuccessMessage = null;
+    this.cdr.detectChanges();
+  }
+
+  onAdditionalDocFileSelected(event: any): void {
+    const file = event.target.files[0];
+    this.uploadErrorMessage = null;
+    this.additionalDocFile = null;
+    if (file) {
+      if (file.size > 50 * 1024 * 1024) {
+        this.uploadErrorMessage = 'File size exceeds 50MB limit.';
+      } else {
+        this.additionalDocFile = file;
+      }
+    }
+    this.cdr.detectChanges();
+  }
+
+  submitAdditionalDocUpload(): void {
+    if (!this.additionalDocFile || !this.selectedAdditionalDocRequest) return;
+    this.isUploadingAdditionalDoc = true;
+
+    const formData = new FormData();
+    formData.append('file', this.additionalDocFile);
+    formData.append('uploadedBy', this.agentData?.userId || '');
+
+    this.http.post(`${environment.apiUrl}/api/additional-docs/${this.selectedAdditionalDocRequest.id}/upload`, formData)
+      .subscribe({
+        next: () => {
+          this.isUploadingAdditionalDoc = false;
+          this.uploadSuccessMessage = 'Document uploaded successfully!';
+          this.cdr.detectChanges();
+          
+          setTimeout(() => {
+            this.closeUploadAdditionalDocModal();
+            this.fetchAdditionalDocRequests(); // refresh list
+            this.cdr.detectChanges();
+          }, 2000);
+        },
+        error: (err) => {
+          console.error('Upload failed', err);
+          this.uploadErrorMessage = 'Upload failed. Please try again.';
+          if (err?.status === 413) {
+            this.uploadErrorMessage = 'File is too large for the server to process.';
+          }
+          this.isUploadingAdditionalDoc = false;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   showRequestDocsButton(student: Student): boolean {

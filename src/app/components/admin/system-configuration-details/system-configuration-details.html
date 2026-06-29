@@ -25,7 +25,7 @@
   <div class="config-header">
     <div class="header-content">
       <div class="header-icon">
-        
+        <i-lucide name="settings" [size]="28"></i-lucide>
       </div>
       <div class="header-text">
         <h1 class="header-title">System Configuration</h1>
@@ -41,7 +41,7 @@
   <!-- System Status Banner -->
   <div class="status-banner" [class.compliant]="systemCompliant" [class.non-compliant]="!systemCompliant">
     <div class="status-icon">
-      
+      <i-lucide [name]="systemCompliant ? 'shield-check' : 'alert-triangle'" [size]="32"></i-lucide>
     </div>
     <div class="status-content">
       <h3 class="status-title">
@@ -58,7 +58,7 @@
   <!-- Role Requirements Section -->
   <div class="section-container">
     <div class="section-header">
-      
+      <i-lucide name="users" [size]="24" style="margin-right: 12px;"></i-lucide>
       <h2 class="section-title">Global Operational Roles</h2>
     </div>
     <p class="section-description">
@@ -76,6 +76,7 @@
             <div class="role-icon-wrapper" [style.background]="role.color + '25'"
               [style.--glow-color]="role.color">
               
+              <i-lucide [name]="role.icon" [size]="24" [style.color]="role.color"></i-lucide>
             </div>
             <div class="role-title-wrapper">
               <h3 class="role-name">{{ role.roleName }}</h3>
@@ -127,7 +128,7 @@
   <!-- Governance Principles Section -->
   <div class="section-container governance-section">
     <div class="section-header">
-      
+      <i-lucide name="book-open" [size]="24" style="margin-right: 12px;"></i-lucide>
       <h2 class="section-title">Governance Principles</h2>
     </div>
 
@@ -135,7 +136,7 @@
       <!-- Principle Card 1 -->
       <div class="governance-card">
         <div class="governance-icon">
-          
+          <i-lucide name="shield" [size]="24"></i-lucide>
         </div>
         <h3 class="governance-title">Centralized Control</h3>
         <p class="governance-text">
@@ -147,7 +148,7 @@
       <!-- Principle Card 2 -->
       <div class="governance-card">
         <div class="governance-icon">
-          
+          <i-lucide name="user-check" [size]="24"></i-lucide>
         </div>
         <h3 class="governance-title">Clear Accountability</h3>
         <p class="governance-text">
@@ -159,7 +160,7 @@
       <!-- Principle Card 3 -->
       <div class="governance-card">
         <div class="governance-icon">
-          
+          <i-lucide name="file-text" [size]="24"></i-lucide>
         </div>
         <h3 class="governance-title">Audit Consistency</h3>
         <p class="governance-text">
@@ -171,7 +172,7 @@
       <!-- Principle Card 4 -->
       <div class="governance-card">
         <div class="governance-icon">
-          
+          <i-lucide name="users" [size]="24"></i-lucide>
         </div>
         <h3 class="governance-title">Scalable Operations</h3>
         <p class="governance-text">
@@ -185,7 +186,7 @@
   <!-- College Coordinator Status Section -->
   <div class="section-container">
     <div class="section-header">
-      
+      <i-lucide name="graduation-cap" [size]="24" style="margin-right: 12px;"></i-lucide>
       <h2 class="section-title">College Coordinator Assignments</h2>
     </div>
     <p class="section-description">
@@ -221,6 +222,7 @@
               </div>
               <div class="college-status-badge" [attr.data-status]="getCollegeStatusClass(college)">
                 
+                <i-lucide [name]="getCollegeStatusIcon(college)" [size]="20"></i-lucide>
               </div>
             </div>
             <div class="college-card-body">
@@ -257,7 +259,7 @@
   @if (!isLoading) {
     <div class="overall-feedback-banner" [attr.data-status]="getOverallFeedback().class">
       <div class="feedback-icon">
-        
+        <i-lucide [name]="getOverallFeedback().icon" [size]="32"></i-lucide>
       </div>
       <div class="feedback-content">
         <h3 class="feedback-title">{{ getOverallFeedback().status }}</h3>

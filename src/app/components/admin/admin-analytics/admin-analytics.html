@@ -84,8 +84,8 @@
             <div class="alert-item"
               [ngClass]="getAlertClass(alert.severity)">
               <div class="alert-icon-wrapper">
-                
-              </div>
+    <i-lucide name="alert-triangle" [size]="24"></i-lucide>
+</div>
               <span class="alert-message">{{ alert.message }}</span>
               <span class="alert-count">{{ alert.count }}</span>
             </div>
@@ -99,8 +99,8 @@
           <div class="kpi-card kpi-active">
             <div class="kpi-inner">
               <div class="kpi-icon">
-                
-              </div>
+    <i-lucide name="bar-chart-2" [size]="24"></i-lucide>
+</div>
               <div class="kpi-content">
                 <span class="kpi-label">Active Today</span>
                 <span class="kpi-value">{{ animatedValues['activeToday'] || 0 }}</span>
@@ -111,14 +111,14 @@
               <span>Live</span>
             </div>
             <div class="kpi-bg-icon">
-              
-            </div>
+    <i-lucide name="activity" [size]="64"></i-lucide>
+</div>
           </div>
           <div class="kpi-card kpi-new">
             <div class="kpi-inner">
               <div class="kpi-icon">
-                
-              </div>
+    <i-lucide name="bar-chart-2" [size]="24"></i-lucide>
+</div>
               <div class="kpi-content">
                 <span class="kpi-label">New This Week</span>
                 <span class="kpi-value">{{ animatedValues['newThisWeek'] || 0 }}</span>
@@ -129,14 +129,14 @@
               <span>Since Monday</span>
             </div>
             <div class="kpi-bg-icon">
-              
-            </div>
+    <i-lucide name="activity" [size]="64"></i-lucide>
+</div>
           </div>
           <div class="kpi-card kpi-visa">
             <div class="kpi-inner">
               <div class="kpi-icon">
-                
-              </div>
+    <i-lucide name="bar-chart-2" [size]="24"></i-lucide>
+</div>
               <div class="kpi-content">
                 <span class="kpi-label">Visa Stamped</span>
                 <span class="kpi-value">{{ animatedValues['visaStamped'] || 0 }}</span>
@@ -147,8 +147,8 @@
               <span>This Month</span>
             </div>
             <div class="kpi-bg-icon">
-              
-            </div>
+    <i-lucide name="activity" [size]="64"></i-lucide>
+</div>
           </div>
         </div>
         <!-- Time Series Chart -->
@@ -205,8 +205,8 @@
                 [style.animation-delay.ms]="i * 80" (click)="toggleRoleCard(role)">
                 <div class="role-card-header">
                   <div class="role-icon-box">
-                    
-                  </div>
+    <i-lucide name="user-check" [size]="24"></i-lucide>
+</div>
                   <div class="role-summary">
                     <h4>{{ role.title }}</h4>
                     <span class="role-badge">{{ role.badge }}</span>
@@ -243,8 +243,8 @@
               <div class="quick-stat-card glass-panel"
                 [style.--card-color]="card.color">
                 <div class="qs-icon">
-                  
-                </div>
+    <i-lucide name="activity" [size]="24"></i-lucide>
+</div>
                 <div class="qs-info">
                   <span class="qs-value">{{ card.value | number }}</span>
                   <span class="qs-label">{{ card.title }}</span>

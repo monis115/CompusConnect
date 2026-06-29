@@ -52,8 +52,7 @@
                 </svg>
                 <span>Dashboard</span>
             </button>
-            <button class="nav-item" [class.active]="activeSection() === 'tasks'"
-                (click)="setActiveSection('tasks')">
+            <button class="nav-item" [class.active]="activeSection() === 'tasks'" (click)="setActiveSection('tasks')">
                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -61,15 +60,16 @@
                 <span>Follow Ups & Tasks</span>
             </button>
 
+            <!-- Admission Letter Needed -->
             <button class="nav-item" [class.active]="activeSection() === 'actions'"
                 (click)="setActiveSection('actions')">
-                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Actions Needed</span>
-                @if(stats().actionRequired > 0) {
-                <span class="nav-badge">{{ stats().actionRequired }}</span>
+                <span>Admission Requests</span>
+                @if(actionRequiredStudents().length > 0) {
+                <span class="badge">{{ actionRequiredStudents().length }}</span>
                 }
             </button>
 
@@ -91,6 +91,19 @@
                 </svg>
                 <span>All Students</span>
             </button>
+
+            <button class="nav-item" [class.active]="activeSection() === 'telexRequests'"
+                (click)="setActiveSection('telexRequests')">
+                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                </svg>
+                <span>Telex Requests</span>
+            </button>
+
+
 
             <button class="nav-item" [class.active]="activeSection() === 'visaTalabNuma'"
                 (click)="setActiveSection('visaTalabNuma')">
@@ -169,6 +182,14 @@
                 }
             </div>
             <div class="user-pill">
+                <button class="header-refresh-btn" (click)="refreshData()" title="Refresh Dashboard"
+                    [disabled]="isRefreshing()" [class.spinning]="isRefreshing()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+
                 <button class="theme-toggle-btn" (click)="toggleThemePanel()" title="Change Theme">
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -220,7 +241,7 @@
         <div class="content-area">
             <!-- TASKS VIEW -->
             <div class="content-body fade-in" style="padding: 24px;" [hidden]="activeSection() !== 'tasks'">
-              <app-tasks-board [role]="'UNIVERSITY_COORDINATOR'"></app-tasks-board>
+                <app-tasks-board [role]="'UNIVERSITY_COORDINATOR'"></app-tasks-board>
             </div>
 
             <!-- Dashboard Section -->
@@ -344,8 +365,8 @@
             <div class="section-heading">
                 <h3>Recent Applications</h3>
             </div>
-            <div class="table-container">
-                <table>
+            <div class="table-container compact-table-container">
+                <table class="compact-table">
                     <thead>
                         <tr>
                             <th>Application ID</th>
@@ -363,7 +384,11 @@
                             <td>{{ student.fullName }}</td>
                             <td>{{ student.passportNo }}</td>
                             <td>{{ student.agent?.fullName || 'N/A' }}</td>
-                            <td><span class="badge info">{{ student.applicationStatus }}</span></td>
+                            <td>
+                                <span class="status-badge" [ngClass]="getStatusBadgeClass(student.applicationStatus)">
+                                    <i [ngClass]="getStatusIcon(student.applicationStatus)" style="margin-right: 4px;"></i>{{ student.applicationStatus }}
+                                </span>
+                            </td>
                             <td>
                                 <button class="icon-btn" (click)="openDocViewer(student)" title="View Documents">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -386,134 +411,509 @@
             </div>
             }
 
-            <!-- Actions Needed Section -->
+            <!-- Admission Letter Needed Section -->
             @if(activeSection() === 'actions') {
-            <div class="page-title">
-                <h2>Actions Required</h2>
-                <p>Students requiring your immediate attention</p>
-            </div>
+            <div class="admission-letter-container">
+                <!-- Top Stat Cards -->
+                <div class="stats-row" style="display: flex; gap: 20px; margin-bottom: 24px;">
+                    <!-- Stat Card 1 -->
+                    <div class="stat-card"
+                        style="flex: 1; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px;">
+                        <div class="stat-icon"
+                            style="background: #eff6ff; color: #2563eb; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 style="margin: 0; font-size: 24px; color: #1e293b;">{{
+                                getCombinedAdmissionStudents().length }}</h3>
+                            <p style="margin: 0; color: #64748b; font-size: 14px;">Total Requests</p>
+                        </div>
+                    </div>
+                    <!-- Stat Card 2 -->
+                    <div class="stat-card"
+                        style="flex: 1; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px;">
+                        <div class="stat-icon"
+                            style="background: #fff7ed; color: #ea580c; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 style="margin: 0; font-size: 24px; color: #1e293b;">{{ actionRequiredStudents().length
+                                }}</h3>
+                            <p style="margin: 0; color: #64748b; font-size: 14px;">Pending</p>
+                        </div>
+                    </div>
+                    <!-- Stat Card 3 -->
+                    <div class="stat-card"
+                        style="flex: 1; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px;">
+                        <div class="stat-icon"
+                            style="background: #f0fdf4; color: #16a34a; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 style="margin: 0; font-size: 24px; color: #1e293b;">{{
+                                admissionLetterGeneratedStudents().length }}</h3>
+                            <p style="margin: 0; color: #64748b; font-size: 14px;">Admission Letters Issued</p>
+                        </div>
+                    </div>
+                    <!-- Stat Card 4 -->
+                    <div class="stat-card"
+                        style="flex: 1; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px;">
+                        <div class="stat-icon"
+                            style="background: #fef2f2; color: #dc2626; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 style="margin: 0; font-size: 24px; color: #1e293b;">0</h3>
+                            <p style="margin: 0; color: #64748b; font-size: 14px;">Rejected</p>
+                        </div>
+                    </div>
+                </div>
 
-            @if(actionRequiredStudents().length > 0) {
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Application ID</th>
-                            <th>Full Name</th>
-                            <th>Passport No.</th>
-                            <th>Agent</th>
-                            <th>Required Action</th>
-                            <th>Status History</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for(student of actionRequiredStudents(); track student.id) {
-                        <tr>
-                            <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
-                            <td>{{ student.fullName }}</td>
-                            <td>{{ student.passportNo }}</td>
-                            <td>{{ student.agent?.fullName || 'N/A' }}</td>
-                            <td><span class="badge warn">Upload Admission Letter</span></td>
-                            <td>
-                                <button class="btn-secondary"
-                                    style="padding: 4px 8px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;"
-                                    (click)="openHistoryModal(student)">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Main Layout (Table + Details Panel) -->
+                <div class="main-split-layout" style="display: flex; gap: 24px; align-items: flex-start;">
+
+                    <!-- Left Side Table -->
+                    <div class="left-table-section"
+                        style="flex: 2; background: white; border-radius: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); padding: 0; border: 1px solid #e2e8f0;">
+                        <div class="table-filters" style="display: flex; gap: 15px; padding: 20px 20px 0 20px;">
+                            <select style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 0; flex: 1; outline: none; background: white;">
+                                <option value="All">Status: All</option>
+                            </select>
+                            <input type="text" placeholder="Search by student name or request ID..."
+                                [value]="searchQuery()" (input)="onSearchInput($event)"
+                                style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 0; flex: 2; outline: none;">
+                        </div>
+
+                        <div style="padding: 20px;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                        <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Student</th>
+                                        <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Program</th>
+                                        <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+                                        <th style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for(student of actionRequiredStudents(); track student.id) {
+                                    <tr style="border-bottom: 1px solid #e2e8f0; transition: background 0.2s; cursor: pointer;"
+                                        [style.background]="selectedStudentForDocs()?.id === student.id ? '#f8fafc' : 'white'"
+                                        (click)="selectStudentForAdmission(student)">
+                                        <td style="padding: 12px 16px;">
+                                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                                <div style="font-weight: 600; color: #0f172a; font-size: 14px;">{{ student.fullName }}</div>
+                                                <div style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                                                    <span style="background: #e2e8f0; padding: 2px 6px; font-weight: 600; color: #334155; font-family: monospace; letter-spacing: -0.5px;">REQ-ADM-{{ student.id }}</span>
+                                                    <span style="color: #cbd5e1;">|</span>
+                                                    <span>{{ student.createdAt | date:'dd MMM yyyy' }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="padding: 12px 16px;">
+                                            <div style="font-weight: 500; color: #334155; font-size: 13px;">{{ student.appliedFor || 'MBBS' }}</div>
+                                        </td>
+                                        <td style="padding: 12px 16px;">
+                                            <div style="display: inline-flex; align-items: center; gap: 6px; background: #fff7ed; color: #ea580c; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 0; border: 1px solid #ffedd5;">
+                                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                Pending
+                                            </div>
+                                        </td>
+                                        <td style="padding: 12px 16px; text-align: right;">
+                                            <button style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; background: #2563eb; border: 1px solid #1d4ed8; color: white; border-radius: 0; cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                                                [style.background]="selectedStudentForDocs()?.id === student.id ? '#1d4ed8' : '#2563eb'">
+                                                Take Action
+                                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    }
+                                    @if(actionRequiredStudents().length === 0) {
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; padding: 48px; color: #64748b; font-style: italic;">
+                                            <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                                                <div style="background: #f8fafc; padding: 16px; border-radius: 50%;">
+                                                    <svg width="40" height="40" fill="none" stroke="#cbd5e1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                </div>
+                                                No requests found.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right Side Details Panel -->
+                    <div class="right-details-panel"
+                        style="flex: 1; background: white; border-radius: 0; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); padding: 24px;">
+                        @if(selectedStudentForDocs()) {
+                        <div class="details-header"
+                            style="margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+                            <h3 style="margin: 0 0 10px 0; color: #1e293b; font-size: 18px;">Request Details</h3>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="color: #64748b; font-size: 13px;">Request ID</span>
+                                <span style="font-weight: 500; font-size: 14px;">REQ-ADM-{{ selectedStudentForDocs()?.id
+                                    }}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #64748b; font-size: 13px;">Requested On</span>
+                                <span style="font-size: 14px;">{{ selectedStudentForDocs()?.createdAt | date:'dd MMM
+                                    yyyy' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="request-summary"
+                            style="background: #f8fafc; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                            <h4 style="margin: 0 0 12px 0; font-size: 15px; color: #1e293b;">Request Summary</h4>
+                            <div style="display: flex; justify-content: space-between;">
+                                <div>
+                                    <div style="color: #64748b; font-size: 12px; margin-bottom: 4px;">Program</div>
+                                    <div style="font-weight: 500;">{{ selectedStudentForDocs()?.appliedFor || 'MBBS' }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: #64748b; font-size: 12px; margin-bottom: 4px;">Student Name</div>
+                                    <div style="font-weight: 500;">{{ selectedStudentForDocs()?.fullName }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="required-documents" style="margin-bottom: 24px;">
+                            <h4 style="margin: 0 0 12px 0; font-size: 15px; color: #1e293b;">Document Uploaded on Application</h4>
+
+                            <!-- Passport -->
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+                                <span style="font-size: 14px; color: #334155;">Passport No: <strong
+                                        style="color: #1e293b;">{{ selectedStudentForDocs()?.passportNo || 'N/A'
+                                        }}</strong></span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    @if(selectedStudentForDocs()?.passportPath) {
+                                    <a [href]="getImageUrl(selectedStudentForDocs()?.passportPath!)" target="_blank"
+                                        style="color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 500;">View</a>
+                                    <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    View History
-                                </button>
-                            </td>
-                            <td>
-                                <button class="icon-btn" (click)="openDocViewer(student)" title="View Documents">
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    } @else {
+                                    <span style="font-size: 13px; color: #ef4444;">Not Uploaded</span>
+                                    <svg width="20" height="20" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                        </path>
                                     </svg>
-                                </button>
-                                <button class="icon-btn" style="margin-left: 8px;"
-                                    (click)="openUploadModal(student, 'admission')" title="Upload Admission Letter">
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Aadhar Card -->
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+                                <span style="font-size: 14px; color: #334155;">Aadhar Card: <strong
+                                        style="color: #1e293b;">{{ selectedStudentForDocs()?.adhaarCardNo || 'N/A'
+                                        }}</strong></span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    @if(selectedStudentForDocs()?.adhaarPath) {
+                                    <a [href]="getImageUrl(selectedStudentForDocs()?.adhaarPath!)" target="_blank"
+                                        style="color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 500;">View</a>
+                                    <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                </button>
-                            </td>
-                        </tr>
+                                    } @else {
+                                    <span style="font-size: 13px; color: #ef4444;">Not Uploaded</span>
+                                    <svg width="20" height="20" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                        </path>
+                                    </svg>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- 12th Marksheet -->
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+                                <span style="font-size: 14px; color: #334155;">12th Marksheet</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    @if(selectedStudentForDocs()?.markseetPath) {
+                                    <a [href]="getImageUrl(selectedStudentForDocs()?.markseetPath!)" target="_blank"
+                                        style="color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 500;">View</a>
+                                    <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    } @else {
+                                    <span style="font-size: 13px; color: #ef4444;">Not Uploaded</span>
+                                    <svg width="20" height="20" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                        </path>
+                                    </svg>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Passport Size Photo -->
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+                                <span style="font-size: 14px; color: #334155;">Passport Size Photo</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    @if(selectedStudentForDocs()?.profileImagePath) {
+                                    <a [href]="getImageUrl(selectedStudentForDocs()?.profileImagePath!)" target="_blank"
+                                        style="color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 500;">View</a>
+                                    <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    } @else {
+                                    <span style="font-size: 13px; color: #ef4444;">Not Uploaded</span>
+                                    <svg width="20" height="20" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                        </path>
+                                    </svg>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="additional-documents"
+                            style="background: #faf5ff; border: 1px solid #f3e8ff; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                            <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #6b21a8;">Additional Documents
+                                Requested</h4>
+                            @if(additionalDocs().length > 0) {
+                            <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 13px;">
+                                @for(doc of additionalDocs(); track doc.id) {
+                                <li style="margin-bottom: 8px;">
+                                    <strong>{{ doc.documentName }}</strong>
+                                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                                        Requested on: {{ doc.createdAt | date:'dd MMM yyyy' }}
+                                        <span style="margin-left: 5px; font-weight: 500;"
+                                            [style.color]="doc.status === 'UPLOADED' ? '#16a34a' : '#ea580c'">({{
+                                            doc.status }})</span>
+                                    </div>
+                                </li>
+                                }
+                            </ul>
+                            } @else {
+                            <p style="margin: 0; font-size: 13px; color: #64748b; font-style: italic;">No additional
+                                documents requested yet.</p>
+                            }
+                        </div>
+
+                        <div class="action-buttons" style="display: flex; flex-direction: column; gap: 12px;">
+                            <button (click)="openUploadModal(selectedStudentForDocs()!, 'admission')"
+                                style="width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                </svg>
+                                Upload Admission Letter
+                            </button>
+                            <!-- Agent Uploaded Documents -->
+                            <h4 style="margin: 24px 0 12px 0; font-size: 15px; color: #1e293b; border-top: 1px solid #e2e8f0; padding-top: 16px;">Documents Uploaded</h4>
+                            @if(additionalDocs() && additionalDocs().length > 0) {
+                                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
+                                    @for(doc of additionalDocs(); track doc.id) {
+                                        @if(doc.status === 'UPLOADED') {
+                                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                                <div>
+                                                    <div style="font-size: 14px; font-weight: 500; color: #0f172a;">{{ doc.documentName }}</div>
+                                                    <div style="font-size: 12px; color: #64748b;">Uploaded by: {{ doc.uploadedByName }}</div>
+                                                </div>
+                                                <a [href]="getImageUrl(doc.uploadedDocPath)" target="_blank"
+                                                    style="color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                                                    View
+                                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                </a>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            } @else {
+                                <div style="font-size: 13px; color: #64748b; margin-bottom: 24px; font-style: italic;">No additional documents uploaded yet.</div>
+                            }
+
+                            <button (click)="openRequestDocModal()"
+                                style="width: 100%; padding: 12px; background: white; color: #2563eb; border: 1px solid #2563eb; border-radius: 6px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Request Additional Document
+                            </button>
+                        </div>
+                        } @else {
+                        <div
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #94a3b8; text-align: center;">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                style="margin-bottom: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122">
+                                </path>
+                            </svg>
+                            <h3>Select a Request</h3>
+                            <p style="font-size: 14px;">Click on any row in the table to view its details and manage
+                                documents.</p>
+                        </div>
                         }
-                    </tbody>
-                </table>
-            </div>
-            } @else {
-            <div class="empty-state">
-                <svg width="80" height="80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h3>All Caught Up!</h3>
-                <p>There are no pending actions at this moment.</p>
+                    </div>
+                </div>
             </div>
             }
+
+            <!-- Request Additional Document Modal -->
+            @if(isRequestDocModalOpen()) {
+            <div class="modal-backdrop" (click)="closeRequestDocModal()"
+                style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+                <div class="square-modal" (click)="$event.stopPropagation()"
+                    style="background: white; border-radius: 8px; width: 400px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative;">
+
+                    @if(isSubmittingDocRequest()) {
+                    <div class="transparent-spinner-overlay"
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                        <div class="spinner"
+                            style="width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite;">
+                        </div>
+                    </div>
+                    }
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="margin: 0; color: #1e293b; font-size: 18px;">Request Document</h3>
+                        <button (click)="closeRequestDocModal()"
+                            style="background: none; border: none; cursor: pointer; color: #94a3b8;"><svg width="20"
+                                height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg></button>
+                    </div>
+
+                    <p style="margin: 0 0 16px 0; color: #64748b; font-size: 14px;">Enter the name of the document you
+                        are requesting from the agent.</p>
+
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; font-size: 13px; font-weight: 500; color: #334155; margin-bottom: 6px;">Document
+                            Name <span style="color: red;">*</span></label>
+                        <input type="text" [value]="newDocRequestName()" (input)="onDocNameInput($event)"
+                            placeholder="e.g. Migration Certificate"
+                            style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                        <button (click)="closeRequestDocModal()"
+                            style="padding: 8px 16px; border: 1px solid #cbd5e1; background: white; color: #475569; border-radius: 6px; cursor: pointer; font-weight: 500;">Cancel</button>
+                        <button (click)="submitDocRequest()"
+                            [disabled]="!newDocRequestName() || isSubmittingDocRequest()"
+                            style="padding: 8px 16px; border: none; background: #2563eb; color: white; border-radius: 6px; cursor: pointer; font-weight: 500;"
+                            [style.opacity]="(!newDocRequestName() || isSubmittingDocRequest()) ? '0.5' : '1'">Send
+                            Request</button>
+                    </div>
+                </div>
+            </div>
             }
 
 
 
             <!-- Admission Letters Section -->
             @if(activeSection() === 'admitted') {
-            <div class="page-title">
-                <h2>Admission Letters Generated</h2>
-                <p>Students with completed admission letters</p>
-            </div>
-
-            <div class="table-container">
-                <table>
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 0; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-top: 24px;">
+                <table style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr>
-                            <th>Application ID</th>
-                            <th>Full Name</th>
-                            <th>Passport No.</th>
-                            <th>Agent</th>
-                            <th>Status History</th>
-                            <th>Letter</th>
+                        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                            <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Student</th>
+                            <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Application ID</th>
+                            <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Passport No</th>
+                            <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Agent</th>
+                            <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Current Status</th>
+                            <th style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @for(student of admissionLetterGeneratedStudents(); track student.id) {
-                        <tr>
-                            <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
-                            <td>{{ student.fullName }}</td>
-                            <td>{{ student.passportNo }}</td>
-                            <td>{{ student.agent?.fullName || 'N/A' }}</td>
-                            <td>
-                                <button class="btn-secondary"
-                                    style="padding: 4px 8px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;"
-                                    (click)="openHistoryModal(student)">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    View History
-                                </button>
+                        <tr style="border-bottom: 1px solid #e2e8f0; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                            <td style="padding: 12px 16px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="background: #f1f5f9; padding: 8px; border-radius: 0; border: 1px solid #e2e8f0;">
+                                        <svg width="20" height="20" fill="none" stroke="#475569" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    </div>
+                                    <div style="font-weight: 600; color: #0f172a; font-size: 14px;">{{ student.fullName }}</div>
+                                </div>
                             </td>
-                            <td>
-                                <button class="btn-download"
-                                    (click)="downloadDocument(student.admissionLetterPath || '', 'admission_letter.pdf')">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    Download
-                                </button>
+                            <td style="padding: 12px 16px;">
+                                <div style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                                    <svg width="14" height="14" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                    <span style="background: #e2e8f0; padding: 2px 6px; font-weight: 600; color: #334155; font-family: monospace; letter-spacing: -0.5px;">#{{ student.applicationId || 'N/A' }}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                <div style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                                    <svg width="14" height="14" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                                    <span><strong>{{ student.passportNo }}</strong></span>
+                                </div>
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="background: #f3e8ff; padding: 6px; border-radius: 0; border: 1px solid #e9d5ff;">
+                                        <svg width="14" height="14" fill="none" stroke="#9333ea" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                    <span style="font-size: 14px; color: #334155; font-weight: 500;">{{ student.agent?.fullName || 'N/A' }}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                <div style="display: inline-flex; align-items: center; gap: 6px; background: #dcfce3; color: #166534; padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 0; border: 1px solid #bbf7d0;">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Admission Generated
+                                </div>
+                            </td>
+                            <td style="padding: 12px 16px; text-align: right;">
+                                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                                    <button style="padding: 8px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; border-radius: 0; cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                                        onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='#94a3b8';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1';"
+                                        (click)="openHistoryModal(student)">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        History
+                                    </button>
+                                    <button style="padding: 8px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; background: #2563eb; border: 1px solid #1d4ed8; color: white; border-radius: 0; cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                                        onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'"
+                                        (click)="downloadDocument(student.admissionLetterPath || '', 'admission_letter.pdf')">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Download Letter
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         }
                         @if(admissionLetterGeneratedStudents().length === 0) {
                         <tr>
-                            <td colspan="5" class="empty-table">No admission letters found.</td>
+                            <td colspan="6" style="text-align: center; padding: 48px; color: #64748b; font-style: italic;">
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                                    <div style="background: #f8fafc; padding: 16px; border-radius: 50%;">
+                                        <svg width="40" height="40" fill="none" stroke="#cbd5e1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    No admission letters found.
+                                </div>
+                            </td>
                         </tr>
                         }
                     </tbody>
@@ -523,179 +923,905 @@
 
             <!-- All Students Section -->
             @if(activeSection() === 'all') {
-            <div class="page-title">
-                <h2>All Students</h2>
-                <p>Complete student directory — <strong>{{ allStudents().length }}</strong> results</p>
+            
+
+            <!-- Redesigned Top Stat Cards -->
+            <div class="stat-cards compact-stats">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #3B82F6; background: #EFF6FF;">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ allStudents().length }}</div>
+                        <div class="stat-label">Total Students</div>
+                        
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #10B981; background: #ECFDF5;">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ stats().admittedStudents }}</div>
+                        <div class="stat-label">Active Students</div>
+                        
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #8B5CF6; background: #F5F3FF;">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 14l9-5-9-5-9 5 9 5z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ stats().visaStamped }}</div>
+                        <div class="stat-label">Completed Process</div>
+                        
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #F59E0B; background: #FFFBEB;">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ stats().pendingApplications }}</div>
+                        <div class="stat-label">In Progress</div>
+                        
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #EF4444; background: #FEF2F2;">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ allStudents().length - stats().admittedStudents -
+                            stats().pendingApplications - stats().visaStamped }}</div>
+                        <div class="stat-label">Not Started</div>
+                        
+                    </div>
+                </div>
             </div>
 
-            <div class="report-filters">
-                <div class="filter-group">
-                    <label>Agent</label>
-                    <select class="filter-input" [value]="allFilterAgent()" (change)="updateAllFilter('agent', $event)">
+            <!-- New Layout: Table and Side Panel container -->
+            <div class="students-layout" [class.panel-open]="selectedStudentForPanel()">
+                <div class="main-table-container">
+                    <!-- Advanced Filters -->
+                    <div class="compact-filters">
+                        <div class="filter-group">
+                            <label>Academic Year</label>
+                            <select class="filter-input" [value]="allFilterAcademicYear()"
+                                (change)="updateAllFilter('year', $event)">
+                                <option value="ALL">All Years</option>
+                                @for(year of uniqueAcademicYears(); track year) {
+                                <option [value]="year">{{ year }}</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Program</label>
+                            <select class="filter-input" [value]="allFilterProgram()"
+                                (change)="updateAllFilter('program', $event)">
+                                <option value="ALL">All Programs</option>
+                                @for(prog of uniquePrograms(); track prog) {
+                                <option [value]="prog">{{ prog }}</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Current Status</label>
+                            <select class="filter-input" [value]="allFilterStatus()"
+                                (change)="updateAllFilter('status', $event)">
+                                <option value="ALL">All Statuses</option>
+                                @for(status of uniqueStatuses(); track status) {
+                                <option [value]="status">{{ formatStatusLabel(status) }}</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="filter-search">
+                            <input type="text" class="filter-input search-input"
+                                placeholder="Search by student name or passport no." [value]="searchQuery()"
+                                (input)="updateSearch($event)">
+                            <svg class="search-icon-inside" width="16" height="16" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <button class="btn-export">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+
+                    <div class="table-container compact-table-container">
+                        <table class="compact-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student Name</th>
+                                    <th>Passport No.</th>
+                                    <th>Program</th>
+                                    <th>Academic Year</th>
+                                    <th>Overall Status</th>
+                                    <th>Telex Status</th>
+                                    <th>Visa Status</th>
+                                    <th>Arrival Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for(student of paginatedStudents(); track student.id; let i = $index) {
+                                <tr [class.selected-row]="selectedStudentForPanel()?.id === student.id">
+                                    <td>{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
+                                    <td><strong>{{ student.fullName }}</strong></td>
+                                    <td>{{ student.passportNo }}</td>
+                                    <td>{{ student.appliedFor }}</td>
+                                    <td>{{ student.intake }}</td>
+                                    <td><span class="status-badge" [ngClass]="getStatusBadgeClass(getOverallStatus(student))">
+                                            <i [ngClass]="getStatusIcon(getOverallStatus(student))" style="margin-right: 4px;"></i>{{ getOverallStatus(student) }}</span></td>
+                                    <td><span class="status-badge" [ngClass]="getStatusBadgeClass(getTelexStatus(student))">
+                                            <i [ngClass]="getStatusIcon(getTelexStatus(student))" style="margin-right: 4px;"></i>{{ getTelexStatus(student) }}</span></td>
+                                    <td><span class="status-badge" [ngClass]="getStatusBadgeClass(getVisaStatus(student))">
+                                            <i [ngClass]="getStatusIcon(getVisaStatus(student))" style="margin-right: 4px;"></i>{{ getVisaStatus(student) }}</span></td>
+                                    <td><span class="status-badge" [ngClass]="getStatusBadgeClass(getArrivalStatus(student))">
+                                            <i [ngClass]="getStatusIcon(getArrivalStatus(student))" style="margin-right: 4px;"></i>{{ getArrivalStatus(student) }}</span></td>
+                                    <td>
+                                        <button class="eye-btn" (click)="openStudentPanel(student)"
+                                            [class.active]="selectedStudentForPanel()?.id === student.id">
+                                            <svg width="18" height="18" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                }
+                                @if(paginatedStudents().length === 0) {
+                                <tr>
+                                    <td colspan="10" class="empty-table">No students found.</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="pagination-footer">
+                        <div class="pagination-info">
+                            Showing {{ (currentPage() - 1) * pageSize() + (paginatedStudents().length > 0 ? 1 : 0) }} to
+                            {{ (currentPage() - 1) * pageSize() + paginatedStudents().length }} of {{
+                            allStudents().length }} students
+                        </div>
+
+                        <div class="pagination-controls">
+                            <button class="page-arrow" [disabled]="currentPage() === 1" (click)="prevPage()">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+
+                            @for(page of [].constructor(totalPages()); track $index) {
+                            @if($index + 1 === 1 || $index + 1 === totalPages() || ($index + 1 >= currentPage() - 1 &&
+                            $index + 1 <= currentPage() + 1)) { <button class="page-num"
+                                [class.active]="currentPage() === $index + 1" (click)="goToPage($index + 1)">{{ $index +
+                                1 }}</button>
+                                }
+                                @if(($index + 1 === 2 && currentPage() > 3) || ($index + 1 === totalPages() - 1 &&
+                                currentPage() < totalPages() - 2)) { <span class="page-dots">...</span>
+                                    }
+                                    }
+
+                                    <button class="page-arrow" [disabled]="currentPage() === totalPages()"
+                                        (click)="nextPage()">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                        </div>
+
+                        <div class="pagination-size">
+                            <select class="size-select" [value]="pageSize()" (change)="onPageSizeChange($event)">
+                                <option value="10">10 / page</option>
+                                <option value="25">25 / page</option>
+                                <option value="50">50 / page</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Panel Component -->
+                @if(selectedStudentForPanel()) {
+                <div class="student-side-panel">
+                    <div class="panel-header">
+                        <h3>Student Details</h3>
+                        <button class="close-panel-btn" (click)="closeStudentPanel()">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="panel-profile">
+                        <img [src]="selectedStudentForPanel()?.profileImagePath ? getImageUrl(selectedStudentForPanel()?.profileImagePath!) : 'https://ui-avatars.com/api/?name=' + (selectedStudentForPanel()?.fullName || 'S') + '&background=0D8ABC&color=fff'"
+                            alt="Student Photo" class="panel-avatar"
+                            (error)="handleImageError($event, selectedStudentForPanel()?.fullName)">
+                        <div class="panel-profile-info">
+                            <h4>{{ selectedStudentForPanel()?.fullName }}</h4>
+                            <span class="status-badge"
+                                [ngClass]="getStatusBadgeClass(getOverallStatus(selectedStudentForPanel()!))">{{
+                                getOverallStatus(selectedStudentForPanel()!) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-info-grid">
+                        <div class="info-row">
+                            <span class="info-label">Passport No.</span>
+                            <span class="info-value">{{ selectedStudentForPanel()?.passportNo }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Program</span>
+                            <span class="info-value">{{ selectedStudentForPanel()?.appliedFor }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Academic Year</span>
+                            <span class="info-value">{{ selectedStudentForPanel()?.intake }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date of Birth</span>
+                            <span class="info-value">{{ formatDate(selectedStudentForPanel()?.dob) }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Nationality</span>
+                            <span class="info-value">{{ selectedStudentForPanel()?.citizenship || 'India' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Contact No.</span>
+                            <span class="info-value">{{ selectedStudentForPanel()?.contactNo }}</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h4>Process Status</h4>
+                        <div class="process-list">
+                            <div class="process-item">
+                                <div class="process-icon"
+                                    [class.success]="selectedStudentForPanel()?.admissionLetterPath">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div class="process-details">
+                                    <span class="process-name">Admission Letter</span>
+                                    <span class="process-val">{{ selectedStudentForPanel()?.admissionLetterPath ?
+                                        'Issued' : 'Pending' }}</span>
+                                </div>
+                            </div>
+                            <div class="process-item">
+                                <div class="process-icon"
+                                    [class.success]="getTelexStatus(selectedStudentForPanel()!) === 'Telex Issued'">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div class="process-details">
+                                    <span class="process-name">Telex Request</span>
+                                    <span class="process-val">{{ getTelexStatus(selectedStudentForPanel()!) }}</span>
+                                </div>
+                            </div>
+                            <div class="process-item">
+                                <div class="process-icon"
+                                    [class.success]="getVisaStatus(selectedStudentForPanel()!) === 'Visa Stamped'">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div class="process-details">
+                                    <span class="process-name">Visa Request</span>
+                                    <span class="process-val">{{ getVisaStatus(selectedStudentForPanel()!) }}</span>
+                                </div>
+                            </div>
+                            <div class="process-item">
+                                <div class="process-icon"
+                                    [class.success]="getArrivalStatus(selectedStudentForPanel()!) === 'Arrived'">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div class="process-details">
+                                    <span class="process-name">Travel</span>
+                                    <span class="process-val">{{ getArrivalStatus(selectedStudentForPanel()!) ===
+                                        'Arrived' ? 'Arrived on ' + formatDate(selectedStudentForPanel()?.travelDoj) :
+                                        getArrivalStatus(selectedStudentForPanel()!) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h4>Documents</h4>
+                        <div class="doc-list">
+                            @if(selectedStudentForPanel()?.passportPath) {
+                            <div class="doc-item">
+                                <div class="doc-name">
+                                    <svg width="16" height="16" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Passport Copy
+                                </div>
+                                <a [href]="getImageUrl(selectedStudentForPanel()?.passportPath!)" target="_blank"
+                                    class="doc-download">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </a>
+                            </div>
+                            }
+                            @if(selectedStudentForPanel()?.profileImagePath) {
+                            <div class="doc-item">
+                                <div class="doc-name">
+                                    <svg width="16" height="16" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Passport Photo
+                                </div>
+                                <a [href]="getImageUrl(selectedStudentForPanel()?.profileImagePath!)" target="_blank"
+                                    class="doc-download">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </a>
+                            </div>
+                            }
+                            @if(selectedStudentForPanel()?.admissionLetterPath) {
+                            <div class="doc-item">
+                                <div class="doc-name">
+                                    <svg width="16" height="16" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Admission Letter
+                                </div>
+                                <a [href]="getImageUrl(selectedStudentForPanel()?.admissionLetterPath!)" target="_blank"
+                                    class="doc-download">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </a>
+                            </div>
+                            }
+                            @if(selectedStudentForPanel()?.telexDocumentsPath) {
+                            <div class="doc-item">
+                                <div class="doc-name">
+                                    <svg width="16" height="16" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Telex Copy
+                                </div>
+                                <a [href]="getImageUrl(selectedStudentForPanel()?.telexDocumentsPath!)" target="_blank"
+                                    class="doc-download">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </a>
+                            </div>
+                            }
+                            @if(selectedStudentForPanel()?.visaPassportCopyPath) {
+                            <div class="doc-item">
+                                <div class="doc-name">
+                                    <svg width="16" height="16" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Visa Copy
+                                </div>
+                                <a [href]="getImageUrl(selectedStudentForPanel()?.visaPassportCopyPath!)"
+                                    target="_blank" class="doc-download">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </a>
+                            </div>
+                            }
+                            @if(selectedStudentForPanel()?.travelTicketPdfPath) {
+                            <div class="doc-item">
+                                <div class="doc-name">
+                                    <svg width="16" height="16" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Arrival Confirmation
+                                </div>
+                                <a [href]="getImageUrl(selectedStudentForPanel()?.travelTicketPdfPath!)" target="_blank"
+                                    class="doc-download">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                </a>
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <button class="btn-full-profile" (click)="openHistoryModal(selectedStudentForPanel()!)">
+                        <i class="fas fa-history" style="margin-right: 8px;"></i>View History
+                    </button>
+                </div>
+                }
+            </div>
+            }
+            
+            <!-- Telex Requests Section -->
+            @if(activeSection() === 'telexRequests') {
+            <div class="page-title">
+                <h2>Telex Requests Tracker</h2>
+                <p>Track the end-to-end Telex process for students</p>
+            </div>
+
+            <div class="students-layout" style="display: block;">
+                
+                <!-- Role Filters -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'ALL'" (click)="telexRoleFilter.set('ALL')">
+                        <div class="tf-icon" style="background: #f1f5f9; color: #475569;"><i class="fas fa-users"></i></div>
+                        <div class="tf-title">All Requests</div>
+                    </div>
+                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'AGENT'" (click)="telexRoleFilter.set('AGENT')">
+                        <div class="tf-icon" style="background: #f1f5f9; color: #1e293b;"><i class="fas fa-user-tie"></i></div>
+                        <div class="tf-title">Pending Agent</div>
+                    </div>
+                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'DOC_PERSON'" (click)="telexRoleFilter.set('DOC_PERSON')">
+                        <div class="tf-icon" style="background: #fef3c7; color: #92400e;"><i class="fas fa-user-shield"></i></div>
+                        <div class="tf-title">Pending Doc Person</div>
+                    </div>
+                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'ADMISSION_MANAGER'" (click)="telexRoleFilter.set('ADMISSION_MANAGER')">
+                        <div class="tf-icon" style="background: #ede9fe; color: #5b21b6;"><i class="fas fa-user-tie"></i></div>
+                        <div class="tf-title">Pending Admission</div>
+                    </div>
+                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'TELEX_MANAGER'" (click)="telexRoleFilter.set('TELEX_MANAGER')">
+                        <div class="tf-icon" style="background: #e0e7ff; color: #1e3a8a;"><i class="fas fa-user-tag"></i></div>
+                        <div class="tf-title">Pending Telex Mgr</div>
+                    </div>
+                    <div class="telex-filter-card" [class.active]="telexRoleFilter() === 'COMPLETED'" (click)="telexRoleFilter.set('COMPLETED')">
+                        <div class="tf-icon" style="background: #d1fae5; color: #059669;"><i class="fas fa-check-circle"></i></div>
+                        <div class="tf-title">Completed</div>
+                    </div>
+                </div>
+
+                <!-- Main Table -->
+                <div class="main-table-container" style="width: 100%;">
+                    <div class="table-container compact-table-container" style="margin-bottom: 0; box-shadow: none;">
+                        <table class="compact-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">App ID</th>
+                                    <th style="width: 15%;">Student Name</th>
+                                    <th style="width: 15%;">Passport No.</th>
+                                    <th style="width: 15%;">Agent</th>
+                                    <th style="width: 15%;">Pending With</th>
+                                    <th style="width: 25%;">Next Action</th>
+                                    <th style="width: 5%; text-align: center;">Track</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for(student of paginatedTelexStudents(); track student.id) {
+                                <tr [class.selected-row]="selectedStudentForPanel()?.id === student.id">
+                                    <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
+                                    <td>{{ student.fullName }}</td>
+                                    <td>{{ student.passportNo }}</td>
+                                    <td>{{ student.agent?.fullName || 'N/A' }}</td>
+                                    <td>
+                                        @if(getTelexCurrentOwner(student); as owner) {
+                                            @if(owner.role === 'Completed') {
+                                                <span style="font-size: 13px; color: #94a3b8; font-weight: 500;"><i class="fas fa-check" style="margin-right: 4px;"></i> Not Applicable</span>
+                                            } @else {
+                                                <span class="status-badge {{ owner.badge }}" title="{{ owner.name }}">
+                                                    <i class="{{ owner.icon }}" style="margin-right:4px;"></i> {{ owner.role }} <span style="opacity: 0.85; margin-left: 4px; font-weight: 500;">({{ owner.name }})</span>
+                                                </span>
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        @if(getTelexCurrentOwner(student); as owner) {
+                                            @if(owner.role === 'Completed') {
+                                                <span style="font-family: monospace; font-size: 13px; font-weight: 700; color: #064e3b; background: #d1fae5; padding: 6px 10px; border-radius: 6px; border: 1px solid #10b981; white-space: nowrap;">
+                                                    <i class="fas fa-hashtag" style="color: #059669; margin-right: 4px;"></i>{{ owner.nextAction }}
+                                                </span>
+                                            } @else {
+                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                    <div style="width: 28px; height: 28px; border-radius: 6px; background: {{ owner.actionColor }}10; color: {{ owner.actionColor }}; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="{{ owner.actionIcon }}" style="font-size: 12px;"></i>
+                                                    </div>
+                                                    <span style="font-size: 14px; color: #0f172a; font-weight: 700;">
+                                                        {{ owner.nextAction }}
+                                                    </span>
+                                                </div>
+                                            }
+                                        }
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button class="icon-btn"
+                                            style="color: #3b82f6; background: #eff6ff; padding: 8px; border-radius: 6px;"
+                                            title="View Tracker Timeline"
+                                            (click)="openStudentPanel(student)">
+                                            <i class="fas fa-route" style="font-size: 16px;"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                }
+                                @if(telexStudents().length === 0) {
+                                <tr>
+                                    <td colspan="7" class="empty-table">No students in Telex process found.</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination Controls -->
+                    @if(telexStudents().length > 10) {
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 20px; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <button class="btn-secondary" 
+                            style="padding: 6px 12px; font-size: 13px;"
+                            [disabled]="telexCurrentPage() === 1" 
+                            (click)="telexCurrentPage.set(telexCurrentPage() - 1)">
+                            <i class="fas fa-chevron-left" style="margin-right: 6px;"></i> Previous
+                        </button>
+                        <span style="font-size: 14px; font-weight: 500; color: #64748b;">
+                            Page {{ telexCurrentPage() }} of {{ telexTotalPages() || 1 }}
+                        </span>
+                        <button class="btn-secondary" 
+                            style="padding: 6px 12px; font-size: 13px;"
+                            [disabled]="telexCurrentPage() >= telexTotalPages()" 
+                            (click)="telexCurrentPage.set(telexCurrentPage() + 1)">
+                            Next <i class="fas fa-chevron-right" style="margin-left: 6px;"></i>
+                        </button>
+                    </div>
+                    }
+                </div>
+
+                <!-- Side Panel (Tracker) -->
+                @if(selectedStudentForPanel()) {
+                <div class="telex-modal-backdrop" (click)="closeStudentPanel()"></div>
+                <div class="telex-side-modal">
+                    <div class="panel-header">
+                        <h3>Telex Tracker</h3>
+                        <button class="close-panel-btn" (click)="closeStudentPanel()">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="panel-profile" style="margin-top: 16px;">
+                        <div class="telex-modal-avatar">{{ selectedStudentForPanel()?.fullName?.charAt(0) || 'U' }}</div>
+                        <div class="panel-profile-info">
+                            <h4>{{ selectedStudentForPanel()?.fullName }}</h4>
+                            <span class="status-badge" [ngClass]="getStatusBadgeClass(selectedStudentForPanel()?.applicationStatus!)">
+                                {{ selectedStudentForPanel()?.applicationStatus }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="tracker-container">
+                        <div class="tracker-step" [class]="getTelexStepStatus(selectedStudentForPanel()!, 1)">
+                            <div class="step-icon">
+                                @if(getTelexStepStatus(selectedStudentForPanel()!, 1) === 'completed') { <i class="fas fa-check"></i> }
+                                @else if(getTelexStepStatus(selectedStudentForPanel()!, 1) === 'in-progress') { <i class="fas fa-spinner fa-spin"></i> }
+                                @else { <i class="fas fa-circle"></i> }
+                            </div>
+                            <div class="step-content">
+                                <h5>1. Agent Initiated</h5>
+                                <p>Agent requested telex and uploaded payments.</p>
+                            </div>
+                        </div>
+
+                        <div class="tracker-step" [class]="getTelexStepStatus(selectedStudentForPanel()!, 2)">
+                            <div class="step-icon">
+                                @if(getTelexStepStatus(selectedStudentForPanel()!, 2) === 'completed') { <i class="fas fa-check"></i> }
+                                @else if(getTelexStepStatus(selectedStudentForPanel()!, 2) === 'in-progress') { <i class="fas fa-spinner fa-spin"></i> }
+                                @else { <i class="fas fa-circle"></i> }
+                            </div>
+                            <div class="step-content">
+                                <h5>2. Doc Person Verification</h5>
+                                <p>You verified the documents (isTelexDocsVerified).</p>
+                            </div>
+                        </div>
+
+                        <div class="tracker-step" [class]="getTelexStepStatus(selectedStudentForPanel()!, 3)">
+                            <div class="step-icon">
+                                @if(getTelexStepStatus(selectedStudentForPanel()!, 3) === 'completed') { <i class="fas fa-check"></i> }
+                                @else if(getTelexStepStatus(selectedStudentForPanel()!, 3) === 'in-progress') { <i class="fas fa-spinner fa-spin"></i> }
+                                @else { <i class="fas fa-circle"></i> }
+                            </div>
+                            <div class="step-content">
+                                <h5>3. Assigned to Telex Manager</h5>
+                                <p>Admission Manager assigned student to {{ selectedStudentForPanel()?.telexMan?.fullName || 'a manager' }}.</p>
+                            </div>
+                        </div>
+
+                        <div class="tracker-step" [class]="getTelexStepStatus(selectedStudentForPanel()!, 4)">
+                            <div class="step-icon">
+                                @if(getTelexStepStatus(selectedStudentForPanel()!, 4) === 'completed') { <i class="fas fa-check"></i> }
+                                @else if(getTelexStepStatus(selectedStudentForPanel()!, 4) === 'in-progress') { <i class="fas fa-spinner fa-spin"></i> }
+                                @else { <i class="fas fa-circle"></i> }
+                            </div>
+                            <div class="step-content">
+                                <h5>4. Talabnoma Uploaded</h5>
+                                <p>Telex manager uploaded the required internal docs.</p>
+                            </div>
+                        </div>
+
+                        <div class="tracker-step" [class]="getTelexStepStatus(selectedStudentForPanel()!, 5)">
+                            <div class="step-icon">
+                                @if(getTelexStepStatus(selectedStudentForPanel()!, 5) === 'completed') { <i class="fas fa-check"></i> }
+                                @else if(getTelexStepStatus(selectedStudentForPanel()!, 5) === 'in-progress') { <i class="fas fa-spinner fa-spin"></i> }
+                                @else { <i class="fas fa-circle"></i> }
+                            </div>
+                            <div class="step-content">
+                                <h5>5. University / MFA Submission</h5>
+                                <p>Formally submitted to the Ministry of Foreign Affairs.</p>
+                            </div>
+                        </div>
+
+                        <div class="tracker-step" [class]="getTelexStepStatus(selectedStudentForPanel()!, 6)">
+                            <div class="step-icon">
+                                @if(getTelexStepStatus(selectedStudentForPanel()!, 6) === 'completed') { <i class="fas fa-check"></i> }
+                                @else if(getTelexStepStatus(selectedStudentForPanel()!, 6) === 'in-progress') { <i class="fas fa-spinner fa-spin"></i> }
+                                @else { <i class="fas fa-circle"></i> }
+                            </div>
+                            <div class="step-content">
+                                <h5>6. MFA Processing</h5>
+                                <p>MFA is reviewing the telex request.</p>
+                            </div>
+                        </div>
+
+                        <div class="tracker-step" [class]="getTelexStepStatus(selectedStudentForPanel()!, 7)">
+                            <div class="step-icon">
+                                @if(getTelexStepStatus(selectedStudentForPanel()!, 7) === 'completed') { <i class="fas fa-check"></i> }
+                                @else if(getTelexStepStatus(selectedStudentForPanel()!, 7) === 'in-progress') { <i class="fas fa-spinner fa-spin"></i> }
+                                @else { <i class="fas fa-circle"></i> }
+                            </div>
+                            <div class="step-content">
+                                <h5>7. Telex Issued</h5>
+                                <p>Telex Number Generated: <strong style="color:var(--primary-burgundy)">{{ selectedStudentForPanel()?.telexNumber || 'Pending' }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+
+<!-- Visa Talab Numa Section -->
+            @if(activeSection() === 'visaTalabNuma') {
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 0; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Total Students</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #0f172a;">{{ allStudents().length }}</div>
+                </div>
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 0; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Visa Uploaded</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #16a34a;">{{ visaTalabNumaUploadedCount() }}</div>
+                </div>
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 0; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Visa Pending</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #ea580c;">{{ visaTalabNumaPendingCount() }}</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 16px; margin-bottom: 16px; background: white; padding: 16px; border: 1px solid #e2e8f0; border-radius: 0;">
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase;">Agent Name</label>
+                    <select style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 0; outline: none; background: white; font-size: 14px;"
+                        [value]="allFilterAgent()" (change)="updateAllFilter('agent', $event)">
                         <option value="ALL">All Agents</option>
+                        <option value="Unassigned">Unassigned</option>
                         @for(agent of uniqueAgents(); track agent) {
                         <option [value]="agent">{{ agent }}</option>
                         }
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label>Status</label>
-                    <select class="filter-input" [value]="allFilterStatus()"
-                        (change)="updateAllFilter('status', $event)">
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase;">Application Status</label>
+                    <select style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 0; outline: none; background: white; font-size: 14px;"
+                        [value]="allFilterStatus()" (change)="updateAllFilter('status', $event)">
                         <option value="ALL">All Statuses</option>
                         @for(status of uniqueStatuses(); track status) {
                         <option [value]="status">{{ formatStatusLabel(status) }}</option>
                         }
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label>From Date</label>
-                    <input type="date" class="filter-input" [value]="allFilterStartDate()"
-                        (change)="updateAllFilter('startDate', $event)">
-                </div>
-                <div class="filter-group">
-                    <label>To Date</label>
-                    <input type="date" class="filter-input" [value]="allFilterEndDate()"
-                        (change)="updateAllFilter('endDate', $event)">
-                </div>
-                <div class="filter-actions">
-                    <button class="btn-cancel" (click)="clearAllFilters()">Clear</button>
+                <div style="flex: 2; display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase;">Search</label>
+                    <input type="text" placeholder="Search by student name or passport..."
+                        [value]="searchQuery()" (input)="updateSearch($event)"
+                        style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 0; outline: none; font-size: 14px; width: 100%; box-sizing: border-box;">
                 </div>
             </div>
 
-            <div class="table-container">
-                <table>
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 0; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-top: 16px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
-                        <tr>
-                            <th>Application ID</th>
-                            <th>Full Name</th>
-                            <th>Passport No.</th>
-                            <th>Agent</th>
-                            <th>Status</th>
-                            <th>Status History</th>
-                            <th>Actions</th>
+                        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                            <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Student</th>
+                            <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Application ID</th>
+                            <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Passport No</th>
+                            <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Agent</th>
+                            <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">App Status</th>
+                            <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Visa Status</th>
+                            <th style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @for(student of allStudents(); track student.id) {
-                        <tr>
-                            <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
-                            <td>{{ student.fullName }}</td>
-                            <td>{{ student.passportNo }}</td>
-                            <td>{{ student.agent?.fullName || 'N/A' }}</td>
-                            <td><span class="badge info">{{ student.applicationStatus }}</span></td>
-                            <td>
-                                <button class="btn-secondary"
-                                    style="padding: 4px 8px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;"
-                                    (click)="openHistoryModal(student)">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    View History
-                                </button>
+                        @for(student of paginatedStudents(); track student.id) {
+                        <tr style="border-bottom: 1px solid #e2e8f0; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                            <td style="padding: 12px 16px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="background: #f1f5f9; padding: 8px; border-radius: 0; border: 1px solid #e2e8f0;">
+                                        <svg width="20" height="20" fill="none" stroke="#475569" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    </div>
+                                    <div style="font-weight: 600; color: #0f172a; font-size: 14px;">{{ student.fullName }}</div>
+                                </div>
                             </td>
-                            <td>
-                                <button class="icon-btn" (click)="openDocViewer(student)" title="View Documents">
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
+                            <td style="padding: 12px 16px;">
+                                <div style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                                    <svg width="14" height="14" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                    <span style="background: #e2e8f0; padding: 2px 6px; font-weight: 600; color: #334155; font-family: monospace; letter-spacing: -0.5px;">#{{ student.applicationId || 'N/A' }}</span>
+                                </div>
                             </td>
-                        </tr>
-                        }
-                        @if(allStudents().length === 0) {
-                        <tr>
-                            <td colspan="6" class="empty-table">No students found.</td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            }
-
-            <!-- Visa Talab Numa Section -->
-            @if(activeSection() === 'visaTalabNuma') {
-            <div class="page-title">
-                <h2>Visa Talab Numa Upload</h2>
-                <p>Upload Visa Talab Numa documents for students</p>
-            </div>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Application ID</th>
-                            <th>Full Name</th>
-                            <th>Passport No.</th>
-                            <th>Agent</th>
-                            <th>Status</th>
-                            <th>Visa Talab Numa</th>
-                            <th>Status History</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for(student of allStudents(); track student.id) {
-                        <tr>
-                            <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
-                            <td>{{ student.fullName }}</td>
-                            <td>{{ student.passportNo }}</td>
-                            <td>{{ student.agent?.fullName || 'N/A' }}</td>
-                            <td><span class="badge info">{{ student.applicationStatus }}</span></td>
-                            <td>
+                            <td style="padding: 12px 16px;">
+                                <div style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                                    <svg width="14" height="14" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                                    <span><strong>{{ student.passportNo }}</strong></span>
+                                </div>
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="background: #f3e8ff; padding: 6px; border-radius: 0; border: 1px solid #e9d5ff;">
+                                        <svg width="14" height="14" fill="none" stroke="#9333ea" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                    <span style="font-size: 13px; color: #334155; font-weight: 500;">{{ student.agent?.fullName || 'N/A' }}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                <div style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; color: #475569; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 0; border: 1px solid #e2e8f0;">
+                                    {{ student.applicationStatus }}
+                                </div>
+                            </td>
+                            <td style="padding: 12px 16px;">
                                 @if(student.visaTalabNumaPath) {
-                                <span class="badge success">Uploaded</span>
+                                <div style="display: inline-flex; align-items: center; gap: 6px; background: #166534; color: white; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 0; border: 1px solid #14532d;">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Uploaded
+                                </div>
                                 } @else {
-                                <span class="badge warn">Pending</span>
+                                <div style="display: inline-flex; align-items: center; gap: 6px; background: #9a3412; color: white; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 0; border: 1px solid #7c2d12;">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Pending
+                                </div>
                                 }
                             </td>
-                            <td>
-                                <button class="btn-secondary"
-                                    style="padding: 4px 8px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;"
-                                    (click)="openHistoryModal(student)">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    View History
-                                </button>
-                            </td>
-                            <td>
-                                <button class="btn-primary"
-                                    style="padding: 6px 12px; font-size: 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;"
-                                    (click)="openUploadModal(student, 'visaTalabNuma')" title="Upload Visa Talab Numa">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                    </svg>
-                                    Upload
-                                </button>
-                                @if(student.visaTalabNumaPath) {
-                                <button class="icon-btn" style="margin-left: 8px;"
-                                    (click)="downloadDocument(student.visaTalabNumaPath, 'visa_talab_numa.pdf')"
-                                    title="View Document">
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
-                                }
+                            <td style="padding: 12px 16px; text-align: right;">
+                                <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+                                    <button style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; background: white; border: 1px solid #cbd5e1; color: #475569; border-radius: 0; cursor: pointer; font-weight: 600; transition: all 0.2s;" (click)="openHistoryModal(student)" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        History
+                                    </button>
+
+                                    @if(!student.visaTalabNumaPath) {
+                                    <button style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; background: #2563eb; border: 1px solid #1d4ed8; color: white; border-radius: 0; cursor: pointer; font-weight: 600; transition: all 0.2s;" (click)="openUploadModal(student, 'visaTalabNuma')" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                        Upload
+                                    </button>
+                                    }
+                                    @if(student.visaTalabNumaPath) {
+                                    <button style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 0; cursor: pointer; font-weight: 600; transition: all 0.2s;" (click)="downloadDocument(student.visaTalabNumaPath, 'visa_talab_numa.pdf')" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        View
+                                    </button>
+                                    }
+                                </div>
                             </td>
                         </tr>
                         }
                         @if(allStudents().length === 0) {
                         <tr>
-                            <td colspan="7" class="empty-table">No students found.</td>
+                            <td colspan="7" style="padding: 48px; text-align: center; color: #64748b; font-style: italic; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                                <div style="background: #f8fafc; padding: 16px; border-radius: 50%;">
+                                    <svg width="40" height="40" fill="none" stroke="#cbd5e1" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                No students found.
+                            </td>
                         </tr>
                         }
                     </tbody>
                 </table>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-footer" style="border-top: 1px solid #e2e8f0;">
+                    <div class="pagination-info">
+                        Showing {{ (currentPage() - 1) * pageSize() + (paginatedStudents().length > 0 ? 1 : 0) }} to
+                        {{ (currentPage() - 1) * pageSize() + paginatedStudents().length }} of {{
+                        allStudents().length }} students
+                    </div>
+
+                    <div class="pagination-controls">
+                        <button class="page-arrow" [disabled]="currentPage() === 1" (click)="prevPage()">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        @for(page of [].constructor(totalPages()); track $index) {
+                        @if($index + 1 === 1 || $index + 1 === totalPages() || ($index + 1 >= currentPage() - 1 &&
+                        $index + 1 <= currentPage() + 1)) { <button class="page-num"
+                            [class.active]="currentPage() === $index + 1" (click)="goToPage($index + 1)">{{ $index +
+                            1 }}</button>
+                            }
+                            @if(($index + 1 === 2 && currentPage() > 3) || ($index + 1 === totalPages() - 1 &&
+                            currentPage() < totalPages() - 2)) { <span class="page-dots">...</span>
+                                }
+                                }
+
+                                <button class="page-arrow" [disabled]="currentPage() === totalPages()"
+                                    (click)="nextPage()">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                    </div>
+
+                    <div class="pagination-size">
+                        <select class="size-select" [value]="pageSize()" (change)="onPageSizeChange($event)">
+                            <option value="10">10 / page</option>
+                            <option value="25">25 / page</option>
+                            <option value="50">50 / page</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             }
 
@@ -710,85 +1836,104 @@
                     </div>
                 </div>
 
-                <div class="table-container">
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 0; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-top: 16px;">
                     @if(docRequests().length > 0) {
-                    <table class="data-table">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
                         <thead>
-                            <tr>
-                                <th>Student</th>
-                                <th>Document Type</th>
-                                <th>Requested By</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Actions</th>
+                            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Student</th>
+                                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Document Type</th>
+                                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Requested By</th>
+                                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+                                <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Date</th>
+                                <th style="padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @for(req of docRequests(); track req.id) {
-                            <tr>
-                                <td>
-                                    <div class="student-info">
-                                        <div class="avatar-sm">{{ getInitials(req.student?.fullName || '?') }}</div>
-                                        <div>
-                                            <div class="font-medium">{{ req.student?.fullName }}</div>
-                                            <div class="text-xs text-secondary">ID: {{ req.student?.applicationId }}
-                                            </div>
+                            <tr style="border-bottom: 1px solid #e2e8f0; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                                <td style="padding: 12px 16px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="background: #f1f5f9; padding: 8px; border-radius: 0; border: 1px solid #e2e8f0;">
+                                            <svg width="20" height="20" fill="none" stroke="#475569" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                                            <div style="font-weight: 600; color: #0f172a; font-size: 14px;">{{ req.student?.fullName }}</div>
+                                            <div style="font-size: 12px; color: #64748b; font-family: monospace;">ID: {{ req.student?.applicationId || 'N/A' }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="font-medium">{{ getDocTypeLabel(req.docType, req.customDocName) }}</div>
-                                    @if(req.remarks) {
-                                    <div class="text-xs text-secondary mt-1 max-w-xs truncate" [title]="req.remarks">
-                                        Note: {{ req.remarks }}</div>
+                                <td style="padding: 12px 16px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="background: #e0f2fe; padding: 6px; border-radius: 0; border: 1px solid #bae6fd;">
+                                            <svg width="14" height="14" fill="none" stroke="#0284c7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                                            <div style="font-weight: 600; color: #334155; font-size: 13px;">{{ getDocTypeLabel(req.docType, req.customDocName) }}</div>
+                                            @if(req.remarks) {
+                                            <div style="font-size: 11px; color: #64748b; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="req.remarks">Note: {{ req.remarks }}</div>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 12px 16px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="background: #f3e8ff; padding: 6px; border-radius: 0; border: 1px solid #e9d5ff;">
+                                            <svg width="14" height="14" fill="none" stroke="#9333ea" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                        </div>
+                                        <span style="font-size: 13px; color: #334155; font-weight: 500;">{{ req.requestedByName || 'N/A' }}</span>
+                                    </div>
+                                </td>
+                                <td style="padding: 12px 16px;">
+                                    @if(req.status === 'FORWARDED') {
+                                    <div style="display: inline-flex; align-items: center; gap: 6px; background: #fff7ed; color: #ea580c; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 0; border: 1px solid #ffedd5;">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        {{ req.status }}
+                                    </div>
+                                    } @else if(req.status === 'COMPLETED') {
+                                    <div style="display: inline-flex; align-items: center; gap: 6px; background: #f0fdf4; color: #16a34a; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 0; border: 1px solid #dcfce7;">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        {{ req.status }}
+                                    </div>
+                                    } @else {
+                                    <div style="display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; color: #475569; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 0; border: 1px solid #e2e8f0;">
+                                        {{ req.status }}
+                                    </div>
                                     }
                                 </td>
-                                <td>
-                                    <div class="font-medium">{{ req.requestedByName }}</div>
-                                </td>
-                                <td>
-                                    <span class="badge" [ngClass]="getDocRequestStatusBadgeClass(req.status)">
-                                        {{ req.status }}
-                                    </span>
-                                </td>
-                                <td class="text-secondary">{{ req.createdAt | date:'mediumDate' }}</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        @if(req.status === 'FORWARDED') {
-                                        <button class="btn-primary btn-sm" (click)="openUploadDocRequestModal(req)">
-                                            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                            </svg>
-                                            Upload Doc
-                                        </button>
-                                        } @else if(req.status === 'COMPLETED' && req.uploadedDocPath) {
-                                        <button class="btn-secondary btn-sm" (click)="downloadRequestedDoc(req.uploadedDocPath)">
-                                            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                            View Uploaded Doc
-                                        </button>
-                                        }
+                                <td style="padding: 12px 16px;">
+                                    <div style="font-size: 13px; color: #64748b; font-weight: 500;">
+                                        {{ req.createdAt | date:'mediumDate' }}
                                     </div>
+                                </td>
+                                <td style="padding: 12px 16px; text-align: right;">
+                                    @if(req.status === 'FORWARDED') {
+                                    <button style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; background: #2563eb; border: 1px solid #1d4ed8; color: white; border-radius: 0; cursor: pointer; font-weight: 600; transition: all 0.2s;" (click)="openUploadDocRequestModal(req)" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                                        Upload Doc
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                    </button>
+                                    } @else if(req.status === 'COMPLETED' && req.uploadedDocPath) {
+                                    <button style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; background: white; border: 1px solid #e2e8f0; color: #475569; border-radius: 0; cursor: pointer; font-weight: 600; transition: all 0.2s;" (click)="downloadRequestedDoc(req.uploadedDocPath)" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                                        View Doc
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </button>
+                                    }
                                 </td>
                             </tr>
                             }
                         </tbody>
                     </table>
                     } @else {
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <div style="padding: 48px; text-align: center; color: #64748b; font-style: italic; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 50%;">
+                            <svg width="40" height="40" fill="none" stroke="#cbd5e1" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                         </div>
-                        <h3>No Document Requests</h3>
-                        <p>There are currently no documents requested by agents for your college.</p>
+                        <div>
+                            <h3 style="margin: 0 0 8px 0; color: #334155; font-size: 16px; font-weight: 600; font-style: normal;">No Document Requests</h3>
+                            <p style="margin: 0; font-size: 14px;">There are currently no documents requested by agents for your college.</p>
+                        </div>
                     </div>
                     }
                 </div>
@@ -796,96 +1941,217 @@
             }
 
             @if(activeSection() === 'reports') {
-            <div class="page-title print-hide">
-                <h2>Advanced Reports & Analytics</h2>
-                <p>Generate custom reports and export data</p>
-            </div>
 
-            <div class="report-filters print-hide">
-                <div class="filter-group">
-                    <label>Start Date</label>
-                    <input type="date" class="filter-input" [value]="reportStartDate()"
-                        (change)="updateFilter('reportStartDate', $event)">
+            <div class="reports-dashboard">
+                <!-- Top 4 Cards -->
+                <div class="report-top-cards">
+                    <!-- Card 1 -->
+                    <div class="report-top-card">
+                        <div class="icon-wrapper blue">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <div class="report-top-card-content">
+                            <h3>{{ reportTotalAdmissionRequests() }}</h3>
+                            <p>Total Admission<br>Requests</p>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="report-top-card">
+                        <div class="icon-wrapper green">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="report-top-card-content">
+                            <h3>{{ reportAdmissionLettersIssued() }}</h3>
+                            <p>Admission Letters<br>Issued</p>
+                        </div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="report-top-card">
+                        <div class="icon-wrapper purple">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                        </div>
+                        <div class="report-top-card-content">
+                            <h3>{{ reportTotalTelexRequests() }}</h3>
+                            <p>Total Telex<br>Requests</p>
+                        </div>
+                    </div>
+                    <!-- Card 4 -->
+                    <div class="report-top-card">
+                        <div class="icon-wrapper orange">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </div>
+                        <div class="report-top-card-content">
+                            <h3>{{ reportTelexIssued() }}</h3>
+                            <p>Telex<br>Issued</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="filter-group">
-                    <label>End Date</label>
-                    <input type="date" class="filter-input" [value]="reportEndDate()"
-                        (change)="updateFilter('reportEndDate', $event)">
-                </div>
-                <div class="filter-group">
-                    <label>Status</label>
-                    <select class="filter-input" [value]="reportStatus()"
-                        (change)="updateFilter('reportStatus', $event)">
-                        <option value="ALL">All Statuses</option>
-                        @for(status of uniqueStatuses(); track status) {
-                        <option [value]="status">{{ formatStatusLabel(status) }}</option>
-                        }
-                    </select>
-                </div>
-                <div class="filter-actions">
-                    <button class="btn-cancel" (click)="clearFilters()">Clear</button>
-                    <button class="btn-download primary" (click)="exportToExcel()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                            </path>
-                        </svg>
-                        Excel
-                    </button>
-                    <button class="btn-download" (click)="exportToPdf()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                            </path>
-                        </svg>
-                        PDF
-                    </button>
-                </div>
-            </div>
 
-            <div class="report-summary print-hide">
-                <div class="summary-card">
-                    <div class="summary-label">Total Records</div>
-                    <div class="summary-value">{{ filteredReportStudents().length }}</div>
+                <!-- Middle 2 Tables -->
+                <div class="report-middle-tables">
+                    <!-- Admission Report Summary -->
+                    <div class="report-table-card">
+                        <div class="report-table-card-header">
+                            <h3>Admission Report Summary</h3>
+                            <div class="report-table-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                        </div>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Admission Requests Received</td>
+                                    <td class="count-blue">{{ reportTotalAdmissionRequests() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Admission Letters Issued</td>
+                                    <td class="count-green">{{ reportAdmissionLettersIssued() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Under Review</td>
+                                    <td class="count-orange">{{ reportAdmissionUnderReview() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Rejected</td>
+                                    <td class="count-red">{{ reportAdmissionRejected() }}</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>Total</td>
+                                    <td class="count-blue">{{ reportTotalAdmissionRequests() }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Telex Report Summary -->
+                    <div class="report-table-card">
+                        <div class="report-table-card-header">
+                            <h3>Telex Report Summary</h3>
+                            <div class="report-table-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                        </div>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Telex Requests Received</td>
+                                    <td class="count-blue">{{ reportTotalTelexRequests() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Talabnoma Uploaded</td>
+                                    <td class="count-green">{{ reportTelexTalabnomaUploaded() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Submitted to MFA</td>
+                                    <td class="count-orange">{{ reportTelexSubmittedMFA() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Telex Issued</td>
+                                    <td class="count-green">{{ reportTelexIssued() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Rejected</td>
+                                    <td class="count-red">{{ reportTelexRejected() }}</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>Total</td>
+                                    <td class="count-blue">{{ reportTotalTelexRequests() }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
 
-            <div class="table-container report-table">
-                <div class="print-only report-header">
-                    <h2>Custom Report: Student Analytics</h2>
-                    <p>Generated on: {{ getCurrentDate() }}</p>
+                <!-- Bottom Section -->
+                <div class="report-bottom-section">
+                    <!-- Current Admission Session Table -->
+                    <div class="report-table-card">
+                        <div class="report-table-card-header">
+                            <h3>Current Admission Session (1st Year Only)</h3>
+                        </div>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Particular</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Applications Received</td>
+                                    <td class="count-blue">{{ reportCurrentApplicationsReceived() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Admission Letters Issued</td>
+                                    <td class="count-green">{{ reportCurrentAdmissionLetters() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Telex Requests</td>
+                                    <td class="count-blue">{{ reportCurrentTelexRequests() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Telex Issued</td>
+                                    <td class="count-green">{{ reportCurrentTelexIssued() }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 16px;">* Data is for 1st Year admission session only.</div>
+                    </div>
+
+                    <!-- Downloads Section -->
+                    <div class="downloads-card">
+                        <h3>Downloads</h3>
+                        
+                        <div class="download-item">
+                            <div class="download-item-left">
+                                <div class="download-item-icon blue">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                </div>
+                                <div class="download-item-title">Admission Report</div>
+                            </div>
+                            <button class="download-btn" (click)="exportToExcel()">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            </button>
+                        </div>
+
+                        <div class="download-item">
+                            <div class="download-item-left">
+                                <div class="download-item-icon purple">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                                </div>
+                                <div class="download-item-title">Telex Report</div>
+                            </div>
+                            <button class="download-btn" (click)="exportToExcel()">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            </button>
+                        </div>
+
+                        <div class="download-item">
+                            <div class="download-item-left">
+                                <div class="download-item-icon green">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                </div>
+                                <div class="download-item-title">Student List</div>
+                            </div>
+                            <button class="download-btn" (click)="exportToPdf()">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            </button>
+                        </div>
+
+                    </div>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Application ID</th>
-                            <th>Full Name</th>
-                            <th>Passport No.</th>
-                            <th>Course</th>
-                            <th>Intake</th>
-                            <th>Status</th>
-                            <th>Applied Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for(student of filteredReportStudents(); track student.id) {
-                        <tr>
-                            <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
-                            <td>{{ student.fullName }}</td>
-                            <td>{{ student.passportNo }}</td>
-                            <td>{{ student.agent?.fullName || 'N/A' }}</td>
-                            <td>{{ student.intake || 'N/A' }}</td>
-                            <td><span class="badge info">{{ formatStatusLabel(student.applicationStatus) }}</span></td>
-                            <td>{{ formatDate(student.createdAt) }}</td>
-                        </tr>
-                        }
-                        @if(filteredReportStudents().length === 0) {
-                        <tr>
-                            <td colspan="7" class="empty-table">No records match your filters.</td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
             </div>
             }
 
@@ -1263,40 +2529,35 @@
 </div>
 }
 
-<!-- Floating Refresh Button -->
-<button class="floating-refresh" (click)="refreshData()" title="Refresh Dashboard" [disabled]="isRefreshing()">
-    <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-    </svg>
-</button>
+
 
 <!-- Status History Modal -->
 @if(isHistoryModalOpen()) {
 <div class="modal-overlay history-overlay" (click)="closeHistoryModal()">
-    <div class="history-modal" (click)="$event.stopPropagation()">
+    <div class="history-modal professional-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h3>Telex History</h3>
+            <h3><i class="fas fa-history" style="margin-right: 8px; color: var(--primary-burgundy);"></i> Application History</h3>
             <button class="close-btn" (click)="closeHistoryModal()">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
-        <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
-            <div class="disclaimer-message"
-                style="background: #F8FAFC; border-left: 4px solid #3B82F6; padding: 12px 16px; border-radius: 6px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 12px;">
-                <svg width="20" height="20" fill="none" stroke="#3B82F6" viewBox="0 0 24 24"
-                    style="flex-shrink: 0; margin-top: 2px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p style="margin: 0; font-size: 13px; color: #475569; line-height: 1.5;"><strong>Note:</strong> This
-                    timeline exclusively displays milestones and activities specifically related to the Telex process.
-                    Other document updates or admissions actions are not shown here.</p>
+        <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto; background: #F8FAFC;">
+            
+            <!-- Professional Header Card for Student Info -->
+            <div class="history-student-card" style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 16px;">
+                <div class="history-avatar" style="width: 48px; height: 48px; border-radius: 50%; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;">
+                    {{ getInitials(selectedStudentForHistory()?.fullName || 'S') }}
+                </div>
+                <div>
+                    <h4 style="margin: 0; font-size: 16px; font-weight: 600; color: #1E293B;">{{ selectedStudentForHistory()?.fullName || 'Unknown Student' }}</h4>
+                    <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">Passport: {{ selectedStudentForHistory()?.passportNo || 'N/A' }} &nbsp;|&nbsp; Status: <span class="status-badge" style="font-size: 11px; padding: 2px 8px; border-radius: 4px;" [ngClass]="getStatusBadgeClass(selectedStudentForHistory()?.applicationStatus)">{{ selectedStudentForHistory()?.applicationStatus }}</span></p>
+                </div>
             </div>
 
-            <div class="history-section" style="margin-top: 0;">
+            <div class="history-section" style="margin-top: 0; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <h4 style="font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;">Timeline of Events</h4>
                 @if (getTelexHistory(selectedStudentForHistory()).length) {
                 <div class="history-timeline" style="padding-bottom: 16px;">
                     @for (history of getTelexHistory(selectedStudentForHistory()); track history.id) {
