@@ -172,7 +172,18 @@ import {
   FilePlus,
   CornerUpLeft,
   Eye,
-  AtSign
+  AtSign,
+  ArrowRightCircle,
+  Book,
+  File,
+  DollarSign,
+  Folder,
+  Type,
+  AlignLeft,
+  List,
+  RefreshCcw,
+  SearchX,
+  FilterX
 } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -443,7 +454,18 @@ import { TrackApplicationComponent } from './components/track-application/track-
   FilePlus,
   CornerUpLeft,
   Eye,
-  AtSign
+  AtSign,
+  ArrowRightCircle,
+  Book,
+  File,
+  DollarSign,
+  Folder,
+  Type,
+  AlignLeft,
+  List,
+  RefreshCcw,
+  SearchX,
+  FilterX
 }),
     AgentModule,
     StudentStatusPipe,

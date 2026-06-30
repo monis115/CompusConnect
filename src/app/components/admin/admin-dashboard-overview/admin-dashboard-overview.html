@@ -874,18 +874,18 @@
     <div class="app-search-overlay" (click)="closeAppSearch()">
       <div class="app-search-container" (click)="$event.stopPropagation()">
         <button class="close-search-btn" (click)="closeAppSearch()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
         <div class="search-header">
           <div class="brand-pill">
-            
+            <i-lucide name="target" [size]="14"></i-lucide>
             <span>Application Tracker</span>
           </div>
           <h2>Track Student Status</h2>
           <p>Enter Application ID or Registered Email to verify progress.</p>
         </div>
         <div class="search-input-wrapper">
-          
+          <i-lucide name="search" [size]="20" class="input-icon"></i-lucide>
           <input type="text" [(ngModel)]="appSearchQuery" (keyup.enter)="searchApplication()"
             placeholder="e.g. 241212001 or student@example.com" [disabled]="isAppSearching">
           <button class="search-action-btn" (click)="searchApplication()"
@@ -904,7 +904,7 @@
           <!-- Error State -->
           @if (appSearchError) {
           <div class="error-state">
-            
+            <i-lucide name="alert-circle" [size]="24"></i-lucide>
             <p>{{ appSearchError }}</p>
           </div>
           }
@@ -918,10 +918,10 @@
               </div>
               <div class="status-badge" [ngClass]="getAppStatusColor(foundApplication.currentStatus)">
                 @if (foundApplication.currentStatus === 'VISA_STAMPED') {
-                
+                <i-lucide name="check-circle" [size]="14"></i-lucide>
                 }
                 @if (foundApplication.currentStatus !== 'VISA_STAMPED') {
-                
+                <i-lucide name="clock" [size]="14"></i-lucide>
                 }
                 <span>{{ formatAppStatus(foundApplication.currentStatus) }}</span>
               </div>

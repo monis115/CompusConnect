@@ -17,12 +17,12 @@
         <!-- PREMIUM BACK BUTTON -->
         <button (click)="goBack()" class="btn-back-premium" title="Go Back">
           <div class="btn-glow"></div>
-          
+            <i-lucide name="arrow-left" [size]="20"></i-lucide>
         </button>
 
         <div class="title-block">
           <div class="title-badge">
-            
+            <i-lucide name="shield-check" [size]="14"></i-lucide>
             <span>OFFICIAL DOCUMENTS</span>
           </div>
           <h1 class="hero-title">
@@ -30,7 +30,7 @@
             <span class="title-accent">Repository</span>
           </h1>
           <p class="hero-subtitle">
-            
+            <i-lucide name="info" [size]="16"></i-lucide>
             Collection of generated student Admission letters
           </p>
         </div>
@@ -42,7 +42,7 @@
           <div class="stats-cluster">
             <div class="stat-pill">
               <div class="stat-icon">
-                
+                <i-lucide name="eye" [size]="20"></i-lucide>
               </div>
               <div class="stat-content">
                 <span class="stat-value">{{ filteredStudents.length }}</span>
@@ -51,7 +51,7 @@
             </div>
             <div class="stat-pill accent">
               <div class="stat-icon">
-                
+                <i-lucide name="layers" [size]="20"></i-lucide>
               </div>
               <div class="stat-content">
                 <span class="stat-value">{{ students.length }}</span>
@@ -64,7 +64,7 @@
         <!-- REFRESH BUTTON -->
         <button class="btn-refresh-premium" (click)="refreshData()" [disabled]="isLoading">
           <div class="btn-shine"></div>
-          
+            <i-lucide name="refresh-cw" [size]="16"></i-lucide>
           <span>Refresh</span>
         </button>
       </div>
@@ -78,7 +78,7 @@
         <div class="search-glow"></div>
         <div class="search-inner">
           <div class="search-icon-wrapper">
-            
+            <i-lucide name="search" [size]="20"></i-lucide>
             <div class="icon-pulse"></div>
           </div>
           <input type="text" class="search-input" placeholder="Search by name, application ID, or agent ID..."
@@ -86,7 +86,7 @@
             (blur)="onSearchBlur()" />
           @if (searchQuery.length > 0) {
             <button class="btn-clear-search" (click)="clearSearch()">
-              
+              <i-lucide name="x" [size]="16"></i-lucide>
             </button>
           }
           @if (!searchQuery.length && !isSearchFocused) {
@@ -101,7 +101,7 @@
       @if (searchQuery.length > 0) {
         <div class="search-results-info">
           <div class="results-badge">
-            
+            <i-lucide name="list" [size]="14"></i-lucide>
             <span>{{ filteredStudents.length }} of {{ students.length }} results</span>
           </div>
         </div>
@@ -120,7 +120,7 @@
           <div class="ring ring-4"></div>
         </div>
         <div class="loader-core">
-          
+          <i-lucide name="loader" class="spin" [size]="48"></i-lucide>
         </div>
       </div>
       <div class="loading-text-block">
@@ -139,13 +139,13 @@
       <div class="error-card">
         <div class="error-icon-wrapper">
           <div class="error-pulse"></div>
-          
+            <i-lucide name="alert-triangle" [size]="48"></i-lucide>
         </div>
         <h2 class="error-title">Unable to Load Documents</h2>
         <p class="error-message">We couldn't retrieve the admission letters. Please check your connection and try
         again.</p>
         <button class="btn-retry" (click)="refreshData()">
-          
+          <i-lucide name="refresh-ccw" [size]="16"></i-lucide>
           <span>Retry Now</span>
         </button>
       </div>
@@ -162,7 +162,7 @@
             <div class="ering ering-2"></div>
           </div>
           <div class="empty-icon">
-            
+            <i-lucide name="file-x" [size]="48"></i-lucide>
           </div>
         </div>
         <h2 class="empty-title">No Admission Letters Yet</h2>
@@ -178,12 +178,12 @@
       class="no-results-universe">
       <div class="no-results-card">
         <div class="no-results-icon">
-          
+          <i-lucide name="search-x" [size]="48"></i-lucide>
         </div>
         <h3 class="no-results-title">No Results Found</h3>
         <p class="no-results-text">No admission letters match "{{ searchQuery }}"</p>
         <button class="btn-clear-filter" (click)="clearSearch()">
-          
+          <i-lucide name="filter-x" [size]="16"></i-lucide>
           <span>Clear Search</span>
         </button>
       </div>
@@ -199,7 +199,7 @@
         <!-- TABLE HEADER BAR -->
         <div class="table-header-bar">
           <div class="table-title-group">
-            
+            <i-lucide name="file-text" [size]="20"></i-lucide>
             <span>Admission Letter Records</span>
           </div>
           <div class="table-meta">
@@ -213,31 +213,31 @@
               <tr>
                 <th class="th-ref">
                   <div class="th-content">
-                    
+                    <i-lucide name="hash" [size]="14"></i-lucide>
                     <span>Reference ID</span>
                   </div>
                 </th>
                 <th class="th-student">
                   <div class="th-content">
-                    
+                    <i-lucide name="user" [size]="14"></i-lucide>
                     <span>Student</span>
                   </div>
                 </th>
                 <th class="th-details">
                   <div class="th-content">
-                    
+                    <i-lucide name="users" [size]="14"></i-lucide>
                     <span>Assignment</span>
                   </div>
                 </th>
                 <th class="th-status">
                   <div class="th-content">
-                    
+                    <i-lucide name="activity" [size]="14"></i-lucide>
                     <span>Status</span>
                   </div>
                 </th>
                 <th class="th-action">
                   <div class="th-content">
-                    
+                    <i-lucide name="settings" [size]="14"></i-lucide>
                     <span>Action</span>
                   </div>
                 </th>
@@ -257,10 +257,10 @@
                         (click)="$event.stopPropagation(); copyToClipboard(student.applicationId, 'appId-' + i)"
                         title="Copy Application ID">
                         @if (copiedField !== 'appId-' + i) {
-                          
+                          <i-lucide name="copy" [size]="12"></i-lucide>
                         }
                         @if (copiedField === 'appId-' + i) {
-                          
+                          <i-lucide name="check" [size]="12" class="text-green-500"></i-lucide>
                         }
                       </button>
                       @if (copiedField === 'appId-' + i) {
@@ -281,7 +281,7 @@
                       <div class="student-text">
                         <span class="student-name">{{ student.studentName }}</span>
                         <span class="student-course">
-                          
+                          <i-lucide name="book-open" [size]="14"></i-lucide>
                           {{ student.course }}
                         </span>
                       </div>
@@ -306,10 +306,10 @@
                               (click)="$event.stopPropagation(); copyToClipboard(student.agentUserId, 'agentId-' + i)"
                               title="Copy Agent ID">
                               @if (copiedField !== 'agentId-' + i) {
-                                
+                                <i-lucide name="copy" [size]="12"></i-lucide>
                               }
                               @if (copiedField === 'agentId-' + i) {
-                                
+                                <i-lucide name="check" [size]="12" class="text-green-500"></i-lucide>
                               }
                             </button>
                           }
@@ -332,7 +332,7 @@
                     <div class="status-badge-premium">
                       <div class="status-glow"></div>
                       <div class="status-indicator"></div>
-                      
+                        <i-lucide name="file-text" [size]="14"></i-lucide>
                       <span>{{ student.applicationStatus | titlecase }}</span>
                     </div>
                   </td>
@@ -342,7 +342,7 @@
                       class="btn-download-premium">
                       <div class="btn-download-bg"></div>
                       <div class="btn-download-content">
-                        
+                        <i-lucide name="download" [size]="16"></i-lucide>
                         <span>Download</span>
                       </div>
                       <div class="btn-download-shine"></div>
@@ -356,11 +356,11 @@
         <!-- TABLE FOOTER -->
         <div class="table-footer">
           <div class="footer-info">
-            
+            <i-lucide name="info" [size]="16"></i-lucide>
             <span>All letters are in PDF format and ready for download</span>
           </div>
           <div class="footer-brand">
-            
+            <i-lucide name="lock" [size]="16"></i-lucide>
             <span>Secured Documents</span>
           </div>
         </div>

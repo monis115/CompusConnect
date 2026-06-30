@@ -232,22 +232,21 @@
           <div class="card-content">
             <div class="contact-list">
               <div class="contact-item">
-                <div class="contact-icon email-icon"></div>
+                <div class="contact-icon email-icon"><i-lucide name="mail" [size]="20"></i-lucide></div>
                 <div class="contact-details">
                   <span class="contact-label">Email</span>
                   <span class="contact-value">{{ selectedStudent.email }}</span>
                 </div>
               </div>
               <div class="contact-item">
-                <div class="contact-icon phone-icon"></div>
+                <div class="contact-icon phone-icon"><i-lucide name="phone" [size]="20"></i-lucide></div>
                 <div class="contact-details">
                   <span class="contact-label">Contact Number</span>
                   <span class="contact-value">{{ selectedStudent.contactNo }}</span>
                 </div>
               </div>
               <div class="contact-item">
-                <div class="contact-icon emergency-icon">
-              </div>
+                <div class="contact-icon emergency-icon"><i-lucide name="alert-circle" [size]="20"></i-lucide></div>
               <div class="contact-details">
                 <span class="contact-label">Emergency Contact</span>
                 <span class="contact-value">{{ selectedStudent.emergencyContactNo }}</span>
@@ -255,7 +254,7 @@
               </div>
             </div>
             <div class="contact-item full-width">
-              <div class="contact-icon address-icon"></div>
+              <div class="contact-icon address-icon"><i-lucide name="map-pin" [size]="20"></i-lucide></div>
               <div class="contact-details">
                 <span class="contact-label">Address</span>
                 <span class="contact-value address-text">{{ selectedStudent.address }}</span>
@@ -388,8 +387,8 @@
               <div class="timeline-item"
                 [class.active]="last">
                 <div class="timeline-node" [class.completed]="!last" [class.current]="last">
-                  
-                </div>
+  <i-lucide name="circle" [size]="16"></i-lucide>
+</div>
                 <div class="timeline-content">
                   <div class="timeline-status">{{ history.studentApplicationStatus | studentStatus }}
                   </div>
@@ -430,22 +429,22 @@
           @if (selectedStudent.college) {
             <div class="assigned-college">
               <div class="college-badge assigned">
-                
-                <span>Assigned</span>
+  <i-lucide name="check-circle" [size]="14"></i-lucide>
+  <span>Assigned</span>
               </div>
               <div class="college-name-large">{{ selectedStudent.college.collegeName }}</div>
               @if (selectedStudent.college.city) {
                 <div class="college-location">
-                  
-                  {{ selectedStudent.college.city }}, {{ selectedStudent.college.country }}
+  <i-lucide name="map-pin" [size]="14"></i-lucide>
+  {{ selectedStudent.college.city }}, {{ selectedStudent.college.country }}
                 </div>
               }
             </div>
           }
           @if (!selectedStudent.college) {
             <div class="no-assignment">
-              
-              <span>No College Assigned Yet</span>
+  <i-lucide name="alert-circle" [size]="20"></i-lucide>
+  <span>No College Assigned Yet</span>
             </div>
           }
           <!-- College Preferences -->
@@ -474,9 +473,7 @@
           <div class="insights-grid">
             <!-- Days in Process -->
             <div class="insight-item highlight-purple">
-              <div class="insight-icon">
-                
-              </div>
+              <div class="insight-icon"><i-lucide name="info" [size]="20"></i-lucide></div>
               <div class="insight-data">
                 <span class="insight-value">{{ getDaysInProcess() }}</span>
                 <span class="insight-label">Days in Process</span>
@@ -484,9 +481,7 @@
             </div>
             <!-- Application Stage Progress -->
             <div class="insight-item highlight-blue">
-              <div class="insight-icon">
-                
-              </div>
+              <div class="insight-icon"><i-lucide name="info" [size]="20"></i-lucide></div>
               <div class="insight-data">
                 <span class="insight-value">{{ getStageProgress() }}%</span>
                 <span class="insight-label">Stage Progress</span>
@@ -494,9 +489,7 @@
             </div>
             <!-- Total Updates -->
             <div class="insight-item highlight-green">
-              <div class="insight-icon">
-                
-              </div>
+              <div class="insight-icon"><i-lucide name="info" [size]="20"></i-lucide></div>
               <div class="insight-data">
                 <span class="insight-value">{{ selectedStudent.studentStatusHistory?.length || 0
                 }}</span>
@@ -505,9 +498,7 @@
             </div>
             <!-- Documents Uploaded -->
             <div class="insight-item highlight-orange">
-              <div class="insight-icon">
-                
-              </div>
+              <div class="insight-icon"><i-lucide name="info" [size]="20"></i-lucide></div>
               <div class="insight-data">
                 <span class="insight-value">{{ getDocumentCount() }}</span>
                 <span class="insight-label">Documents</span>
@@ -518,8 +509,8 @@
           @if (selectedStudent.nextStep) {
             <div class="next-step-indicator">
               <div class="next-step-header">
-                
-                <span>Next Step</span>
+  <i-lucide name="arrow-right-circle" [size]="18"></i-lucide>
+  <span>Next Step</span>
               </div>
               <div class="next-step-value">{{ selectedStudent.nextStep | studentStatus }}</div>
             </div>
@@ -545,9 +536,7 @@
             @if (selectedStudent.passportPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.passportPath)">
-                <div class="doc-icon-wrapper passport">
-                  
-                </div>
+                <div class="doc-icon-wrapper passport"><i-lucide name="book" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Passport</span>
                   <span class="doc-action">View Document</span>
@@ -559,9 +548,7 @@
             @if (selectedStudent.adhaarPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.adhaarPath)">
-                <div class="doc-icon-wrapper id-card">
-                  
-                </div>
+                <div class="doc-icon-wrapper id-card"><i-lucide name="credit-card" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Aadhaar Card</span>
                   <span class="doc-action">View Document</span>
@@ -573,9 +560,7 @@
             @if (selectedStudent.markseetPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.markseetPath)">
-                <div class="doc-icon-wrapper academic">
-                  
-                </div>
+                <div class="doc-icon-wrapper academic"><i-lucide name="file-text" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">12th Marksheet</span>
                   <span class="doc-action">View Document</span>
@@ -587,9 +572,7 @@
             @if (selectedStudent.neetMarksheetPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.neetMarksheetPath)">
-                <div class="doc-icon-wrapper neet">
-                  
-                </div>
+                <div class="doc-icon-wrapper neet"><i-lucide name="activity" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">NEET Scorecard</span>
                   <span class="doc-action">View Document</span>
@@ -601,9 +584,7 @@
             @if (selectedStudent.confirmationPagePath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.confirmationPagePath)">
-                <div class="doc-icon-wrapper confirmation">
-                  
-                </div>
+                <div class="doc-icon-wrapper confirmation"><i-lucide name="check-square" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Confirmation Page</span>
                   <span class="doc-action">View Document</span>
@@ -615,9 +596,7 @@
             @if (selectedStudent.admissionLetterPath) {
               <div class="doc-card special"
                 (click)="openDocument(selectedStudent.admissionLetterPath)">
-                <div class="doc-icon-wrapper admission">
-                  
-                </div>
+                <div class="doc-icon-wrapper admission"><i-lucide name="file-text" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Admission Letter</span>
                   <span class="doc-action success">Download</span>
@@ -629,9 +608,7 @@
             @if (selectedStudent.conditionalOfferLetterPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.conditionalOfferLetterPath)">
-                <div class="doc-icon-wrapper offer">
-                  
-                </div>
+                <div class="doc-icon-wrapper offer"><i-lucide name="file" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Conditional Offer Letter</span>
                   <span class="doc-action">View Document</span>
@@ -643,9 +620,7 @@
             @if (selectedStudent.telexDocumentsPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.telexDocumentsPath)">
-                <div class="doc-icon-wrapper telex">
-                  
-                </div>
+                <div class="doc-icon-wrapper telex"><i-lucide name="file-text" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Telex Documents</span>
                   <span class="doc-action">View Document</span>
@@ -657,9 +632,7 @@
             @if (selectedStudent.telexPaymentScreenshotPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.telexPaymentScreenshotPath)">
-                <div class="doc-icon-wrapper payment">
-                  
-                </div>
+                <div class="doc-icon-wrapper payment"><i-lucide name="dollar-sign" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Telex Payment Proof</span>
                   <span class="doc-action">View Document</span>
@@ -671,9 +644,7 @@
             @if (selectedStudent.visaPhotoPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.visaPhotoPath)">
-                <div class="doc-icon-wrapper photo">
-                  
-                </div>
+                <div class="doc-icon-wrapper photo"><i-lucide name="image" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Visa Photo</span>
                   <span class="doc-action">View Photo</span>
@@ -685,9 +656,7 @@
             @if (selectedStudent.visaPassportCopyPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.visaPassportCopyPath)">
-                <div class="doc-icon-wrapper passport">
-                  
-                </div>
+                <div class="doc-icon-wrapper passport"><i-lucide name="book" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Visa Passport Copy</span>
                   <span class="doc-action">View Document</span>
@@ -699,9 +668,7 @@
             @if (selectedStudent.visaPaymentConfirmationPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.visaPaymentConfirmationPath)">
-                <div class="doc-icon-wrapper payment">
-                  
-                </div>
+                <div class="doc-icon-wrapper payment"><i-lucide name="dollar-sign" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Visa Payment Proof</span>
                   <span class="doc-action">View Document</span>
@@ -713,9 +680,7 @@
             @if (selectedStudent.ttCopyPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.ttCopyPath)">
-                <div class="doc-icon-wrapper payment">
-                  
-                </div>
+                <div class="doc-icon-wrapper payment"><i-lucide name="dollar-sign" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">TT Copy</span>
                   <span class="doc-action">View Document</span>
@@ -727,9 +692,7 @@
             @if (selectedStudent.paymentConfirmationPath) {
               <div class="doc-card"
                 (click)="openDocument(selectedStudent.paymentConfirmationPath)">
-                <div class="doc-icon-wrapper payment">
-                  
-                </div>
+                <div class="doc-icon-wrapper payment"><i-lucide name="dollar-sign" [size]="20"></i-lucide></div>
                 <div class="doc-info">
                   <span class="doc-title">Payment Confirmation</span>
                   <span class="doc-action">View Document</span>
@@ -740,8 +703,8 @@
             <!-- No Documents Message -->
             @if (getDocumentCount() === 0) {
               <div class="no-docs-message">
-                
-                <span>No Documents Uploaded Yet</span>
+  <i-lucide name="file-x" [size]="24"></i-lucide>
+  <span>No Documents Uploaded Yet</span>
               </div>
             }
           </div>
@@ -806,12 +769,12 @@
           </div>
           <div class="approval-status-row">
             <div class="approval-item" [class.approved]="selectedStudent.isTelexAccountantApproved">
-              
-              <span>Accountant Approved</span>
+  <i-lucide [name]="selectedStudent.isTelexAccountantApproved ? 'check-circle' : 'clock'" [size]="16"></i-lucide>
+  <span>Accountant Approved</span>
             </div>
             <div class="approval-item" [class.approved]="selectedStudent.isTelexDocApproved">
-              
-              <span>Doc Person Approved</span>
+  <i-lucide [name]="selectedStudent.isTelexDocApproved ? 'check-circle' : 'clock'" [size]="16"></i-lucide>
+  <span>Doc Person Approved</span>
             </div>
           </div>
           @if (selectedStudent.docPersonComment) {
@@ -955,20 +918,20 @@
             <div class="checklist-title">Documents Received</div>
             <div class="checklist-items">
               <div class="checklist-item" [class.received]="selectedStudent.received12thMarksheet">
-                
-                <span>12th Marksheet</span>
+  <i-lucide [name]="selectedStudent.received12thMarksheet ? 'check-circle' : 'circle'" [size]="16"></i-lucide>
+  <span>12th Marksheet</span>
               </div>
               <div class="checklist-item" [class.received]="selectedStudent.received10thMarksheet">
-                
-                <span>10th Marksheet</span>
+  <i-lucide [name]="selectedStudent.received10thMarksheet ? 'check-circle' : 'circle'" [size]="16"></i-lucide>
+  <span>10th Marksheet</span>
               </div>
               <div class="checklist-item" [class.received]="selectedStudent.receivedNeetScorecard">
-                
-                <span>NEET Scorecard</span>
+  <i-lucide [name]="selectedStudent.receivedNeetScorecard ? 'check-circle' : 'circle'" [size]="16"></i-lucide>
+  <span>NEET Scorecard</span>
               </div>
               <div class="checklist-item" [class.received]="selectedStudent.receivedPassport">
-                
-                <span>Passport</span>
+  <i-lucide [name]="selectedStudent.receivedPassport ? 'check-circle' : 'circle'" [size]="16"></i-lucide>
+  <span>Passport</span>
               </div>
             </div>
           </div>
@@ -1059,9 +1022,7 @@
             <!-- Agent -->
             @if (selectedStudent.agent) {
               <div class="team-member">
-                <div class="member-avatar agent">
-                  
-                </div>
+                <div class="member-avatar agent"><i-lucide name="user" [size]="16"></i-lucide></div>
                 <div class="member-info">
                   <span class="member-role">Agent</span>
                   <span class="member-name">{{ selectedStudent.agent.fullName || 'Assigned' }}</span>
@@ -1071,9 +1032,7 @@
             <!-- Admission Manager -->
             @if (selectedStudent.admissionManager) {
               <div class="team-member">
-                <div class="member-avatar manager">
-                  
-                </div>
+                <div class="member-avatar manager"><i-lucide name="briefcase" [size]="16"></i-lucide></div>
                 <div class="member-info">
                   <span class="member-role">Admission Manager</span>
                   <span class="member-name">{{ selectedStudent.admissionManager.fullName || 'Assigned'
@@ -1084,9 +1043,7 @@
             <!-- University Person -->
             @if (selectedStudent.universityPerson) {
               <div class="team-member">
-                <div class="member-avatar university">
-                  
-                </div>
+                <div class="member-avatar university"><i-lucide name="building" [size]="16"></i-lucide></div>
                 <div class="member-info">
                   <span class="member-role">University Person</span>
                   <span class="member-name">{{ selectedStudent.universityPerson.fullName || 'Assigned'
@@ -1097,9 +1054,7 @@
             <!-- Telex Man -->
             @if (selectedStudent.telexMan) {
               <div class="team-member">
-                <div class="member-avatar telex">
-                  
-                </div>
+                <div class="member-avatar telex"><i-lucide name="file-text" [size]="16"></i-lucide></div>
                 <div class="member-info">
                   <span class="member-role">Telex Manager</span>
                   <span class="member-name">{{ selectedStudent.telexMan.fullName || 'Assigned' }}</span>
@@ -1109,9 +1064,7 @@
             <!-- Visa Man -->
             @if (selectedStudent.visaMan) {
               <div class="team-member">
-                <div class="member-avatar visa">
-                  
-                </div>
+                <div class="member-avatar visa"><i-lucide name="credit-card" [size]="16"></i-lucide></div>
                 <div class="member-info">
                   <span class="member-role">Visa Manager</span>
                   <span class="member-name">{{ selectedStudent.visaMan.fullName || 'Assigned' }}</span>
@@ -1121,9 +1074,7 @@
             <!-- Doc Person -->
             @if (selectedStudent.docPerson) {
               <div class="team-member">
-                <div class="member-avatar doc">
-                  
-                </div>
+                <div class="member-avatar doc"><i-lucide name="folder" [size]="16"></i-lucide></div>
                 <div class="member-info">
                   <span class="member-role">Doc Person</span>
                   <span class="member-name">{{ selectedStudent.docPerson.fullName || 'Assigned' }}</span>
@@ -1133,9 +1084,7 @@
             <!-- Accountant -->
             @if (selectedStudent.accountant) {
               <div class="team-member">
-                <div class="member-avatar accountant">
-                  
-                </div>
+                <div class="member-avatar accountant"><i-lucide name="dollar-sign" [size]="16"></i-lucide></div>
                 <div class="member-info">
                   <span class="member-role">Accountant</span>
                   <span class="member-name">{{ selectedStudent.accountant.fullName || 'Assigned' }}</span>
@@ -1147,7 +1096,8 @@
               <div class="no-team"
                 >
                 
-                <span>No Team Assigned Yet</span>
+                <i-lucide name="users" [size]="24"></i-lucide>
+  <span>No Team Assigned Yet</span>
               </div>
             }
           </div>
@@ -1189,8 +1139,8 @@
     <div class="email-modal-container" [class.templates-open]="showTemplates" (click)="$event.stopPropagation()">
       <!-- Floating Template Toggle (Outside Box) -->
       <button class="template-toggle-float" (click)="toggleTemplates()" [class.active]="showTemplates">
-        
-        <span>Templates</span>
+  <i-lucide name="layout-template" [size]="16"></i-lucide>
+  <span>Templates</span>
         
       </button>
       <!-- Flying Text Animation Element -->
@@ -1205,9 +1155,7 @@
         <!-- Modal Header -->
         <div class="modal-header">
           <div class="modal-title">
-            <div class="modal-icon">
-              
-            </div>
+            <div class="modal-icon"><i-lucide name="mail" [size]="24"></i-lucide></div>
             <div class="modal-title-text">
               <h2>Compose Email</h2>
               <p>Send a message to {{ selectedStudent?.fullName }}</p>
@@ -1215,8 +1163,8 @@
           </div>
           <div class="modal-header-actions">
             <button class="modal-close" (click)="closeEmailModal()">
-              
-            </button>
+  <i-lucide name="x" [size]="20"></i-lucide>
+</button>
           </div>
         </div>
         <!-- Email Sending Overlay -->
@@ -1239,19 +1187,17 @@
               <div class="success-ripple"></div>
               <div class="success-ripple delay-1"></div>
               <div class="success-ripple delay-2"></div>
-              <div class="success-circle">
-                
-              </div>
+              <div class="success-circle"><i-lucide name="check" [size]="48"></i-lucide></div>
             </div>
             <h3>Email Sent Successfully!</h3>
             <p>Your message has been delivered to</p>
             <div class="success-email-badge">
-              
-              {{ selectedStudent?.email }}
+  <i-lucide name="mail" [size]="16"></i-lucide>
+  {{ selectedStudent?.email }}
             </div>
             <button class="btn-primary success-done-btn" (click)="closeEmailModal()">
-              
-              Done
+  <i-lucide name="check-circle" [size]="16"></i-lucide>
+  Done
             </button>
           </div>
         }
@@ -1267,16 +1213,14 @@
                   <span class="recipient-name">{{ selectedStudent?.fullName }}</span>
                   <span class="recipient-email">{{ selectedStudent?.email }}</span>
                 </div>
-                <div class="recipient-verified">
-                  
-                </div>
+                <div class="recipient-verified"><i-lucide name="check-circle" [size]="14"></i-lucide></div>
               </div>
             </div>
             <!-- Subject Field -->
             <div class="form-group" [class.highlight-fill]="isAnimatingTemplate">
               <label for="emailSubject">
-                
-                Subject
+  <i-lucide name="type" [size]="16"></i-lucide>
+  Subject
               </label>
               <input type="text" id="emailSubject" class="form-input"
                 placeholder="e.g., Important Update Regarding Your Application" [(ngModel)]="emailSubject">
@@ -1284,8 +1228,8 @@
             <!-- Content Field -->
             <div class="form-group" [class.highlight-fill]="isAnimatingTemplate">
               <label for="emailContent">
-                
-                Message
+  <i-lucide name="align-left" [size]="16"></i-lucide>
+  Message
               </label>
               <textarea id="emailContent" class="form-textarea"
                 placeholder="Write your message here... Be clear and professional." rows="8"
@@ -1303,16 +1247,16 @@
         @if (!emailSent) {
           <div class="modal-footer">
             <button class="btn-secondary" (click)="closeEmailModal()">
-              
-              Cancel
+  <i-lucide name="x" [size]="16"></i-lucide>
+  Cancel
             </button>
             <button class="btn-primary send-btn" [disabled]="!emailSubject || !emailContent || isSendingEmail"
               (click)="sendEmail()">
               @if (!isSendingEmail) {
                 <span>
-                  
-                  Send Email
-                </span>
+  <i-lucide name="send" [size]="16"></i-lucide>
+  Send Email
+</span>
               }
               @if (isSendingEmail) {
                 <span class="sending-state">
@@ -1330,9 +1274,7 @@
           <!-- AI Generative Mail Section -->
           <div class="ai-section">
             <div class="ai-header">
-              <div class="ai-icon-wrapper">
-                
-              </div>
+              <div class="ai-icon-wrapper"><i-lucide name="sparkles" [size]="16"></i-lucide></div>
               <div class="ai-title">
                 <span class="ai-label">AI Generative</span>
                 <span class="ai-badge">Beta</span>
@@ -1343,8 +1285,8 @@
                 [(ngModel)]="aiPrompt">
               <button class="ai-generate-btn" [disabled]="!aiPrompt || isGeneratingAI"
                 (click)="generateAIEmail()">
-                
-              </button>
+  <i-lucide name="zap" [size]="16"></i-lucide>
+</button>
             </div>
             <p class="ai-hint">e.g., "Write a reminder about document submission"</p>
           </div>
@@ -1358,16 +1300,12 @@
               <div class="template-card"
                 (click)="selectTemplateWithAnimation(template, i)"
                 [class.selected]="selectedTemplateId === template.id" [attr.data-index]="i">
-                <div class="template-icon" [ngClass]="template.color">
-                  
-                </div>
+                <div class="template-icon" [ngClass]="template.color"><i-lucide [name]="template.icon" [size]="16"></i-lucide></div>
                 <div class="template-info">
                   <span class="template-title">{{ template.title }}</span>
                   <span class="template-desc">{{ template.description }}</span>
                 </div>
-                <div class="template-arrow">
-                  
-                </div>
+                <div class="template-arrow"><i-lucide name="chevron-right" [size]="16"></i-lucide></div>
               </div>
             }
           </div>

@@ -464,7 +464,7 @@
               </div>
               <div class="analytics-kpi-grid">
                 <div class="analytics-kpi-card">
-                  <div class="kpi-icon-mini" style="--kpi-color: #f59e0b"></div>
+                  <div class="kpi-icon-mini" style="--kpi-color: #f59e0b"><i-lucide name="users" [size]="16"></i-lucide></div>
                   <div class="kpi-data">
                     <span class="kpi-value-sm">{{ formatNumber(telexSummaryAnalytics.totalStudents)
                     }}</span>
@@ -472,7 +472,7 @@
                   </div>
                 </div>
                 <div class="analytics-kpi-card">
-                  <div class="kpi-icon-mini" style="--kpi-color: #3b82f6"></div>
+                  <div class="kpi-icon-mini" style="--kpi-color: #3b82f6"><i-lucide name="file-text" [size]="16"></i-lucide></div>
                   <div class="kpi-data">
                     <span class="kpi-value-sm">{{ formatNumber(telexSummaryAnalytics.totalDocsUploaded)
                     }}</span>
@@ -480,7 +480,7 @@
                   </div>
                 </div>
                 <div class="analytics-kpi-card highlight">
-                  <div class="kpi-icon-mini" style="--kpi-color: #10b981"></div>
+                  <div class="kpi-icon-mini" style="--kpi-color: #10b981"><i-lucide name="check-circle" [size]="16"></i-lucide></div>
                   <div class="kpi-data">
                     <span class="kpi-value-sm">{{ formatNumber(telexSummaryAnalytics.totalTelexIssued)
                     }}</span>
@@ -488,21 +488,21 @@
                   </div>
                 </div>
                 <div class="analytics-kpi-card">
-                  <div class="kpi-icon-mini" style="--kpi-color: #8b5cf6"></div>
+                  <div class="kpi-icon-mini" style="--kpi-color: #8b5cf6"><i-lucide name="activity" [size]="16"></i-lucide></div>
                   <div class="kpi-data">
                     <span class="kpi-value-sm">{{ telexSummaryAnalytics.completionRate }}%</span>
                     <span class="kpi-label-sm">Completion Rate</span>
                   </div>
                 </div>
                 <div class="analytics-kpi-card">
-                  <div class="kpi-icon-mini" style="--kpi-color: #ec4899"></div>
+                  <div class="kpi-icon-mini" style="--kpi-color: #ec4899"><i-lucide name="zap" [size]="16"></i-lucide></div>
                   <div class="kpi-data">
                     <span class="kpi-value-sm">{{ telexSummaryAnalytics.avgEfficiency }}%</span>
                     <span class="kpi-label-sm">Efficiency</span>
                   </div>
                 </div>
                 <div class="analytics-kpi-card">
-                  <div class="kpi-icon-mini" style="--kpi-color: #22c55e"></div>
+                  <div class="kpi-icon-mini" style="--kpi-color: #22c55e"><i-lucide name="check-circle-2" [size]="16"></i-lucide></div>
                   <div class="kpi-data">
                     <span class="kpi-value-sm active-count">{{ telexSummaryAnalytics.activeManagers
                     }}</span>
@@ -655,7 +655,7 @@
             <div class="kpi-section">
               <div class="kpi-grid">
                 <div class="kpi-card" [style.--delay]="'0s'" [style.--accent-color]="'#f59e0b'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="users" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ formatNumber(getTelexMetric('assigned')) }}</span>
                     <span class="kpi-label">Assigned ({{ selectedTimePeriod | titlecase }})</span>
@@ -671,7 +671,7 @@
                   }
                 </div>
                 <div class="kpi-card" [style.--delay]="'0.1s'" [style.--accent-color]="'#3b82f6'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="file-text" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ formatNumber(getTelexMetric('submittedToUniversity'))
                     }}</span>
@@ -688,7 +688,7 @@
                   }
                 </div>
                 <div class="kpi-card" [style.--delay]="'0.2s'" [style.--accent-color]="'#ec4899'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="check-circle" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ formatNumber(getTelexMetric('submittedToMEA')) }}</span>
                     <span class="kpi-label">To MEA ({{ selectedTimePeriod | titlecase }})</span>
@@ -704,7 +704,7 @@
                   }
                 </div>
                 <div class="kpi-card" [style.--delay]="'0.3s'" [style.--accent-color]="'#10b981'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="clock" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ formatNumber(getTelexMetric('telexIssued')) }}</span>
                     <span class="kpi-label">Telex Issued ({{ selectedTimePeriod | titlecase }})</span>
@@ -773,7 +773,7 @@
             <div class="kpi-grid">
               <!-- Assigned -->
               <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
-                <div class="kpi-icon"></div>
+                <div class="kpi-icon"><i-lucide name="users" [size]="24"></i-lucide></div>
                 <div class="kpi-content">
                   <span class="kpi-value">{{ visaStats?.totalAssignedStudents || 0 }}</span>
                   <span class="kpi-label">Total Assigned</span>
@@ -781,7 +781,7 @@
               </div>
               <!-- Payment Requested -->
               <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
-                <div class="kpi-icon"></div>
+                <div class="kpi-icon"><i-lucide name="credit-card" [size]="24"></i-lucide></div>
                 <div class="kpi-content">
                   <span class="kpi-value">{{ visaStats?.paymentRequested || 0 }}</span>
                   <span class="kpi-label">Payment Requested</span>
@@ -789,7 +789,7 @@
               </div>
               <!-- Payment Confirmed -->
               <div class="kpi-card" [style.--accent-color]="'#0ea5e9'">
-                <div class="kpi-icon"></div>
+                <div class="kpi-icon"><i-lucide name="check-circle" [size]="24"></i-lucide></div>
                 <div class="kpi-content">
                   <span class="kpi-value">{{ visaStats?.paymentConfirmed || 0 }}</span>
                   <span class="kpi-label">Payment Confirmed</span>
@@ -797,7 +797,7 @@
               </div>
               <!-- Passport Collected -->
               <div class="kpi-card" [style.--accent-color]="'#6366f1'">
-                <div class="kpi-icon"></div>
+                <div class="kpi-icon"><i-lucide name="book" [size]="24"></i-lucide></div>
                 <div class="kpi-content">
                   <span class="kpi-value">{{ visaStats?.passportCollected || 0 }}</span>
                   <span class="kpi-label">Passport Collected</span>
@@ -805,7 +805,7 @@
               </div>
               <!-- Visa Applied -->
               <div class="kpi-card" [style.--accent-color]="'#8b5cf6'">
-                <div class="kpi-icon"></div>
+                <div class="kpi-icon"><i-lucide name="file-text" [size]="24"></i-lucide></div>
                 <div class="kpi-content">
                   <span class="kpi-value">{{ visaStats?.visaApplied || 0 }}</span>
                   <span class="kpi-label">Visa Applied</span>
@@ -813,7 +813,7 @@
               </div>
               <!-- Embassy Submitted -->
               <div class="kpi-card" [style.--accent-color]="'#a855f7'">
-                <div class="kpi-icon"></div>
+                <div class="kpi-icon"><i-lucide name="send" [size]="24"></i-lucide></div>
                 <div class="kpi-content">
                   <span class="kpi-value">{{ visaStats?.embassySubmitted || 0 }}</span>
                   <span class="kpi-label">Embassy Submitted</span>
@@ -821,7 +821,7 @@
               </div>
               <!-- Visa Stamped -->
               <div class="kpi-card" [style.--accent-color]="'#10b981'">
-                <div class="kpi-icon"></div>
+                <div class="kpi-icon"><i-lucide name="check-square" [size]="24"></i-lucide></div>
                 <div class="kpi-content">
                   <span class="kpi-value">{{ visaStats?.visaStamped || 0 }}</span>
                   <span class="kpi-label">Visa Stamped</span>
@@ -829,7 +829,7 @@
               </div>
               <!-- Passport Returned -->
               <div class="kpi-card" [style.--accent-color]="'#ec4899'">
-                <div class="kpi-icon"></div>
+                <div class="kpi-icon"><i-lucide name="corner-up-left" [size]="24"></i-lucide></div>
                 <div class="kpi-content">
                   <span class="kpi-value">{{ visaStats?.passportReturned || 0 }}</span>
                   <span class="kpi-label">Passport Returned</span>
@@ -952,7 +952,7 @@
               <div class="kpi-grid">
                 <!-- Assigned -->
                 <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="users" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ docPersonStats.totalAssignedStudents || 0 }}</span>
                     <span class="kpi-label">Total Assigned</span>
@@ -960,7 +960,7 @@
                 </div>
                 <!-- Docs Received -->
                 <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="inbox" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ docPersonStats.documentsReceived || 0 }}</span>
                     <span class="kpi-label">Docs Received</span>
@@ -968,7 +968,7 @@
                 </div>
                 <!-- Docs Verified -->
                 <div class="kpi-card" [style.--accent-color]="'#10b981'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="check-circle" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ docPersonStats.documentsVerified || 0 }}</span>
                     <span class="kpi-label">Docs Verified</span>
@@ -976,7 +976,7 @@
                 </div>
                 <!-- Docs Collected -->
                 <div class="kpi-card" [style.--accent-color]="'#6366f1'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="corner-up-left" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ docPersonStats.documentsCollected || 0 }}</span>
                     <span class="kpi-label">Docs Collected</span>
@@ -984,7 +984,7 @@
                 </div>
                 <!-- Docs Returned -->
                 <div class="kpi-card" [style.--accent-color]="'#ec4899'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="clock" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ docPersonStats.documentsReturned || 0 }}</span>
                     <span class="kpi-label">Docs Returned</span>
@@ -1144,35 +1144,35 @@
             <div class="kpi-section">
               <div class="kpi-grid">
                 <div class="kpi-card" [style.--accent-color]="'#3b82f6'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="users" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ selectedAgentStats.registeredStudents }}</span>
                     <span class="kpi-label">Registered Students</span>
                   </div>
                 </div>
                 <div class="kpi-card" [style.--accent-color]="'#f59e0b'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="clock" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ selectedAgentStats.telexInitiated }}</span>
                     <span class="kpi-label">Telex Initiated</span>
                   </div>
                 </div>
                 <div class="kpi-card" [style.--accent-color]="'#10b981'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="check-circle" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ selectedAgentStats.paymentConfirmations }}</span>
                     <span class="kpi-label">Payment Confirmations</span>
                   </div>
                 </div>
                 <div class="kpi-card" [style.--accent-color]="'#8b5cf6'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="dollar-sign" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ selectedAgentStats.docsRequested }}</span>
                     <span class="kpi-label">Docs Requested</span>
                   </div>
                 </div>
                 <div class="kpi-card" [style.--accent-color]="'#ec4899'">
-                  <div class="kpi-icon"></div>
+                  <div class="kpi-icon"><i-lucide name="file-warning" [size]="24"></i-lucide></div>
                   <div class="kpi-content">
                     <span class="kpi-value">{{ selectedAgentStats.totalWork }}</span>
                     <span class="kpi-label">Total Activity</span>
