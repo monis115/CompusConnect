@@ -54,7 +54,7 @@
     <nav class="sidebar-nav">
       @for (item of menuItems; track item) {
       <button class="nav-item" [class.active]="activeSection === item.id" (click)="navigateTo(item.id)">
-        <i-lucide [name]="item.icon" [size]="20"></i-lucide>
+        <i-lucide [name]="item.icon" [size]="18"></i-lucide>
         @if (!sidebarCollapsed) {
         <span>{{ item.label }}</span>
         }
@@ -132,49 +132,49 @@
         <li class="sys-menu-item" (click)="handleOption('System Activity')">
           <span class="sys-label">System Activity</span>
           <div class="sys-icon-wrapper">
-            
+            <i-lucide name="activity" [size]="18"></i-lucide>
           </div>
         </li>
         <li class="sys-menu-item" (click)="handleOption('Search')">
           <span class="sys-label">Search</span>
           <div class="sys-icon-wrapper">
-            
+            <i-lucide name="search" [size]="18"></i-lucide>
           </div>
         </li>
         <li class="sys-menu-item" (click)="handleOption('System Dashboard')">
           <span class="sys-label">Reports Generation</span>
           <div class="sys-icon-wrapper">
-            
+            <i-lucide name="file-text" [size]="18"></i-lucide>
           </div>
         </li>
         <li class="sys-menu-item" (click)="handleOption('Application Restart')">
           <span class="sys-label">Application Restart</span>
           <div class="sys-icon-wrapper">
-            
+            <i-lucide name="power" [size]="18"></i-lucide>
           </div>
         </li>
         <li class="sys-menu-item" (click)="handleOption('Logo Configuration')">
           <span class="sys-label">Logo Configuration</span>
           <div class="sys-icon-wrapper">
-            
+            <i-lucide name="image" [size]="18"></i-lucide>
           </div>
         </li>
         <li class="sys-menu-item" (click)="handleOption('Sessions')">
           <span class="sys-label">Sessions</span>
           <div class="sys-icon-wrapper">
-            
+            <i-lucide name="clock" [size]="18"></i-lucide>
           </div>
         </li>
         <li class="sys-menu-item" (click)="openShareableLinks()">
           <span class="sys-label">Shareable Links</span>
           <div class="sys-icon-wrapper" style="color: #10b981;">
-            
+            <i-lucide name="link" [size]="18"></i-lucide>
           </div>
         </li>
         <li class="sys-menu-item" (click)="handleOption('Settings')">
           <span class="sys-label">Settings</span>
           <div class="sys-icon-wrapper">
-            
+            <i-lucide name="settings" [size]="18"></i-lucide>
           </div>
         </li>
       </ul>
@@ -184,10 +184,10 @@
     <button class="sys-config-fab" (click)="toggleConfigMenu()" [class.active]="isConfigOpen">
       <div class="fab-content">
         @if (!isConfigOpen) {
-        
+          <i-lucide name="settings" [size]="24"></i-lucide>
         }
         @if (isConfigOpen) {
-        
+          <i-lucide name="x" [size]="24"></i-lucide>
         }
       </div>
       <div class="fab-ripple"></div>
@@ -206,11 +206,11 @@
   <div class="session-modal" (click)="$event.stopPropagation()">
     <div class="session-modal-header">
       <div class="session-modal-title">
-        
+        <i-lucide name="shield" [size]="24"></i-lucide>
         <h3>Session Management</h3>
       </div>
       <button class="close-btn" (click)="closeSessionModal()">
-        
+        <i-lucide name="x" [size]="20"></i-lucide>
       </button>
     </div>
     <div class="session-modal-body">
@@ -224,7 +224,7 @@
       <!-- Empty State -->
       @if (!isLoadingSessions && sessions.length === 0) {
       <div class="session-empty">
-        
+        <i-lucide name="alert-circle" [size]="48"></i-lucide>
         <p>No sessions found. Please check backend.</p>
       </div>
       }
@@ -239,7 +239,7 @@
             <p>{{ session.academicYear }}</p>
           </div>
           @if (selectedSession?.id === session.id) {
-          
+            <i-lucide name="check-circle" [size]="20" style="color: #10b981;"></i-lucide>
           }
         </div>
         }
@@ -289,11 +289,11 @@
   <div class="session-modal" style="z-index: 10002; width: 450px; max-width: 90vw;" (click)="$event.stopPropagation()">
     <div class="session-modal-header">
       <div class="session-modal-title">
-        
+        <i-lucide name="link" [size]="24"></i-lucide>
         <h3>System Links</h3>
       </div>
       <button class="close-btn" (click)="closeShareableLinks()">
-        
+        <i-lucide name="x" [size]="20"></i-lucide>
       </button>
     </div>
     <div class="session-modal-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
@@ -310,7 +310,7 @@
           <button (click)="copyPublicLink('agent-apply')"
             style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; width: 36px; height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);"
             title="Copy Link">
-            
+            <i-lucide name="copy" [size]="18"></i-lucide>
           </button>
         </div>
       </div>
@@ -327,7 +327,7 @@
           <button (click)="copyPublicLink('track-application')"
             style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; width: 36px; height: 36px; min-width: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);"
             title="Copy Link">
-            
+            <i-lucide name="copy" [size]="18"></i-lucide>
           </button>
         </div>
       </div>

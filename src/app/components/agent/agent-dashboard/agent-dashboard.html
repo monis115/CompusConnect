@@ -277,15 +277,62 @@
             }
           </button>
         </div>
-        <div class="eh-profile" (click)="navigateTo('profile')" style="cursor: pointer;" title="Go to Profile">
-          <div class="eh-avatar">{{ agentData.fullName.charAt(0) }}</div>
-          <div class="eh-profile-info">
-            <span>{{ agentData.userId || 'Agent' }}</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
+        <div style="display: flex; align-items: center;">
+
+          <button class="theme-toggle-btn" (click)="toggleThemePanel()" title="Change Theme" style="margin-right: 12px; background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 50%; transition: background-color 0.2s;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
             </svg>
+          </button>
+          
+          <div class="eh-profile" (click)="navigateTo('profile')" style="cursor: pointer;" title="Go to Profile">
+            <div class="eh-avatar">{{ agentData.fullName.charAt(0) }}</div>
+            <div class="eh-profile-info">
+              <span>{{ agentData.userId || 'Agent' }}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
           </div>
         </div>
+
+        <!-- Theme Picker Panel -->
+        @if(isThemePanelOpen()) {
+        <div class="theme-panel-backdrop" (click)="toggleThemePanel()"></div>
+        <div class="theme-panel" style="top: 70px; right: 24px;">
+            <div class="theme-panel-header">
+                <h4>Choose Theme</h4>
+                <button class="theme-reset-btn" (click)="resetTheme()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Reset
+                </button>
+            </div>
+            <div class="theme-grid">
+                @for(theme of themes; track theme.id) {
+                <button class="theme-swatch" [class.active]="activeTheme() === theme.id"
+                    (click)="applyTheme(theme.id)" [title]="theme.name">
+                    <div class="swatch-colors">
+                        <div class="swatch-dot" [style.background]="theme.preview[0]"></div>
+                        <div class="swatch-dot" [style.background]="theme.preview[1]"></div>
+                        <div class="swatch-dot" [style.background]="theme.preview[2]"></div>
+                    </div>
+                    <span class="swatch-name">{{ theme.name }}</span>
+                    @if(activeTheme() === theme.id) {
+                    <svg class="swatch-check" width="16" height="16" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M5 13l4 4L19 7" />
+                    </svg>
+                    }
+                </button>
+                }
+            </div>
+        </div>
+        }
       </div>
     </header>
     }

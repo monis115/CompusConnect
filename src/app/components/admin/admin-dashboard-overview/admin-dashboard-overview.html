@@ -161,9 +161,9 @@
       @if (showSuccessMessage) {
       <div class="success-message" [ngClass]="{'info-message': notificationType === 'info'}">
         @if (notificationType === 'success') {
-        
+        <i-lucide name="check-circle" [size]="18"></i-lucide>
         } @else {
-        
+        <i-lucide name="info" [size]="18"></i-lucide>
         }
         <span>{{ successMessage }}</span>
       </div>
@@ -176,7 +176,7 @@
           <input type="text" placeholder="Search college..." [(ngModel)]="searchTerm" (input)="searchCollege()"
             class="search-input">
           <button class="btn-icon-sm" (click)="searchCollege()">
-            
+            <i-lucide name="search" [size]="18"></i-lucide>
           </button>
         </div>
       </div>
@@ -188,7 +188,7 @@
       }
       @if (error) {
       <div class="error-message">
-        
+      <i-lucide name="alert-triangle" [size]="18"></i-lucide>
         <span>{{ error }}</span>
       </div>
       }
@@ -229,7 +229,7 @@
                   </label>
                   <button class="btn-icon-sm" title="Upload / Update Logo" (click)="triggerLogoUpload(college)"
                     style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; cursor: pointer; color: #64748b; font-size: 11px; display: flex; align-items: center; gap: 4px;">
-                    
+                      <i-lucide name="image" [size]="14"></i-lucide>
                   </button>
                 </div>
               </td>
@@ -238,7 +238,7 @@
             @if (filteredColleges.length === 0) {
             <tr>
               <td colspan="5" class="empty-state">
-                
+                <i-lucide name="search" [size]="24"></i-lucide>
                 <p>No colleges found</p>
               </td>
             </tr>
@@ -460,7 +460,7 @@
         <div class="user-role-card admin-card">
           <div class="role-icon-wrapper">
             <div class="role-icon">
-              
+            <i-lucide name="shield" [size]="28"></i-lucide>
             </div>
             <div class="role-badge premium-badge" style="background: var(--accent-gold); color: white;">Super</div>
           </div>
@@ -2149,7 +2149,7 @@
           @case ('otp') {
           <div class="otp-step-container">
             <div class="otp-icon-wrapper">
-              
+            <i-lucide name="lock" [size]="32"></i-lucide>
             </div>
             <h3>Security Verification</h3>
             <p>An OTP has been sent to your Super Admin device. Please enter it below to authorize this action.</p>

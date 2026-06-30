@@ -229,6 +229,10 @@ Premium Angular Dashboard with Glassmorphism
           }
         </button>
 
+        <button class="icon-btn theme-toggle-btn" (click)="toggleThemePanel()" title="Change Theme" style="margin-left: 4px;">
+          <i class="fas fa-palette"></i>
+        </button>
+
         @if (visaManProfile) {
         <div class="header-profile" style="display: flex; align-items: center; gap: 12px; margin-left: 12px; padding-left: 16px; border-left: 1px solid #e2e8f0; cursor: pointer;">
           <div class="header-avatar" style="width: 40px; height: 40px; background: #6366f1; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.1rem; position: relative;">
@@ -243,6 +247,43 @@ Premium Angular Dashboard with Glassmorphism
               <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Online</span>
             </div>
           </div>
+        </div>
+        }
+
+        <!-- Theme Picker Panel -->
+        @if(isThemePanelOpen()) {
+        <div class="theme-panel-backdrop" (click)="toggleThemePanel()"></div>
+        <div class="theme-panel" style="top: 70px; right: 24px;">
+            <div class="theme-panel-header">
+                <h4>Choose Theme</h4>
+                <button class="theme-reset-btn" (click)="resetTheme()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Reset
+                </button>
+            </div>
+            <div class="theme-grid">
+                @for(theme of themes; track theme.id) {
+                <button class="theme-swatch" [class.active]="activeTheme() === theme.id"
+                    (click)="applyTheme(theme.id)" [title]="theme.name">
+                    <div class="swatch-colors">
+                        <div class="swatch-dot" [style.background]="theme.preview[0]"></div>
+                        <div class="swatch-dot" [style.background]="theme.preview[1]"></div>
+                        <div class="swatch-dot" [style.background]="theme.preview[2]"></div>
+                    </div>
+                    <span class="swatch-name">{{ theme.name }}</span>
+                    @if(activeTheme() === theme.id) {
+                    <svg class="swatch-check" width="16" height="16" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M5 13l4 4L19 7" />
+                    </svg>
+                    }
+                </button>
+                }
+            </div>
         </div>
         }
       </div>

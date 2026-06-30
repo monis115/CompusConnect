@@ -21,7 +21,7 @@
         <h3>Unable to Load Dashboard</h3>
         <p>{{ error }}</p>
         <button class="btn-retry" (click)="retryLoad()">
-          
+          <i-lucide name="rotate-ccw" [size]="16"></i-lucide>
           Try Again
         </button>
       </div>
@@ -36,12 +36,12 @@
         <div class="header-left">
           <h2 class="dashboard-title">
             <span class="icon-wrapper">
-              
+              <i-lucide name="layout-dashboard" [size]="24"></i-lucide>
             </span>
             Executive Dashboard
           </h2>
           <span class="last-refresh">
-            
+            <i-lucide name="clock" [size]="14"></i-lucide>
             Last updated: {{ getLastRefreshDisplay() }}
           </span>
         </div>
@@ -67,11 +67,11 @@
           <div class="action-buttons">
             <button class="btn-refresh" [class.spinning]="isRefreshing" (click)="refreshDashboard()"
               [disabled]="isRefreshing">
-              
+              <i-lucide name="refresh-cw" [size]="16"></i-lucide>
               <span>{{ isRefreshing ? 'Refreshing...' : 'Refresh' }}</span>
             </button>
             <button class="btn-auto-refresh" [class.active]="autoRefresh" (click)="toggleAutoRefresh()">
-              
+              <i-lucide name="zap" [size]="16"></i-lucide>
               <span>Auto</span>
             </button>
           </div>

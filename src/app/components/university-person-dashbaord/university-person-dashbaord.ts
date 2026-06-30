@@ -96,6 +96,7 @@ interface Student {
   travelDoj?: string;
   travelTicketPdfPath?: string;
   citizenship?: string;
+  admissionPlanStatus?: string;
 }
 
 interface UniversityPerson {
@@ -114,6 +115,8 @@ interface UniversityPerson {
   styleUrls: ['./university-person-dashbaord.css']
 })
 export class UniversityPersonDashboard implements OnInit {
+  currentYear = new Date().getFullYear();
+
   // Data Signals
   universityData = signal<UniversityPerson | null>(null);
   isLoading = signal<boolean>(true);
@@ -489,45 +492,78 @@ export class UniversityPersonDashboard implements OnInit {
   };
   public barChartType: ChartType = 'bar';
 
-  
+  // Monthly Trend Chart: Admission Letters vs Visa Stamped
+  public trendChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#64748b', font: { family: 'Inter', size: 10 } }
+      },
+      y: {
+        min: 0,
+        grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: { color: '#64748b', font: { family: 'Inter', size: 10 }, stepSize: 5 }
+      }
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+        labels: { boxWidth: 10, padding: 12, font: { size: 11, family: 'Inter' } }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(15,23,42,0.9)',
+        padding: 10,
+        titleFont: { size: 12 },
+        bodyFont: { size: 11 }
+      }
+    }
+  };
+  public trendChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [
+      { data: [], label: 'Admission Letters', backgroundColor: '#3b82f6', borderRadius: 4, borderSkipped: false },
+      { data: [], label: 'Visa Stamped', backgroundColor: '#10b981', borderRadius: 4, borderSkipped: false }
+    ]
+  };
+  public trendChartType: ChartType = 'bar';
+
   // Telex Requests Tracking Logic
   telexRoleFilter = signal('ALL');
 
   telexStudents = computed(() => {
-    // Use raw universityData students — NOT allStudents() which has "All Students" tab filters applied
-    const allRaw = this.universityData()?.students || [];
-    
-    // DEBUG: Log all unique statuses and key fields
-    if (allRaw.length > 0) {
-      const statuses = [...new Set(allRaw.map((s: any) => s.applicationStatus))];
-      console.log('DEBUG TELEX: Total raw students:', allRaw.length);
-      console.log('DEBUG TELEX: Unique statuses:', statuses);
-      console.log('DEBUG TELEX: With telexPaymentAmount:', allRaw.filter((s: any) => s.telexPaymentAmount).length);
-      console.log('DEBUG TELEX: With telexNumber:', allRaw.filter((s: any) => s.telexNumber).length);
-      console.log('DEBUG TELEX: With telexTuitionFee:', allRaw.filter((s: any) => s.telexTuitionFee).length);
-      console.log('DEBUG TELEX: With isTelexDocsVerified:', allRaw.filter((s: any) => s.isTelexDocsVerified).length);
-      console.log('DEBUG TELEX: With TELEX_INITIATED:', allRaw.filter((s: any) => s.applicationStatus === 'TELEX_INITIATED').length);
-      console.log('DEBUG TELEX: With ADMISSION_LETTER_GENERATED:', allRaw.filter((s: any) => s.applicationStatus === 'ADMISSION_LETTER_GENERATED').length);
-      console.log('DEBUG TELEX: getTelexStatus not Not Started:', allRaw.filter((s: any) => this.getTelexStatus(s) !== 'Not Started').length);
-    }
-
-    let students = allRaw.filter((s: any) => 
-      // Match the same logic used in report: getTelexStatus !== 'Not Started'
-      this.getTelexStatus(s) !== 'Not Started' ||
-      s.telexPaymentAmount ||
-      s.telexTuitionFee ||
-      s.isTelexDocsVerified ||
-      s.isTelexDocApproved ||
-      // Also include students eligible (admission letter generated)
-      s.applicationStatus === 'ADMISSION_LETTER_GENERATED' ||
-      s.applicationStatus === 'APPROVED'
+    const statuses = [
+      'ADMISSION_LETTER_GENERATED', 
+      'APPROVED', 
+      'APPLIED_FOR_TELEX', 
+      'FORWARDED_TO_UNI', 
+      'TELEX_INITIATED', 
+      'TELEX_DOCS_UPLOADED', 
+      'TELEX_APPROVED', 
+      'TELEX_NUMBER_ISSUED',
+      'TRAVELLING',
+      'VISA_STAMPED'
+    ];
+    let students = this.allStudents().filter(s => 
+      (
+        (s.applicationStatus && statuses.includes(s.applicationStatus)) || 
+        s.telexPaymentAmount ||
+        s.telexDocumentsPath ||
+        s.isTelexDocsVerified ||
+        s.telexNumber ||
+        s.action === 'VERIFY_DOCS' ||
+        s.action === 'CONFIRM_DOCS' ||
+        s.action === 'INITIATE_TELEX'
+      )
     );
 
     const roleFilter = this.telexRoleFilter();
     if (roleFilter !== 'ALL') {
-      students = students.filter((s: any) => {
+      students = students.filter(s => {
         const owner = this.getTelexCurrentOwner(s);
-        if (roleFilter === 'COMPLETED') return s.telexNumber;
+        if (roleFilter === 'COMPLETED') return !!s.telexNumber;
         if (roleFilter === 'AGENT') return owner.role === 'Agent' && !s.telexNumber;
         if (roleFilter === 'DOC_PERSON') return owner.role === 'Doc Person' && !s.telexNumber;
         if (roleFilter === 'ADMISSION_MANAGER') return owner.role === 'Admission Manager' && !s.telexNumber;
@@ -540,6 +576,7 @@ export class UniversityPersonDashboard implements OnInit {
   });
 
   getTelexCurrentOwner(student: Student) {
+    // STEP 0: Already completed — telexNumber issued
     if (student.telexNumber) {
       return {
           name: 'N/A',
@@ -552,6 +589,51 @@ export class UniversityPersonDashboard implements OnInit {
       };
     }
 
+    // ACTION-BASED CHECKS FIRST — the `action` field is the real-time truth
+    // of who currently needs to act, regardless of applicationStatus.
+
+    // Doc Person: action says "confirm docs" — they haven't received yet
+    if (student.action === 'CONFIRM_DOCS') {
+      return { 
+          name: student.docPerson?.fullName || 'Doc Person', 
+          role: 'Doc Person', 
+          badge: 'badge-warning', 
+          icon: 'fas fa-user-shield',
+          nextAction: 'Receive & Confirm Documents',
+          actionIcon: 'fas fa-inbox',
+          actionColor: '#0f766e'
+      };
+    }
+
+    // Doc Person: action says "verify docs" — received, needs verification
+    if (student.action === 'VERIFY_DOCS') {
+      return { 
+          name: student.docPerson?.fullName || 'Doc Person', 
+          role: 'Doc Person', 
+          badge: 'badge-warning', 
+          icon: 'fas fa-user-shield',
+          nextAction: 'Verify Telex Documents',
+          actionIcon: 'fas fa-clipboard-check',
+          actionColor: '#9f1239'
+      };
+    }
+
+    // Agent: action says "initiate telex"
+    if (student.action === 'INITIATE_TELEX') {
+      return { 
+          name: student.agent?.fullName || 'Agent', 
+          role: 'Agent', 
+          badge: 'badge-secondary', 
+          icon: 'fas fa-user-tie',
+          nextAction: 'Initiate Telex & Pay Fee',
+          actionIcon: 'fas fa-money-check-alt',
+          actionColor: '#334155'
+      };
+    }
+
+    // STATUS-BASED FALLBACKS — for students whose action field is something else
+
+    // Telex Manager assigned
     if (student.telexMan) {
       return { 
           name: student.telexMan.fullName || 'Telex Manager', 
@@ -560,11 +642,11 @@ export class UniversityPersonDashboard implements OnInit {
           icon: 'fas fa-user-tag',
           nextAction: 'Upload Talabnoma & Request Telex',
           actionIcon: 'fas fa-file-upload',
-          actionColor: '#1e3a8a'
+          actionColor: '#1e3a5f'
       };
     }
-    
-    // STEP 3: Status is TELEX_INITIATED (Doc verified, no telexMan yet) = Admission Manager
+
+    // Admission Manager: docs verified or TELEX_INITIATED but no telexMan yet
     if (student.applicationStatus === 'TELEX_INITIATED' || student.isTelexDocsVerified) {
       return { 
           name: student.admissionManager?.fullName || 'Admission Manager', 
@@ -573,11 +655,11 @@ export class UniversityPersonDashboard implements OnInit {
           icon: 'fas fa-user-cog',
           nextAction: 'Assign Telex Manager',
           actionIcon: 'fas fa-user-plus',
-          actionColor: '#6d28d9'
+          actionColor: '#4c1d95'
       };
     }
     
-    // STEP 2: Agent paid / applied = Doc Person verifies
+    // Doc Person: APPLIED_FOR_TELEX or has payment
     if (student.applicationStatus === 'APPLIED_FOR_TELEX' || student.telexPaymentAmount) {
       return { 
           name: student.docPerson?.fullName || 'Doc Person', 
@@ -590,6 +672,7 @@ export class UniversityPersonDashboard implements OnInit {
       };
     }
     
+    // Default: Agent needs to initiate
     return { 
         name: student.agent?.fullName || 'Agent', 
         role: 'Agent', 
@@ -649,8 +732,60 @@ export class UniversityPersonDashboard implements OnInit {
 
     // Now determine the status for the requested step
     if (step < currentStep) return 'completed';
+    // If we've reached the final step (7), mark it as fully completed, not in-progress
+    if (step === 7 && currentStep === 7) return 'completed';
     if (step === currentStep) return 'in-progress';
     return 'pending';
+  }
+
+  // Extract the date/time when a telex step was completed
+  getTelexStepDate(student: Student, step: number): string | null {
+    const history: any[] = (student as any).studentStatusHistory || [];
+    
+    const findHistoryDate = (status: string): string | null => {
+      // Find the LAST occurrence of this status in history
+      const entries = history.filter((h: any) => h.studentApplicationStatus === status || h.newStatus === status);
+      if (entries.length > 0) {
+        return entries[entries.length - 1].updatedAt;
+      }
+      return null;
+    };
+
+    const formatDate = (dateStr: string | null | undefined): string | null => {
+      if (!dateStr) return null;
+      try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return null;
+        const day = d.getDate().toString().padStart(2, '0');
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const month = months[d.getMonth()];
+        const year = d.getFullYear();
+        const hours = d.getHours().toString().padStart(2, '0');
+        const mins = d.getMinutes().toString().padStart(2, '0');
+        return `${day} ${month} ${year}, ${hours}:${mins}`;
+      } catch {
+        return null;
+      }
+    };
+
+    switch (step) {
+      case 1: // Agent Initiated — look for APPLIED_FOR_TELEX in history
+        return formatDate(findHistoryDate('APPLIED_FOR_TELEX') || findHistoryDate('ADMISSION_LETTER_APPROVED'));
+      case 2: // Doc Person Verified — docReceivedDate or the status change
+        return formatDate((student as any).docReceivedDate || findHistoryDate('TELEX_INITIATED'));
+      case 3: // Assigned to Telex Manager — docPersonAssignedDate or telexMan assignment
+        return formatDate((student as any).docPersonAssignedDate || (student.telexMan ? findHistoryDate('TELEX_INITIATED') : null));
+      case 4: // Talabnoma Uploaded
+        return formatDate(student.telexDocumentsPath ? findHistoryDate('TELEX_DOCS_UPLOADED') : null);
+      case 5: // Submitted to MFA
+        return formatDate((student as any).telexRequestDate);
+      case 6: // MFA Processing
+        return formatDate((student as any).telexRequestDate);
+      case 7: // Telex Issued
+        return formatDate((student as any).telexIssueDate);
+      default:
+        return null;
+    }
   }
 
   constructor(
@@ -743,6 +878,39 @@ export class UniversityPersonDashboard implements OnInit {
         borderRadius: 8,
         borderSkipped: false
       }]
+    };
+
+    // Monthly trend: Admission Letters vs Visa Stamped
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const admissionByMonth = new Array(12).fill(0);
+    const visaByMonth = new Array(12).fill(0);
+    const currentYear = new Date().getFullYear();
+
+    for (const s of students) {
+      const created = s.createdAt ? new Date(s.createdAt) : null;
+      if (created && created.getFullYear() === currentYear) {
+        const m = created.getMonth();
+        if (s.admissionLetterPath || s.applicationStatus === 'ADMISSION_LETTER_ISSUED' || s.applicationStatus === 'ADMISSION_LETTER_GENERATED') {
+          admissionByMonth[m]++;
+        }
+        if (s.applicationStatus === 'VISA_STAMPED' || s.visaNumber) {
+          visaByMonth[m]++;
+        }
+      }
+    }
+
+    // Only show months up to current month
+    const currentMonth = new Date().getMonth();
+    const trendLabels = monthNames.slice(0, currentMonth + 1);
+    const trendAdmission = admissionByMonth.slice(0, currentMonth + 1);
+    const trendVisa = visaByMonth.slice(0, currentMonth + 1);
+
+    this.trendChartData = {
+      labels: trendLabels,
+      datasets: [
+        { data: trendAdmission, label: 'Admission Letters', backgroundColor: '#3b82f6', borderRadius: 4, borderSkipped: false },
+        { data: trendVisa, label: 'Visa Stamped', backgroundColor: '#10b981', borderRadius: 4, borderSkipped: false }
+      ]
     };
   }
 
@@ -1040,6 +1208,152 @@ export class UniversityPersonDashboard implements OnInit {
       growth,
       isPositiveGrowth: growth >= 0
     };
+  });
+
+  // --- New Dashboard Custom Signals ---
+  dashboardRecentActivity = computed(() => {
+    const students = this.universityData()?.students || [];
+    let activities: any[] = [];
+    
+    students.forEach(s => {
+      if (s.createdAt) {
+        activities.push({
+          title: `New admission request from ${s.fullName}`,
+          sub: `Application ID: ${s.applicationId || 'ADM-'+s.id}`,
+          date: s.createdAt,
+          type: 'request',
+          icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+          color: '#3b82f6',
+          bg: '#eff6ff'
+        });
+      }
+      if (s.admissionLetterPath || s.applicationStatus === 'ADMISSION_LETTER_ISSUED') {
+         activities.push({
+          title: `Admission letter uploaded for ${s.fullName}`,
+          sub: `Application ID: ${s.applicationId || 'ADM-'+s.id}`,
+          date: s.createdAt,
+          type: 'admission',
+          icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+          color: '#3b82f6',
+          bg: '#eff6ff'
+        });
+      }
+      if (s.telexRequestDate || s.applicationStatus === 'APPLIED_FOR_TELEX') {
+        activities.push({
+          title: `Submitted to MFA for ${s.fullName}`,
+          sub: `Telex ID: ${s.telexNumber || 'Pending'}`,
+          date: s.telexRequestDate || s.createdAt,
+          type: 'telex',
+          icon: 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8',
+          color: '#8b5cf6',
+          bg: '#f5f3ff'
+        });
+      }
+      if (s.telexNumber) {
+        activities.push({
+          title: `Telex issued for ${s.fullName}`,
+          sub: `Telex No: ${s.telexNumber}`,
+          date: s.telexRequestDate || s.createdAt,
+          type: 'telex_issued',
+          icon: 'M5 13l4 4L19 7',
+          color: '#10b981',
+          bg: '#d1fae5'
+        });
+      }
+      if (s.paidAmount && s.paidAmount > 0) {
+        activities.push({
+          title: `Payment received from ${s.fullName}`,
+          sub: `Amount: ₹ ${s.paidAmount.toLocaleString()}`,
+          date: s.createdAt,
+          type: 'payment',
+          icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+          color: '#f59e0b',
+          bg: '#fef3c7'
+        });
+      }
+    });
+
+    return activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
+  });
+
+  dashboardTasks = computed(() => {
+    const students = this.actionRequiredStudents();
+    return students.map(s => {
+      let priority = 'Medium';
+      let colorClass = '#eab308';
+      let bgClass = '#fefce8';
+      
+      if (s.applicationStatus === 'PENDING_ADMISSION_LETTER' || s.applicationStatus === 'FORWARDED_TO_UNI') {
+        priority = 'High';
+        colorClass = '#ef4444';
+        bgClass = '#fef2f2';
+      }
+      return {
+        id: s.id,
+        title: `Review docs for ${s.fullName}`,
+        status: s.applicationStatus,
+        priority: priority,
+        color: colorClass,
+        bg: bgClass,
+        date: s.createdAt
+      };
+    }).slice(0, 5);
+  });
+
+  dashboardTaskStats = computed(() => {
+    const tasks = this.dashboardTasks();
+    const total = tasks.length;
+    if (total === 0) return { high: 0, medium: 0, low: 0, highPct: 0, mediumPct: 0, lowPct: 0 };
+    const high = tasks.filter(t => t.priority === 'High').length;
+    const medium = tasks.filter(t => t.priority === 'Medium').length;
+    const low = tasks.filter(t => t.priority === 'Low').length;
+    return {
+      high, medium, low,
+      highPct: Math.round((high / total) * 100),
+      mediumPct: Math.round((medium / total) * 100),
+      lowPct: Math.round((low / total) * 100)
+    };
+  });
+
+  dashboardVisaRequests = computed(() => {
+    return (this.universityData()?.students || []).filter(s => s.applicationStatus === 'VISA_STAMPED' || !!s.visaTalabNumaPath || !!s.visaNumber || s.applicationStatus === 'APPLIED_FOR_VISA').length;
+  });
+
+  dashboardStudentsByStatus = computed(() => {
+    const students = this.universityData()?.students || [];
+    const admissionIssued = students.filter(s => !!s.admissionLetterPath || s.applicationStatus === 'ADMISSION_LETTER_ISSUED').length;
+    const telexIssued = students.filter(s => !!s.telexNumber).length;
+    const visaStamped = students.filter(s => s.applicationStatus === 'VISA_STAMPED').length;
+    const travelCompleted = students.filter(s => !!s.travelDoj || s.applicationStatus === 'TRAVEL_COMPLETED').length;
+    const arrived = students.filter(s => s.admissionPlanStatus === 'MARK_ARRIVED' || s.applicationStatus === 'STUDENT_ARRIVED' || s.applicationStatus === 'ARRIVED' || s.applicationStatus === 'JOINED_COLLEGE').length;
+    
+    return { admissionIssued, telexIssued, visaStamped, travelCompleted, arrived };
+  });
+
+  topAgents = computed(() => {
+    const students = this.universityData()?.students || [];
+    const agentMap = new Map<string, { name: string; count: number; admitted: number }>();
+    for (const s of students) {
+      const name = s.agent?.fullName || 'Direct / Unassigned';
+      const entry = agentMap.get(name) || { name, count: 0, admitted: 0 };
+      entry.count++;
+      if (s.admissionLetterPath || s.applicationStatus === 'ADMISSION_LETTER_ISSUED') entry.admitted++;
+      agentMap.set(name, entry);
+    }
+    return Array.from(agentMap.values()).sort((a, b) => b.count - a.count).slice(0, 5);
+  });
+
+  popularPrograms = computed(() => {
+    const students = this.universityData()?.students || [];
+    const programMap = new Map<string, number>();
+    for (const s of students) {
+      const prog = s.appliedFor || 'Undeclared';
+      programMap.set(prog, (programMap.get(prog) || 0) + 1);
+    }
+    return Array.from(programMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
   });
 
   // Upload Logic

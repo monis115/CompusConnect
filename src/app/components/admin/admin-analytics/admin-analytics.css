@@ -44,7 +44,7 @@
 /* Base Layout */
 .analytics-dashboard {
     min-height: 100vh;
-    padding: 32px;
+    padding: 20px 32px;
     background: #e2e8f0;
     font-family: 'Inter', sans-serif;
     color: var(--text-primary);
@@ -55,7 +55,7 @@
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 20px;
 }
 
 /* Glass Panel Utility */
@@ -81,7 +81,7 @@
 }
 
 .dashboard-title {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 800;
     color: var(--primary-deep);
     display: flex;
@@ -95,11 +95,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
     background: linear-gradient(135deg, var(--primary-deep), var(--primary-main));
     color: var(--accent-gold);
-    border-radius: 14px;
+    border-radius: 10px;
     box-shadow: var(--shadow-md);
 }
 
@@ -119,9 +119,9 @@
 }
 
 .date-filters {
-    padding: 10px 24px;
+    padding: 8px 16px;
     display: flex;
-    gap: 32px;
+    gap: 24px;
     background: white;
     border: 1px solid var(--border-subtle);
     border-radius: 16px;
@@ -250,7 +250,7 @@
 
 .kpi-card {
     position: relative;
-    padding: 24px;
+    padding: 20px;
     border-radius: 20px;
     background: white;
     border: 1px solid var(--border-subtle);
@@ -273,14 +273,14 @@
 }
 
 .kpi-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .kpi-active .kpi-icon {
@@ -301,7 +301,7 @@
 }
 
 .kpi-value {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 800;
     color: var(--primary-deep);
     line-height: 1.2;
@@ -342,7 +342,7 @@
 
 /* Chart Section */
 .chart-section {
-    padding: 24px;
+    padding: 20px;
     background: white;
     display: flex;
     flex-direction: column;
@@ -361,7 +361,7 @@
 }
 
 .chart-container {
-    height: 320px;
+    height: 280px;
     position: relative;
     width: 100%;
 }

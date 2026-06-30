@@ -165,22 +165,7 @@
     <!-- Main Content -->
     <div class="main-wrapper" [class.expanded]="sidebarCollapsed()">
         <header class="top-header">
-            <div class="search-bar-container">
-                <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input type="text" class="search-bar" placeholder="Search students by name, passport, email..."
-                    [value]="searchQuery()" (input)="onSearchInput($event)">
-                @if(searchQuery()) {
-                <button class="clear-search" (click)="clearSearch()">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                }
-            </div>
+            <div></div>
             <div class="user-pill">
                 <button class="header-refresh-btn" (click)="refreshData()" title="Refresh Dashboard"
                     [disabled]="isRefreshing()" [class.spinning]="isRefreshing()">
@@ -246,168 +231,380 @@
 
             <!-- Dashboard Section -->
             @if(activeSection() === 'dashboard') {
-            <div class="page-title">
-                <h2>Dashboard Overview</h2>
-                <p>Monitor and manage student applications for <strong>{{ universityData()?.college?.collegeName ||
-                        'your institution' }}</strong>
-                    @if(universityData()?.college?.city && universityData()?.college?.country) {
-                    <span>&nbsp;({{ universityData()?.college?.city }}, {{ universityData()?.college?.country }})</span>
-                    }
-                </p>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card primary">
-                    <div class="stat-value">{{ stats().totalStudents }}</div>
-                    <div class="stat-label">Total Students</div>
-                </div>
-                <div class="stat-card success">
-                    <div class="stat-value">{{ stats().admittedStudents }}</div>
-                    <div class="stat-label">Admitted</div>
-                </div>
-
-                <div class="stat-card urgent">
-                    <div class="stat-value">{{ stats().actionRequired }}</div>
-                    <div class="stat-label">Action Required</div>
-                </div>
-                <div class="stat-card info">
-                    <div class="stat-value">{{ stats().visaStamped }}</div>
-                    <div class="stat-label">Visa Stamped</div>
-                </div>
-                <div class="stat-card" style="border-top: 4px solid #8B5CF6;">
-                    <div class="stat-value" style="color: #8B5CF6;">{{ uniqueAgents().length }}</div>
-                    <div class="stat-label">Active Agents</div>
-                </div>
-            </div>
-
-            <div class="charts-section">
-                <div class="chart-card">
-                    <h3 class="chart-title">Application Status Distribution</h3>
-                    <div class="chart-container">
-                        <canvas baseChart [data]="pieChartData" [type]="pieChartType" [options]="pieChartOptions">
-                        </canvas>
+            <div class="dash-wrapper">
+                
+                <!-- TOP METRICS -->
+                <div class="dash-metrics-grid">
+                    <!-- Admission Requests -->
+                    <div class="dash-metric-card" style="padding-bottom: 16px;">
+                        <div class="dm-icon text-slate-700">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <div class="dm-info">
+                            <div class="dm-value">{{ getCombinedAdmissionStudents().length }}</div>
+                            <div class="dm-label">Admission Requests</div>
+                        </div>
+                    </div>
+                    <!-- Telex Requests -->
+                    <div class="dash-metric-card" style="padding-bottom: 16px;">
+                        <div class="dm-icon text-slate-700">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        </div>
+                        <div class="dm-info">
+                            <div class="dm-value">{{ telexStudents().length }}</div>
+                            <div class="dm-label">Telex Requests</div>
+                        </div>
+                    </div>
+                    <!-- Visa Requests -->
+                    <div class="dash-metric-card" style="padding-bottom: 16px;">
+                        <div class="dm-icon text-slate-700">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </div>
+                        <div class="dm-info">
+                            <div class="dm-value">{{ dashboardVisaRequests() }}</div>
+                            <div class="dm-label">Visa Requests</div>
+                        </div>
+                    </div>
+                    <!-- Payments Received -->
+                    <div class="dash-metric-card" style="padding-bottom: 16px;">
+                        <div class="dm-icon text-slate-700">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        </div>
+                        <div class="dm-info">
+                            <div class="dm-value">₹ {{ totalPaidToUniversity() | number }}</div>
+                            <div class="dm-label">Payments Received</div>
+                        </div>
+                    </div>
+                    <!-- Total Students -->
+                    <div class="dash-metric-card" style="padding-bottom: 16px;">
+                        <div class="dm-icon text-slate-700">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        </div>
+                        <div class="dm-info">
+                            <div class="dm-value">{{ stats().totalStudents }}</div>
+                            <div class="dm-label">Total Students</div>
+                        </div>
+                    </div>
+                    <!-- Pending Cases -->
+                    <div class="dash-metric-card" style="padding-bottom: 16px;">
+                        <div class="dm-icon text-slate-700">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="dm-info">
+                            <div class="dm-value">{{ stats().actionRequired }}</div>
+                            <div class="dm-label">Pending Cases</div>
+                        </div>
                     </div>
                 </div>
-                <div class="chart-card">
-                    <h3 class="chart-title">Student Pipeline Progress</h3>
-                    <div class="chart-container">
-                        <canvas baseChart [data]="barChartData" [type]="barChartType" [options]="barChartOptions">
-                        </canvas>
-                    </div>
-                </div>
-            </div>
 
-            <div class="section-heading">
-                <h3>University Insights</h3>
-            </div>
-            <div class="insights-grid">
-                <div class="insight-card">
-                    <h4>Top Courses Applied</h4>
-                    <div class="insight-list">
-                        @for(course of courseBreakdown(); track course.name) {
-                        <div class="insight-item">
-                            <div class="insight-info">
-                                <span class="insight-name">{{ course.name }}</span>
-                                <span class="insight-count">{{ course.count }} students</span>
+                <!-- MIDDLE SECTION -->
+                <div class="dash-main-layout">
+                    <!-- LEFT COLUMN (Tables) -->
+                    <div class="dash-left-col">
+                        
+                        <!-- Admission Letter Requests Table -->
+                        <div class="dash-panel">
+                            <div class="dash-panel-header">
+                                <h3>Admission Letter Requests</h3>
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <button class="table-action-btn" style="padding: 4px 12px; font-size: 11px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; color: #475569;" (click)="exportStudentsToCSV(getCombinedAdmissionStudents(), 'Admission_Requests')">
+                                        <i class="fas fa-file-csv" style="margin-right: 4px;"></i> Export CSV
+                                    </button>
+                                    <a href="javascript:void(0)" (click)="setActiveSection('actions')">View all</a>
+                                </div>
                             </div>
-                            <div class="progress-bar-small">
-                                <div class="progress-fill-small" [style.width.%]="course.percentage"></div>
+                            <div class="dash-table-container">
+                                <table class="dash-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Application ID</th>
+                                            <th>Student Name</th>
+                                            <th>Program</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th style="text-align: right;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for(s of getCombinedAdmissionStudents().slice(0,5); track s.id) {
+                                        <tr>
+                                            <td class="text-blue-600">{{ s.applicationId || s.id }}</td>
+                                            <td class="font-medium text-gray-900">{{ s.fullName }}</td>
+                                            <td>{{ s.appliedFor || 'N/A' }}</td>
+                                            <td><span class="dash-badge" [ngClass]="getStatusBadgeClass(s.applicationStatus)">
+                                                <i [ngClass]="getStatusIcon(s.applicationStatus)" style="margin-right: 4px;"></i>{{ formatStatusLabel(s.applicationStatus) }}
+                                            </span></td>
+                                            <td class="text-gray-500">{{ s.createdAt | date:'dd MMM yyyy' }}</td>
+                                            <td style="text-align: right;">
+                                                <button class="row-quick-action" (click)="openUploadModal(s, 'admission')" title="Upload Document">
+                                                    <i class="fas fa-upload"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        }
+                                        @if(getCombinedAdmissionStudents().length === 0) {
+                                        <tr><td colspan="6" class="text-center text-gray-500 py-4">No admission requests found.</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        }
-                        @if(courseBreakdown().length === 0) {
-                        <p class="empty-text">No course data available.</p>
-                        }
-                    </div>
-                </div>
-                <div class="insight-card">
-                    <h4>Intake Distribution</h4>
-                    <div class="insight-list">
-                        @for(intake of intakeBreakdown(); track intake.name) {
-                        <div class="insight-item">
-                            <div class="insight-info">
-                                <span class="insight-name">{{ intake.name }}</span>
-                                <span class="insight-count">{{ intake.count }} students</span>
-                            </div>
-                            <div class="progress-bar-small">
-                                <div class="progress-fill-small intake-fill" [style.width.%]="intake.percentage"></div>
-                            </div>
-                        </div>
-                        }
-                        @if(intakeBreakdown().length === 0) {
-                        <p class="empty-text">No intake data available.</p>
-                        }
-                    </div>
-                </div>
-                <div class="insight-card">
-                    <h4>Agent Performance</h4>
-                    <div class="insight-list">
-                        @for(agent of agentBreakdown(); track agent.name) {
-                        <div class="insight-item">
-                            <div class="insight-info">
-                                <span class="insight-name">{{ agent.name }}</span>
-                                <span class="insight-count">{{ agent.count }} students</span>
-                            </div>
-                            <div class="progress-bar-small">
-                                <div class="progress-fill-small"
-                                    style="background: linear-gradient(90deg, #8B5CF6, #A78BFA);"
-                                    [style.width.%]="agent.percentage"></div>
-                            </div>
-                        </div>
-                        }
-                        @if(agentBreakdown().length === 0) {
-                        <p class="empty-text">No agent data available.</p>
-                        }
-                    </div>
-                </div>
-            </div>
 
-            <div class="section-heading">
-                <h3>Recent Applications</h3>
-            </div>
-            <div class="table-container compact-table-container">
-                <table class="compact-table">
-                    <thead>
-                        <tr>
-                            <th>Application ID</th>
-                            <th>Full Name</th>
-                            <th>Passport No.</th>
-                            <th>Agent</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for(student of allStudents().slice(0, 8); track student.id) {
-                        <tr>
-                            <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
-                            <td>{{ student.fullName }}</td>
-                            <td>{{ student.passportNo }}</td>
-                            <td>{{ student.agent?.fullName || 'N/A' }}</td>
-                            <td>
-                                <span class="status-badge" [ngClass]="getStatusBadgeClass(student.applicationStatus)">
-                                    <i [ngClass]="getStatusIcon(student.applicationStatus)" style="margin-right: 4px;"></i>{{ student.applicationStatus }}
-                                </span>
-                            </td>
-                            <td>
-                                <button class="icon-btn" (click)="openDocViewer(student)" title="View Documents">
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
-                        }
-                        @if(allStudents().length === 0) {
-                        <tr>
-                            <td colspan="6" class="empty-table">No students found.</td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
+                        <!-- Telex Requests Table -->
+                        <div class="dash-panel">
+                            <div class="dash-panel-header">
+                                <h3>Telex Requests</h3>
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <button class="table-action-btn" style="padding: 4px 12px; font-size: 11px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; color: #475569;" (click)="exportStudentsToCSV(telexStudents(), 'Telex_Requests')">
+                                        <i class="fas fa-file-csv" style="margin-right: 4px;"></i> Export CSV
+                                    </button>
+                                    <a href="javascript:void(0)" (click)="setActiveSection('telexRequests')">View all</a>
+                                </div>
+                            </div>
+                            <div class="dash-table-container">
+                                <table class="dash-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Telex ID</th>
+                                            <th>Student Name</th>
+                                            <th>Application ID</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for(s of telexStudents().slice(0,5); track s.id) {
+                                        <tr>
+                                            <td class="text-blue-600">{{ s.telexNumber || 'Pending' }}</td>
+                                            <td class="font-medium text-gray-900">{{ s.fullName }}</td>
+                                            <td>{{ s.applicationId || s.id }}</td>
+                                            <td><span class="dash-badge" [ngClass]="getStatusBadgeClass(s.applicationStatus)">
+                                                <i [ngClass]="getStatusIcon(s.applicationStatus)" style="margin-right: 4px;"></i>{{ formatStatusLabel(s.applicationStatus) }}
+                                            </span></td>
+                                            <td class="text-gray-500">{{ (s.telexRequestDate || s.createdAt) | date:'dd MMM yyyy' }}</td>
+                                        </tr>
+                                        }
+                                        @if(telexStudents().length === 0) {
+                                        <tr><td colspan="5" class="text-center text-gray-500 py-4">No telex requests found.</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Student Pipeline Funnel -->
+                        <div class="dash-panel" style="padding: 20px;">
+                            <div class="dash-panel-header" style="margin-bottom: 16px;">
+                                <h3>Student Pipeline</h3>
+                                <span style="font-size: 11px; color: #94a3b8; font-weight: 500;">{{ stats().totalStudents }} Total Students</span>
+                            </div>
+                            <div class="pipeline-funnel">
+                                <div class="pipeline-row">
+                                    <div class="pipeline-label">
+                                        <span class="pipeline-dot" style="background: #10b981;"></span>
+                                        <span>Admission Issued</span>
+                                    </div>
+                                    <div class="pipeline-bar-wrap">
+                                        <div class="pipeline-bar" style="background: #10b981;" [style.width.%]="stats().totalStudents ? (dashboardStudentsByStatus().admissionIssued / stats().totalStudents * 100) : 0"></div>
+                                    </div>
+                                    <span class="pipeline-count">{{ dashboardStudentsByStatus().admissionIssued }}</span>
+                                </div>
+                                <div class="pipeline-row">
+                                    <div class="pipeline-label">
+                                        <span class="pipeline-dot" style="background: #8b5cf6;"></span>
+                                        <span>Telex Issued</span>
+                                    </div>
+                                    <div class="pipeline-bar-wrap">
+                                        <div class="pipeline-bar" style="background: #8b5cf6;" [style.width.%]="stats().totalStudents ? (dashboardStudentsByStatus().telexIssued / stats().totalStudents * 100) : 0"></div>
+                                    </div>
+                                    <span class="pipeline-count">{{ dashboardStudentsByStatus().telexIssued }}</span>
+                                </div>
+                                <div class="pipeline-row">
+                                    <div class="pipeline-label">
+                                        <span class="pipeline-dot" style="background: #3b82f6;"></span>
+                                        <span>Visa Stamped</span>
+                                    </div>
+                                    <div class="pipeline-bar-wrap">
+                                        <div class="pipeline-bar" style="background: #3b82f6;" [style.width.%]="stats().totalStudents ? (dashboardStudentsByStatus().visaStamped / stats().totalStudents * 100) : 0"></div>
+                                    </div>
+                                    <span class="pipeline-count">{{ dashboardStudentsByStatus().visaStamped }}</span>
+                                </div>
+                                <div class="pipeline-row">
+                                    <div class="pipeline-label">
+                                        <span class="pipeline-dot" style="background: #f59e0b;"></span>
+                                        <span>Travel Completed</span>
+                                    </div>
+                                    <div class="pipeline-bar-wrap">
+                                        <div class="pipeline-bar" style="background: #f59e0b;" [style.width.%]="stats().totalStudents ? (dashboardStudentsByStatus().travelCompleted / stats().totalStudents * 100) : 0"></div>
+                                    </div>
+                                    <span class="pipeline-count">{{ dashboardStudentsByStatus().travelCompleted }}</span>
+                                </div>
+                                <div class="pipeline-row">
+                                    <div class="pipeline-label">
+                                        <span class="pipeline-dot" style="background: #ef4444;"></span>
+                                        <span>Arrived</span>
+                                    </div>
+                                    <div class="pipeline-bar-wrap">
+                                        <div class="pipeline-bar" style="background: #ef4444;" [style.width.%]="stats().totalStudents ? (dashboardStudentsByStatus().arrived / stats().totalStudents * 100) : 0"></div>
+                                    </div>
+                                    <span class="pipeline-count">{{ dashboardStudentsByStatus().arrived }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Referring Agents -->
+                        <div class="dash-panel" style="padding: 20px;">
+                            <div class="dash-panel-header" style="margin-bottom: 12px;">
+                                <h3>Top Referring Agents</h3>
+                            </div>
+                            <div class="agents-leaderboard">
+                                @for(agent of topAgents(); track agent.name; let i = $index) {
+                                <div class="agent-row">
+                                    <div class="agent-rank" [style.background]="i === 0 ? '#fef3c7' : i === 1 ? '#f1f5f9' : i === 2 ? '#fff7ed' : '#f8fafc'" [style.color]="i === 0 ? '#d97706' : i === 1 ? '#475569' : i === 2 ? '#ea580c' : '#64748b'">
+                                        {{ i + 1 }}
+                                    </div>
+                                    <div class="agent-info">
+                                        <div class="agent-name">{{ agent.name }}</div>
+                                        <div class="agent-stats">{{ agent.admitted }} admitted</div>
+                                    </div>
+                                    <div class="agent-total">{{ agent.count }} <span style="font-size: 10px; color: #94a3b8; font-weight: 400;">students</span></div>
+                                </div>
+                                }
+                                @if(topAgents().length === 0) {
+                                    <p class="text-gray-500 text-sm py-4 text-center">No agent data available.</p>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Monthly Trends: Admission vs Visa -->
+                        <div class="dash-panel" style="padding: 20px;">
+                            <div class="dash-panel-header" style="margin-bottom: 12px;">
+                                <h3>Monthly Trends</h3>
+                                <span style="font-size: 11px; color: #94a3b8; font-weight: 500;">{{ currentYear }}</span>
+                            </div>
+                            <div style="height: 200px; position: relative;">
+                                <canvas baseChart [data]="trendChartData" [type]="trendChartType" [options]="trendChartOptions"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="dash-right-col">
+                        <!-- Application Status Pie Chart -->
+                        <div class="dash-panel" style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                            <div class="dash-panel-header" style="justify-content: center; margin-bottom: 12px;">
+                                <h3 style="font-size: 14px;">Status Distribution</h3>
+                            </div>
+                            <div style="height: 180px; display: flex; justify-content: center; position: relative;">
+                                <canvas baseChart [data]="pieChartData" [type]="pieChartType" [options]="pieChartOptions"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Priority Tasks Box -->
+                        <div class="dash-panel">
+                            <div class="dash-panel-header">
+                                <h3>Task Priority & Pending Status</h3>
+                                <a href="javascript:void(0)" (click)="setActiveSection('tasks')">View details</a>
+                            </div>
+                            
+                            <div class="dash-task-stats" style="display: flex; gap: 16px; margin-bottom: 20px; justify-content: space-around;">
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                    <div class="progress-ring high-priority" [style.--pct]="dashboardTaskStats().highPct">
+                                        <span>{{ dashboardTaskStats().highPct }}%</span>
+                                    </div>
+                                    <span style="font-size: 11px; color: #64748b; font-weight: 500;">High</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                    <div class="progress-ring medium-priority" [style.--pct]="dashboardTaskStats().mediumPct">
+                                        <span>{{ dashboardTaskStats().mediumPct }}%</span>
+                                    </div>
+                                    <span style="font-size: 11px; color: #64748b; font-weight: 500;">Medium</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                    <div class="progress-ring low-priority" [style.--pct]="dashboardTaskStats().lowPct">
+                                        <span>{{ dashboardTaskStats().lowPct }}%</span>
+                                    </div>
+                                    <span style="font-size: 11px; color: #64748b; font-weight: 500;">Low</span>
+                                </div>
+                            </div>
+
+                            <div class="dash-task-list">
+                                @for(task of dashboardTasks(); track task.id) {
+                                <div class="dash-task-item">
+                                    <div class="task-dot" [style.background]="task.color"></div>
+                                    <div class="task-content">
+                                        <div class="task-title">{{ task.title }}</div>
+                                        <div class="task-meta">Application ID: {{ task.id }}</div>
+                                    </div>
+                                    <div class="task-priority" [style.color]="task.color" [style.background]="task.bg">
+                                        {{ task.priority }} Priority
+                                    </div>
+                                </div>
+                                }
+                                @if(dashboardTasks().length === 0) {
+                                    <p class="text-gray-500 text-sm py-4 text-center">No pending tasks.</p>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity Box -->
+                        <div class="dash-panel" style="flex: 1;">
+                            <div class="dash-panel-header">
+                                <h3>Recent Activity</h3>
+                            </div>
+                            <div class="dash-activity-list">
+                                @for(activity of dashboardRecentActivity(); track activity.date) {
+                                <div class="dash-activity-item">
+                                    <div class="activity-icon-wrap" [style.background]="activity.bg" [style.color]="activity.color">
+                                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="activity.icon"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">{{ activity.title }}</div>
+                                        <div class="activity-sub">{{ activity.sub }}</div>
+                                    </div>
+                                    <div class="activity-time">
+                                        <div>{{ activity.date | date:'dd MMM yyyy' }}</div>
+                                        <div class="text-xs text-gray-400 mt-1">{{ activity.date | date:'hh:mm a' }}</div>
+                                    </div>
+                                </div>
+                                }
+                                @if(dashboardRecentActivity().length === 0) {
+                                    <p class="text-gray-500 text-sm py-4 text-center">No recent activity.</p>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Popular Programs -->
+                        <div class="dash-panel" style="padding: 20px;">
+                            <div class="dash-panel-header" style="margin-bottom: 12px;">
+                                <h3>Popular Programs</h3>
+                            </div>
+                            <div class="programs-chart">
+                                @for(prog of popularPrograms(); track prog.name; let i = $index) {
+                                <div class="program-row">
+                                    <div class="program-name">{{ prog.name }}</div>
+                                    <div class="program-bar-wrap">
+                                        <div class="program-bar" [style.width.%]="stats().totalStudents ? (prog.count / stats().totalStudents * 100) : 0" [style.background]="i === 0 ? '#3b82f6' : i === 1 ? '#8b5cf6' : i === 2 ? '#10b981' : i === 3 ? '#f59e0b' : '#64748b'"></div>
+                                    </div>
+                                    <span class="program-count">{{ prog.count }}</span>
+                                </div>
+                                }
+                                @if(popularPrograms().length === 0) {
+                                    <p class="text-gray-500 text-sm py-4 text-center">No program data.</p>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="dash-footer text-center text-sm text-gray-500 py-6">
+                    © {{ currentYear }} {{ universityData()?.college?.collegeName || '' }}. All rights reserved.
+                </div>
+
             </div>
             }
 
@@ -516,14 +713,14 @@
                                             <div style="display: flex; flex-direction: column; gap: 4px;">
                                                 <div style="font-weight: 600; color: #0f172a; font-size: 14px;">{{ student.fullName }}</div>
                                                 <div style="font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 4px;">
-                                                    <span style="background: #e2e8f0; padding: 2px 6px; font-weight: 600; color: #334155; font-family: monospace; letter-spacing: -0.5px;">REQ-ADM-{{ student.id }}</span>
+                                                    <span style="background: #e2e8f0; padding: 2px 6px; font-weight: 600; color: #334155; font-family: monospace; letter-spacing: -0.5px;">{{ student.applicationId || student.id }}</span>
                                                     <span style="color: #cbd5e1;">|</span>
                                                     <span>{{ student.createdAt | date:'dd MMM yyyy' }}</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td style="padding: 12px 16px;">
-                                            <div style="font-weight: 500; color: #334155; font-size: 13px;">{{ student.appliedFor || 'MBBS' }}</div>
+                                            <div style="font-weight: 500; color: #334155; font-size: 13px;">{{ student.appliedFor || 'N/A' }}</div>
                                         </td>
                                         <td style="padding: 12px 16px;">
                                             <div style="display: inline-flex; align-items: center; gap: 6px; background: #fff7ed; color: #ea580c; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 0; border: 1px solid #ffedd5;">
@@ -566,8 +763,7 @@
                             <h3 style="margin: 0 0 10px 0; color: #1e293b; font-size: 18px;">Request Details</h3>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                                 <span style="color: #64748b; font-size: 13px;">Request ID</span>
-                                <span style="font-weight: 500; font-size: 14px;">REQ-ADM-{{ selectedStudentForDocs()?.id
-                                    }}</span>
+                                <span style="font-weight: 500; font-size: 14px;">{{ selectedStudentForDocs()?.applicationId || selectedStudentForDocs()?.id }}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between;">
                                 <span style="color: #64748b; font-size: 13px;">Requested On</span>
@@ -582,7 +778,7 @@
                             <div style="display: flex; justify-content: space-between;">
                                 <div>
                                     <div style="color: #64748b; font-size: 12px; margin-bottom: 4px;">Program</div>
-                                    <div style="font-weight: 500;">{{ selectedStudentForDocs()?.appliedFor || 'MBBS' }}
+                                    <div style="font-weight: 500;">{{ selectedStudentForDocs()?.appliedFor || 'N/A' }}
                                     </div>
                                 </div>
                                 <div>
@@ -1441,59 +1637,65 @@
                 <!-- Main Table -->
                 <div class="main-table-container" style="width: 100%;">
                     <div class="table-container compact-table-container" style="margin-bottom: 0; box-shadow: none;">
-                        <table class="compact-table">
+                        <table class="compact-table tlx-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%;">App ID</th>
-                                    <th style="width: 15%;">Student Name</th>
-                                    <th style="width: 15%;">Passport No.</th>
-                                    <th style="width: 15%;">Agent</th>
-                                    <th style="width: 15%;">Pending With</th>
-                                    <th style="width: 25%;">Next Action</th>
-                                    <th style="width: 5%; text-align: center;">Track</th>
+                                    <th style="width: 8%;">App ID</th>
+                                    <th style="width: 16%;">Student</th>
+                                    <th style="width: 12%;">Passport</th>
+                                    <th style="width: 14%;">Agent</th>
+                                    <th style="width: 22%;">Assigned To</th>
+                                    <th style="width: 24%;">Next Action</th>
+                                    <th style="width: 4%; text-align: center;">Track</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @for(student of paginatedTelexStudents(); track student.id) {
                                 <tr [class.selected-row]="selectedStudentForPanel()?.id === student.id">
-                                    <td><strong>{{ student.applicationId || 'N/A' }}</strong></td>
-                                    <td>{{ student.fullName }}</td>
-                                    <td>{{ student.passportNo }}</td>
-                                    <td>{{ student.agent?.fullName || 'N/A' }}</td>
+                                    <td><span class="tlx-appid">#{{ student.applicationId || 'N/A' }}</span></td>
+                                    <td>
+                                        <div class="tlx-student-cell">
+                                            <div class="tlx-student-avatar">{{ student.fullName?.charAt(0) || '?' }}</div>
+                                            <span class="tlx-student-name">{{ student.fullName }}</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="tlx-passport">{{ student.passportNo }}</span></td>
+                                    <td><span class="tlx-agent-name">{{ student.agent?.fullName || 'N/A' }}</span></td>
                                     <td>
                                         @if(getTelexCurrentOwner(student); as owner) {
-                                            @if(owner.role === 'Completed') {
-                                                <div class="tlx-tag tlx-tag-completed"><i class="fas fa-check-circle"></i> Done</div>
-                                            } @else if(owner.role === 'Agent') {
-                                                <div class="tlx-tag tlx-tag-agent"><i class="fas fa-user-tie"></i> {{ owner.role }}<span class="tlx-tag-sub">{{ owner.name }}</span></div>
-                                            } @else if(owner.role === 'Doc Person') {
-                                                <div class="tlx-tag tlx-tag-doc"><i class="fas fa-user-shield"></i> {{ owner.role }}<span class="tlx-tag-sub">{{ owner.name }}</span></div>
-                                            } @else if(owner.role === 'Admission Manager') {
-                                                <div class="tlx-tag tlx-tag-admission"><i class="fas fa-user-cog"></i> Adm. Manager<span class="tlx-tag-sub">{{ owner.name }}</span></div>
-                                            } @else if(owner.role === 'Telex Manager') {
-                                                <div class="tlx-tag tlx-tag-telex"><i class="fas fa-user-tag"></i> {{ owner.role }}<span class="tlx-tag-sub">{{ owner.name }}</span></div>
-                                            }
+                                            <div class="tlx-owner-chip tlx-owner-{{ owner.role === 'Completed' ? 'completed' : owner.role === 'Agent' ? 'agent' : owner.role === 'Doc Person' ? 'doc' : owner.role === 'Admission Manager' ? 'admission' : 'telex' }}">
+                                                <div class="tlx-owner-icon">
+                                                    <i class="{{ owner.icon }}"></i>
+                                                </div>
+                                                <div class="tlx-owner-info">
+                                                    <span class="tlx-owner-role">{{ owner.role === 'Admission Manager' ? 'Adm. Manager' : owner.role }}</span>
+                                                    @if(owner.role !== 'Completed') {
+                                                        <span class="tlx-owner-name">{{ owner.name }}</span>
+                                                    }
+                                                </div>
+                                            </div>
                                         }
                                     </td>
                                     <td>
                                         @if(getTelexCurrentOwner(student); as owner) {
                                             @if(owner.role === 'Completed') {
-                                                <div class="tlx-action tlx-action-done">
-                                                    <i class="fas fa-hashtag"></i> {{ owner.nextAction }}
+                                                <div class="tlx-next-chip tlx-next-completed">
+                                                    <div class="tlx-next-icon"><i class="fas fa-hashtag"></i></div>
+                                                    <span class="tlx-next-label">{{ owner.nextAction }}</span>
                                                 </div>
                                             } @else {
-                                                <div class="tlx-action" [style.background]="owner.actionColor + '12'" [style.color]="owner.actionColor" [style.border-left-color]="owner.actionColor">
-                                                    <i class="{{ owner.actionIcon }}"></i> {{ owner.nextAction }}
+                                                <div class="tlx-next-chip" [style.background]="owner.actionColor + '14'" [style.border-color]="owner.actionColor + '35'" [style.color]="owner.actionColor">
+                                                    <div class="tlx-next-icon" [style.background]="owner.actionColor"><i class="{{ owner.actionIcon }}"></i></div>
+                                                    <span class="tlx-next-label">{{ owner.nextAction }}</span>
                                                 </div>
                                             }
                                         }
                                     </td>
                                     <td style="text-align: center;">
-                                        <button class="icon-btn"
-                                            style="color: #3b82f6; background: #eff6ff; padding: 8px; border-radius: 6px;"
+                                        <button class="tlx-track-btn"
                                             title="View Tracker Timeline"
                                             (click)="openStudentPanel(student)">
-                                            <i class="fas fa-route" style="font-size: 16px;"></i>
+                                            <i class="fas fa-stream"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -1561,8 +1763,14 @@
                                 @else { <i class="fas fa-circle"></i> }
                             </div>
                             <div class="step-content">
-                                <h5>1. Agent Initiated</h5>
-                                <p>Agent requested telex and uploaded payments.</p>
+                                <h5>1. Agent Initiated Telex</h5>
+                                <p>{{ selectedStudentForPanel()?.agent?.fullName || 'Agent' }} requested telex and uploaded payment documents.</p>
+                                @if(getTelexStepDate(selectedStudentForPanel()!, 1); as stepDate) {
+                                    <span class="step-date"><i class="far fa-clock"></i> {{ stepDate }}</span>
+                                }
+                                @if(selectedStudentForPanel()?.telexPaymentAmount) {
+                                    <span class="step-detail"><i class="fas fa-money-bill-wave"></i> Payment: ₹{{ selectedStudentForPanel()?.telexPaymentAmount }}</span>
+                                }
                             </div>
                         </div>
 
@@ -1573,8 +1781,14 @@
                                 @else { <i class="fas fa-circle"></i> }
                             </div>
                             <div class="step-content">
-                                <h5>2. Doc Person Verification</h5>
-                                <p>You verified the documents (isTelexDocsVerified).</p>
+                                <h5>2. Doc Person — Receive & Verify</h5>
+                                <p>{{ selectedStudentForPanel()?.docPerson?.fullName || 'Doc Person' }} received and verified the original documents.</p>
+                                @if(getTelexStepDate(selectedStudentForPanel()!, 2); as stepDate) {
+                                    <span class="step-date"><i class="far fa-clock"></i> {{ stepDate }}</span>
+                                }
+                                @if(selectedStudentForPanel()?.isTelexDocsVerified) {
+                                    <span class="step-detail step-detail-success"><i class="fas fa-check-circle"></i> Documents Verified</span>
+                                }
                             </div>
                         </div>
 
@@ -1586,7 +1800,10 @@
                             </div>
                             <div class="step-content">
                                 <h5>3. Assigned to Telex Manager</h5>
-                                <p>Admission Manager assigned student to {{ selectedStudentForPanel()?.telexMan?.fullName || 'a manager' }}.</p>
+                                <p>Admission Manager assigned to <strong>{{ selectedStudentForPanel()?.telexMan?.fullName || 'Pending Assignment' }}</strong>.</p>
+                                @if(getTelexStepDate(selectedStudentForPanel()!, 3); as stepDate) {
+                                    <span class="step-date"><i class="far fa-clock"></i> {{ stepDate }}</span>
+                                }
                             </div>
                         </div>
 
@@ -1598,7 +1815,10 @@
                             </div>
                             <div class="step-content">
                                 <h5>4. Talabnoma Uploaded</h5>
-                                <p>Telex manager uploaded the required internal docs.</p>
+                                <p>{{ selectedStudentForPanel()?.telexMan?.fullName || 'Telex Manager' }} uploaded the Talabnoma document.</p>
+                                @if(getTelexStepDate(selectedStudentForPanel()!, 4); as stepDate) {
+                                    <span class="step-date"><i class="far fa-clock"></i> {{ stepDate }}</span>
+                                }
                             </div>
                         </div>
 
@@ -1609,8 +1829,11 @@
                                 @else { <i class="fas fa-circle"></i> }
                             </div>
                             <div class="step-content">
-                                <h5>5. University / MFA Submission</h5>
-                                <p>Formally submitted to the Ministry of Foreign Affairs.</p>
+                                <h5>5. Submitted to University / MFA</h5>
+                                <p>Application formally submitted to the Ministry of Foreign Affairs.</p>
+                                @if(getTelexStepDate(selectedStudentForPanel()!, 5); as stepDate) {
+                                    <span class="step-date"><i class="far fa-clock"></i> {{ stepDate }}</span>
+                                }
                             </div>
                         </div>
 
@@ -1622,7 +1845,10 @@
                             </div>
                             <div class="step-content">
                                 <h5>6. MFA Processing</h5>
-                                <p>MFA is reviewing the telex request.</p>
+                                <p>Ministry of Foreign Affairs is reviewing the telex request.</p>
+                                @if(getTelexStepDate(selectedStudentForPanel()!, 6); as stepDate) {
+                                    <span class="step-date"><i class="far fa-clock"></i> {{ stepDate }}</span>
+                                }
                             </div>
                         </div>
 
@@ -1633,8 +1859,15 @@
                                 @else { <i class="fas fa-circle"></i> }
                             </div>
                             <div class="step-content">
-                                <h5>7. Telex Issued</h5>
-                                <p>Telex Number Generated: <strong style="color:var(--primary-burgundy)">{{ selectedStudentForPanel()?.telexNumber || 'Pending' }}</strong></p>
+                                <h5>7. Telex Number Issued</h5>
+                                @if(selectedStudentForPanel()?.telexNumber) {
+                                    <p>Telex Number: <strong style="color: #059669; font-size: 14px;">{{ selectedStudentForPanel()?.telexNumber }}</strong></p>
+                                } @else {
+                                    <p>Awaiting telex number from MFA.</p>
+                                }
+                                @if(getTelexStepDate(selectedStudentForPanel()!, 7); as stepDate) {
+                                    <span class="step-date"><i class="far fa-clock"></i> {{ stepDate }}</span>
+                                }
                             </div>
                         </div>
                     </div>
@@ -2174,42 +2407,82 @@
                 <p>Coordinator account information</p>
             </div>
 
-            <div class="profile-card">
-                <div class="profile-avatar-large">
-                    {{ getInitials(universityData()?.userName || 'Coordinator') }}
-                </div>
-                <div class="profile-details">
-                    <div class="profile-header-content">
-                        <h3>{{ universityData()?.userName || 'Coordinator' }}</h3>
-                        <span class="profile-role">{{ universityData()?.role || 'University Coordinator' }}</span>
+            <div class="profile-container-new">
+                <!-- Left: Profile Hero Panel -->
+                <div class="profile-hero-panel">
+                    <div class="profile-avatar-square">
+                        {{ getInitials(universityData()?.userName || 'Coordinator') }}
                     </div>
-                    <div class="profile-grid">
-                        <div class="profile-item">
-                            <label>University</label>
-                            <div class="profile-value">{{ universityData()?.college?.collegeName || 'N/A' }}</div>
+                    <div class="profile-hero-meta">
+                        <span class="profile-role-badge">
+                            <i class="fas fa-shield-alt"></i> {{ universityData()?.role || 'University Coordinator' }}
+                        </span>
+                        <h3>{{ universityData()?.userName || 'Coordinator' }}</h3>
+                        <p class="profile-subtitle">Authorized University Administrator</p>
+                    </div>
+                </div>
+
+                <!-- Right: Information Grid -->
+                <div class="profile-info-grid">
+                    <!-- Group 1: Institution Details -->
+                    <div class="profile-info-card">
+                        <div class="card-section-header">
+                            <i class="fas fa-university"></i>
+                            <span>Institution Details</span>
                         </div>
-                        <div class="profile-item">
-                            <label>Location</label>
-                            <div class="profile-value">{{ universityData()?.college?.city }}, {{
-                                universityData()?.college?.country }}</div>
-                        </div>
-                        <div class="profile-item">
-                            <label>Account Status</label>
-                            <div class="profile-value">
-                                <span class="badge success">{{ universityData()?.status || 'Active' }}</span>
+                        <div class="card-details-list">
+                            <div class="detail-row">
+                                <span class="detail-label">University</span>
+                                <span class="detail-val">{{ universityData()?.college?.collegeName || 'N/A' }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Location</span>
+                                <span class="detail-val">
+                                    <i class="fas fa-map-marker-alt" style="color: #e11d48; margin-right: 4px; font-size: 11px;"></i>
+                                    {{ universityData()?.college?.city || 'N/A' }}, {{ universityData()?.college?.country || 'N/A' }}
+                                </span>
                             </div>
                         </div>
-                        <div class="profile-item">
-                            <label>User ID</label>
-                            <div class="profile-value">{{ universityData()?.userName }}</div>
+                    </div>
+
+                    <!-- Group 2: Account Details -->
+                    <div class="profile-info-card">
+                        <div class="card-section-header">
+                            <i class="fas fa-user-cog"></i>
+                            <span>Account Details</span>
                         </div>
-                        <div class="profile-item">
-                            <label>Total Students</label>
-                            <div class="profile-value">{{ stats().totalStudents }}</div>
+                        <div class="card-details-list">
+                            <div class="detail-row">
+                                <span class="detail-label">User ID</span>
+                                <span class="detail-val monospace">{{ universityData()?.userName }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Account Status</span>
+                                <span class="detail-val">
+                                    <span class="badge-status-square success">
+                                        <span class="status-dot"></span>
+                                        {{ universityData()?.status || 'Active' }}
+                                    </span>
+                                </span>
+                            </div>
                         </div>
-                        <div class="profile-item">
-                            <label>Admitted Students</label>
-                            <div class="profile-value">{{ stats().admittedStudents }}</div>
+                    </div>
+
+                    <!-- Group 3: Activity Statistics -->
+                    <div class="profile-info-card">
+                        <div class="card-section-header">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Overview & Stats</span>
+                        </div>
+                        <div class="card-details-list">
+                            <div class="detail-row">
+                                <span class="detail-label">Total Assigned Students</span>
+                                <span class="detail-val highlight-num">{{ stats().totalStudents }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Admitted Students</span>
+                                <span class="detail-val highlight-num success">{{ stats().admittedStudents }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

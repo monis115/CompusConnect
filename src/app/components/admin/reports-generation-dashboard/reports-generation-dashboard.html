@@ -7,11 +7,11 @@
         <div class="header-left">
           @if (showDetailView) {
             <button class="back-btn" (click)="backToOverview()">
-              
+              <i-lucide name="arrow-left" [size]="20"></i-lucide>
             </button>
           }
           <div class="header-icon">
-            
+            <i-lucide name="file-text" [size]="28"></i-lucide>
           </div>
           <div class="header-text">
             <h1>{{ showDetailView ? selectedManagerReport?.managerName : 'Reports Generation' }}</h1>
@@ -24,7 +24,7 @@
           @if (showDetailView || showVisaDetailView || showTelexDetailView || showAgentDetailView) {
             <button class="generate-report-btn single"
               (click)="openEmailModal('single')" [disabled]="isLoading">
-              
+              <i-lucide name="mail" [size]="16"></i-lucide>
               <span>Email This Report</span>
             </button>
           }
@@ -32,12 +32,12 @@
           @if (!showDetailView && !showVisaDetailView && !showTelexDetailView && !showAgentDetailView && selectedUserType !== 'DOC_PERSON') {
             <button class="generate-report-btn"
               (click)="openEmailModal('all')" [disabled]="isLoading">
-              
+              <i-lucide name="mail" [size]="16"></i-lucide>
               <span>Email All Reports</span>
             </button>
           }
           <button class="close-btn" (click)="close()">
-            
+            <i-lucide name="x" [size]="20"></i-lucide>
           </button>
         </div>
       </div>
@@ -47,7 +47,7 @@
           @for (type of userTypes; track type) {
             <button class="type-tab" [class.active]="selectedUserType === type.key"
               (click)="selectUserType(type.key)">
-              
+              <i-lucide [name]="type.icon || 'user'" [size]="14"></i-lucide>
               <span>{{ type.label }}</span>
             </button>
           }
@@ -59,7 +59,7 @@
           @for (period of timePeriods; track period) {
             <button class="period-btn"
               [class.active]="selectedTimePeriod === period.key" (click)="selectTimePeriod(period.key)">
-              
+              <i-lucide [name]="period.icon || 'clock'" [size]="14"></i-lucide>
               <span>{{ period.label }}</span>
             </button>
           }
@@ -78,7 +78,7 @@
           <div class="loading-state">
             <div class="premium-loader">
               <div class="loader-ring"></div>
-              
+              <i-lucide name="loader" [size]="24" class="spinning"></i-lucide>
             </div>
             <p>Loading performance data...</p>
           </div>
@@ -94,7 +94,7 @@
                   <div class="kpi-card"
                     [style.--delay]="i * 0.1 + 's'" [style.--accent-color]="kpi.color">
                     <div class="kpi-icon">
-                      
+                      <i-lucide [name]="kpi.icon" [size]="24"></i-lucide>
                     </div>
                     <div class="kpi-content">
                       <span class="kpi-value">{{ formatNumber(kpi.value) }}</span>
@@ -107,7 +107,7 @@
                         <span>{{ formatTrend(kpi.trend) }}</span>
                       }
                       @if (kpi.trend === null) {
-                        
+                        <i-lucide name="minus" [size]="16"></i-lucide>
                         <span>N/A</span>
                       }
                     </div>
@@ -122,7 +122,7 @@
                 <div class="chart-card donut-chart">
                   <div class="chart-header">
                     <h3>
-                      
+                      <i-lucide name="pie-chart" [size]="20"></i-lucide>
                       Activity Breakdown
                     </h3>
                   </div>
@@ -137,7 +137,7 @@
                 <div class="chart-card bar-chart">
                   <div class="chart-header">
                     <h3>
-                      
+                      <i-lucide name="trending-up" [size]="20"></i-lucide>
                       Productivity Trend ({{ selectedTimePeriod | titlecase }})
                     </h3>
                   </div>
@@ -155,7 +155,7 @@
               <div class="leaderboard-section">
                 <div class="section-header">
                   <h3>
-                    
+                    <i-lucide name="award" [size]="20"></i-lucide>
                     Manager Leaderboard
                   </h3>
                   <span class="badge">{{ allManagerReports.length }} managers</span>
@@ -194,7 +194,7 @@
                         <div class="progress-bar" [style.width.%]="getProgressWidth(manager)"></div>
                       </div>
                       <div class="view-details">
-                        
+                        <i-lucide name="chevron-right" [size]="20"></i-lucide>
                       </div>
                     </div>
                   }
@@ -206,12 +206,12 @@
               <div class="insights-section">
                 <div class="section-header insights-header">
                   <h3>
-                    
+                    <i-lucide name="sparkles" [size]="20"></i-lucide>
                     AI Insights
                     <span class="ai-badge">Powered by Analytics</span>
                   </h3>
                   <button class="toggle-btn" (click)="toggleInsightsPanel()">
-                    
+                    <i-lucide [name]="showInsights ? 'chevron-up' : 'chevron-down'" [size]="20"></i-lucide>
                   </button>
                 </div>
                 @if (showInsightsPanel) {
@@ -220,7 +220,7 @@
                       <div
                         [class]="getInsightCardClass(insight.type)" [style.--delay]="i * 0.1 + 's'">
                         <div class="insight-icon-wrapper" [ngClass]="insight.type">
-                          
+                          <i-lucide [name]="insight.icon" [size]="20"></i-lucide>
                         </div>
                         <div class="insight-content">
                           <div class="insight-header">
@@ -249,7 +249,7 @@
             <div class="summary-cards-row">
               <div class="summary-card">
                 <div class="summary-icon students">
-                  
+                  <i-lucide name="users" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.totalStudents) }}</span>
@@ -258,7 +258,7 @@
               </div>
               <div class="summary-card">
                 <div class="summary-icon letters">
-                  
+                  <i-lucide name="file-text" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.lettersUploaded)
@@ -268,7 +268,7 @@
               </div>
               <div class="summary-card">
                 <div class="summary-icon conditional">
-                  
+                  <i-lucide name="file-warning" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.conditionalOffers)
@@ -278,7 +278,7 @@
               </div>
               <div class="summary-card">
                 <div class="summary-icon pending">
-                  
+                  <i-lucide name="clock" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(coordinatorSummaryStats.pendingLetters)
@@ -291,7 +291,7 @@
             <div class="universities-table-container">
               <div class="table-header">
                 <h3>
-                  
+                  <i-lucide name="bar-chart-2" [size]="20"></i-lucide>
                   University Performance Reports
                 </h3>
                 <span class="table-count">{{ allUniversityPersonReports.length }} coordinators</span>
@@ -357,7 +357,7 @@
               <div class="chart-card compact">
                 <div class="chart-header">
                   <h3>
-                    
+                    <i-lucide name="git-branch" [size]="20"></i-lucide>
                     University Comparison
                   </h3>
                 </div>
@@ -376,7 +376,7 @@
                     >
                     <div class="insight-card-header">
                       <div class="insight-icon trophy">
-                        
+                        <i-lucide name="trophy" [size]="24"></i-lucide>
                       </div>
                       <span class="insight-badge">Top Performer</span>
                     </div>
@@ -398,7 +398,7 @@
                 <div class="insight-card-premium grade-card">
                   <div class="insight-card-header">
                     <div class="insight-icon grade">
-                      
+                      <i-lucide name="award" [size]="24"></i-lucide>
                     </div>
                     <span class="insight-badge">Team Grade</span>
                   </div>
@@ -412,7 +412,7 @@
                   </div>
                   <div class="insight-card-footer">
                     <span class="active-tag">
-                      
+                      <i-lucide name="users" [size]="14"></i-lucide>
                       {{ coordinatorPerformanceInsights.activeCoordinators }} Active Coordinators
                     </span>
                   </div>
@@ -421,7 +421,7 @@
                 <div class="insight-card-premium rate-card">
                   <div class="insight-card-header">
                     <div class="insight-icon rate">
-                      
+                      <i-lucide name="activity" [size]="24"></i-lucide>
                     </div>
                     <span class="insight-badge">Processing Rate</span>
                   </div>
@@ -432,7 +432,7 @@
                   </div>
                   <div class="insight-card-footer">
                     <span class="avg-tag">
-                      
+                      <i-lucide name="bar-chart" [size]="14"></i-lucide>
                       ~{{ coordinatorPerformanceInsights.avgLettersPerCoordinator }} Letters/Coordinator
                     </span>
                     @if (coordinatorPerformanceInsights.completionTrend !== null) {
@@ -514,7 +514,7 @@
               @if (telexSummaryAnalytics.topPerformer) {
                 <div class="telex-insights-row">
                   <div class="insight-highlight top-performer">
-                    
+                    <i-lucide name="award" [size]="24"></i-lucide>
                     <div class="insight-text">
                       <span class="insight-label">Top Performer</span>
                       <span class="insight-value">{{ telexSummaryAnalytics.topPerformer.fullName }}</span>
@@ -523,7 +523,7 @@
                     issued</span>
                   </div>
                   <div class="insight-highlight pipeline-stat">
-                    
+                    <i-lucide name="git-merge" [size]="24"></i-lucide>
                     <div class="insight-text">
                       <span class="insight-label">Pipeline Progress</span>
                       <span class="insight-value">{{ telexSummaryAnalytics.totalSubmittedToUniversity }} →
@@ -567,7 +567,7 @@
             <div class="universities-table-container">
               <div class="table-header">
                 <h3>
-                  
+                  <i-lucide name="users" [size]="20"></i-lucide>
                   Telex Manager Performance
                 </h3>
                 <span class="table-count">{{ allTelexManagers.length }} managers</span>
@@ -599,7 +599,7 @@
                             <span class="manager-username">{{ manager.username }}</span>
                           </div>
                           @if (manager === telexSummaryAnalytics.topPerformer) {
-                            
+                            <i-lucide name="award" [size]="16" class="top-badge-icon"></i-lucide>
                           }
                         </td>
                         <td>
@@ -630,7 +630,7 @@
             <!-- Detail Header -->
             <div class="detail-header-panel">
               <button class="back-btn-inline" (click)="backToTelexList()">
-                
+                <i-lucide name="arrow-left" [size]="16"></i-lucide>
                 <span>Back to List</span>
               </button>
               <div class="selected-manager-info">
@@ -647,7 +647,7 @@
                 </span>
               </div>
               <button class="generate-report-btn single" (click)="sendTelexReport()">
-                
+                <i-lucide name="mail" [size]="16"></i-lucide>
                 <span>Send Report</span>
               </button>
             </div>
@@ -998,7 +998,7 @@
             <div class="summary-cards-row">
               <div class="summary-card">
                 <div class="summary-icon assignments">
-                  
+                  <i-lucide name="file-plus" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalAssigned) }}</span>
@@ -1007,7 +1007,7 @@
               </div>
               <div class="summary-card">
                 <div class="summary-icon received">
-                  
+                  <i-lucide name="inbox" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalReceived) }}</span>
@@ -1016,7 +1016,7 @@
               </div>
               <div class="summary-card">
                 <div class="summary-icon verified">
-                  
+                  <i-lucide name="check-circle" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalVerified) }}</span>
@@ -1025,7 +1025,7 @@
               </div>
               <div class="summary-card">
                 <div class="summary-icon returned">
-                  
+                  <i-lucide name="corner-up-left" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(docPersonSummaryStats.totalReturned) }}</span>
@@ -1134,7 +1134,7 @@
               </h2>
               <button class="generate-report-btn single" (click)="openEmailModal('single')"
                 style="margin-left: auto;">
-                
+                  <i-lucide name="mail" [size]="16"></i-lucide>
                 <span>Email Report</span>
               </button>
             </div>
@@ -1186,7 +1186,7 @@
             <div class="summary-cards-row">
               <div class="summary-card">
                 <div class="summary-icon students">
-                  
+                  <i-lucide name="users" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(agentSummaryStats.totalRegistered) }}</span>
@@ -1195,7 +1195,7 @@
               </div>
               <div class="summary-card">
                 <div class="summary-icon pending"> <!-- Reusing pending icon style for Telex -->
-                  
+                  <i-lucide name="clock" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(agentSummaryStats.totalTelexInitiated)
@@ -1205,7 +1205,7 @@
               </div>
               <div class="summary-card">
                 <div class="summary-icon verified"> <!-- Reusing verified for Payment -->
-                  
+                  <i-lucide name="check-circle" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(agentSummaryStats.totalPaymentConfirmations)
@@ -1215,7 +1215,7 @@
               </div>
               <div class="summary-card">
                 <div class="summary-icon letters"> <!-- Reusing letters for Docs -->
-                  
+                  <i-lucide name="file-text" [size]="32"></i-lucide>
                 </div>
                 <div class="summary-content">
                   <span class="summary-value">{{ formatNumber(agentSummaryStats.totalDocsRequested)
@@ -1315,14 +1315,14 @@
       <!-- Modal Header -->
       <div class="email-modal-header">
         <div class="email-header-icon">
-          
+          <i-lucide name="mail" [size]="28"></i-lucide>
         </div>
         <div class="email-header-text">
           <h2>{{ emailTargetType === 'single' ? 'Send Manager Report' : 'Send All Reports' }}</h2>
           <p>{{ selectedTimePeriod | titlecase }} performance report will be emailed</p>
         </div>
         <button class="email-close-btn" (click)="closeEmailModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
       </div>
       <!-- Modal Body -->
@@ -1332,7 +1332,7 @@
           <div class="email-loading-state">
             <div class="email-spinner">
               <div class="spinner-ring"></div>
-              
+                <i-lucide name="loader" [size]="24" class="spinning"></i-lucide>
             </div>
             <p>Generating and sending report...</p>
             <span class="loading-hint">This may take a few moments</span>
@@ -1342,7 +1342,7 @@
         @if (emailSendSuccess && !isSendingEmail) {
           <div class="email-success-state">
             <div class="success-icon">
-              
+              <i-lucide name="check-circle" [size]="48"></i-lucide>
             </div>
             <h3>Report Sent Successfully!</h3>
             <p>The performance report has been sent to <strong>{{ emailAddress }}</strong></p>
@@ -1353,21 +1353,21 @@
           <div class="email-form">
             <div class="form-group">
               <label for="recipientEmail">
-                
+                <i-lucide name="at-sign" [size]="16"></i-lucide>
                 Recipient Email Address
               </label>
               <input type="email" id="recipientEmail" [(ngModel)]="emailAddress"
                 placeholder="Enter email address (e.g., admin@company.com)" [class.error]="emailSendError" />
               @if (emailSendError) {
                 <span class="error-message">
-                  
+                  <i-lucide name="alert-triangle" [size]="14"></i-lucide>
                   {{ emailSendError }}
                 </span>
               }
             </div>
             <div class="report-preview">
               <div class="preview-header">
-                
+                <i-lucide name="eye" [size]="18"></i-lucide>
                 <span>Report Preview</span>
               </div>
               <div class="preview-content">
@@ -1407,7 +1407,7 @@
             Cancel
           </button>
           <button class="btn-send" (click)="sendReportEmail()" [disabled]="!emailAddress">
-            
+            <i-lucide name="send" [size]="16"></i-lucide>
             <span>Send Report</span>
           </button>
         </div>
