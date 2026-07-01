@@ -163,12 +163,12 @@
           <div class="status-toggle">
             <button class="status-option" [class.selected]="editForm.status === 'Active'"
               (click)="editForm.status = 'Active'">
-              
+              <i-lucide name="check-circle" [size]="16"></i-lucide>
               Active
             </button>
             <button class="status-option" [class.selected]="editForm.status === 'Inactive'"
               (click)="editForm.status = 'Inactive'">
-              
+              <i-lucide name="x-circle" [size]="16"></i-lucide>
               Inactive
             </button>
           </div>

@@ -1075,3 +1075,88 @@
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
+
+/* Sidebar Footer & Profile */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 1rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-footer.collapsed {
+  justify-content: center;
+  padding: 1rem;
+}
+
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+.sidebar-footer .avatar-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #0f172a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.sidebar-footer .user-info {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+}
+
+.sidebar-footer .user-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.sidebar-footer .welcome-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.sidebar-logout-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.33, 1);
+  flex-shrink: 0;
+}
+
+.sidebar-logout-btn:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.sidebar-logout-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

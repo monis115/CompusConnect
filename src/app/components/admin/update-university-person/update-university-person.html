@@ -2,13 +2,13 @@
   <!-- Header with Back Button -->
   <div class="page-header">
     <button class="back-btn" (click)="goBack()">
-      
+      <i-lucide name="arrow-left" [size]="20"></i-lucide>
       <span>Back to University</span>
     </button>
     <div class="header-content">
       <div class="title-wrapper">
         <div class="title-icon">
-          
+          <i-lucide name="users" [size]="28"></i-lucide>
         </div>
         <div>
           <h1>Manage University Coordinators</h1>
@@ -36,7 +36,7 @@
 
   <!-- Info Banner -->
   <div class="info-banner">
-    
+    <i-lucide name="info" [size]="20"></i-lucide>
     <p><strong>One College = One Coordinator:</strong> Each college can only have one active University Coordinator
   at a time. To reassign a college, first deactivate the current coordinator.</p>
 </div>
@@ -111,7 +111,7 @@
             <td>
               <div class="action-buttons">
                 <button class="btn-action btn-edit" (click)="openEditModal(coordinator)" title="Edit">
-                  
+                  <i-lucide name="pencil" [size]="18"></i-lucide>
                 </button>
                 <button class="btn-action btn-students" (click)="openStudentsModal(coordinator)"
                   [disabled]="coordinator.studentCount === 0" title="View Students">
@@ -120,7 +120,7 @@
                 <button class="btn-action btn-toggle" [class.deactivate]="coordinator.status === 'Active'"
                   (click)="toggleStatus(coordinator)" [disabled]="isUpdating"
                   [title]="coordinator.status === 'Active' ? 'Deactivate' : 'Activate'">
-                  
+                  <i-lucide name="power" [size]="18"></i-lucide>
                 </button>
               </div>
             </td>
@@ -146,11 +146,11 @@
     }
     <div class="modal-header">
       <div class="modal-title">
-        
+        <i-lucide name="edit" [size]="24"></i-lucide>
         <h2>Edit University Coordinator</h2>
       </div>
       <button class="close-btn" (click)="closeEditModal()">
-        
+        <i-lucide name="x" [size]="20"></i-lucide>
       </button>
     </div>
     <div class="modal-body">
@@ -196,18 +196,18 @@
       </div>
       <div class="form-group">
         <label>
-          
+          <i-lucide name="activity" [size]="18"></i-lucide>
           Status
         </label>
         <div class="status-toggle">
           <button class="status-option" [class.selected]="editForm.status === 'Active'"
             (click)="editForm.status = 'Active'">
-            
+            <i-lucide name="check-circle" [size]="16"></i-lucide>
             Active
           </button>
           <button class="status-option" [class.selected]="editForm.status === 'Inactive'"
             (click)="editForm.status = 'Inactive'">
-            
+            <i-lucide name="x-circle" [size]="16"></i-lucide>
             Inactive
           </button>
         </div>
@@ -215,11 +215,11 @@
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" (click)="closeEditModal()">
-        
+        <i-lucide name="x" [size]="18"></i-lucide>
         Cancel
       </button>
       <button class="btn-save" (click)="saveChanges()" [disabled]="isUpdating">
-        
+        <i-lucide name="check" [size]="18"></i-lucide>
         Save Changes
       </button>
     </div>
@@ -234,14 +234,14 @@
   <div class="students-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div class="modal-title">
-        
+        <i-lucide name="edit" [size]="24"></i-lucide>
         <div>
           <h2>Assigned Students</h2>
           <p>{{ selectedCoordinator?.userName }} - {{ selectedCoordinator?.collegeName }}</p>
         </div>
       </div>
       <button class="close-btn" (click)="closeStudentsModal()">
-        
+        <i-lucide name="x" [size]="20"></i-lucide>
       </button>
     </div>
     <div class="modal-body students-body">

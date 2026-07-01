@@ -25,7 +25,7 @@
         <!-- New Students - Coming Soon -->
         <div class="info-card coming-soon-card">
           <div class="lock-overlay">
-            
+            <i-lucide name="lock" [size]="32" class="lock-icon"></i-lucide>
             <span class="coming-soon-text">Coming Soon</span>
             <p class="coming-soon-desc">Comprehensive applicant onboarding with digital verification</p>
           </div>
@@ -38,7 +38,7 @@
         <!-- Registration - Coming Soon -->
         <div class="info-card coming-soon-card">
           <div class="lock-overlay">
-            
+            <i-lucide name="lock" [size]="32" class="lock-icon"></i-lucide>
             <span class="coming-soon-text">Coming Soon</span>
             <p class="coming-soon-desc">Here ,will put some intresting directory that will help to manage students</p>
           </div>
@@ -258,11 +258,11 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-wrapper">
-          
+          <i-lucide name="user-plus" [size]="24"></i-lucide>
           <h3>Add New College</h3>
         </div>
         <button class="btn-icon-sm" (click)="closeModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
       </div>
       <div class="modal-body">
@@ -305,7 +305,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="closeModal()">
-          
+          <i-lucide name="x" [size]="18"></i-lucide>
           Cancel
         </button>
         <button class="btn-primary" [disabled]="isAdding" (click)="addCollege()">
@@ -965,11 +965,11 @@
     <div class="modal coordinator-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-wrapper">
-          
+          <i-lucide name="user-plus" [size]="24"></i-lucide>
           <h3>Create University Coordinator</h3>
         </div>
         <button class="btn-icon-sm" (click)="closeCoordinatorModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
       </div>
       <div class="modal-body" [class.form-disabled]="coordinatorFormDisabled">
@@ -1004,13 +1004,13 @@
             }
             @if (!checkingAvailability && coordinatorAvailable) {
             <div class="available-badge">
-              
+              <i-lucide name="check-circle" [size]="16"></i-lucide>
               <span>Available for University Coordinator</span>
             </div>
             }
             @if (!checkingAvailability && coordinatorFormDisabled && existingCoordinator) {
             <div class="unavailable-badge">
-              
+              <i-lucide name="x-circle" [size]="16"></i-lucide>
               <span>Coordinator already exists: {{ existingCoordinator.userName }}</span>
             </div>
             }
@@ -1020,7 +1020,7 @@
         <!-- Disabled Form Warning -->
         @if (coordinatorFormDisabled && existingCoordinator) {
         <div class="form-disabled-warning">
-          
+          <i-lucide name="alert-triangle" [size]="24"></i-lucide>
           <div>
             <strong>Cannot Create Coordinator</strong>
             <p>First delete the existing University Coordinator for this college, then you can create a new one.</p>
@@ -1030,7 +1030,7 @@
         <!-- Form Fields -->
         <div class="form-group">
           <label>
-            
+            <i-lucide name="user" [size]="18"></i-lucide>
             Username
           </label>
           <input type="text" [(ngModel)]="coordinatorForm.userName" placeholder="e.g. UE12345"
@@ -1038,7 +1038,7 @@
         </div>
         <div class="form-group">
           <label>
-            
+            <i-lucide name="lock" [size]="18"></i-lucide>
             Password
           </label>
           <input type="password" [(ngModel)]="coordinatorForm.password"
@@ -1047,7 +1047,7 @@
         </div>
         <div class="form-group">
           <label>
-            
+            <i-lucide name="lock" [size]="18"></i-lucide>
             Confirm Password
           </label>
           <input type="password" [(ngModel)]="coordinatorForm.confirmPassword" placeholder="Re-enter password"
@@ -1058,7 +1058,7 @@
         <div class="validation-errors">
           @for (error of passwordErrors; track error) {
           <div class="error-item">
-            
+            <i-lucide name="alert-circle" [size]="14"></i-lucide>
             <span>{{ error }}</span>
           </div>
           }
@@ -1079,13 +1079,13 @@
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="closeCoordinatorModal()">
-          
+          <i-lucide name="x" [size]="18"></i-lucide>
           Cancel
         </button>
         <button class="btn-primary" [disabled]="!isFormValid() || creatingCoordinator"
           (click)="createUniversityCoordinator()">
           @if (!creatingCoordinator) {
-          
+          <i-lucide name="user-plus" [size]="18"></i-lucide>
           }
           @if (!creatingCoordinator) {
           <span>Create Coordinator</span>
@@ -1105,7 +1105,7 @@
     @if (showCoordinatorSuccess) {
     <div class="result-modal success-modal" (click)="$event.stopPropagation()">
       <div class="result-modal-icon success">
-        
+        <i-lucide name="check-circle" [size]="64"></i-lucide>
       </div>
       <h3>Coordinator Created Successfully!</h3>
       <div class="result-details">
@@ -1127,7 +1127,7 @@
         </div>
       </div>
       <button class="btn-primary success-btn" (click)="closeSuccessModal()">
-        
+        <i-lucide name="check" [size]="18"></i-lucide>
         Done
       </button>
     </div>
@@ -1140,12 +1140,12 @@
     @if (showCoordinatorError) {
     <div class="result-modal error-modal" (click)="$event.stopPropagation()">
       <div class="result-modal-icon error">
-        
+        <i-lucide name="x-circle" [size]="64"></i-lucide>
       </div>
       <h3>Creation Failed</h3>
       <p class="error-message-text">{{ coordinatorErrorMessage }}</p>
       <button class="btn-secondary error-close-btn" (click)="closeErrorModal()">
-        
+        <i-lucide name="x" [size]="18"></i-lucide>
         Close
       </button>
     </div>
@@ -1159,11 +1159,11 @@
     <div class="modal doc-person-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-wrapper">
-          
+          <i-lucide name="user-plus" [size]="24"></i-lucide>
           <h3>Create Doc Person</h3>
         </div>
         <button class="btn-icon-sm" (click)="closeDocPersonModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
       </div>
       <div class="modal-body" [class.form-disabled]="docPersonFormDisabled">
@@ -1185,7 +1185,7 @@
         @if (!checkingDocPersonAvailability) {
         <div class="policy-info-box">
           <div class="policy-header">
-            
+            <i-lucide name="info" [size]="20"></i-lucide>
             <span>Important Policy</span>
           </div>
           <p class="policy-text">
@@ -1195,11 +1195,11 @@
           </p>
           <div class="policy-tips">
             <div class="tip-item">
-              
+              <i-lucide name="alert-circle" [size]="16"></i-lucide>
               <span>To replace an existing Doc Person, first deactivate the current one.</span>
             </div>
             <div class="tip-item">
-              
+              <i-lucide name="inbox" [size]="16"></i-lucide>
               <span>Inactive Doc Persons are preserved for audit and history purposes.</span>
             </div>
           </div>
@@ -1210,19 +1210,19 @@
         <div class="availability-status">
           @if (docPersonCanCreate && existingDocPersons.length === 0) {
           <div class="available-badge">
-            
+            <i-lucide name="check-circle" [size]="16"></i-lucide>
             <span>{{ availabilityMessage }}</span>
           </div>
           }
           @if (docPersonCanCreate && existingDocPersons.length > 0) {
           <div class="info-badge">
-            
+            <i-lucide name="info" [size]="16"></i-lucide>
             <span>{{ availabilityMessage }}</span>
           </div>
           }
           @if (!docPersonCanCreate) {
           <div class="unavailable-badge">
-            
+            <i-lucide name="x-circle" [size]="16"></i-lucide>
             <span>{{ availabilityMessage }}</span>
           </div>
           }
@@ -1235,7 +1235,7 @@
           @for (dp of existingDocPersons; track dp) {
           <div class="existing-user-item">
             <div class="user-info">
-              
+              <i-lucide name="user" [size]="16"></i-lucide>
               <span class="user-name">{{ dp.fullName }}</span>
               <span class="user-username">({{ dp.username }})</span>
             </div>
@@ -1250,7 +1250,7 @@
         <!-- Disabled Form Warning -->
         @if (docPersonFormDisabled && !docPersonCanCreate) {
         <div class="form-disabled-warning">
-          
+          <i-lucide name="alert-triangle" [size]="24"></i-lucide>
           <div>
             <strong>Cannot Create Doc Person</strong>
             <p>An active Doc Person already exists. First deactivate or delete the existing one, then you can create a
@@ -1261,7 +1261,7 @@
         <!-- Form Fields -->
         <div class="form-group">
           <label>
-            
+            <i-lucide name="user" [size]="18"></i-lucide>
             Username
           </label>
           <input type="text" [(ngModel)]="docPersonForm.username" placeholder="e.g. DOC_001"
@@ -1270,7 +1270,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>
-              
+              <i-lucide name="user" [size]="18"></i-lucide>
               Full Name
             </label>
             <input type="text" [(ngModel)]="docPersonForm.fullName" placeholder="e.g. Dr. Stephen Strange"
@@ -1280,7 +1280,7 @@
         <div class="form-row">
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="mail" [size]="18"></i-lucide>
               Email
             </label>
             <input type="email" [(ngModel)]="docPersonForm.email" placeholder="e.g. doc@example.com"
@@ -1288,7 +1288,7 @@
           </div>
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="phone" [size]="18"></i-lucide>
               Contact Number
             </label>
             <input type="tel" [(ngModel)]="docPersonForm.contactNumber" placeholder="e.g. 9998887774"
@@ -1298,7 +1298,7 @@
         <div class="form-row">
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="lock" [size]="18"></i-lucide>
               Password
             </label>
             <input type="password" [(ngModel)]="docPersonForm.password" placeholder="Min 8 chars"
@@ -1306,7 +1306,7 @@
           </div>
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="lock" [size]="18"></i-lucide>
               Confirm Password
             </label>
             <input type="password" [(ngModel)]="docPersonForm.confirmPassword" placeholder="Re-enter password"
@@ -1318,7 +1318,7 @@
         <div class="validation-errors">
           @for (error of docPersonPasswordErrors; track error) {
           <div class="error-item">
-            
+            <i-lucide name="alert-circle" [size]="14"></i-lucide>
             <span>{{ error }}</span>
           </div>
           }
@@ -1339,13 +1339,13 @@
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="closeDocPersonModal()">
-          
+          <i-lucide name="x" [size]="18"></i-lucide>
           Cancel
         </button>
         <button class="btn-primary" [disabled]="!isDocPersonFormValid() || creatingDocPerson"
           (click)="createDocPerson()">
           @if (!creatingDocPerson) {
-          
+          <i-lucide name="user-plus" [size]="18"></i-lucide>
           }
           @if (!creatingDocPerson) {
           <span>Create Doc Person</span>
@@ -1366,7 +1366,7 @@
     @if (showDocPersonSuccess) {
     <div class="result-modal success-modal" (click)="$event.stopPropagation()">
       <div class="result-modal-icon success">
-        
+        <i-lucide name="check-circle" [size]="64"></i-lucide>
       </div>
       <h3>Doc Person Created Successfully!</h3>
       <div class="result-details">
@@ -1388,7 +1388,7 @@
         </div>
       </div>
       <button class="btn-primary success-btn" (click)="closeDocPersonSuccessModal()">
-        
+        <i-lucide name="check" [size]="18"></i-lucide>
         Done
       </button>
     </div>
@@ -1401,12 +1401,12 @@
     @if (showDocPersonError) {
     <div class="result-modal error-modal" (click)="$event.stopPropagation()">
       <div class="result-modal-icon error">
-        
+        <i-lucide name="x-circle" [size]="64"></i-lucide>
       </div>
       <h3>Creation Failed</h3>
       <p class="error-message-text">{{ docPersonErrorMessage }}</p>
       <button class="btn-secondary error-close-btn" (click)="closeDocPersonErrorModal()">
-        
+        <i-lucide name="x" [size]="18"></i-lucide>
         Close
       </button>
     </div>
@@ -1420,11 +1420,11 @@
     <div class="modal accountant-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-wrapper">
-          
+          <i-lucide name="user-plus" [size]="24"></i-lucide>
           <h3>Create Accountant</h3>
         </div>
         <button class="btn-icon-sm" (click)="closeAccountantModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
       </div>
       <div class="modal-body" [class.form-disabled]="accountantFormDisabled">
@@ -1446,7 +1446,7 @@
         @if (!checkingAccountantAvailability) {
         <div class="policy-info-box accountant-policy">
           <div class="policy-header">
-            
+            <i-lucide name="info" [size]="20"></i-lucide>
             <span>Important Policy</span>
           </div>
           <p class="policy-text">
@@ -1455,11 +1455,11 @@
           </p>
           <div class="policy-tips">
             <div class="tip-item">
-              
+              <i-lucide name="alert-circle" [size]="16"></i-lucide>
               <span>To replace an existing Accountant, first deactivate the current one.</span>
             </div>
             <div class="tip-item">
-              
+              <i-lucide name="alert-circle" [size]="16"></i-lucide>
               <span>Transaction history remains intact for audit trails.</span>
             </div>
           </div>
@@ -1470,19 +1470,19 @@
         <div class="availability-status">
           @if (accountantCanCreate && existingAccountants.length === 0) {
           <div class="available-badge">
-            
+            <i-lucide name="check-circle" [size]="16"></i-lucide>
             <span>{{ accountantAvailabilityMessage }}</span>
           </div>
           }
           @if (accountantCanCreate && existingAccountants.length > 0) {
           <div class="info-badge">
-            
+            <i-lucide name="info" [size]="16"></i-lucide>
             <span>{{ accountantAvailabilityMessage }}</span>
           </div>
           }
           @if (!accountantCanCreate) {
           <div class="unavailable-badge">
-            
+            <i-lucide name="x-circle" [size]="16"></i-lucide>
             <span>{{ accountantAvailabilityMessage }}</span>
           </div>
           }
@@ -1495,7 +1495,7 @@
           @for (acc of existingAccountants; track acc) {
           <div class="existing-user-item">
             <div class="user-info">
-              
+              <i-lucide name="user" [size]="16"></i-lucide>
               <span class="user-name">{{ acc.fullName }}</span>
               <span class="user-username">({{ acc.username }})</span>
             </div>
@@ -1510,7 +1510,7 @@
         <!-- Disabled Form Warning -->
         @if (accountantFormDisabled && !accountantCanCreate) {
         <div class="form-disabled-warning">
-          
+          <i-lucide name="alert-triangle" [size]="24"></i-lucide>
           <div>
             <strong>Cannot Create Accountant</strong>
             <p>An active Accountant already exists. First deactivate or delete the existing one, then you can create a
@@ -1521,7 +1521,7 @@
         <!-- Form Fields -->
         <div class="form-group">
           <label>
-            
+            <i-lucide name="user" [size]="18"></i-lucide>
             Username
           </label>
           <input type="text" [(ngModel)]="accountantForm.username" placeholder="e.g. acc_john"
@@ -1530,7 +1530,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>
-              
+              <i-lucide name="user" [size]="18"></i-lucide>
               Full Name
             </label>
             <input type="text" [(ngModel)]="accountantForm.fullName" placeholder="e.g. John Doe"
@@ -1540,7 +1540,7 @@
         <div class="form-row">
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="mail" [size]="18"></i-lucide>
               Email
             </label>
             <input type="email" [(ngModel)]="accountantForm.email" placeholder="e.g. john@example.com"
@@ -1548,7 +1548,7 @@
           </div>
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="phone" [size]="18"></i-lucide>
               Contact Number
             </label>
             <input type="tel" [(ngModel)]="accountantForm.contactNumber" placeholder="e.g. 9876543210"
@@ -1558,7 +1558,7 @@
         <div class="form-row">
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="lock" [size]="18"></i-lucide>
               Password
             </label>
             <input type="password" [(ngModel)]="accountantForm.password" placeholder="Min 8 chars"
@@ -1566,7 +1566,7 @@
           </div>
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="lock" [size]="18"></i-lucide>
               Confirm Password
             </label>
             <input type="password" [(ngModel)]="accountantForm.confirmPassword" placeholder="Re-enter password"
@@ -1578,7 +1578,7 @@
         <div class="validation-errors">
           @for (error of accountantPasswordErrors; track error) {
           <div class="error-item">
-            
+            <i-lucide name="alert-circle" [size]="14"></i-lucide>
             <span>{{ error }}</span>
           </div>
           }
@@ -1599,13 +1599,13 @@
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="closeAccountantModal()">
-          
+          <i-lucide name="x" [size]="18"></i-lucide>
           Cancel
         </button>
         <button class="btn-primary" [disabled]="!isAccountantFormValid() || creatingAccountant"
           (click)="createAccountant()">
           @if (!creatingAccountant) {
-          
+          <i-lucide name="user-plus" [size]="18"></i-lucide>
           }
           @if (!creatingAccountant) {
           <span>Create Accountant</span>
@@ -1626,7 +1626,7 @@
     @if (showAccountantSuccess) {
     <div class="result-modal success-modal" (click)="$event.stopPropagation()">
       <div class="result-modal-icon success">
-        
+        <i-lucide name="check-circle" [size]="64"></i-lucide>
       </div>
       <h3>Accountant Created Successfully!</h3>
       <div class="result-details">
@@ -1648,7 +1648,7 @@
         </div>
       </div>
       <button class="btn-primary success-btn" (click)="closeAccountantSuccessModal()">
-        
+        <i-lucide name="check" [size]="18"></i-lucide>
         Done
       </button>
     </div>
@@ -1661,12 +1661,12 @@
     @if (showAccountantError) {
     <div class="result-modal error-modal" (click)="$event.stopPropagation()">
       <div class="result-modal-icon error">
-        
+        <i-lucide name="x-circle" [size]="64"></i-lucide>
       </div>
       <h3>Creation Failed</h3>
       <p class="error-message-text">{{ accountantErrorMessage }}</p>
       <button class="btn-secondary error-close-btn" (click)="closeAccountantErrorModal()">
-        
+        <i-lucide name="x" [size]="18"></i-lucide>
         Close
       </button>
     </div>
@@ -1680,11 +1680,11 @@
     <div class="modal telex-man-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-wrapper">
-          
+          <i-lucide name="user-plus" [size]="24"></i-lucide>
           <h3>Create Telex Man</h3>
         </div>
         <button class="btn-icon-sm" (click)="closeTelexManModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
       </div>
       <div class="modal-body">
@@ -1706,7 +1706,7 @@
         @if (!loadingTelexSummary) {
         <div class="policy-info-box telex-policy">
           <div class="policy-header">
-            
+            <i-lucide name="info" [size]="20"></i-lucide>
             <span>Team Configuration</span>
           </div>
           <p class="policy-text">
@@ -1715,11 +1715,11 @@
           </p>
           <div class="policy-tips">
             <div class="tip-item">
-              
+              <i-lucide name="alert-circle" [size]="16"></i-lucide>
               <span>Multiple active Telex personnel can work simultaneously.</span>
             </div>
             <div class="tip-item">
-              
+              <i-lucide name="alert-circle" [size]="16"></i-lucide>
               <span>Deactivate personnel when they leave to preserve history.</span>
             </div>
           </div>
@@ -1742,7 +1742,7 @@
           @for (telex of existingTelexPersons; track telex) {
           <div class="existing-user-item">
             <div class="user-info">
-              
+              <i-lucide name="user" [size]="16"></i-lucide>
               <span class="user-name">{{ telex.username }}</span>
             </div>
             <div class="user-meta">
@@ -1766,7 +1766,7 @@
         <!-- Form Fields -->
         <div class="form-group">
           <label>
-            
+            <i-lucide name="user" [size]="18"></i-lucide>
             Username
           </label>
           <input type="text" [(ngModel)]="telexManForm.username" placeholder="e.g. telex_john">
@@ -1774,7 +1774,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>
-              
+              <i-lucide name="user" [size]="18"></i-lucide>
               Full Name
             </label>
             <input type="text" [(ngModel)]="telexManForm.fullName" placeholder="e.g. John Doe">
@@ -1783,14 +1783,14 @@
         <div class="form-row">
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="mail" [size]="18"></i-lucide>
               Email
             </label>
             <input type="email" [(ngModel)]="telexManForm.email" placeholder="e.g. john@example.com">
           </div>
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="phone" [size]="18"></i-lucide>
               Contact Number
             </label>
             <input type="tel" [(ngModel)]="telexManForm.contactNumber" placeholder="e.g. 9876543210">
@@ -1799,14 +1799,14 @@
         <div class="form-row">
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="lock" [size]="18"></i-lucide>
               Password
             </label>
             <input type="password" [(ngModel)]="telexManForm.password" placeholder="Min 8 chars">
           </div>
           <div class="form-group half">
             <label>
-              
+              <i-lucide name="lock" [size]="18"></i-lucide>
               Confirm Password
             </label>
             <input type="password" [(ngModel)]="telexManForm.confirmPassword" placeholder="Re-enter password">
@@ -1817,7 +1817,7 @@
         <div class="validation-errors">
           @for (error of telexManPasswordErrors; track error) {
           <div class="error-item">
-            
+            <i-lucide name="alert-circle" [size]="14"></i-lucide>
             <span>{{ error }}</span>
           </div>
           }
@@ -1836,12 +1836,12 @@
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="closeTelexManModal()">
-          
+          <i-lucide name="x" [size]="18"></i-lucide>
           Cancel
         </button>
         <button class="btn-primary" [disabled]="!isTelexManFormValid() || creatingTelexMan" (click)="createTelexMan()">
           @if (!creatingTelexMan) {
-          
+          <i-lucide name="user-plus" [size]="18"></i-lucide>
           }
           @if (!creatingTelexMan) {
           <span>Create Telex Man</span>
@@ -1862,7 +1862,7 @@
     @if (showTelexManSuccess) {
     <div class="result-modal success-modal" (click)="$event.stopPropagation()">
       <div class="result-modal-icon success">
-        
+        <i-lucide name="check-circle" [size]="64"></i-lucide>
       </div>
       <h3>Telex Man Created Successfully!</h3>
       <div class="result-details">
@@ -1884,7 +1884,7 @@
         </div>
       </div>
       <button class="btn-primary success-btn" (click)="closeTelexManSuccessModal()">
-        
+        <i-lucide name="check" [size]="18"></i-lucide>
         Done
       </button>
     </div>
@@ -1897,12 +1897,12 @@
     @if (showTelexManError) {
     <div class="result-modal error-modal" (click)="$event.stopPropagation()">
       <div class="result-modal-icon error">
-        
+        <i-lucide name="x-circle" [size]="64"></i-lucide>
       </div>
       <h3>Creation Failed</h3>
       <p class="error-message-text">{{ telexManErrorMessage }}</p>
       <button class="btn-secondary error-close-btn" (click)="closeTelexManErrorModal()">
-        
+        <i-lucide name="x" [size]="18"></i-lucide>
         Close
       </button>
     </div>
@@ -1916,11 +1916,11 @@
     <div class="modal visa-man-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-wrapper">
-          
+          <i-lucide name="user-plus" [size]="24"></i-lucide>
           <h3>Create Visa Man</h3>
         </div>
         <button class="btn-icon-sm" (click)="closeVisaManModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
       </div>
       <div class="modal-body">
@@ -1942,7 +1942,7 @@
         @if (!loadingVisaUsernames) {
         <div class="policy-info-box visa-policy">
           <div class="policy-header">
-            
+            <i-lucide name="info" [size]="20"></i-lucide>
             <span>Team Configuration</span>
           </div>
           <p class="policy-text">
@@ -1951,11 +1951,11 @@
           </p>
           <div class="policy-tips">
             <div class="tip-item">
-              
+              <i-lucide name="alert-circle" [size]="16"></i-lucide>
               <span>Multiple active Visa personnel can process applications simultaneously.</span>
             </div>
             <div class="tip-item">
-              
+              <i-lucide name="alert-circle" [size]="16"></i-lucide>
               <span>Visa processing history is preserved for compliance and audit.</span>
             </div>
           </div>
@@ -1978,7 +1978,7 @@
           @for (person of activeVisaPersons; track person) {
           <div class="existing-user-item">
             <div class="user-info">
-              
+              <i-lucide name="user" [size]="16"></i-lucide>
               <span class="user-name">{{ person.username }}</span>
             </div>
             <div class="user-meta">
@@ -2038,7 +2038,7 @@
         <button class="btn-secondary" (click)="closeVisaManModal()">Cancel</button>
         <button class="btn-primary" [disabled]="!isVisaManFormValid() || creatingVisaMan" (click)="createVisaMan()">
           @if (!creatingVisaMan) {
-          
+          <i-lucide name="user-plus" [size]="18"></i-lucide>
           }
           @if (!creatingVisaMan) {
           <span>Create Visa Man</span>
@@ -2058,7 +2058,7 @@
     @if (showVisaManSuccess) {
     <div class="result-modal success-modal" (click)="$event.stopPropagation()">
       <div class="result-modal-icon success">
-        
+        <i-lucide name="check-circle" [size]="64"></i-lucide>
       </div>
       <h3>Visa Man Created!</h3>
       <p class="success-message-text">The new Visa personnel has been successfully added to the system.</p>
@@ -2083,7 +2083,7 @@
       </div>
       }
       <button class="btn-primary success-btn" (click)="closeVisaManSuccessModal()">
-        
+        <i-lucide name="check" [size]="18"></i-lucide>
         Done
       </button>
     </div>
@@ -2098,13 +2098,13 @@
       <!-- HEADER -->
       <div class="modal-header admin-header-bg">
         <div class="modal-title-wrapper">
-          
+          <i-lucide name="shield" [size]="24"></i-lucide>
           <h3>Create New Administrator</h3>
         </div>
         <!-- Only show close button in non-success steps or allow closing at the end -->
         @if (adminCreationStep !== 'success') {
         <button class="btn-icon-sm" (click)="closeAdminModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
         }
       </div>
@@ -2128,7 +2128,7 @@
           @case ('policy') {
           <div>
             <div class="info-box admin-info-box">
-              <div class="info-icon"></div>
+              <div class="info-icon"><i-lucide name="shield-alert" [size]="24"></i-lucide></div>
               <div class="info-content">
                 <h4>Authorization Protocol</h4>
                 <p>Administrator privileges are critical. By proceeding, you acknowledge responsibilities regarding:
@@ -2163,14 +2163,14 @@
           @case ('success') {
           <div class="success-step-container">
             <div class="success-icon-large">
-              
+              <i-lucide name="check-circle" [size]="64"></i-lucide>
             </div>
             <h3>Administrator Created Successfully</h3>
             <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
               User ID and password has been sent to email <strong>Admin Email</strong>.
             </p>
             <p class="warning-text">
-              
+              <i-lucide name="alert-circle" [size]="16"></i-lucide>
               These credentials will only be shown once. Copy them immediately.
             </p>
             @if (generatedCredentials) {
@@ -2184,7 +2184,7 @@
                 <span class="value mono">{{ generatedCredentials.password }}</span>
               </div>
               <button class="btn-icon-copy" (click)="copyCredentials()" title="Copy to Clipboard">
-                 Copy
+                 <i-lucide name="copy" [size]="16"></i-lucide> Copy
               </button>
             </div>
             }
@@ -2229,12 +2229,12 @@
 @if (showVisaManError) {
 <div class="result-modal error-modal" (click)="$event.stopPropagation()">
   <div class="result-modal-icon error">
-    
+    <i-lucide name="x-circle" [size]="64"></i-lucide>
   </div>
   <h3>Creation Failed</h3>
   <p class="error-message-text">{{ visaManErrorMessage }}</p>
   <button class="btn-secondary error-close-btn" (click)="closeVisaManErrorModal()">
-    
+    <i-lucide name="x" [size]="18"></i-lucide>
     Close
   </button>
 </div>
@@ -2247,11 +2247,11 @@
 <div class="modal session-modal" (click)="$event.stopPropagation()">
   <div class="modal-header">
     <div class="modal-title-wrapper">
-      
+      <i-lucide name="calendar" [size]="24"></i-lucide>
       <h3>Update Session</h3>
     </div>
     <button class="btn-icon-sm" (click)="closeUpdateSessionModal()">
-      
+      <i-lucide name="x" [size]="20"></i-lucide>
     </button>
   </div>
   <div class="modal-body">
@@ -2265,7 +2265,7 @@
     </div>
     @if (sessionUpdateError) {
     <div class="error-message">
-       {{ sessionUpdateError }}
+       <i-lucide name="alert-circle" [size]="16"></i-lucide> {{ sessionUpdateError }}
     </div>
     }
   </div>
@@ -2290,7 +2290,7 @@
 @if (sessionUpdateSuccess) {
 <div class="result-modal success-modal">
   <div class="result-modal-icon success">
-    
+    <i-lucide name="check-circle" [size]="64"></i-lucide>
   </div>
   <h3>Session Updated!</h3>
 </div>

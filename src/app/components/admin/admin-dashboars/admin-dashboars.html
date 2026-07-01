@@ -64,6 +64,27 @@
 
 
 
+    
+    <div class="sidebar-footer" [class.collapsed]="sidebarCollapsed">
+      <div class="sidebar-profile">
+        <div class="avatar-icon">
+          <i-lucide name="user" [size]="20"></i-lucide>
+        </div>
+        @if (!sidebarCollapsed) {
+          <div class="user-info">
+            <span class="user-name">{{ admin?.username || 'Admin User' }}</span>
+            <span class="welcome-label">Administrator</span>
+          </div>
+        }
+      </div>
+      @if (!sidebarCollapsed) {
+        <button class="sidebar-logout-btn" (click)="confirmLogout()" [disabled]="isLoggingOut" title="Secure Logout">
+          <i-lucide name="power" [size]="18"></i-lucide>
+        </button>
+      }
+    </div>
+    
+
     <button class="sidebar-toggle" (click)="toggleSidebar()">
       <i-lucide [name]="sidebarCollapsed ? 'chevron-right' : 'chevron-left'" [size]="20"></i-lucide>
     </button>
@@ -71,27 +92,6 @@
 
   <!-- Main Content -->
   <main class="main-content" style="position: relative;">
-
-    <!-- Floating Top-Right Smart Profile & Logout -->
-    <div class="floating-action-block-row">
-      <!-- Profile Button -->
-      <div class="smart-profile-btn" [class.show-welcome]="showWelcomeMessage">
-        <div class="avatar avatar-icon">
-          <i-lucide name="user" [size]="24"></i-lucide>
-        </div>
-        <div class="user-info-text">
-          @if (showWelcomeMessage) {
-          <span class="welcome-label">Welcome back,</span>
-          }
-          <span class="user-name">{{ admin?.username || 'Admin User' }}</span>
-        </div>
-      </div>
-
-      <!-- Logout Button -->
-      <button class="smart-logout-btn" (click)="confirmLogout()" [disabled]="isLoggingOut" title="Secure Logout">
-        <i-lucide name="power" [size]="20"></i-lucide>
-      </button>
-    </div>
 
     <!-- Custom Logout Confirmation Modal -->
     @if (showLogoutConfirmModal) {

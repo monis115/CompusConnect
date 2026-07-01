@@ -2,13 +2,13 @@
   <!-- Page Header -->
   <div class="page-header">
     <button class="back-btn" (click)="goBack()">
-      
+      <i-lucide name="arrow-left" [size]="20"></i-lucide>
       Back to Dashboard
     </button>
     <div class="header-content">
       <div class="title-wrapper">
         <div class="title-icon">
-          
+          <i-lucide name="users" [size]="28"></i-lucide>
         </div>
         <div>
           <h1>Manage Doc Persons</h1>
@@ -17,11 +17,11 @@
       </div>
       <div class="header-stats">
         <span class="stat-pill active">
-          
+          <i-lucide name="user-check" [size]="16"></i-lucide>
           {{ getActiveCount() }} Active
         </span>
         <span class="stat-pill">
-          
+          <i-lucide name="users" [size]="16"></i-lucide>
           {{ docPersons.length }} Total
         </span>
       </div>
@@ -30,7 +30,7 @@
 
   <!-- Info Banner -->
   <div class="info-banner">
-    
+    <i-lucide name="info" [size]="20"></i-lucide>
     <p>Doc Persons handle <strong>document verification, attestation, and compliance</strong> for student
   applications. Use the edit button to update details or toggle status.</p>
 </div>
@@ -38,13 +38,13 @@
 <!-- Success / Error Toasts -->
 @if (successMessage) {
   <div class="toast toast-success">
-    
+    <i-lucide name="check-circle-2" [size]="20"></i-lucide>
     {{ successMessage }}
   </div>
 }
 @if (errorMessage) {
   <div class="toast toast-error">
-    
+    <i-lucide name="alert-circle" [size]="20"></i-lucide>
     {{ errorMessage }}
   </div>
 }
@@ -62,7 +62,7 @@
 <!-- Empty State -->
 @if (!isLoading && docPersons.length === 0) {
   <div class="empty-state">
-    
+    <i-lucide name="users" [size]="48" class="empty-icon"></i-lucide>
     <h3>No Doc Persons Found</h3>
     <p>There are no doc persons registered in the system yet.</p>
   </div>
@@ -99,18 +99,18 @@
             <td>{{ dp.contactNumber }}</td>
             <td>
               <span [class]="'status-badge ' + getStatusClass(dp.status)">
-                
+                <i-lucide name="activity" [size]="14"></i-lucide>
                 {{ dp.status }}
               </span>
             </td>
             <td>
               <div class="action-buttons">
                 <button class="btn-action btn-edit" (click)="openEditModal(dp)" title="Edit Details">
-                  
+                  <i-lucide name="pencil" [size]="18"></i-lucide>
                 </button>
                 <button class="btn-action btn-toggle" [class.deactivate]="dp.status === 'Active'"
                   (click)="toggleStatus(dp)" [title]="dp.status === 'Active' ? 'Deactivate' : 'Activate'">
-                  
+                  <i-lucide name="power" [size]="18"></i-lucide>
                 </button>
               </div>
             </td>
@@ -134,52 +134,52 @@
       }
       <div class="modal-header">
         <div class="modal-title">
-          
+          <i-lucide name="edit" [size]="24"></i-lucide>
           <div>
             <h2>Edit Doc Person</h2>
             <p>{{ selectedDocPerson?.fullName }}</p>
           </div>
         </div>
         <button class="close-btn" (click)="closeEditModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label>
-            
+            <i-lucide name="user" [size]="18"></i-lucide>
             Full Name
           </label>
           <input type="text" [(ngModel)]="editForm.fullName" placeholder="John Doe">
         </div>
         <div class="form-group">
           <label>
-            
+            <i-lucide name="mail" [size]="18"></i-lucide>
             Email Address
           </label>
           <input type="email" [(ngModel)]="editForm.email" placeholder="docperson@example.com">
         </div>
         <div class="form-group">
           <label>
-            
+            <i-lucide name="phone" [size]="18"></i-lucide>
             Contact Number
           </label>
           <input type="tel" [(ngModel)]="editForm.contactNumber" placeholder="+1 234 567 8900">
         </div>
         <div class="form-group">
           <label>
-            
+            <i-lucide name="activity" [size]="18"></i-lucide>
             Status
           </label>
           <div class="status-toggle">
             <button class="status-option" [class.selected]="editForm.status === 'Active'"
               (click)="editForm.status = 'Active'">
-              
+              <i-lucide name="check-circle" [size]="16"></i-lucide>
               Active
             </button>
             <button class="status-option" [class.selected]="editForm.status === 'Inactive'"
               (click)="editForm.status = 'Inactive'">
-              
+              <i-lucide name="x-circle" [size]="16"></i-lucide>
               Inactive
             </button>
           </div>
@@ -187,11 +187,11 @@
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" (click)="closeEditModal()">
-          
+          <i-lucide name="x" [size]="18"></i-lucide>
           Cancel
         </button>
         <button class="btn-save" (click)="saveChanges()" [disabled]="isUpdating">
-          
+          <i-lucide name="check" [size]="18"></i-lucide>
           Save Changes
         </button>
       </div>
@@ -204,17 +204,17 @@
   <div class="modal-backdrop confirm-backdrop" (click)="closeConfirmModal()">
     <div class="confirm-modal" (click)="$event.stopPropagation()">
       <div class="confirm-icon">
-        
+        <i-lucide name="alert-triangle" [size]="48"></i-lucide>
       </div>
       <h3 class="confirm-title">{{ confirmTitle }}</h3>
       <p class="confirm-message">{{ confirmMessage }}</p>
       <div class="confirm-actions">
         <button class="btn-cancel" (click)="closeConfirmModal()">
-          
+          <i-lucide name="x" [size]="18"></i-lucide>
           Cancel
         </button>
         <button class="btn-confirm" (click)="confirmModalAction()">
-          
+          <i-lucide name="check" [size]="18"></i-lucide>
           Confirm
         </button>
       </div>

@@ -2,13 +2,13 @@
   <!-- Header with Back Button -->
   <div class="page-header">
     <button class="back-btn" (click)="goBack()">
-      
+      <i-lucide name="arrow-left" [size]="20"></i-lucide>
       <span>Back to Visa</span>
     </button>
     <div class="header-content">
       <div class="title-wrapper">
         <div class="title-icon">
-          
+          <i-lucide name="users" [size]="28"></i-lucide>
         </div>
         <div>
           <h1>Manage VISA Man</h1>
@@ -119,11 +119,11 @@
       }
       <div class="modal-header">
         <div class="modal-title">
-          
+          <i-lucide name="edit" [size]="24"></i-lucide>
           <h2>Edit Visa Manager</h2>
         </div>
         <button class="close-btn" (click)="closeEditModal()">
-          
+          <i-lucide name="x" [size]="20"></i-lucide>
         </button>
       </div>
       <div class="modal-body">
@@ -136,7 +136,7 @@
         </div>
         <div class="form-group">
           <label>
-            
+            <i-lucide name="user" [size]="18"></i-lucide>
             Full Name
           </label>
           <input type="text" [(ngModel)]="editForm.fullName" placeholder="Enter full name">
@@ -150,25 +150,25 @@
         </div>
         <div class="form-group">
           <label>
-            
+            <i-lucide name="phone" [size]="18"></i-lucide>
             Contact Number
           </label>
           <input type="tel" [(ngModel)]="editForm.contactNumber" placeholder="Enter contact number">
         </div>
         <div class="form-group">
           <label>
-            
+            <i-lucide name="activity" [size]="18"></i-lucide>
             Status
           </label>
           <div class="status-toggle">
             <button class="status-option" [class.selected]="editForm.status === 'Active'"
               (click)="editForm.status = 'Active'">
-              
+              <i-lucide name="check-circle" [size]="16"></i-lucide>
               Active
             </button>
             <button class="status-option" [class.selected]="editForm.status === 'Inactive'"
               (click)="editForm.status = 'Inactive'">
-              
+              <i-lucide name="x-circle" [size]="16"></i-lucide>
               Inactive
             </button>
           </div>
@@ -176,11 +176,11 @@
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" (click)="closeEditModal()">
-          
+          <i-lucide name="x" [size]="18"></i-lucide>
           Cancel
         </button>
         <button class="btn-save" (click)="saveChanges()" [disabled]="isUpdating">
-          
+          <i-lucide name="check" [size]="18"></i-lucide>
           Save Changes
         </button>
       </div>

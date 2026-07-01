@@ -722,21 +722,21 @@
         <div class="card-content">
           <div class="telex-grid">
             <div class="telex-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="hash" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Telex Number</span>
                 <span class="stat-value mono">{{ selectedStudent.telexNumber || 'Not Issued' }}</span>
               </div>
             </div>
             <div class="telex-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="calendar" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Issue Date</span>
                 <span class="stat-value">{{ selectedStudent.telexIssueDate | date:'mediumDate' }}</span>
               </div>
             </div>
             <div class="telex-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="dollar-sign" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Payment Amount</span>
                 <span class="stat-value">{{ selectedStudent.telexPaymentAmount | currency:'USD'
@@ -744,14 +744,14 @@
               </div>
             </div>
             <div class="telex-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="credit-card" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Transaction ID</span>
                 <span class="stat-value mono">{{ selectedStudent.telexPaymentTxId || 'N/A' }}</span>
               </div>
             </div>
             <div class="telex-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="dollar-sign" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Received Amount</span>
                 <span class="stat-value">{{ selectedStudent.telexPaymentReceivedAmount | currency:'USD'
@@ -759,7 +759,7 @@
               </div>
             </div>
             <div class="telex-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="calendar" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Received Date</span>
                 <span class="stat-value">{{ selectedStudent.telexPaymentReceivedDate | date:'mediumDate'
@@ -972,35 +972,35 @@
         <div class="card-content">
           <div class="payment-grid">
             <div class="payment-stat main-stat" [class.paid]="selectedStudent.hasPaid">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="credit-card" [size]="24"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Payment Status</span>
                 <span class="stat-value large">{{ selectedStudent.paymentStatus }}</span>
               </div>
             </div>
             <div class="payment-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="dollar-sign" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Amount Paid</span>
                 <span class="stat-value">{{ selectedStudent.paidAmount | currency:'INR' }}</span>
               </div>
             </div>
             <div class="payment-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="user" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Paid To</span>
                 <span class="stat-value">{{ selectedStudent.paidTo || 'N/A' }}</span>
               </div>
             </div>
             <div class="payment-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="credit-card" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Payment Type</span>
                 <span class="stat-value">{{ selectedStudent.paymentType || 'N/A' }}</span>
               </div>
             </div>
             <div class="payment-stat">
-              <div class="stat-icon"></div>
+              <div class="stat-icon"><i-lucide name="calendar" [size]="20"></i-lucide></div>
               <div class="stat-content">
                 <span class="stat-label">Due Date</span>
                 <span class="stat-value"
