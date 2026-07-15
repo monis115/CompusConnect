@@ -267,7 +267,7 @@
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
           </button>
-          <button class="eh-icon-btn" (click)="isNewsModalOpen = true">
+          <button class="eh-icon-btn" (click)="isNewsModalOpen = true; newsDisplayLimit = 50">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -279,13 +279,14 @@
         </div>
         <div style="display: flex; align-items: center;">
 
-          <button class="theme-toggle-btn" (click)="toggleThemePanel()" title="Change Theme" style="margin-right: 12px; background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 50%; transition: background-color 0.2s;">
+          <button class="theme-toggle-btn" (click)="toggleThemePanel()" title="Change Theme"
+            style="margin-right: 12px; background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 50%; transition: background-color 0.2s;">
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
             </svg>
           </button>
-          
+
           <div class="eh-profile" (click)="navigateTo('profile')" style="cursor: pointer;" title="Go to Profile">
             <div class="eh-avatar">{{ agentData.fullName.charAt(0) }}</div>
             <div class="eh-profile-info">
@@ -301,36 +302,34 @@
         @if(isThemePanelOpen()) {
         <div class="theme-panel-backdrop" (click)="toggleThemePanel()"></div>
         <div class="theme-panel" style="top: 70px; right: 24px;">
-            <div class="theme-panel-header">
-                <h4>Choose Theme</h4>
-                <button class="theme-reset-btn" (click)="resetTheme()">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Reset
-                </button>
-            </div>
-            <div class="theme-grid">
-                @for(theme of themes; track theme.id) {
-                <button class="theme-swatch" [class.active]="activeTheme() === theme.id"
-                    (click)="applyTheme(theme.id)" [title]="theme.name">
-                    <div class="swatch-colors">
-                        <div class="swatch-dot" [style.background]="theme.preview[0]"></div>
-                        <div class="swatch-dot" [style.background]="theme.preview[1]"></div>
-                        <div class="swatch-dot" [style.background]="theme.preview[2]"></div>
-                    </div>
-                    <span class="swatch-name">{{ theme.name }}</span>
-                    @if(activeTheme() === theme.id) {
-                    <svg class="swatch-check" width="16" height="16" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                            d="M5 13l4 4L19 7" />
-                    </svg>
-                    }
-                </button>
-                }
-            </div>
+          <div class="theme-panel-header">
+            <h4>Choose Theme</h4>
+            <button class="theme-reset-btn" (click)="resetTheme()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Reset
+            </button>
+          </div>
+          <div class="theme-grid">
+            @for(theme of themes; track theme.id) {
+            <button class="theme-swatch" [class.active]="activeTheme() === theme.id" (click)="applyTheme(theme.id)"
+              [title]="theme.name">
+              <div class="swatch-colors">
+                <div class="swatch-dot" [style.background]="theme.preview[0]"></div>
+                <div class="swatch-dot" [style.background]="theme.preview[1]"></div>
+                <div class="swatch-dot" [style.background]="theme.preview[2]"></div>
+              </div>
+              <span class="swatch-name">{{ theme.name }}</span>
+              @if(activeTheme() === theme.id) {
+              <svg class="swatch-check" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+              }
+            </button>
+            }
+          </div>
         </div>
         }
       </div>
@@ -5963,59 +5962,55 @@
 </div>
 }
 
-
-
 <!-- News Modal -->
 @if (isNewsModalOpen) {
-<div class="modal-overlay telex-modal" (click)="isNewsModalOpen = false"
-  style="background: rgba(15, 23, 42, 0.4); z-index: 9999; display: flex; justify-content: flex-end;">
-  <div class="modal-content-modern"
-    style="width: 400px; height: 100vh; max-height: 100vh; overflow-y: auto; background: white; border-radius: 0; box-shadow: -4px 0 25px rgba(0, 0, 0, 0.1); padding: 0; margin: 0; animation: slideInRight 0.3s ease-out;"
-    (click)="$event.stopPropagation()">
+<div class="news-modal-overlay" (click)="closeNewsModal()">
+  <div class="news-modal-panel" (click)="$event.stopPropagation()">
 
-    <!-- Header -->
-    <div
-      style="padding: 20px 24px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 10;">
+    <!-- Sticky Header -->
+    <div class="news-modal-header">
       <div style="display: flex; align-items: center; gap: 12px;">
         <div
-          style="width: 40px; height: 40px; border-radius: 10px; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center;">
+          style="width: 40px; height: 40px; border-radius: 10px; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
             <path d="M7 7h10"></path>
             <path d="M7 11h10"></path>
             <path d="M7 15h6"></path>
-
           </svg>
         </div>
         <div>
           <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #0F172A;">Announcements & Updates</h2>
-          <p style="margin: 4px 0 0; font-size: 13px; color: #64748B;">Stay informed with the latest news</p>
+          <p style="margin: 4px 0 0; font-size: 13px; color: #64748B;">{{ newsItems.length }} notifications</p>
         </div>
       </div>
-      <button class="btn-close" (click)="isNewsModalOpen = false"
-        style="background: transparent; border: none; padding: 8px; cursor: pointer; color: #64748B; border-radius: 8px; transition: all 0.2s;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button (click)="clearAllNotifications()" class="news-clear-all-btn">
+          Clear All
+        </button>
+        <button (click)="closeNewsModal()" class="news-close-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <!-- Content List -->
-    <div style="padding: 16px 24px; background: #F8FAFC; min-height: 300px;">
+    <!-- Scrollable Content Body -->
+    <div class="news-modal-body">
       @if (newsItems.length > 0) {
-      <div style="display: flex; flex-direction: column; gap: 16px;">
-        @for (news of newsItems; track news.id) {
-        <div
-          style="background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-          <div style="display: flex; gap: 16px; align-items: flex-start;">
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        @for (news of newsItems.slice(0, newsDisplayLimit); track news.id) {
+        <div class="news-card">
+          <div style="display: flex; gap: 14px; align-items: flex-start;">
 
             <!-- Icon Column -->
             <div style="flex-shrink: 0;">
               @if (getNewsIcon(news.tag) === 'clock') {
               <div
-                style="width: 48px; height: 48px; border-radius: 12px; background: #FFF7ED; color: #EA580C; display: flex; align-items: center; justify-content: center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                style="width: 42px; height: 42px; border-radius: 10px; background: #FFF7ED; color: #EA580C; display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
@@ -6023,8 +6018,8 @@
               }
               @if (getNewsIcon(news.tag) === 'info') {
               <div
-                style="width: 48px; height: 48px; border-radius: 12px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                style="width: 42px; height: 42px; border-radius: 10px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="16" x2="12" y2="12" />
                   <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -6033,8 +6028,8 @@
               }
               @if (getNewsIcon(news.tag) === 'calendar') {
               <div
-                style="width: 48px; height: 48px; border-radius: 12px; background: #ECFDF5; color: #059669; display: flex; align-items: center; justify-content: center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                style="width: 42px; height: 42px; border-radius: 10px; background: #ECFDF5; color: #059669; display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                   <line x1="16" y1="2" x2="16" y2="6" />
                   <line x1="8" y1="2" x2="8" y2="6" />
@@ -6044,8 +6039,8 @@
               }
               @if (getNewsIcon(news.tag) === 'stamp') {
               <div
-                style="width: 48px; height: 48px; border-radius: 12px; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                style="width: 42px; height: 42px; border-radius: 10px; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
@@ -6053,8 +6048,8 @@
               }
               @if (getNewsIcon(news.tag) === 'document') {
               <div
-                style="width: 48px; height: 48px; border-radius: 12px; background: #F5F3FF; color: #7C3AED; display: flex; align-items: center; justify-content: center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                style="width: 42px; height: 42px; border-radius: 10px; background: #F5F3FF; color: #7C3AED; display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
@@ -6063,20 +6058,30 @@
             </div>
 
             <!-- Text Column -->
-            <div style="flex-grow: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #1E293B; line-height: 1.4;">{{
+            <div style="flex-grow: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                <h3 style="margin: 0; font-size: 14px; font-weight: 600; color: #1E293B; line-height: 1.4;">{{
                   news.heading }}</h3>
-                <span
-                  style="font-size: 12px; font-weight: 500; color: #94A3B8; white-space: nowrap; margin-left: 12px;">{{
-                  formatNewsDate(news.createdAt) }}</span>
+                <div style="display: flex; align-items: center; gap: 6px; margin-left: 8px; flex-shrink: 0;">
+                  <span style="font-size: 11px; font-weight: 500; color: #94A3B8; white-space: nowrap;">{{
+                    formatNewsDate(news.createdAt) }}</span>
+                  @if (news.tag === 'document') {
+                  <button (click)="clearNotification(news.id, $event)" title="Clear notification"
+                    class="news-item-clear-btn">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="pointer-events: none;">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                  }
+                </div>
               </div>
-              <p style="margin: 0 0 12px 0; font-size: 14px; color: #475569; line-height: 1.5;">{{ news.content }}</p>
+              <p style="margin: 0 0 8px 0; font-size: 13px; color: #475569; line-height: 1.5;">{{ news.content }}</p>
               <div style="display: flex; gap: 8px;">
                 <span
                   style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 12px; background: #F1F5F9; color: #475569; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                   <span
-                    style="width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 6px; opacity: 0.5;"></span>
+                    style="width: 5px; height: 5px; border-radius: 50%; background: currentColor; margin-right: 5px; opacity: 0.5;"></span>
                   {{ formatTag(news.tag) }}
                 </span>
               </div>
@@ -6086,8 +6091,17 @@
         </div>
         }
       </div>
+
+      <!-- Load More Button -->
+      @if (newsItems.length > newsDisplayLimit) {
+      <div style="text-align: center; padding: 16px 0;">
+        <button (click)="newsDisplayLimit = newsDisplayLimit + 50" class="news-load-more-btn">
+          Load More ({{ newsItems.length - newsDisplayLimit }} remaining)
+        </button>
+      </div>
       }
-      @if (newsItems.length === 0) {
+
+      } @else {
       <div
         style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; text-align: center;">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5"
@@ -6096,13 +6110,13 @@
           <path d="M7 7h10"></path>
           <path d="M7 11h10"></path>
           <path d="M7 15h6"></path>
-
         </svg>
         <h3 style="margin: 0 0 8px; font-size: 16px; font-weight: 600; color: #475569;">No Recent Announcements</h3>
         <p style="margin: 0; font-size: 14px; color: #94A3B8;">Check back later for updates and news.</p>
       </div>
       }
     </div>
+
   </div>
 </div>
 }
@@ -6364,7 +6378,8 @@
     (click)="$event.stopPropagation()">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
       <h2 style="font-size: 20px; font-weight: 600; color: #1e293b; margin: 0;">Upload Document</h2>
-      <button (click)="closeUploadAdditionalDocModal()" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 4px;">
+      <button (click)="closeUploadAdditionalDocModal()"
+        style="background: none; border: none; cursor: pointer; color: #64748b; padding: 4px;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 6L6 18M6 6l12 12"></path>
         </svg>
@@ -6373,31 +6388,41 @@
 
     <div style="margin-bottom: 24px; padding: 16px; background: #f8fafc; border-radius: 0; border: 1px solid #e2e8f0;">
       <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">Requested Document</div>
-      <div style="font-size: 15px; font-weight: 500; color: #0f172a;">{{ selectedAdditionalDocRequest?.documentName }}</div>
-      
+      <div style="font-size: 15px; font-weight: 500; color: #0f172a;">{{ selectedAdditionalDocRequest?.documentName }}
+      </div>
+
       <div style="font-size: 13px; color: #64748b; margin-top: 12px; margin-bottom: 4px;">For Student</div>
       <div style="font-size: 14px; color: #334155;">{{ selectedAdditionalDocRequest?.student?.fullName }}</div>
     </div>
 
     <div class="form-group" style="margin-bottom: 24px;">
-      <label style="display: block; font-size: 14px; font-weight: 500; color: #334155; margin-bottom: 8px;">Select File</label>
+      <label style="display: block; font-size: 14px; font-weight: 500; color: #334155; margin-bottom: 8px;">Select
+        File</label>
       <input type="file" (change)="onAdditionalDocFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png"
         style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 0; font-size: 14px;">
       <div style="font-size: 12px; color: #64748b; margin-top: 6px;">Accepted formats: PDF, JPG, PNG (Max 50MB)</div>
     </div>
 
     @if (uploadErrorMessage) {
-      <div style="background: #fef2f2; color: #991b1b; padding: 12px 16px; border-radius: 0; font-size: 14px; font-weight: 500; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #ef4444;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-        {{ uploadErrorMessage }}
-      </div>
+    <div
+      style="background: #fef2f2; color: #991b1b; padding: 12px 16px; border-radius: 0; font-size: 14px; font-weight: 500; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; border-left: 4px solid #ef4444;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      {{ uploadErrorMessage }}
+    </div>
     }
 
     @if (uploadSuccessMessage) {
-      <div style="background: #dcfce3; color: #166534; padding: 12px 16px; border-radius: 0; font-size: 14px; font-weight: 500; margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-        {{ uploadSuccessMessage }}
-      </div>
+    <div
+      style="background: #dcfce3; color: #166534; padding: 12px 16px; border-radius: 0; font-size: 14px; font-weight: 500; margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+      </svg>
+      {{ uploadSuccessMessage }}
+    </div>
     }
 
     <div style="display: flex; gap: 12px; justify-content: flex-end;">
@@ -6411,10 +6436,10 @@
         [style.opacity]="(!additionalDocFile || isUploadingAdditionalDoc || uploadSuccessMessage !== null) ? '0.7' : '1'"
         [style.cursor]="(!additionalDocFile || isUploadingAdditionalDoc || uploadSuccessMessage !== null) ? 'not-allowed' : 'pointer'">
         @if (isUploadingAdditionalDoc) {
-          <div class="upload-spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>
-          Uploading...
+        <div class="upload-spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>
+        Uploading...
         } @else {
-          Upload Document
+        Upload Document
         }
       </button>
     </div>

@@ -351,6 +351,7 @@ export class AgentDashboard implements OnInit {
     return this.students.filter(s => s.applicationStatus === 'TRAVELLING').length;
   }
   isNewsModalOpen = false;
+  newsDisplayLimit = 50;
   isSupportModalOpen = false;
 
   // --- Stats & Widgets ---
@@ -2974,6 +2975,34 @@ export class AgentDashboard implements OnInit {
 
   closeNewsModal() {
     this.isNewsModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  clearNotification(id: number, event: Event) {
+    event.stopPropagation();
+    this.http.delete(environment.apiUrl + `/api/notifications/${id}`).subscribe({
+      next: () => {
+        this.newsItems = this.newsItems.filter(item => item.id !== id);
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to clear notification', err)
+    });
+  }
+
+  clearAllNotifications() {
+    const userJson = localStorage.getItem('user');
+    const username = userJson ? JSON.parse(userJson).username : (this.agentData?.userId || this.agentData?.email);
+    
+    if (!username) return;
+
+    this.http.delete(environment.apiUrl + `/api/notifications/user/${username}`).subscribe({
+      next: () => {
+        // Remove only notifications (tag === 'document'), keep news
+        this.newsItems = this.newsItems.filter(item => item.tag !== 'document');
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to clear all notifications', err)
+    });
   }
 
   // --- Referral Link Logic ---
