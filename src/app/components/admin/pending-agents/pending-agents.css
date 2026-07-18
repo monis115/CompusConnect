@@ -188,7 +188,9 @@
   border-radius: 12px;
   width: 100%;
   max-width: 800px;
-  max-height: 150vh;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
   pointer-events: auto;
@@ -215,6 +217,7 @@
   padding: 1.5rem 2rem;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
+  flex-shrink: 0;
 }
 
 .pa-modal-header h2 {
@@ -251,6 +254,7 @@
   padding: 1.25rem 2rem;
   background: #f1f5f9;
   border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
 .pa-agent-summary h3 {
@@ -267,6 +271,8 @@
 
 .pa-details-content {
   padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .pa-section {
@@ -440,6 +446,7 @@
   padding: 1.5rem 2rem;
   border-top: 1px solid #e2e8f0;
   background: #f8fafc;
+  flex-shrink: 0;
 }
 
 .pa-btn {
